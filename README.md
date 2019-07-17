@@ -19,8 +19,10 @@ The following dependencies are required:
 - gcMapExplorer<sup>[[publication][gcmapexplorer-publication]][[installation][gcmapexplorer-installation]]</sup>
 
     ```bash
-    pip3 install Cython gcMapExplorer
+    pip3 install Cython
+    pip3 install gcMapExplorer
     ```
+    (If you install both packages simultaneously, stupid `pip3` will fail to find `Cython`.)
 
     On macOS, you might need this preliminary (with homebrew):
     ```bash
