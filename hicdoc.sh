@@ -60,6 +60,14 @@ printf "\n\e[1;32mDetecting compartments\e[0m\n"
   --silhouette "$outdir"/silhouette.tsv \
   --distances "$outdir"/distance1.tsv "$outdir"/distance2.tsv
 
+printf "\n\e[1;32mComputing p-values\e[0m\n"
+
+"$scriptdir"/find_p_values.R \
+  --compartments "$outdir"/compartments.tsv \
+  --concordance "$outdir"/concordance.tsv \
+  --pvalues "$outdir"/pvalues.bed \
+  --distribution "$outdir"/distribution.png
+
 printf "\n\e[1;32mPlotting compartment changes\e[0m\n"
 
 "$scriptdir"/plot_compartment_changes.py \
