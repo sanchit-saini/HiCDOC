@@ -86,7 +86,7 @@ output <- outputTidy %>% spread(replicate, values)
 # Write to output
 writeLines(comments, argv$output)
 
-write_tsv(output,
+write_tsv(format(as.data.frame(output), scientific = FALSE),
           path = argv$output,
           quote_escape = FALSE,
           col_names = TRUE,
