@@ -4,6 +4,7 @@ library('argparser')
 library('ggplot2')
 library('tidyr')
 library('dplyr')
+library('readr')
 
 
 parser <- arg_parser("Find suitable p-values")
@@ -18,13 +19,15 @@ parser <- add_argument(parser = parser, arg = "--distribution",
                        help = "Output plot")
 argv <- parse_args(parser)
 
+#argv <- parse_args(parser, c("--concordance",  "/home/mazytnicki/Desktop/Projects/Kurylo/Test/concordance.tsv",
+#                             "--compartments", "/home/mazytnicki/Desktop/Projects/Kurylo/Test/compartments.tsv"))
+
 # Read concordance
-concordance <- as_tibble(lapply(read.table(
+concordance <- read_tsv(
   file = argv$concordance,
-  sep = '\t',
-  comment.char = '#',
-  header = TRUE
-), as.double))
+  comment = '#',
+  col_names = TRUE
+)
 
 # Compute median of differences
 median_conc <- concordance %>%
@@ -46,18 +49,18 @@ p <- ggplot(diff, aes(x = values)) + geom_histogram() +
 ggsave(argv$distribution, p)
 
 # Read compartments
-compartments <- as_tibble(lapply(read.table(file = argv$compartments,
-                                            sep = '\t',
-                                            comment.char = '#',
-                                            header = TRUE),
-                                 as.integer))
+compartments <- read_tsv(file = argv$compartments,
+                         comment = '#',
+                         col_names = TRUE)
 
 # Compute number of compartments
 step <- compartments$position[2] - compartments$position[1]
 pvalues <- compartments %>%
   gather("replicate", "values", 3:ncol(compartments)) %>%
   group_by(.dots = c("chromosome", "position")) %>%
-  summarize(nCompartments = n_distinct(values)) %>%
+  separate("replicate", c(NA, "condition", "replicate")) %>%
+  summarize(nCompartments = n_distinct(values),
+            compartment = first(values)) %>%
   ungroup() %>%
   left_join(diff, by = c("chromosome", "position")) %>%
   rename(start = position) %>%
@@ -65,14 +68,15 @@ pvalues <- compartments %>%
   mutate(name = paste0("bin_", row_number())) %>%
   mutate(percentRank = percent_rank(values)) %>%
   filter(nCompartments == 2) %>%
-  mutate(pvalue = ifelse(percentRank < 0.5,
+  mutate(pvalue = if_else(percentRank < 0.5,
                          2 * percentRank,
                          2 * (1 - percentRank))) %>%
-  mutate(pvalue = ifelse(pvalue < 0, 0, pvalue)) %>%
-  mutate(pvalue = ifelse(pvalue > 1, 1, pvalue)) %>%
+  mutate(pvalue = if_else(pvalue < 0, 0, pvalue)) %>%
+  mutate(pvalue = if_else(pvalue > 1, 1, pvalue)) %>%
   mutate(strand = ".") %>%
   mutate(padj = p.adjust(pvalue, method = "BH")) %>%
-  select(-c(nCompartments, values, percentRank, pvalue))
+  mutate(padj = if_else(compartment == 1, -padj, padj)) %>%
+  select(-c(nCompartments, compartment, values, percentRank, pvalue))
 
 # Write bed file
 write.table(format(as.data.frame(pvalues), scientific = FALSE),
