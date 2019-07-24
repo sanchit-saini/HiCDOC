@@ -41,9 +41,9 @@ printf "\n\e[1;32mNormalizing technical biases with cyclic loess\e[0m\n"
 
 printf "\n\e[1;32mNormalizing biological biases with Knight-Ruiz\e[0m\n"
 
-"$scriptdir"/normalize_knight_ruiz.py \
-  -i "$outdir"/normalized.tsv \
-  -o "$outdir"/normalized.tsv
+"$scriptdir"/normalize_knight_ruiz.R \
+  --input "$outdir"/normalized.tsv \
+  --output "$outdir"/normalized.tsv
 
 printf "\n\e[1;32mNormalizing distance effect with combined RNR\e[0m\n"
 
@@ -70,9 +70,8 @@ printf "\n\e[1;32mComputing p-values\e[0m\n"
 
 printf "\n\e[1;32mPlotting compartment changes\e[0m\n"
 
-"$scriptdir"/plot_compartment_changes.py \
-  -i "$outdir"/compartments.tsv \
-  -p "$outdir"/compartments \
+"$scriptdir"/plot_compartment_changes.R \
+  --compartments "$outdir"/compartments.tsv \
   --concordance "$outdir"/concordance.tsv \
-  --silhouette "$outdir"/silhouette.tsv \
-  --distances "$outdir"/distance1.tsv "$outdir"/distance2.tsv
+  --pvalues "$outdir"/pvalues.bed \
+  --output "$outdir"/output.html
