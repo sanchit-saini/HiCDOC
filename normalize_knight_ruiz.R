@@ -14,8 +14,8 @@ parser <- add_argument(parser = parser, arg = "--output",
                        help = "Output matrix")
 argv <- parse_args(parser)
 
-argv <- parse_args(parser, c("--input",  "/home/mazytnicki/Desktop/Projects/Kurylo/Test/normalized.tsv",
-                             "--output", "/home/mazytnicki/Desktop/Projects/Kurylo/Test/test.tsv"))
+# argv <- parse_args(parser, c("--input",  "/home/mazytnicki/Desktop/Projects/Kurylo/Test/normalized.tsv",
+#                              "--output", "/home/mazytnicki/Desktop/Projects/Kurylo/Test/test.tsv"))
 
 # Read input
 input <- read_tsv(

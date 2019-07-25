@@ -47,9 +47,11 @@ printf "\n\e[1;32mNormalizing biological biases with Knight-Ruiz\e[0m\n"
 
 printf "\n\e[1;32mNormalizing distance effect with combined RNR\e[0m\n"
 
-"$scriptdir"/normalize_distance_rnr_combined.py \
-  -i "$outdir"/normalized.tsv \
-  -o "$outdir"/normalized.tsv
+"$scriptdir"/normalize_distance_rnr_combined.R \
+  --input "$outdir"/normalized.tsv \
+  --output "$outdir"/normalized.tsv \
+  --before "$outdir"/test_before.png \
+  --after "$outdir"/test_after.png
 
 printf "\n\e[1;32mDetecting compartments\e[0m\n"
 
