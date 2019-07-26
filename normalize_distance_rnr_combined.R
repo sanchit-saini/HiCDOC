@@ -37,24 +37,24 @@ input <- read_tsv(
 )
 
 # Save comment lines before header
-comments = c()
-lines = file(argv$input, 'r')
-while (TRUE) {
-  line = readLines(lines, 1)
-  if (grepl('^#', line)) {
-    comments = c(comments, line)
-  }
-  else {
-    break
-  }
-}
+# comments = c()
+# lines = file(argv$input, 'r')
+# while (TRUE) {
+#   line = readLines(lines, 1)
+#   if (grepl('^#', line)) {
+#     comments = c(comments, line)
+#   }
+#   else {
+#     break
+#   }
+# }
 
 head(input)
 
 step <- min(input$`position 1`[input$`position 1` > 0])
 input_tidy <- input %>%
   gather(4:ncol(.), key = "replicate", value = "values") %>%
-  mutate(distance = abs(`position 1` - `position 2`))
+  mutate(distance = `position 2` - `position 1`)
 
 head(input_tidy)
 
@@ -167,10 +167,9 @@ output %<>%
   spread(replicate, ratio)
   
 # Write to output
-writeLines(comments, argv$output)
+#writeLines(comments, argv$output)
 
 write_tsv(format(as.data.frame(output), scientific = FALSE),
           path = argv$output,
           quote_escape = FALSE,
-          col_names = TRUE,
-          append = TRUE)
+          col_names = TRUE)

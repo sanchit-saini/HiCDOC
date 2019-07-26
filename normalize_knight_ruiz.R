@@ -27,17 +27,17 @@ input <- read_tsv(
 head(input)
 
 # Save comment lines before header
-comments = c()
-lines = file(argv$input, 'r')
-while (TRUE) {
-  line = readLines(lines, 1)
-  if (grepl('^#', line)) {
-    comments = c(comments, line)
-  }
-  else {
-    break
-  }
-}
+# comments = c()
+# lines = file(argv$input, 'r')
+# while (TRUE) {
+#   line = readLines(lines, 1)
+#   if (grepl('^#', line)) {
+#     comments = c(comments, line)
+#   }
+#   else {
+#     break
+#   }
+# }
 
 step <- min(input$`position 1`[input$`position 1` > 0])
 input %<>%
@@ -62,6 +62,7 @@ for (chr in unique(input$chromosome)) {
     mat <- matrix(0, nrow = n, ncol = n)
     tmp <- as.matrix(inputReplicate)
     mat[ tmp[, 1:2] ] <- tmp[, 3]
+    mat[ rev(tmp[, 1:2]) ] <- tmp[, 3]
     nullRows <- which(colSums(mat) == 0)
     mat[nullRows, nullRows] <- 1
     matKR <- KRnorm(mat)
@@ -77,17 +78,30 @@ for (chr in unique(input$chromosome)) {
     outputTidy %<>% bind_rows(tmpOutput)
   }
 }
-outputTidy %<>% mutate(`position 1` = (`bin1` - 1) * step,
+message("Here 1")
+outputTidy %<>%
+  filter(bin1 <= bin2) %>%
+  filter(rowSums(.[4:(ncol(.)-2)]) != 0.0) %>%
+  mutate(`position 1` = (`bin1` - 1) * step,
                        `position 2` = (`bin2` - 1) * step) %>%
   select(-c(`bin1`, `bin2`))
 
-output <- outputTidy %>% spread(replicate, values)
+message("Here 2")
+message(nrow(outputTidy))
+message(ncol(outputTidy))
+
+write_tsv(outputTidy, path="/home/mazytnicki/Desktop/Projects/Kurylo/Test/tmp.tsv")
+
+output <- outputTidy %>%
+  spread(replicate, values)
+
+message("Colnames of output")
+message(colnames(output))
 
 # Write to output
-writeLines(comments, argv$output)
+# writeLines(comments, argv$output)
 
 write_tsv(format(as.data.frame(output), scientific = FALSE),
           path = argv$output,
           quote_escape = FALSE,
-          col_names = TRUE,
-          append = TRUE)
+          col_names = TRUE)

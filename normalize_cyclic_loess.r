@@ -10,6 +10,9 @@ parser$add_argument('-i', required=TRUE, help='Input matrix')
 parser$add_argument('-o', required=TRUE, help='Output matrix')
 args = parser$parse_args()
 
+message(paste0("Input file: ", args$i))
+message(paste0("Output file: ", args$o))
+
 # Read input
 input = read.table(
   file = args$i,
@@ -19,17 +22,17 @@ input = read.table(
 )
 
 # Save comment lines before header
-comments = c()
-lines = file(args$i, 'r')
-while (TRUE) {
-  line = readLines(lines, 1)
-  if (grepl('^#', line)) {
-    comments = c(comments, line)
-  }
-  else {
-    break
-  }
-}
+# comments = c()
+# lines = file(args$i, 'r')
+# while (TRUE) {
+#   line = readLines(lines, 1)
+#   if (grepl('^#', line)) {
+#     comments = c(comments, line)
+#   }
+#   else {
+#     break
+#   }
+# }
 
 # Determine replicates
 replicates = as.vector(sapply(names(input[,4:ncol(input)]), function(x) {
@@ -65,14 +68,17 @@ names(normalized_df) = c(
   paste(rep('replicate', length(replicates)), replicates)
 )
 
+message("Normalize cyclic loess writing to output")
+
 # Write to output
-writeLines(comments, args$o)
+#writeLines(comments, args$o)
 
 write.table(
   normalized_df,
   file = args$o,
   quote = FALSE,
   sep = '\t',
-  row.names = FALSE,
-  append = TRUE
+  row.names = FALSE
 )
+
+message("Done cyclic loess")
