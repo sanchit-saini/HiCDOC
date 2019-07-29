@@ -55,12 +55,18 @@ printf "\n\e[1;32mNormalizing distance effect with combined RNR\e[0m\n"
 
 printf "\n\e[1;32mDetecting compartments\e[0m\n"
 
-"$scriptdir"/detect_constrained_k_means.py \
-  -i "$outdir"/normalized.tsv \
-  -o "$outdir"/compartments.tsv \
+"$scriptdir"/detect_constrained_k_means.R \
+  --input "$outdir"/normalized.tsv \
+  --compartments "$outdir"/compartments.tsv \
   --concordance "$outdir"/concordance.tsv \
-  --silhouette "$outdir"/silhouette.tsv \
-  --distances "$outdir"/distance1.tsv "$outdir"/distance2.tsv
+  --distance1 "$outdir"/distance1.tsv \
+  --distance2 "$outdir"/distance2.tsv
+# "$scriptdir"/detect_constrained_k_means.py \
+#   -i "$outdir"/normalized.tsv \
+#   -o "$outdir"/compartments.tsv \
+#   --concordance "$outdir"/concordance.tsv \
+#   --silhouette "$outdir"/silhouette.tsv \
+#   --distances "$outdir"/distance1.tsv "$outdir"/distance2.tsv
 
 printf "\n\e[1;32mComputing p-values\e[0m\n"
 
