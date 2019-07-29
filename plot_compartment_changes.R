@@ -20,9 +20,9 @@ parser <- add_argument(parser = parser, arg = "--output",
                        help = "Output plot")
 argv <- parse_args(parser)
 
-# argv <- parse_args(parser, c("--concordance",  "/home/mazytnicki/Desktop/Projects/Kurylo/Test/concordance.tsv",
-#                              "--compartments", "/home/mazytnicki/Desktop/Projects/Kurylo/Test/compartments.tsv",
-#                              "--pvalues",      "/home/mazytnicki/Desktop/Projects/Kurylo/Test/pvalues.bed"))
+argv <- parse_args(parser, c("--concordance",  "/home/mazytnicki/Desktop/Projects/Kurylo/Test/concordance.tsv",
+                             "--compartments", "/home/mazytnicki/Desktop/Projects/Kurylo/Test/compartments.tsv",
+                             "--pvalues",      "/home/mazytnicki/Desktop/Projects/Kurylo/Test/pvalues.bed"))
 
 # Read concordance
 concordance <- read_tsv(
@@ -52,15 +52,20 @@ compartments %<>%
   separate(replicate, c(NA, "condition", NA))
 
 # Read p-values
-read_tsv(
-  file = argv$pvalues,
-  comment = '#',
-  col_names = FALSE
-) %>%
-  rename(chromosome = X1,
-         position = X2, 
-         pvalue = X6) %>%
-  select(-c(X3, X4, X5)) -> pvalues
+pvalues <- read_tsv(
+    file = argv$pvalues,
+    comment = '#',
+    col_names = FALSE
+  )
+
+if (nrow(pvalues) > 0) {
+  pvalues %<>%
+    rename(chromosome = X1,
+           position = X2, 
+           pvalue = X6) %>%
+    select(-c(X3, X4, X5))
+}
+
 
 # as_tibble(read.table(
 #   file = argv$pvalues,
@@ -172,11 +177,6 @@ empty_ax <- list(
 
 compartmentsChanges <- pvalues %>%
   mutate("logPV" = sign(pvalue) * (-log10(abs(pvalue) + 0.00000001)))
-head(compartmentsChanges)
-min(compartmentsChanges$logPV)
-max(compartmentsChanges$logPV)
-compartmentsChanges %>% arrange(logPV) %>% head()
-compartmentsChanges %>% arrange(logPV) %>% tail()
 
 compartmentsChanges %>%
   plot_ly(x = ~position,
@@ -260,3 +260,4 @@ subplot(pCompartmentsChanges, pCompartments, nrows = 2, shareX = TRUE, heights =
 subplot(pHeader, pConcordance, nrows = 2, shareX = TRUE, titleX = TRUE, titleY = TRUE, heights = c(0.3, 0.6)) %>% layout(autosize = F, width = 1000, height = 1000) -> p
 
 htmlwidgets::saveWidget(p, argv$output, knitrOptions = list(out.width = 20, out.height = 20))
+
