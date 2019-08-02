@@ -1,6 +1,7 @@
 ##- Parse input data ---------------------------------------------------------#
 ##----------------------------------------------------------------------------#
 
+#' @export
 parseInteractionMatrix3Columns <- function(object) {
     object@interactionMatrix <- read_tsv(
         file = object@inputMatrixPath,

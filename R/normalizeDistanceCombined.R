@@ -83,6 +83,7 @@ normalizeSample <- function(object) {
 
 #output <- normalizeMean(input_tidy)
 
+#' @export
 normalizeDistanceCombined <- function(object) {
 
   object@interactionMatrix %<>%

@@ -1,3 +1,4 @@
+#' @export
 plotCompartmentChanges <- function(object) {
 
   theme_set(theme_minimal())

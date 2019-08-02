@@ -1,3 +1,4 @@
+#' @export
 normalizeCyclicLoess <- function(object) {
   matrix <- object@interactionMatrix %>%
     spread(replicate, value)

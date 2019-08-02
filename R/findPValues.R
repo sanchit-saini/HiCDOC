@@ -1,3 +1,4 @@
+#' @export
 findPValues <- function(object) {
   # Compute differences of concordances
   differences <- object@concordances %>%

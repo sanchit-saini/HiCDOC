@@ -8,6 +8,7 @@ concordanceFunction <- function(x, p1, p2) {
 }
 
 
+#' @export
 detectConstrainedKMeans <- function(object) {
   input <- object@interactionMatrix %>%
     mutate(bin1 = `position 1` / object@binSize + 1) %>%

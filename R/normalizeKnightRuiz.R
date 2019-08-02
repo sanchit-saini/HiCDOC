@@ -1,3 +1,4 @@
+#' @export
 normalizeKnightRuiz <- function(object) {
   input <- object@interactionMatrix %>%
     mutate(bin1 = `position 1` / object@binSize + 1) %>%

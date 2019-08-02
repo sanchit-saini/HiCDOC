@@ -1,3 +1,4 @@
+#' @export
 plotInteractionMatrix <- function(object, log) {
 
     fullMatrix <- object@interactionMatrix %>%
@@ -25,6 +26,7 @@ plotInteractionMatrix <- function(object, log) {
     return(p)
 }
 
+#' @export
 plotMD <- function(object) {
   p <- object@interactionMatrix %>%
     mutate(distance = `position 2` - `position 1`) %>%
@@ -36,6 +38,7 @@ plotMD <- function(object) {
   return(p)
 }
 
+#' @export
 plotConcordances <- function(object) {
 
   changed <- object@DIR %>%
