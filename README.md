@@ -77,7 +77,7 @@ object <- detectConstrainedKMeans(object)
 object <- findPValues(object)
 plotConcordances(object)
 plotCompartmentChanges(object)
-DIR(object, pvalue = 0.05)
+DIR(object, pvalue = 1)
 concordances(object)
 compartments(object)
 ```
