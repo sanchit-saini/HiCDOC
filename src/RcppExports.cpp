@@ -5,23 +5,27 @@
 
 using namespace Rcpp;
 
-// rcpp_hello_world
-List rcpp_hello_world();
-RcppExport SEXP _Tmp_rcpp_hello_world() {
+// constrainedClustering
+IntegerVector constrainedClustering(NumericMatrix& matrix, IntegerMatrix& links, double maxDistance, int maxIterations);
+RcppExport SEXP _HiCDOC_constrainedClustering(SEXP matrixSEXP, SEXP linksSEXP, SEXP maxDistanceSEXP, SEXP maxIterationsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(rcpp_hello_world());
+    Rcpp::traits::input_parameter< NumericMatrix& >::type matrix(matrixSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix& >::type links(linksSEXP);
+    Rcpp::traits::input_parameter< double >::type maxDistance(maxDistanceSEXP);
+    Rcpp::traits::input_parameter< int >::type maxIterations(maxIterationsSEXP);
+    rcpp_result_gen = Rcpp::wrap(constrainedClustering(matrix, links, maxDistance, maxIterations));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_Tmp_rcpp_hello_world", (DL_FUNC) &_Tmp_rcpp_hello_world, 0},
+    {"_HiCDOC_constrainedClustering", (DL_FUNC) &_HiCDOC_constrainedClustering, 4},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_Tmp(DllInfo *dll) {
+RcppExport void R_init_HiCDOC(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
