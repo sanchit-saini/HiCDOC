@@ -8,7 +8,7 @@ with multiple replicates using unsupervised learning.
 ## Installation
 
 - Open `R`
-- Install `devtools` if is not already installed
+- Install `devtools` if not already installed
 
     ```R
     install.packages("devtools")
