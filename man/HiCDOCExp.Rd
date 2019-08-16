@@ -7,7 +7,7 @@
 \alias{show,HiCDOCExp-method}
 \title{Infrastructure for HiCDOC experiment and differential interaction}
 \usage{
-HiCDOCExp(matrix = NULL, sampleSize = 20000, loessSpan = 0.75)
+HiCDOCExp(dataSet = NULL, parameters = NULL, binSize = NULL)
 
 \S4method{show}{HiCDOCExp}(object)
 }

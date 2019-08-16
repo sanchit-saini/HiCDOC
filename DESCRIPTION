@@ -17,6 +17,7 @@ SystemRequirements: C++11
 Imports:
     Rcpp (>= 0.12.8),
     methods,
+    rhdf5,
     devtools,
     tibble,
     dplyr,

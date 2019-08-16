@@ -1,6 +1,23 @@
 #' @export
 plotCompartmentChanges <- function(object) {
 
+  if (is.null(object@interactionMatrix)) {
+    stop(paste0("Interaction matrix is not loaded yet.  ",
+                "Please provide a matrix first."))
+  }
+  if (is.null(object@DIR)) {
+    stop(paste0("Differentially interacting regions are not computed.  ",
+                "Please run 'findPValues' first."))
+  }
+  if (is.null(object@concordances)) {
+    stop(paste0("Concordance is not computed.  ",
+                "Please run 'detectConstrainedKMeans' first."))
+  }
+  if (is.null(object@compartments)) {
+    stop(paste0("Compartments are not computed.  ",
+                "Please run 'detectConstrainedKMeans' first."))
+  }
+
   theme_set(theme_minimal())
 
   plots <- lapply(object@chromosomes,
@@ -14,7 +31,8 @@ plotCompartmentChanges <- function(object) {
 
 
                     pConcordance <- object@concordances %>%
-                        separate("replicate", c(NA, "condition", "replicate")) %>%
+                        separate("replicate",
+                                 c(NA, "condition", "replicate")) %>%
                         filter(chromosome == chr) %>%
                         ggplot(aes(x = position, y = value, color = replicate)) +
                           geom_line() +

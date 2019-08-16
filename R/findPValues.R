@@ -1,5 +1,19 @@
 #' @export
 findPValues <- function(object) {
+
+  if (is.null(object@interactionMatrix)) {
+    stop(paste0("Interaction matrix is not loaded yet.  ",
+                "Please provide a matrix first."))
+  }
+  if (is.null(object@concordances)) {
+    stop(paste0("Concordance is not computed.  ",
+                "Please run 'detectConstrainedKMeans' first."))
+  }
+  if (is.null(object@compartments)) {
+    stop(paste0("Compartments are not computed.  ",
+                "Please run 'detectConstrainedKMeans' first."))
+  }
+
   # Compute differences of concordances
   differences <- object@concordances %>%
     separate("replicate", c(NA, "condition", "replicate")) %>%

@@ -42,6 +42,7 @@
 #' @author Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac
 #'
 #' @import methods
+#' @import rhdf5
 #' @import devtools
 #' @import tibble
 #' @import dplyr
@@ -57,6 +58,7 @@
 #' @import hexbin
 #' @import cowplot
 #' @import GenomicRanges
+#' @import BiocParallel
 #' @importFrom BiocManager version
 #' @importFrom Rcpp evalCpp sourceCpp
 #' @useDynLib HiCDOC

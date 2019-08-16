@@ -54,7 +54,12 @@ setMethod(f = "DIR", signature = "HiCDOCExp",
                 if (is.null(object@DIR)) {
                     message("No 'DIR' slot found in the HiCDOCExp",
                             " object. Run HiCDOC first.")
-                } else {
+                }
+                else if (length(object@DIR) == 0) {
+                    message("No 'DIR' found.")
+                    return(GRanges())
+                }
+                else {
                     ##- checking input value ---------------------------------#
                     ##--------------------------------------------------------#
                     if (length(pvalue) != 1) {
@@ -74,10 +79,18 @@ setMethod(f = "DIR", signature = "HiCDOCExp",
 
                     gr <- object@DIR %>%
                         filter(abs(padj) <= pvalue) %>%
-                        mutate(start = start + 1) %>%
-                        makeGRangesFromDataFrame(keep.extra.columns = TRUE,
-                                                 ignore.strand = TRUE)
-                    return(gr)
+                        mutate(start = start + 1)
+                    if (nrow(gr) == 0) {
+                        message(paste0("No 'DIR' found at p-value ",
+                                       pvalue,
+                                       ": best is: ",
+                                       min(abs(object@DIR$padj)),
+                                       "."))
+                        return(GRanges())
+                    }
+                    return (makeGRangesFromDataFrame(gr,
+                                                     keep.extra.columns = TRUE,
+                                                     ignore.strand = TRUE))
                 }
             }
 )
