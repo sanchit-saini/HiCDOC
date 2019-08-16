@@ -39,6 +39,8 @@ custom pipeline.
 
 ## Input format
 
+### Table format
+
 Each script accepts a tab-separated multi-replicate sparse matrix with a header
 line and optional comment lines.
 
@@ -52,6 +54,22 @@ The interaction proportions between `position 1` and `position 2` are reported
 in each replicate column, named `replicate <condition.replicate>`. There is no
 limit to the number of replicates and conditions.
 
+### Cool files
+
+Files with the [cool format](https://github.com/mirnylab/cooler/) can also be used.
+Call the function `HiCDOCDataSetFromCool` this way:
+
+```R
+HiCDOCDataSetFromCool(coolFiles, replicates, conditions)
+```
+    
+where:
+
+ - `coolFiles` is a vector containing the files names
+ - `replicates` is a vector containing the names of the replicates (such as `c("rep1_wt", "rep1_wt", ...)`)
+ - `conditions` is a vector containing the id of each condition (such as `c(1, 1, 1, 2, 2, 2)` if you have 3 replicates for each condition).
+ 
+
 ## Start with HiCDOC
 
 A small dataset is shipped with the package:
@@ -63,7 +81,6 @@ object <- HiCDOCExample()
 The usual pipeline is then:
 
 ```R
-object <- parseInteractionMatrix3Columns(object)
 plotInteractionMatrix(object, log = TRUE)
 object <- normalizeCyclicLoess(object)
 plotInteractionMatrix(object, log = TRUE)
@@ -82,6 +99,23 @@ concordances(object)
 compartments(object)
 ```
 
+### Load from sparse matrix
+
+Start you script with:
+```R
+dataSet <- HiCDOCDataSetFromSparseMatrix(matrix)
+object  <- HiCDOCExp(dataSet)
+```
+Then, follow the usual pipe-line.
+
+
+### Load from cool files
+
+Start you script with:
+```R
+dataSet <- HiCDOCDataSetFromCool(coolFiles, replicates, conditions)
+object  <- HiCDOCExp(dataSet)
+```
 
 ## References
 
