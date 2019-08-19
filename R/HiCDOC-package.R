@@ -56,7 +56,7 @@
 #' @import ggplot2
 #' @import ggExtra
 #' @import hexbin
-#' @import cowplot
+#' @import gridExtra
 #' @import GenomicRanges
 #' @import BiocParallel
 #' @importFrom BiocManager version

@@ -18,12 +18,13 @@ plotInteractionMatrix <- function(object, log) {
   for (chr in object@chromosomes) {
     p <- fullMatrix %>%
       filter(chromosome == chr) %>%
+      unite(repCond, c(condition, replicate)) %>%
       ggplot(aes(x = `position 1`, y = `position 2`, z = intensity)) +
         geom_tile(aes(fill = intensity)) +
         coord_fixed(ratio = 1) +
         theme_bw() +
         labs(x = "", y = "") +
-        facet_grid(cols = vars(replicate), rows = vars(chromosome))
+        facet_grid(cols = vars(repCond))
     if (log) {
       p <- p + scale_fill_gradient(low = "white", high = "blue", trans = "log2")
     }

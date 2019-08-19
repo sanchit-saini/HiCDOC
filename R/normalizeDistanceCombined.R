@@ -29,7 +29,7 @@ normalizeMean <- function(object) {
 normalizeSample <- function(object) {
 
   inputSampled <- object@interactionMatrix %>%
-    select(-c(chromosome, replicate, `position 1`, `position 2`)) %>%
+    select(-c(chromosome, condition, replicate, `position 1`, `position 2`)) %>%
     sample_n(size = min(object@sampleSize, nrow(object@interactionMatrix))) %>%
     rename(sampledDistance = distance) %>%
     select(c(sampledDistance, value)) %>%
@@ -81,7 +81,6 @@ normalizeSample <- function(object) {
   return(object)
 }
 
-#output <- normalizeMean(input_tidy)
 
 #' @export
 normalizeDistanceCombined <- function(object) {

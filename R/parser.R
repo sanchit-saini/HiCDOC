@@ -27,7 +27,11 @@ parseInteractionMatrix3Columns <- function(object) {
              'replicate 1.1', 'replicate 1.2', etc.", call. = FALSE)
     }
     object@interactionMatrix %<>%
-        gather(object@replicates, key = "replicate", value = "value")
+        gather(object@replicates, key = "replicate", value = "value") %>%
+        separate(replicate, c(NA, "condition", "replicate")) %>%
+        mutate(chromosome = factor(chromosome),
+               condition = factor(condition),
+               replicate = factor(replicate))
     return(object)
 }
 

@@ -22,7 +22,7 @@ detectConstrainedKMeans <- function(object) {
   object@concordances <- tibble()
 
   replicates <- unlist(lapply(c(1, 2),
-                       function (x) {
+                       function(x) {
                            paste0("replicate ",
                                   x,
                                   ".",
@@ -37,9 +37,10 @@ detectConstrainedKMeans <- function(object) {
     bigmat <- matrix(nrow = 0, ncol = n)
     for (conditionId in c(1, 2)) {
       for (replicateId in seq.int(object@nReplicatesPerCond[conditionId])) {
-        rep <- paste0("replicate ", conditionId, ".", replicateId)
+        message(c("Replicate ", conditionId, ".", replicateId))
         inputReplicate <- inputChromosome %>%
-          filter(replicate == rep) %>%
+          filter(condition == conditionId) %>%
+          filter(replicate == replicateId) %>%
           select(-c(chromosome, replicate, `position 1`, `position 2`)) %>%
           select(bin1, bin2, value)
         mat <- matrix(0, nrow = n, ncol = n)

@@ -83,49 +83,49 @@ KR <- function(A, tol = 1e-6, delta = 0.1, Delta = 3) {
 #' @export
 normalizeKnightRuiz <- function(object) {
   input <- object@interactionMatrix %>%
+    unite("condRep", c(condition, replicate)) %>%
     mutate(bin1 = `position 1` / object@binSize + 1) %>%
     mutate(bin2 = `position 2` / object@binSize + 1)
+  condReps <- unique(input$condRep)
 
   outputTidy <- tibble()
   for (chr in object@chromosomes) {
     inputChromosome <- filter(input, chromosome == chr) %>%
-      spread(replicate, value)
+      spread(condRep, value)
     inputReplicate  <- tibble(bin1 = inputChromosome$bin1,
                               bin2 = inputChromosome$bin2,
                               data = 0)
     n <- max(inputChromosome$bin1, inputChromosome$bin2)
     message(paste0("Chromosome ", chr, ", of dim. ", n))
-    for (conditionId in c(1, 2)) {
-      for (replicateId in seq.int(object@nReplicatesPerCond[conditionId])) {
-        replicate <- paste0("replicate ", conditionId, ".", replicateId)
-        message(paste0("  Replicate ", replicate))
-        inputReplicate$data <- inputChromosome[[replicate]]
-        mat <- matrix(0, nrow = n, ncol = n)
-        tmp <- as.matrix(inputReplicate)
-        mat[ tmp[, 1:2] ] <- tmp[, 3]
-        mat <- mat + t(mat) - diag(diag(mat))
-        if (!isSymmetric(mat)) {
-          stop("Matrix is not symmetric.")
-        }
-        nullRows <- which((colSums(mat) == 0) | (rowSums(mat) == 0))
-        if (length(nullRows) > 0) {
-          message(paste0("    ",
-                         length(nullRows),
-                         " rows/columns are empty."))
-        }
-        diag(mat)[nullRows] <- 1
-        matKR <- KR(mat)
-        matKR[nullRows, ] <- 0
-        matKR[, nullRows] <- 0
-        vecKR <- as.vector(t(matKR))
-        vecKR[is.na(vecKR)] <- 0
-        tmpOutput <- tibble(chromosome = chr,
-                            bin1 = rep(seq(n), each = n),
-                            bin2 = rep(seq(n), times = n),
-                            replicate = replicate,
-                            value = vecKR)
-        outputTidy %<>% bind_rows(tmpOutput)
+    for (condRep in condReps) {
+      message(paste0("  Replicate ", condRep))
+      inputReplicate$data <- inputChromosome[[condRep]]
+      mat <- matrix(0, nrow = n, ncol = n)
+      tmp <- as.matrix(inputReplicate)
+      mat[ tmp[, 1:2] ] <- tmp[, 3]
+      mat <- mat + t(mat) - diag(diag(mat))
+      if (!isSymmetric(mat)) {
+        stop("Matrix is not symmetric.")
       }
+      nullRows <- which((colSums(mat) == 0) | (rowSums(mat) == 0))
+      if (length(nullRows) > 0) {
+        message(paste0("    ",
+                       length(nullRows),
+                       " rows/columns are empty."))
+      }
+      diag(mat)[nullRows] <- 1
+      matKR <- KR(mat)
+      matKR[nullRows, ] <- 0
+      matKR[, nullRows] <- 0
+      vecKR <- as.vector(t(matKR))
+      vecKR[is.na(vecKR)] <- 0
+      tmpOutput <- tibble(chromosome = chr,
+                          bin1 = rep(seq(n), each = n),
+                          bin2 = rep(seq(n), times = n),
+                          condRep = condRep,
+                          value = vecKR) %>%
+        separate(condRep, c("condition", "replicate"))
+      outputTidy %<>% bind_rows(tmpOutput)
     }
   }
   outputTidy %<>%
@@ -133,9 +133,12 @@ normalizeKnightRuiz <- function(object) {
     filter(value != 0.0) %>%
     mutate(`position 1` = (`bin1` - 1) * object@binSize,
                          `position 2` = (`bin2` - 1) * object@binSize) %>%
+    mutate(condition = factor(condition)) %>%
+    mutate(replicate = factor(replicate)) %>%
     select(-c(`bin1`, `bin2`))
 
-  object@interactionMatrix <- outputTidy
+  object@interactionMatrix <- outputTidy %>%
+    select(chromosome, `position 1`, `position 2`, condition, replicate, value)
 
   return(object)
 }

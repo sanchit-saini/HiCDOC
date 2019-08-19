@@ -47,7 +47,8 @@ plotCompartmentChanges <- function(object) {
                                 panel.grid.minor.y = element_blank(),
                                 legend.position = "bottom",
                                 strip.text.y = element_blank(),
-                                plot.margin = unit(c(0, 0, 0, 0), "cm"))
+                                plot.margin = unit(c(0, 0, 0, 0), "cm"),
+                                panel.spacing = unit(0, "cm"))
 
                     pCompartment <- object@compartments %>%
                         filter(chromosome == chr) %>%
@@ -55,7 +56,8 @@ plotCompartmentChanges <- function(object) {
                         ggplot(aes(x = position, fill = compartment)) +
                           geom_histogram(binwidth = object@binSize) +
                           xlim(minX, maxX) +
-                          facet_grid(rows = vars(condition)) +
+                          facet_grid(rows = vars(condition),
+                                     margins = FALSE) +
                           theme(axis.title = element_blank(),
                                 axis.text = element_blank(),
                                 axis.line = element_blank(),
@@ -64,7 +66,8 @@ plotCompartmentChanges <- function(object) {
                                 panel.grid.minor.y = element_blank(),
                                 legend.position = "none",
                                 strip.text.y = element_blank(),
-                                plot.margin = unit(c(0, 0, 0, 0), "cm"))
+                                plot.margin = unit(c(0, 0, 0, 0), "cm"),
+                                panel.spacing = unit(0, "cm"))
 
                     pPvalue <- object@DIR %>%
                         filter(chromosome == chr) %>%
@@ -82,13 +85,21 @@ plotCompartmentChanges <- function(object) {
                                 panel.grid.major.y = element_blank(),
                                 panel.grid.minor.y = element_blank(),
                                 legend.position = "top",
-                                plot.margin = unit(c(0, 0, 0, 0), "cm"))
+                                plot.margin = unit(c(0, 0, 0, 0), "cm"),
+                                panel.spacing = unit(0, "cm"))
 
-                    plot_grid(pPvalue,
-                              pCompartment,
-                              pConcordance,
-                              ncol = 1,
-                              rel_heights = c(1, 1, 5))
+                    grid.arrange(pPvalue,
+                                 pCompartment,
+                                 pConcordance,
+                                 ncol = 1,
+                                 heights = c(1, 1, 5),
+                                 top = chr,
+                                 padding = unit(0, "cm"))
+                    # plot_grid(pPvalue,
+                    #           pCompartment,
+                    #           pConcordance,
+                    #           ncol = 1,
+                    #           rel_heights = c(1, 1, 5))
                   })
 
   names(plots) <- object@chromosomes
