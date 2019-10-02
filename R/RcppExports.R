@@ -5,3 +5,7 @@ constrainedClustering <- function(matrix, links, maxDistance, maxIterations, nRe
     .Call('_HiCDOC_constrainedClustering', PACKAGE = 'HiCDOC', matrix, links, maxDistance, maxIterations, nRestarts)
 }
 
+parseHic <- function(fname, resolution) {
+    .Call('_HiCDOC_parseHic', PACKAGE = 'HiCDOC', fname, resolution)
+}
+

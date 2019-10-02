@@ -12,7 +12,8 @@ HiCDOCDefaultParameters <- list(kMeansIterations = 50,
                                 kMeansDistance   = 0.0001,
                                 kMeansRestarts   = 10,
                                 sampleSize       = 20000,
-                                loessSpan        = 0.75)
+                                loessSpan        = 0.75,
+                                minNCounts       = 100)
 
 ###############################################################################
 ### HiCDOCDataSet S4 class definition
@@ -38,7 +39,8 @@ HiCDOCDefaultParameters <- list(kMeansIterations = 50,
 setClass("HiCDOCDataSet", slots = c(inputMatrixPath    = "ANY",
                                     interactionMatrix  = "ANY",
                                     replicates         = "ANY",
-                                    conditions         = "ANY")
+                                    conditions         = "ANY",
+                                    binSize            = "ANY")
 )
 
 
@@ -128,7 +130,7 @@ HiCDOCDataSetFromCool <- function(coolFileNames,
         stop("'coolFileNames' must be a vector.", call. = FALSE)
     }
     if (!is.character(coolFileNames)) {
-        stop("'coolFileNames' must be a vector characters.", call. = FALSE)
+        stop("'coolFileNames' must be a vector of characters.", call. = FALSE)
     }
     for (coolFileName in coolFileNames)
         if (!file.exists(coolFileName)) {
@@ -170,6 +172,101 @@ HiCDOCDataSetFromCool <- function(coolFileNames,
 }
 
 
+##- HiCDOCDataSet S4 class constructor from hic files ------------------------#
+##----------------------------------------------------------------------------#
+#' @rdname HiCDOCDataSetFromHic
+#' @docType class
+#'
+#' @param matrices s
+#'
+#' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
+#'         object of class S4.
+#'
+#' @examples
+#' basedir <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
+#' data    <- read.csv(file.path(basedir, "hicData.csv"))
+#' dataSet <- HiCDOCDataSetFromHic(file.path(basedir, data$FileName),
+#'                                  data$Replicate,
+#'                                  data$Condition,
+#'                                  100000)
+#' dataSet
+#'
+#' @export
+HiCDOCDataSetFromHic <- function(hicFileNames,
+                                 replicates,
+                                 conditions,
+                                 resolution) {
+
+    ##- checking general input arguments -------------------------------------#
+    ##------------------------------------------------------------------------#
+
+    ##- hicFileNames
+    if (is.null(hicFileNames)) {
+        stop("'hicFileNames' must be paths to hic files", call. = FALSE)
+    }
+    if (is.factor(hicFileNames)) {
+        hicFileNames <- as.vector(hicFileNames)
+    }
+    if (!is.vector(hicFileNames)) {
+        stop("'hicFileNames' must be a vector.", call. = FALSE)
+    }
+    if (!is.character(hicFileNames)) {
+        stop("'hicFileNames' must be a vector of characters.", call. = FALSE)
+    }
+    for (hicFileName in hicFileNames)
+        if (!file.exists(hicFileName)) {
+            stop(paste0("hic file name ",
+                        hicFileName,
+                        " is not a valid file."), call. = FALSE)
+        }
+
+    ##- conditions
+    if (is.null(conditions)) {
+        stop("'conditions' should not be null.", call. = FALSE)
+    }
+    if (is.factor(conditions)) {
+        conditions <- as.vector(conditions)
+    }
+    if (!is.integer(conditions)) {
+        stop("'replicates' should be a vector of integers.", call. = FALSE)
+    }
+    if (any(sort(unique(conditions)) != c(1, 2))) {
+        stop("'conditions' should be '1's or '2's.", call. = FALSE)
+    }
+    for (i in c(1, 2)) {
+        if (sum(conditions == i) < 2) {
+            stop(paste0("'conditions' should contain at least two '", i, "'s."),
+                 call. = FALSE)
+        }
+    }
+
+    ##- resolution
+    if (is.null(resolution)) {
+        stop("'resolution' should not be null.", call. = FALSE)
+    }
+    if (is.factor(resolution)) {
+        resolution <- as.vector(resolution)
+    }
+    if (!is.numeric(resolution)) {
+        stop("'resolution' should be an integer.", call. = FALSE)
+    }
+    if (length(resolution) != 1) {
+        stop("'resolution' should not be a vector.", call. = FALSE)
+    }
+
+    ##- end checking ---------------------------------------------------------#
+
+    object <- new("HiCDOCDataSet")
+
+    object@inputMatrixPath <- hicFileNames
+    object@replicates      <- replicates
+    object@conditions      <- conditions
+    object@binSize         <- resolution
+
+    object <- parseInteractionMatrixHic(object)
+
+    return(invisible(object))
+}
 
 ##- Example constructor ------------------------------------------------------#
 ##----------------------------------------------------------------------------#
@@ -240,6 +337,7 @@ setClass("HiCDOCExp", slots = c(inputMatrixPath    = "ANY",
                                 kMeansIterations   = "ANY",
                                 kMeansDistance     = "ANY",
                                 kMeansRestarts     = "ANY",
+                                minNCounts         = "ANY",
                                 parameters         = "ANY")
 )
 
@@ -286,7 +384,7 @@ HiCDOCExp <- function(dataSet    = NULL,
     object@conditions        <- dataSet@conditions
 
     object@chromosomes <- as.vector(unique(object@interactionMatrix$chromosome))
-    object@nReplicates <- length(object@replicates)
+    object@nReplicates <- sum(sapply(object@replicates, length))
     object@nReplicatesPerCond <- sapply(c(1, 2),
                                         function(x) {
                                             length(which(object@conditions ==
@@ -302,6 +400,7 @@ HiCDOCExp <- function(dataSet    = NULL,
     object@kMeansRestarts   <- HiCDOCDefaultParameters$kMeansRestarts
     object@sampleSize       <- HiCDOCDefaultParameters$sampleSize
     object@loessSpan        <- HiCDOCDefaultParameters$loessSpan
+    object@minNCounts       <- HiCDOCDefaultParameters$minNCounts
 
     return(invisible(object))
 }

@@ -21,23 +21,26 @@ detectConstrainedKMeans <- function(object) {
   object@compartments <- tibble()
   object@concordances <- tibble()
 
-  replicates <- unlist(lapply(c(1, 2),
-                       function(x) {
-                           paste0("replicate ",
-                                  x,
-                                  ".",
-                                  seq.int(object@nReplicatesPerCond[x]))
-                       }))
+  # replicates <- unlist(lapply(c(1, 2),
+  #                      function(x) {
+  #                          paste0("replicate ",
+  #                                 x,
+  #                                 ".",
+  #                                 seq.int(object@nReplicatesPerCond[x]))
+  #                      }))
+  #replicateIds <- unlist(lapply(c(1, 2), function(x) { seq.int(object@nReplicatesPerCond[x])}))
+  replicateIds <- seq_along(object@replicates)
 
   for (chr in object@chromosomes) {
     message(paste0("Chromosome ", chr))
     inputChromosome <- filter(input, chromosome == chr)
     n <- max(inputChromosome$bin1, inputChromosome$bin2)
+    if (n == -Inf) next
     positions <- (seq.int(n) - 1) * object@binSize
     bigmat <- matrix(nrow = 0, ncol = n)
     for (conditionId in c(1, 2)) {
-      for (replicateId in seq.int(object@nReplicatesPerCond[conditionId])) {
-        message(c("Replicate ", conditionId, ".", replicateId))
+      for (replicateId in object@replicates[which(object@conditions == conditionId)]) {
+        message(c("Replicate ", conditionId, "_", replicateId))
         inputReplicate <- inputChromosome %>%
           filter(condition == conditionId) %>%
           filter(replicate == replicateId) %>%
@@ -92,7 +95,8 @@ detectConstrainedKMeans <- function(object) {
         bind_rows(
             tibble(chromosome = chr,
                    position = rep(positions, object@nReplicates),
-                   replicate = rep(replicates, each = ncol(bigmat)),
+                   condition = rep(object@conditions, each = ncol(bigmat)),
+                   replicate = rep(object@replicates, each = ncol(bigmat)),
                    value =
                        apply(bigmat, 1, function(x) {
                            (2 * concordanceFunction(x,
@@ -107,13 +111,14 @@ detectConstrainedKMeans <- function(object) {
                  bind_rows(tibble(chromosome = chr,
                       position = rep(positions, object@nReplicates),
                       cluster = 1,
-                      replicate = rep(replicates, each = ncol(bigmat)),
+                      condition = rep(object@conditions, each = ncol(bigmat)),
+                      replicate = rep(object@replicates, each = ncol(bigmat)),
                       distance = apply(bigmat, 1, function(x) {
                                       euclideanDistance(x, centroids[[1]])}))) %>%
                  bind_rows(tibble(chromosome = chr,
                       position = rep(positions, object@nReplicates),
                       cluster = 2,
-                      replicate = rep(replicates, each = ncol(bigmat)),
+                      replicate = rep(object@replicates, each = ncol(bigmat)),
                       distance = apply(bigmat, 1, function(x) {
                                       euclideanDistance(x, centroids[[2]])})))
   }

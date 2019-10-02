@@ -17,17 +17,23 @@ parseInteractionMatrix3Columns <- function(object) {
     if (colnames(object@interactionMatrix)[[3]] != "position 2") {
         stop("First column of the input matrix should be named 'position 2'.")
     }
-    object@replicates <- colnames(object@interactionMatrix)[4:ncol(object@interactionMatrix)]
+    replicates <- colnames(object@interactionMatrix)[4:ncol(object@interactionMatrix)]
     object@conditions <- rep(NA, length(object@replicates))
-    object@conditions[grep("replicate 1", object@replicates)] <- 1
-    object@conditions[grep("replicate 2", object@replicates)] <- 2
+    object@conditions[grep("replicate 1", replicates)] <- 1
+    object@conditions[grep("replicate 2", replicates)] <- 2
+    object@replicates <- list()
+    for (condition in c(1, 2)) {
+        rep <- seq_along(which(object@conditions == condition))
+        object@replicates[[condition]] <- setNames(paste0(condition, "_", rep),
+                                                   rep)
+    }
     if (any(is.na(object@conditions))) {
         stop("Column names of interaction matrix is not well formed.\n",
              "It should be 'chromosome', 'position 1', 'position 2',
              'replicate 1.1', 'replicate 1.2', etc.", call. = FALSE)
     }
     object@interactionMatrix %<>%
-        gather(object@replicates, key = "replicate", value = "value") %>%
+        gather(replicates, key = "replicate", value = "value") %>%
         separate(replicate, c(NA, "condition", "replicate")) %>%
         mutate(chromosome = factor(chromosome),
                condition = factor(condition),
@@ -96,9 +102,7 @@ parseCoolMatrix <- function(fileName) {
     return(data)
 }
 
-#' @export
-parseInteractionMatrixCool <- function(object) {
-    matrices <- lapply(object@inputMatrixPath, parseCoolMatrix)
+mergeMatrices <- function(object, matrices) {
     replicates <- lapply(seq_along(object@conditions),
                          function(x) {
                              length(which(object@conditions[seq(x)] ==
@@ -112,5 +116,39 @@ parseInteractionMatrixCool <- function(object) {
         mutate(chromosome = factor(chromosome)) %>%
         mutate(replicate = factor(replicate))
 
+    return(object)
+}
+
+
+#' @export
+parseInteractionMatrixCool <- function(object) {
+    matrices <- lapply(object@inputMatrixPath, parseCoolMatrix)
+    return(mergeMatrices(object, matrices))
+}
+
+parseHicMatrix <- function(fileName, resolution = resolution) {
+    message(paste0("Parsing .hic matrix '", fileName, "'."))
+    return(parseHic(fileName, resolution))
+}
+
+#' @export
+parseInteractionMatrixHic <- function(object) {
+    matrices <- bplapply(object@inputMatrixPath, parseHicMatrix, resolution = object@binSize)
+    matrices <- map2(matrices, object@replicates, ~ mutate(.x, replicate = .y))
+    matrices <- map2(matrices, object@conditions, ~ mutate(.x, condition = .y))
+    object@interactionMatrix <- bind_rows(matrices)
+    #object@interactionMatrix <- tibble()
+    # for (i in seq_along(object@inputMatrixPath)) {
+    #     object@interactionMatrix <- bind_rows(object@interactionMatrix,
+    #         parseHicMatrix(object@inputMatrixPath[[i]], object@binSize) %>%
+    #         mutate(replicate = object@replicates[[i]]) %>%
+    #         mutate(condition = object@conditions[[i]]))
+    # }
+    object@interactionMatrix <- object@interactionMatrix %>%
+        mutate(chromosome = factor(chromosome)) %>%
+        mutate(replicate = factor(replicate)) %>%
+        mutate(condition = factor(condition)) %>%
+        rename(`position 1` = `position.1`) %>%
+        rename(`position 2` = `position.2`)
     return(object)
 }

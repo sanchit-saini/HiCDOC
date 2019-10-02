@@ -16,7 +16,6 @@ findPValues <- function(object) {
 
   # Compute differences of concordances
   differences <- object@concordances %>%
-    separate("replicate", c(NA, "condition", "replicate")) %>%
     group_by(.dots = c("chromosome", "position", "condition")) %>%
     summarize(value = median(value)) %>%
     spread(condition, value) %>%

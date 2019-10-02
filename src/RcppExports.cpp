@@ -20,9 +20,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// parseHic
+DataFrame parseHic(std::string& fname, int resolution);
+RcppExport SEXP _HiCDOC_parseHic(SEXP fnameSEXP, SEXP resolutionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string& >::type fname(fnameSEXP);
+    Rcpp::traits::input_parameter< int >::type resolution(resolutionSEXP);
+    rcpp_result_gen = Rcpp::wrap(parseHic(fname, resolution));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_HiCDOC_constrainedClustering", (DL_FUNC) &_HiCDOC_constrainedClustering, 5},
+    {"_HiCDOC_parseHic", (DL_FUNC) &_HiCDOC_parseHic, 2},
     {NULL, NULL, 0}
 };
 

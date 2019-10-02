@@ -1,3 +1,4 @@
+
 #' @export
 plotInteractionMatrix <- function(object, log) {
 
@@ -5,7 +6,6 @@ plotInteractionMatrix <- function(object, log) {
     stop(paste0("Interaction matrix is not loaded yet.  ",
                 "Please provide a matrix first."))
   }
-
   fullMatrix <- object@interactionMatrix %>%
     filter(`position 1` != `position 2`) %>%
     rename(tmp = `position 1`,
@@ -13,25 +13,34 @@ plotInteractionMatrix <- function(object, log) {
     rename(`position 2` = tmp) %>%
     bind_rows(object@interactionMatrix) %>%
     mutate(value = value + 0.0001) %>%
-    rename(intensity = value)
+    rename(intensity = value) %>%
+    unite("rep_cond", replicate, condition) %>%
+    mutate(rep_cond = factor(rep_cond, levels = paste(object@replicates, object@conditions, sep = "_")))
   plots = list()
   for (chr in object@chromosomes) {
-    p <- fullMatrix %>%
-      filter(chromosome == chr) %>%
-      unite(repCond, c(condition, replicate)) %>%
-      ggplot(aes(x = `position 1`, y = `position 2`, z = intensity)) +
-        geom_tile(aes(fill = intensity)) +
-        coord_fixed(ratio = 1) +
-        theme_bw() +
-        labs(x = "", y = "") +
-        facet_grid(cols = vars(repCond))
-    if (log) {
-      p <- p + scale_fill_gradient(low = "white", high = "blue", trans = "log2")
+    tmp <- fullMatrix %>%
+      filter(chromosome == chr)
+      # mutate(replicate = factor(mapply(function(X, Y) {
+      #                             object@replicates[[X]][Y]
+      #                           },
+      #                           X = condition,
+      #                           Y = replicate)))
+    if (nrow(tmp) > 0) {
+      p <- tmp %>%
+        ggplot(aes(x = `position 1`, y = `position 2`, z = intensity)) +
+          geom_tile(aes(fill = intensity)) +
+          coord_fixed(ratio = 1) +
+          theme_bw() +
+          labs(x = "", y = "") +
+          facet_grid(cols = vars(rep_cond))
+      if ((length(unique(tmp$intensity)) > 1) & (log)) {
+        p <- p + scale_fill_gradient(low = "white", high = "blue", trans = "log2")
+      }
+      else {
+        p <- p + scale_fill_gradient(low = "white", high = "blue")
+      }
+      plots[[chr]] <- p
     }
-    else {
-      p <- p + scale_fill_gradient(low = "white", high = "blue")
-    }
-    plots[[chr]] <- p
   }
   return(plots)
 }
@@ -75,7 +84,6 @@ plotConcordances <- function(object) {
     rename(position = start) %>%
     mutate(changed = "T")
   differences <- object@concordances %>%
-    separate("replicate", c(NA, "condition", "replicate")) %>%
     group_by(.dots = c("chromosome", "position", "condition")) %>%
     summarize(value = median(value)) %>%
     ungroup() %>%
