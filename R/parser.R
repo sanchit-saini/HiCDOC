@@ -17,24 +17,18 @@ parseInteractionMatrix3Columns <- function(object) {
     if (colnames(object@interactionMatrix)[[3]] != "position 2") {
         stop("First column of the input matrix should be named 'position 2'.")
     }
-    replicates <- colnames(object@interactionMatrix)[4:ncol(object@interactionMatrix)]
+    object@replicates <- colnames(object@interactionMatrix)[4:ncol(object@interactionMatrix)]
     object@conditions <- rep(NA, length(object@replicates))
-    object@conditions[grep("replicate 1", replicates)] <- 1
-    object@conditions[grep("replicate 2", replicates)] <- 2
-    object@replicates <- list()
-    for (condition in c(1, 2)) {
-        rep <- seq_along(which(object@conditions == condition))
-        object@replicates[[condition]] <- setNames(paste0(condition, "_", rep),
-                                                   rep)
-    }
+    object@conditions[grep("replicate 1", object@replicates)] <- 1
+    object@conditions[grep("replicate 2", object@replicates)] <- 2
     if (any(is.na(object@conditions))) {
         stop("Column names of interaction matrix is not well formed.\n",
              "It should be 'chromosome', 'position 1', 'position 2',
              'replicate 1.1', 'replicate 1.2', etc.", call. = FALSE)
     }
     object@interactionMatrix %<>%
-        gather(replicates, key = "replicate", value = "value") %>%
-        separate(replicate, c(NA, "condition", "replicate")) %>%
+        gather(object@replicates, key = "replicate", value = "value") %>%
+        separate(replicate, c(NA, "condition", NA), remove = FALSE) %>%
         mutate(chromosome = factor(chromosome),
                condition = factor(condition),
                replicate = factor(replicate))

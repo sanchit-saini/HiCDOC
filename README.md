@@ -81,19 +81,25 @@ object <- HiCDOCExample()
 The usual pipeline is then:
 
 ```R
-plotInteractionMatrix(object, log = TRUE)
+object  <- removeSmallChromosomes(object)
+p <- plotInteractionMatrix(object, log = TRUE)
+p[[1]]
 object <- normalizeCyclicLoess(object)
-plotInteractionMatrix(object, log = TRUE)
+p <- plotInteractionMatrix(object, log = TRUE)
+p[[1]]
 object <- normalizeKnightRuiz(object)
-plotInteractionMatrix(object, log = TRUE)
+p <- plotInteractionMatrix(object, log = TRUE)
+p[[1]]
 plotMD(object)
 object <- normalizeDistanceCombined(object)
 plotMD(object)
-plotInteractionMatrix(object, log = FALSE)
+p <- plotInteractionMatrix(object, log = FALSE)
+p[[1]]
 object <- detectConstrainedKMeans(object)
 object <- findPValues(object)
 plotConcordances(object)
-plotCompartmentChanges(object)
+p <- plotCompartmentChanges(object)
+plot(p[[1]])
 DIR(object, pvalue = 1)
 concordances(object)
 compartments(object)
