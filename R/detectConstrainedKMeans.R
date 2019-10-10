@@ -112,5 +112,7 @@ detectConstrainedKMeans <- function(object) {
                       distance = apply(bigmat, 1, function(x) {
                                       euclideanDistance(x, centroids[[2]])})))
   }
+  object@compartments %<>% mutate(condition = factor(condition)) %>%
+    mutate(value = factor(value))
   return(object)
 }

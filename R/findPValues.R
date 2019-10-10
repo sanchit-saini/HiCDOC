@@ -16,15 +16,16 @@ findPValues <- function(object) {
 
   # Compute differences of concordances
   differences <- object@concordances %>%
-    group_by(.dots = c("chromosome", "position", "condition")) %>%
+    group_by(chromosome, position, condition) %>%
     summarize(value = median(value)) %>%
+    ungroup() %>%
     spread(condition, value) %>%
     mutate(value = `2` - `1`) %>%
     select(-c(`1`, `2`))
 
   # Compute number of compartments
   object@DIR <- object@compartments %>%
-    group_by(.dots = c("chromosome", "position")) %>%
+    group_by(chromosome, position) %>%
     summarize(nCompartments = n_distinct(value),
               compartment = first(value)) %>%
     ungroup() %>%
@@ -39,7 +40,7 @@ findPValues <- function(object) {
     mutate(pvalue = if_else(pvalue < 0, 0, pvalue)) %>%
     mutate(pvalue = if_else(pvalue > 1, 1, pvalue)) %>%
     mutate(padj = p.adjust(pvalue, method = "BH")) %>%
-    mutate(padj = if_else(compartment == 1, -padj, padj)) %>%
+    mutate(direction = factor(if_else(compartment == "A", "B->A", "A->B"))) %>%
     select(-c(nCompartments, compartment, value, percentRank, pvalue))
 
   return(object)

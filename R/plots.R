@@ -97,3 +97,20 @@ plotConcordances <- function(object) {
 
   return(p)
 }
+
+.plotAB <- function(data) {
+  ggplot(data, aes(x = data$compartment, y = data$diffValue)) +
+    geom_jitter(aes(color = data$compartment)) +
+    geom_boxplot(outlier.colour = NA, fill = NA, colour = "grey20") +
+    labs(color = "Compartment", x = "Compartment", y = "Difference of int.")
+}
+
+#' @export
+plotAB <- function(object) {
+  p <- buildABComparison(object) %>%
+    group_by(chromosome) %>%
+    group_split() %>%
+    map(.plotAB)
+  names(p) <- object@chromosomes
+  return(p)
+}
