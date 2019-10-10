@@ -4,6 +4,13 @@ checkParameters <- function(value) {
     # TODO
 }
 
+makeFullMatrix <- function(data) {
+    data %>% filter(`position 1` != `position 2`) %>%
+        rename(tmp = `position 1`, `position 1` = `position 2`) %>%
+        rename(`position 2` = tmp) %>%
+        bind_rows(data)
+}
+
 #' @export
 removeSmallChromosomes <- function(object) {
     bigChromosomes <- object@interactionMatrix %>%

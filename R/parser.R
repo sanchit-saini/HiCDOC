@@ -64,7 +64,7 @@ parseCoolMatrix <- function(fileName) {
     if (length(step) < 0.9) {
         stop(paste0("Cannot parse cool file ",
                       fileName,
-                      "fixed width only."))
+                      ": fixed width only."))
     }
     step <- max(step)
 
@@ -97,18 +97,14 @@ parseCoolMatrix <- function(fileName) {
 }
 
 mergeMatrices <- function(object, matrices) {
-    replicates <- lapply(seq_along(object@conditions),
-                         function(x) {
-                             length(which(object@conditions[seq(x)] ==
-                                              object@conditions[[x]]))
-                         })
-    replicates <- paste0("replicate ", object@conditions, ".", replicates)
     for (i in seq_along(matrices)) {
-        matrices[[i]]$replicate <- factor(replicates[[i]])
+        matrices[[i]]$replicate <- object@replicates[[i]]
+        matrices[[i]]$condition <- object@conditions[[i]]
     }
     object@interactionMatrix <- bind_rows(matrices) %>%
         mutate(chromosome = factor(chromosome)) %>%
-        mutate(replicate = factor(replicate))
+        mutate(replicate = factor(replicate)) %>%
+        mutate(condition = factor(condition))
 
     return(object)
 }

@@ -21,16 +21,6 @@ detectConstrainedKMeans <- function(object) {
   object@compartments <- tibble()
   object@concordances <- tibble()
 
-  # replicates <- unlist(lapply(c(1, 2),
-  #                      function(x) {
-  #                          paste0("replicate ",
-  #                                 x,
-  #                                 ".",
-  #                                 seq.int(object@nReplicatesPerCond[x]))
-  #                      }))
-  #replicateIds <- unlist(lapply(c(1, 2), function(x) { seq.int(object@nReplicatesPerCond[x])}))
-  replicateIds <- seq_along(object@replicates)
-
   for (chr in object@chromosomes) {
     message(paste0("Chromosome ", chr))
     inputChromosome <- filter(input, chromosome == chr)

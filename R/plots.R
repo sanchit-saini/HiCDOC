@@ -7,11 +7,7 @@ plotInteractionMatrix <- function(object, log) {
                 "Please provide a matrix first."))
   }
   fullMatrix <- object@interactionMatrix %>%
-    filter(`position 1` != `position 2`) %>%
-    rename(tmp = `position 1`,
-           `position 1` = `position 2`) %>%
-    rename(`position 2` = tmp) %>%
-    bind_rows(object@interactionMatrix) %>%
+    makeFullMatrix() %>%
     mutate(value = value + 0.0001) %>%
     rename(intensity = value) %>%
     unite("rep_cond", replicate, condition) %>%
