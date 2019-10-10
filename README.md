@@ -96,6 +96,9 @@ plotMD(object)
 p <- plotInteractionMatrix(object, log = FALSE)
 p[[1]]
 object <- detectConstrainedKMeans(object)
+object <- predictAB(object)
+p <- plotAB(object)
+p[[1]]
 object <- findPValues(object)
 plotConcordances(object)
 p <- plotCompartmentChanges(object)
@@ -115,11 +118,21 @@ object  <- HiCDOCExp(dataSet)
 Then, follow the usual pipe-line.
 
 
-### Load from cool files
+### Load from `.cool` files
 
-Start you script with:
+If the `.cool` files are stored in the vector `coolFiles`, start your script
+with:
 ```R
 dataSet <- HiCDOCDataSetFromCool(coolFiles, replicates, conditions)
+object  <- HiCDOCExp(dataSet)
+```
+
+### Load from `.hic` files
+
+If the `.hic` files are stored in the vector `hicFiles`, start your script with:
+```R
+resolution <- 100000     # set as desired
+dataSet <- HiCDOCDataSetFromHic(hicFiles, replicates, conditions, resolution)
 object  <- HiCDOCExp(dataSet)
 ```
 
