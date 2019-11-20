@@ -117,7 +117,6 @@ mergeMatrices <- function(object, matrices) {
 #' This function parses the .cool files provided in
 #' \code{object@inputMatrixPath}.
 #'
-#' @docType parser
 #' @name parseInteractionMatrixCool
 #' @rdname parseInteractionMatrixCool
 #'
@@ -145,7 +144,6 @@ parseHicMatrix <- function(fileName, resolution = resolution) {
 #' This function parses the .hic files provided in
 #' \code{object@inputMatrixPath}.
 #'
-#' @docType parser
 #' @name parseInteractionMatrixHic
 #' @rdname parseInteractionMatrixHic
 #'
