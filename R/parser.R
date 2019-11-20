@@ -110,6 +110,23 @@ mergeMatrices <- function(object, matrices) {
 }
 
 
+##- parseInteractionMatrixCool -----------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Read interaction matrices in .cool format.
+#'
+#' This function parses the .cool files provided in
+#' \code{object@inputMatrixPath}.
+#'
+#' @docType parser
+#' @name parseInteractionMatrixCool
+#' @rdname parseInteractionMatrixCool
+#'
+#' @aliases parseInteractionMatrixCool
+#'
+#' @param object An \code{HiCDOCExp} object.
+#'
+#' @return object An \code{HiCDOCExp} object.
+#'
 #' @export
 parseInteractionMatrixCool <- function(object) {
     matrices <- lapply(object@inputMatrixPath, parseCoolMatrix)
@@ -121,6 +138,23 @@ parseHicMatrix <- function(fileName, resolution = resolution) {
     return(parseHic(fileName, resolution))
 }
 
+##- parseInteractionMatrixHic ------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Read interaction matrices in .hic format.
+#'
+#' This function parses the .hic files provided in
+#' \code{object@inputMatrixPath}.
+#'
+#' @docType parser
+#' @name parseInteractionMatrixHic
+#' @rdname parseInteractionMatrixHic
+#'
+#' @aliases parseInteractionMatrixHic
+#'
+#' @param object An \code{HiCDOCExp} object.
+#'
+#' @return object An \code{HiCDOCExp} object.
+#'
 #' @export
 parseInteractionMatrixHic <- function(object) {
     matrices <- bplapply(object@inputMatrixPath, parseHicMatrix, resolution = object@binSize)
