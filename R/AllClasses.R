@@ -69,7 +69,7 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
     ##- checking general input arguments -------------------------------------#
     ##------------------------------------------------------------------------#
 
-    ##- bamFiles
+    ##- matrix
     if (is.null(matrix)) {
         stop("'matrix' must be the path to a matrix", call. = FALSE)
     }
