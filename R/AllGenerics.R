@@ -1,14 +1,14 @@
-##- interactionMatrix
-setGeneric(name = "interactionMatrix",
+##- interactions
+setGeneric(name = "interactions",
             def = function(object) {
-                standardGeneric("interactionMatrix")
+                standardGeneric("interactions")
             }
 )
 
-##- DIR
-setGeneric(name = "DIR",
+##- differences
+setGeneric(name = "differences",
             def = function(object, pvalue) {
-                standardGeneric("DIR")
+                standardGeneric("differences")
             }
 )
 

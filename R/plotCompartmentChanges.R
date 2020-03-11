@@ -42,14 +42,14 @@ plotCompartments <- function(compartments,
             panel.spacing = unit(0, "cm"))
 }
 
-plotPValue <- function(DIR,
+plotPValue <- function(differences,
                        binSize = binSize,
                        minX    = minX,
                        maxX    = maxX) {
-    if (nrow(DIR) == 0) {
+    if (nrow(differences) == 0) {
       return(NULL)
     }
-    DIR %>%
+    differences %>%
       mutate(padj = -sign(padj) * log10(abs(padj))) %>%
       ggplot(aes(x = start,
                  y = 0,
@@ -72,7 +72,7 @@ plotChr <- function(chr, object = object) {
   theme_set(theme_minimal())
   maxX <- object@concordances %>%
     filter(chromosome == chr) %>%
-    summarize(max = max(position)) %>%
+    summarise(max = max(position)) %>%
     pull()
   minX <- -maxX / 100.0
   maxX <- 101 / 100 * maxX
@@ -86,7 +86,7 @@ plotChr <- function(chr, object = object) {
                                    binSize = object@binSize,
                                    minX    = minX,
                                    maxX    = maxX)
-  pPValue <- plotPValue(object@DIR %>%
+  pPValue <- plotPValue(object@differences %>%
                           filter(chromosome == chr),
                         binSize = object@binSize,
                         minX    = minX,
@@ -111,11 +111,11 @@ plotChr <- function(chr, object = object) {
 #' @export
 plotCompartmentChanges <- function(object) {
 
-  if (is.null(object@interactionMatrix)) {
+  if (is.null(object@interactions)) {
     stop(paste0("Interaction matrix is not loaded yet.  ",
                 "Please provide a matrix first."))
   }
-  if (is.null(object@DIR)) {
+  if (is.null(object@differences)) {
     stop(paste0("Differentially interacting regions are not computed.  ",
                 "Please run 'findPValues' first."))
   }

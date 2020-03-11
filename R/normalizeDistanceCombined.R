@@ -1,9 +1,9 @@
 normalizeMean <- function(object) {
 
-  input_mean <- object@interactionMatrix %>%
+  input_mean <- object@interactions %>%
     select(c(distance, values)) %>%
     group_by(distance) %>%
-    summarize(mean_value = mean(values))
+    summarise(mean_value = mean(values))
 
   head(input_mean)
 
@@ -20,7 +20,7 @@ normalizeMean <- function(object) {
   input_mean %<>% select(-mean_value)
 
   output <-
-    object@interactionMatrix %>%
+    object@interactions %>%
     left_join(input_mean, by = "distance")
 
   return(output)
@@ -28,9 +28,9 @@ normalizeMean <- function(object) {
 
 normalizeSample <- function(object) {
 
-  inputSampled <- object@interactionMatrix %>%
+  inputSampled <- object@interactions %>%
     select(-c(chromosome, condition, replicate, `position 1`, `position 2`)) %>%
-    sample_n(size = min(object@sampleSize, nrow(object@interactionMatrix))) %>%
+    sample_n(size = min(object@sampleSize, nrow(object@interactions))) %>%
     rename(sampledDistance = distance) %>%
     select(c(sampledDistance, value)) %>%
     arrange(sampledDistance)
@@ -66,7 +66,7 @@ normalizeSample <- function(object) {
     unique()
 
   sampledDistances <- unique(sort(inputSampled$sampledDistance))
-  uniqueDistances <- unique(sort(object@interactionMatrix$distance))
+  uniqueDistances <- unique(sort(object@interactions$distance))
   valueMap <- tibble(distance = uniqueDistances,
                          sampledDistance =
                            sapply(uniqueDistances, function(x) {
@@ -75,7 +75,7 @@ normalizeSample <- function(object) {
     left_join(inputSampled, by = "sampledDistance") %>%
     select(-sampledDistance)
 
-  object@interactionMatrix %<>%
+  object@interactions %<>%
       left_join(valueMap, by = "distance")
 
   return(object)
@@ -85,14 +85,14 @@ normalizeSample <- function(object) {
 #' @export
 normalizeDistanceCombined <- function(object) {
 
-  object@interactionMatrix %<>%
-        mutate(distance = `position 2` - `position 1`)
+  object@interactions %<>%
+    mutate(distance = `position 2` - `position 1`)
 
   object <- normalizeSample(object)
 
-  object@interactionMatrix %<>%
-    mutate(value = log2((value + 0.0001) / (loess + 0.0001))) %>%
-    select(-c(distance, loess))
+  object@interactions %<>%
+    mutate(value = value / (loess + 0.0001)) %>%
+    select(-distance, -loess)
 
   return(object)
 }

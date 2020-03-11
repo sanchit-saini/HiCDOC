@@ -2,11 +2,11 @@
 #' @export
 plotInteractionMatrix <- function(object, log) {
 
-  if (is.null(object@interactionMatrix)) {
+  if (is.null(object@interactions)) {
     stop(paste0("Interaction matrix is not loaded yet.  ",
                 "Please provide a matrix first."))
   }
-  fullMatrix <- object@interactionMatrix %>%
+  fullMatrix <- object@interactions %>%
     makeFullMatrix() %>%
     mutate(value = value + 0.0001) %>%
     rename(intensity = value) %>%
@@ -44,12 +44,12 @@ plotInteractionMatrix <- function(object, log) {
 #' @export
 plotMD <- function(object) {
 
-  if (is.null(object@interactionMatrix)) {
+  if (is.null(object@interactions)) {
     stop(paste0("Interaction matrix is not loaded yet.  ",
                 "Please provide a matrix first."))
   }
 
-  p <- object@interactionMatrix %>%
+  p <- object@interactions %>%
     mutate(distance = `position 2` - `position 1`) %>%
     ggplot(aes(x = distance, y = value)) +
     stat_bin_hex() +
@@ -62,11 +62,11 @@ plotMD <- function(object) {
 #' @export
 plotConcordances <- function(object) {
 
-  if (is.null(object@interactionMatrix)) {
+  if (is.null(object@interactions)) {
     stop(paste0("Interaction matrix is not loaded yet.  ",
                 "Please provide a matrix first."))
   }
-  if (is.null(object@DIR)) {
+  if (is.null(object@differences)) {
     stop(paste0("Differentially interacting regions are not computed.  ",
                 "Please run 'findPValues' first."))
   }
@@ -75,13 +75,13 @@ plotConcordances <- function(object) {
                 "Please run 'detectConstrainedKMeans' first."))
   }
 
-  changed <- object@DIR %>%
+  changed <- object@differences %>%
     select(-c(`end`, `padj`)) %>%
     rename(position = start) %>%
     mutate(changed = "T")
   differences <- object@concordances %>%
     group_by(.dots = c("chromosome", "position", "condition")) %>%
-    summarize(value = median(value)) %>%
+    summarise(value = median(value)) %>%
     ungroup() %>%
     spread(condition, value) %>%
     mutate(value = `2` - `1`) %>%
@@ -113,4 +113,28 @@ plotAB <- function(object) {
     map(.plotAB)
   names(p) <- object@chromosomes
   return(p)
+}
+
+.plotCentroids <- function(data) {
+  df <- data %>%
+    select(-chromosome) %>%
+    spread(name, centroid) %>%
+    unnest() %>% t()
+  df
+  pca <- prcomp(df)
+  pca <- as.data.frame(pca$x)
+  pca$group <- row.names(df)
+  ggplot(pca, aes(x = PC1, y = PC2, color = group)) + geom_point()
+}
+
+#' @export
+plotCentroids <- function(object) {
+
+    p <- object@centroids %>%
+      unite(name, c(condition, compartment)) %>%
+      group_by(chromosome) %>%
+      group_split() %>%
+      map(.plotCentroids)
+    names(p) <- object@chromosomes
+    return(p)
 }

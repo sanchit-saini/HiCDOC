@@ -103,7 +103,7 @@ object <- findPValues(object)
 plotConcordances(object)
 p <- plotCompartmentChanges(object)
 plot(p[[1]])
-DIR(object, pvalue = 1)
+differences(object, pvalue = 1)
 concordances(object)
 compartments(object)
 ```
