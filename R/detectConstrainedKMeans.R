@@ -1,118 +1,151 @@
-euclideanDistance <- function(p1, p2) {
-   sqrt(sum((p1 - p2)^2))
+euclideanDistance <- function(x, y) {
+  sqrt(sum((x - y)^2))
 }
 
-concordanceFunction <- function(x, p1, p2) {
-  eps <- 1e-10
-  log2((euclideanDistance(x, p1) + eps) / (euclideanDistance(x, p2) + eps))
+distanceRatio <- function(x, centroids, eps=1e-10) {
+  return (log(
+    (euclideanDistance(x, centroids[[1]]) + eps)
+    / (euclideanDistance(x, centroids[[2]]) + eps)
+  ))
 }
-
 
 #' @export
 detectConstrainedKMeans <- function(object) {
-  input <- object@interactionMatrix %>%
-    mutate(bin1 = `position 1` / object@binSize + 1) %>%
-    mutate(bin2 = `position 2` / object@binSize + 1)
 
-  mustLinkSeed <- list(rep1 = which(object@conditions == 1) - 1,
-                       rep2 = which(object@conditions == 2) - 1)
+  input <- object@interactions %>% mutate(
+    bin1 = `position 1` / object@binSize + 1,
+    bin2 = `position 2` / object@binSize + 1
+  )
 
-  object@distances    <- tibble()
   object@compartments <- tibble()
   object@concordances <- tibble()
+  object@distances    <- tibble()
+  object@centroids    <- tibble()
 
-  for (chr in object@chromosomes) {
-    message(paste0("Chromosome ", chr))
-    inputChromosome <- filter(input, chromosome == chr)
-    n <- max(inputChromosome$bin1, inputChromosome$bin2)
-    if (n == -Inf) next
-    positions <- (seq.int(n) - 1) * object@binSize
-    bigmat <- matrix(nrow = 0, ncol = n)
-    for (conditionId in c(1, 2)) {
-      for (replicateId in object@replicates[which(object@conditions == conditionId)]) {
-        message(c("Replicate ", conditionId, "_", replicateId))
-        inputReplicate <- inputChromosome %>%
+  for (chromosome in object@chromosomes) {
+
+    message("Chromosome: ", chromosome)
+    chromosomeInteractions <- input[input$chromosome == chromosome,]
+    totalBins <- max(chromosomeInteractions$bin1, chromosomeInteractions$bin2)
+    if (totalBins == -Inf) next
+
+    positions <- (seq.int(totalBins) - 1) * object@binSize
+
+    for (conditionId in unique(object@conditions)) {
+
+      interactions <- matrix(nrow = 0, ncol = totalBins)
+      replicates <- object@replicates[which(object@conditions == conditionId)]
+
+      for (replicateId in replicates) {
+        message("Replicate: ", conditionId, ".", replicateId)
+        replicateInteractions <- chromosomeInteractions %>%
           filter(condition == conditionId) %>%
           filter(replicate == replicateId) %>%
-          select(-c(chromosome, replicate, `position 1`, `position 2`)) %>%
           select(bin1, bin2, value)
-        mat <- matrix(0, nrow = n, ncol = n)
-        tmp <- as.matrix(inputReplicate)
-        mat[ tmp[, 1:2] ] <- tmp[, 3]
-        mat <- mat + t(mat) - diag(diag(mat))
-        if (!isSymmetric(mat)) {
-          stop(paste0("Matrix ", chr, "/", rep, " is not symmetric"))
-        }
-        bigmat <- rbind(bigmat, mat)
+        interactions <- rbind(
+          interactions,
+          sparseInteractionsToMatrix(replicateInteractions, totalBins)
+        )
       }
+
+      mustLink <- matrix(
+        rep(0:(length(replicates) - 1), totalBins)*totalBins
+        + rep(0:(totalBins - 1), each = length(replicates)),
+        nrow = totalBins,
+        byrow = TRUE
+      )
+
+      clusteringOutput <- constrainedClustering(
+        interactions,
+        mustLink,
+        object@kMeansDelta,
+        object@kMeansIterations,
+        object@kMeansRestarts
+      )
+
+      clusters <- clusteringOutput[["clusters"]][0:totalBins] + 1
+      centroids <- clusteringOutput[["centroids"]]
+
+      min <- distanceRatio(
+        centroids[[1]],
+        centroids
+      )
+
+      max <- distanceRatio(
+        centroids[[2]],
+        centroids
+      )
+
+      concordances <- apply(interactions, 1, function(row) {
+        2 * (distanceRatio(row, centroids) - min) / (max - min) - 1
+      })
+
+      distances <- apply(interactions, 1, function(row) {
+        c(
+          euclideanDistance(row, centroids[[1]]),
+          euclideanDistance(row, centroids[[2]])
+        )
+      })
+
+      object@compartments %<>% bind_rows(tibble(
+        chromosome = chromosome,
+        position = positions,
+        condition = conditionId,
+        value = clusters
+      ))
+
+      object@concordances %<>% bind_rows(tibble(
+        chromosome = chromosome,
+        position = rep(positions, length(replicates)),
+        condition = conditionId,
+        replicate = rep(replicates, each = ncol(interactions)),
+        value = concordances
+      ))
+
+      object@distances %<>% bind_rows(tibble(
+        chromosome = chromosome,
+        position = rep(rep(positions, length(replicates)), 2),
+        condition = conditionId,
+        replicate = rep(rep(replicates, each = ncol(interactions)), 2),
+        cluster = c(
+          rep(1, length(replicates)*ncol(interactions)),
+          rep(2, length(replicates)*ncol(interactions))
+        ),
+        value = c(distances[1,], distances[2,])
+      ))
+
+      object@centroids %<>% bind_rows(tibble(
+        chromosome = chromosome,
+        condition = conditionId,
+        compartment = c(1, 2),
+        centroid = centroids
+      ))
     }
-    mustLink <- do.call("rbind",
-                        lapply(mustLinkSeed,
-                               function(x) {
-                                 matrix(rep(x, n)*n +
-                                          rep(0:(n - 1), each = length(x)),
-                                        nrow = n, byrow = TRUE) } ))
-    clusters <- constrainedClustering(bigmat,
-                                      mustLink,
-                                      object@kMeansDistance,
-                                      object@kMeansIterations,
-                                      object@kMeansRestarts) + 1
-    centroids <- lapply(1:2,
-                        function(i) {
-                          colMeans(bigmat[ which(clusters == i),  ])
-                        }
-                       )
-    object@compartments %<>% bind_rows(tibble(
-                                  chromosome = chr,
-                                  position   = positions,
-                                  condition  = 1,
-                                  value = head(clusters, n))) %>%
-                      bind_rows(tibble(
-                                  chromosome = chr,
-                                  position   = positions,
-                                  condition  = 2,
-                                  value = tail(clusters, n)))
-
-    minMaxDistances <- lapply(centroids,
-                              function(x) {
-                                concordanceFunction(x,
-                                                    centroids[[1]],
-                                                    centroids[[2]])
-                              }
-                             )
-
-    object@concordances %<>%
-        bind_rows(
-            tibble(chromosome = chr,
-                   position = rep(positions, object@nReplicates),
-                   condition = rep(object@conditions, each = ncol(bigmat)),
-                   replicate = rep(object@replicates, each = ncol(bigmat)),
-                   value =
-                       apply(bigmat, 1, function(x) {
-                           (2 * concordanceFunction(x,
-                                                    centroids[[1]],
-                                                    centroids[[2]]) -
-                                minMaxDistances[[1]]) /
-                               (minMaxDistances[[2]] -
-                                    minMaxDistances[[1]]) - 0.5
-                       })
-            ))
-    object@distances %<>%
-                 bind_rows(tibble(chromosome = chr,
-                      position = rep(positions, object@nReplicates),
-                      cluster = 1,
-                      condition = rep(object@conditions, each = ncol(bigmat)),
-                      replicate = rep(object@replicates, each = ncol(bigmat)),
-                      distance = apply(bigmat, 1, function(x) {
-                                      euclideanDistance(x, centroids[[1]])}))) %>%
-                 bind_rows(tibble(chromosome = chr,
-                      position = rep(positions, object@nReplicates),
-                      cluster = 2,
-                      replicate = rep(object@replicates, each = ncol(bigmat)),
-                      distance = apply(bigmat, 1, function(x) {
-                                      euclideanDistance(x, centroids[[2]])})))
   }
-  object@compartments %<>% mutate(condition = factor(condition)) %>%
-    mutate(value = factor(value))
+
+  object@compartments %<>% mutate(
+    chromosome = factor(chromosome),
+    condition = factor(condition),
+    value = factor(value)
+  )
+
+  object@concordances %<>% mutate(
+    chromosome = factor(chromosome),
+    condition = factor(condition),
+    replicate = factor(replicate)
+  )
+
+  object@distances %<>% mutate(
+    chromosome = factor(chromosome),
+    condition = factor(condition),
+    replicate = factor(replicate)
+  )
+
+  object@centroids %<>% mutate(
+    chromosome = factor(chromosome),
+    condition = factor(condition),
+    compartment = factor(compartment)
+  )
+
   return(object)
 }
