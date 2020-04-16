@@ -13,7 +13,7 @@ with multiple replicates using unsupervised learning.
     ```R
     install.packages("devtools")
     ```
-        
+
 - Install the package:
 
     ```R
@@ -35,7 +35,7 @@ custom pipeline.
 2. Normalize biological biases with Knight-Ruiz method<sup>[[publication][knight-ruiz-publication]][[implementation][knight-ruiz-implementation]]</sup>
 3. Normalize distance effect with an MD loess
 4. Detect compartments with constrained k-means<sup>[[publication][constrained-k-means-publication]][[implementation][constrained-k-means-implementation]]</sup>
-5. Plot compartment changes and measures 
+5. Plot compartment changes and measures
 
 ## Input format
 
@@ -62,13 +62,13 @@ Call the function `HiCDOCDataSetFromCool` this way:
 ```R
 HiCDOCDataSetFromCool(coolFiles, replicates, conditions)
 ```
-    
+
 where:
 
  - `coolFiles` is a vector containing the files names
  - `replicates` is a vector containing the names of the replicates (such as `c("rep1_wt", "rep1_wt", ...)`)
  - `conditions` is a vector containing the id of each condition (such as `c(1, 1, 1, 2, 2, 2)` if you have 3 replicates for each condition).
- 
+
 
 ## Start with HiCDOC
 
@@ -81,25 +81,24 @@ object <- HiCDOCExample()
 The usual pipeline is then:
 
 ```R
-object  <- removeSmallChromosomes(object)
+object  <- filterSmallChromosomes(object)
+object  <- filterWeakPositions(object)
 p <- plotInteractionMatrix(object, log = TRUE)
 p[[1]]
-object <- normalizeCyclicLoess(object)
+object <- normalizeTechnicalBiases(object)
 p <- plotInteractionMatrix(object, log = TRUE)
 p[[1]]
-object <- normalizeKnightRuiz(object)
+object <- normalizeBiologicalBiases(object)
 p <- plotInteractionMatrix(object, log = TRUE)
 p[[1]]
 plotMD(object)
-object <- normalizeDistanceCombined(object)
+object <- normalizeDistanceEffect(object)
 plotMD(object)
 p <- plotInteractionMatrix(object, log = FALSE)
 p[[1]]
-object <- detectConstrainedKMeans(object)
-object <- predictAB(object)
+object <- detectCompartments(object)
 p <- plotAB(object)
 p[[1]]
-object <- findPValues(object)
 plotConcordances(object)
 p <- plotCompartmentChanges(object)
 plot(p[[1]])

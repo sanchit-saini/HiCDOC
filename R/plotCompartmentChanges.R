@@ -117,15 +117,15 @@ plotCompartmentChanges <- function(object) {
   }
   if (is.null(object@differences)) {
     stop(paste0("Differentially interacting regions are not computed.  ",
-                "Please run 'findPValues' first."))
+                "Please run 'detectCompartmentSwitches' first."))
   }
   if (is.null(object@concordances)) {
     stop(paste0("Concordance is not computed.  ",
-                "Please run 'detectConstrainedKMeans' first."))
+                "Please run 'detectCompartments' first."))
   }
   if (is.null(object@compartments)) {
     stop(paste0("Compartments are not computed.  ",
-                "Please run 'detectConstrainedKMeans' first."))
+                "Please run 'detectCompartments' first."))
   }
 
   plots <- lapply(object@chromosomes, plotChr, object = object)

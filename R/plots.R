@@ -6,8 +6,7 @@ plotInteractionMatrix <- function(object, log) {
     stop(paste0("Interaction matrix is not loaded yet.  ",
                 "Please provide a matrix first."))
   }
-  fullMatrix <- object@interactions %>%
-    makeFullMatrix() %>%
+  fullMatrix <- fullInteractions(object) %>%
     mutate(value = value + 0.0001) %>%
     rename(intensity = value) %>%
     unite("rep_cond", replicate, condition) %>%
@@ -23,7 +22,7 @@ plotInteractionMatrix <- function(object, log) {
       #                           Y = replicate)))
     if (nrow(tmp) > 0) {
       p <- tmp %>%
-        ggplot(aes(x = `position 1`, y = `position 2`, z = intensity)) +
+        ggplot(aes(x = position.1, y = position.2, z = intensity)) +
           geom_tile(aes(fill = intensity)) +
           coord_fixed(ratio = 1) +
           theme_bw() +
@@ -50,7 +49,7 @@ plotMD <- function(object) {
   }
 
   p <- object@interactions %>%
-    mutate(distance = `position 2` - `position 1`) %>%
+    mutate(distance = position.2 - position.1) %>%
     ggplot(aes(x = distance, y = value)) +
     stat_bin_hex() +
     scale_fill_gradient(low = "white", high = "blue", trans = "log2") +
@@ -68,11 +67,11 @@ plotConcordances <- function(object) {
   }
   if (is.null(object@differences)) {
     stop(paste0("Differentially interacting regions are not computed.  ",
-                "Please run 'findPValues' first."))
+                "Please run 'detectCompartmentSwitches' first."))
   }
   if (is.null(object@concordances)) {
     stop(paste0("Concordance is not computed.  ",
-                "Please run 'detectConstrainedKMeans' first."))
+                "Please run 'detectCompartments' first."))
   }
 
   changed <- object@differences %>%

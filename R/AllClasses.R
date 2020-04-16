@@ -8,12 +8,15 @@
 #' exp <- HiCDOC(exp, useParameters = HiCDOCDefaultParameters)
 #'
 #' @export
-HiCDOCDefaultParameters <- list(kMeansIterations = 50,
-                                kMeansDelta      = 0.0001,
-                                kMeansRestarts   = 20,
-                                sampleSize       = 20000,
-                                loessSpan        = 0.75,
-                                minLength        = 100)
+HiCDOCDefaultParameters <- list(
+  kMeansIterations = 50,
+  kMeansDelta      = 0.0001,
+  kMeansRestarts   = 20,
+  sampleSize       = 20000,
+  filterThreshold  = 0,
+  loessSpan        = 0.75,
+  minLength        = 100
+)
 
 ###############################################################################
 ### HiCDOCDataSet S4 class definition
@@ -113,9 +116,11 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
 #' dataSet
 #'
 #' @export
-HiCDOCDataSetFromCool <- function(coolFileNames,
-                                  replicates,
-                                  conditions) {
+HiCDOCDataSetFromCool <- function(
+  coolFileNames,
+  replicates,
+  conditions
+) {
 
   ##- checking general input arguments -------------------------------------#
   ##------------------------------------------------------------------------#
@@ -148,18 +153,6 @@ HiCDOCDataSetFromCool <- function(coolFileNames,
   }
   if (is.factor(conditions)) {
     conditions <- as.vector(conditions)
-  }
-  if (!is.integer(conditions)) {
-    stop("'replicates' should be a vector of integers.", call. = FALSE)
-  }
-  if (any(sort(unique(conditions)) != c(1, 2))) {
-    stop("'conditions' should be '1's or '2's.", call. = FALSE)
-  }
-  for (i in c(1, 2)) {
-    if (sum(conditions == i) < 2) {
-      stop(paste0("'conditions' should contain at least two '", i, "'s."),
-         call. = FALSE)
-    }
   }
   ##- end checking ---------------------------------------------------------#
 
@@ -195,10 +188,12 @@ HiCDOCDataSetFromCool <- function(coolFileNames,
 #' dataSet
 #'
 #' @export
-HiCDOCDataSetFromHic <- function(hicFileNames,
-                                 replicates,
-                                 conditions,
-                                 resolution) {
+HiCDOCDataSetFromHic <- function(
+  hicFileNames,
+  replicates,
+  conditions,
+  resolution
+) {
 
   ##- checking general input arguments -------------------------------------#
   ##------------------------------------------------------------------------#
@@ -231,20 +226,6 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
   }
   if (is.factor(conditions)) {
     conditions <- as.vector(conditions)
-  }
-  if (!is.integer(conditions)) {
-    stop("'replicates' should be a vector of integers.", call. = FALSE)
-  }
-  if (any(sort(unique(conditions)) != c(1, 2))) {
-    stop("'conditions' should be '1's or '2's.", call. = FALSE)
-  }
-  for (i in c(1, 2)) {
-    if (sum(conditions == i) < 2) {
-      stop(
-        paste0("'conditions' should contain at least two '", i, "'s."),
-        call. = FALSE
-      )
-    }
   }
 
   ##- resolution
@@ -330,11 +311,14 @@ HiCDOCExample <- function() {
 setClass("HiCDOCExp", slots = c(
   inputPath                   = "ANY",
   interactions                = "ANY",
+  weakBins                    = "ANY",
+  filterThreshold             = "ANY",
   chromosomes                 = "ANY",
   replicates                  = "ANY",
   totalReplicates             = "ANY",
   totalReplicatesPerCondition = "ANY",
   conditions                  = "ANY",
+  totalBins                   = "ANY",
   binSize                     = "ANY",
   sampleSize                  = "ANY",
   distances                   = "ANY",
@@ -369,16 +353,18 @@ setClass("HiCDOCExp", slots = c(
 #' srnaExp
 #'
 #' @export
-HiCDOCExp <- function(dataSet    = NULL,
-                      parameters = NULL,
-                      binSize    = NULL) {
+HiCDOCExp <- function(
+  dataSet = NULL,
+  parameters = NULL,
+  binSize = NULL
+) {
 
   ##- checking general input arguments -------------------------------------#
   ##------------------------------------------------------------------------#
 
   ##- dataSet
   if (is.null(dataSet)) {
-    stop("'datSet' must be specified", call. = FALSE)
+    stop("'dataSet' must be specified", call. = FALSE)
   }
 
   ##- parameters
@@ -392,7 +378,9 @@ HiCDOCExp <- function(dataSet    = NULL,
   object@replicates   <- dataSet@replicates
   object@conditions   <- dataSet@conditions
 
-  object@chromosomes     <- as.vector(unique(object@interactions$chromosome))
+  chromosomes <- as.vector(unique(object@interactions$chromosome))
+  object@chromosomes <- chromosomes[order(nchar(chromosomes), chromosomes)]
+
   object@totalReplicates <- sum(sapply(object@replicates, length))
 
   object@totalReplicatesPerCondition <- sapply(c(1, 2), function(x) {
@@ -400,10 +388,31 @@ HiCDOCExp <- function(dataSet    = NULL,
   })
 
   if (is.null(binSize)) {
-    object@binSize <- min(
-      object@interactions$`position 1`[object@interactions$`position 1` > 0]
-    )
+    object@binSize <- min(abs(
+      object@interactions$position.1[
+        object@interactions$position.1 != object@interactions$position.2
+      ]
+      - object@interactions$position.2[
+        object@interactions$position.1 != object@interactions$position.2
+      ]
+    ))
   }
+
+  object@totalBins <- sapply(object@chromosomes, function(x) NULL)
+  names(object@totalBins) <- object@chromosomes
+
+  for (chromosomeId in object@chromosomes) {
+    chromosomeInteractions <- object@interactions %>%
+      filter(chromosome == chromosomeId)
+
+    object@totalBins[[chromosomeId]] <- max(
+      chromosomeInteractions$position.1,
+      chromosomeInteractions$position.2
+    ) / object@binSize + 1
+  }
+
+  object@weakBins <- sapply(object@chromosomes, function(x) NULL)
+  names(object@weakBins) <- object@chromosomes
 
   object@kMeansIterations <- HiCDOCDefaultParameters$kMeansIterations
   object@kMeansDelta      <- HiCDOCDefaultParameters$kMeansDelta
@@ -411,6 +420,7 @@ HiCDOCExp <- function(dataSet    = NULL,
   object@sampleSize       <- HiCDOCDefaultParameters$sampleSize
   object@loessSpan        <- HiCDOCDefaultParameters$loessSpan
   object@minLength        <- HiCDOCDefaultParameters$minLength
+  object@filterThreshold  <- HiCDOCDefaultParameters$filterThreshold
 
   return(invisible(object))
 }
@@ -425,16 +435,16 @@ HiCDOCExp <- function(dataSet    = NULL,
 #' @export
 HiCDOC <- function(object) {
   plotInteractionMatrix(object, log = TRUE)
-  object <- normalizeCyclicLoess(object)
+  object <- normalizeTechnicalBiases(object)
   plotInteractionMatrix(object, log = TRUE)
-  object <- normalizeKnightRuiz(object)
+  object <- normalizeBiologicalBiases(object)
   plotInteractionMatrix(object, log = TRUE)
   plotMD(object)
-  object <- normalizeDistanceCombined(object)
+  object <- normalizeDistanceEffect(object)
   plotMD(object)
   plotInteractionMatrix(object, log = FALSE)
-  object <- detectConstrainedKMeans(object)
-  object <- findPValues(object)
+  object <- detectCompartments(object)
+  object <- detectCompartmentSwitches(object)
   plotConcordances(object)
   plotCompartmentChanges(object)
   differences(object, pvalue = 0.1)

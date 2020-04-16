@@ -9,7 +9,7 @@ parseInteractionMatrix3Columns <- function(object) {
     header = TRUE,
     comment.char = '#',
     check.names = FALSE
-  )
+  ) %>% as.tibble()
   if (colnames(object@interactions)[[1]] != "chromosome") {
     stop("First column of the input matrix should be named 'chromosome'.")
   }
@@ -42,6 +42,8 @@ parseInteractionMatrix3Columns <- function(object) {
       remove = FALSE
     ) %>%
     select(-condition.replicate) %>%
+    rename(position.1 = `position 1`) %>%
+    rename(position.2 = `position 2`) %>%
     mutate(
       chromosome = factor(chromosome),
       condition = factor(condition),
@@ -118,20 +120,20 @@ parseCoolMatrix <- function(fileName) {
   ) %>%
     left_join(bins, by = c("id1" = "id")) %>%
     rename(
-      `chromosome 1` = chromosome,
-      `position 1` = position
+      chromosome.1 = chromosome,
+      position.1 = position
     ) %>%
     select(-id1) %>%
     left_join(bins, by = c("id2" = "id")) %>%
     rename(
-      `chromosome 2` = chromosome,
-      `position 2` = position
+      chromosome.2 = chromosome,
+      position.2 = position
     ) %>%
     select(-id2) %>%
-    filter(`chromosome 1` == `chromosome 2`) %>%
-    select(-`chromosome 2`) %>%
-    rename(chromosome = `chromosome 1`) %>%
-    select(chromosome, `position 1`, `position 2`, value)
+    filter(chromosome.1 == chromosome.2) %>%
+    select(-chromosome.2) %>%
+    rename(chromosome = chromosome.1) %>%
+    select(chromosome, position.1, position.2, value)
 
   return(data)
 }
@@ -198,7 +200,7 @@ parseInteractionMatrixHic <- function(object) {
   matrices <- bplapply(object@inputPath, parseHicMatrix, resolution = object@binSize)
   matrices <- map2(matrices, object@replicates, ~ mutate(.x, replicate = .y))
   matrices <- map2(matrices, object@conditions, ~ mutate(.x, condition = .y))
-  object@interactions <- bind_rows(matrices)
+  object@interactions <- bind_rows(matrices) %>% as.tibble()
   #object@interactions <- tibble()
   # for (i in seq_along(object@inputPath)) {
   #     object@interactions <- bind_rows(object@interactions,
@@ -209,8 +211,6 @@ parseInteractionMatrixHic <- function(object) {
   object@interactions <- object@interactions %>%
     mutate(chromosome = factor(chromosome)) %>%
     mutate(replicate = factor(replicate)) %>%
-    mutate(condition = factor(condition)) %>%
-    rename(`position 1` = `position.1`) %>%
-    rename(`position 2` = `position.2`)
+    mutate(condition = factor(condition))
   return(object)
 }

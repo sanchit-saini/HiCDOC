@@ -93,9 +93,11 @@ void initializeCentroids(
 ) {
 
   NumericVector distances(matrix.nrow());
+  NumericVector row;
   double sum;
 
-  centroids[0] = matrix.row(rand() % matrix.nrow());
+  row = matrix.row(rand() % matrix.nrow());
+  centroids[0] = clone(row);
 
   for (unsigned int centroidId = 1; centroidId < centroids.size(); centroidId++) {
     sum = 0;
@@ -106,7 +108,8 @@ void initializeCentroids(
     sum = sum * rand() / (RAND_MAX - 1);
     for (int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
       if ((sum -= distances[vectorId]) > 0) continue;
-      centroids[centroidId] = matrix.row(vectorId);
+      row = matrix.row(vectorId);
+      centroids[centroidId] = clone(row);
       break;
     }
   }
@@ -223,8 +226,10 @@ List constrainedClustering (
 
     if (quality < minQuality) {
       minQuality = quality;
-      bestClusters = clusters;
-      bestCentroids = centroids;
+      bestClusters = clone(clusters);
+      for (int centroidId = 0; centroidId < centroids.size(); centroidId++) {
+        bestCentroids[centroidId] = clone(centroids[centroidId]);
+      }
     }
 
     Rcout << "Quality: " << quality << "/" << minQuality << "\n";

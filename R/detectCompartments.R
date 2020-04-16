@@ -10,26 +10,26 @@ distanceRatio <- function(x, centroids, eps=1e-10) {
 }
 
 #' @export
-detectConstrainedKMeans <- function(object) {
-
-  input <- object@interactions %>% mutate(
-    bin1 = `position 1` / object@binSize + 1,
-    bin2 = `position 2` / object@binSize + 1
-  )
+detectCompartments <- function(object) {
 
   object@compartments <- tibble()
   object@concordances <- tibble()
   object@distances    <- tibble()
   object@centroids    <- tibble()
 
-  for (chromosome in object@chromosomes) {
+  for (chromosomeId in object@chromosomes) {
 
-    message("Chromosome: ", chromosome)
-    chromosomeInteractions <- input[input$chromosome == chromosome,]
-    totalBins <- max(chromosomeInteractions$bin1, chromosomeInteractions$bin2)
+    message("Chromosome: ", chromosomeId)
+    totalBins <- object@totalBins[[chromosomeId]]
     if (totalBins == -Inf) next
 
     positions <- (seq.int(totalBins) - 1) * object@binSize
+
+    # Correct for filtered bins
+    if (!is.null(object@weakBins[[chromosomeId]])) {
+      positions <- positions[-object@weakBins[[chromosomeId]]]
+      totalBins <- totalBins - length(object@weakBins[[chromosomeId]])
+    }
 
     for (conditionId in unique(object@conditions)) {
 
@@ -38,13 +38,15 @@ detectConstrainedKMeans <- function(object) {
 
       for (replicateId in replicates) {
         message("Replicate: ", conditionId, ".", replicateId)
-        replicateInteractions <- chromosomeInteractions %>%
-          filter(condition == conditionId) %>%
-          filter(replicate == replicateId) %>%
-          select(bin1, bin2, value)
         interactions <- rbind(
           interactions,
-          sparseInteractionsToMatrix(replicateInteractions, totalBins)
+          sparseInteractionsToMatrix(
+            object,
+            chromosomeId,
+            conditionId,
+            replicateId,
+            filter = TRUE
+          )
         )
       }
 
@@ -88,14 +90,14 @@ detectConstrainedKMeans <- function(object) {
       })
 
       object@compartments %<>% bind_rows(tibble(
-        chromosome = chromosome,
+        chromosome = chromosomeId,
         position = positions,
         condition = conditionId,
         value = clusters
       ))
 
       object@concordances %<>% bind_rows(tibble(
-        chromosome = chromosome,
+        chromosome = chromosomeId,
         position = rep(positions, length(replicates)),
         condition = conditionId,
         replicate = rep(replicates, each = ncol(interactions)),
@@ -103,7 +105,7 @@ detectConstrainedKMeans <- function(object) {
       ))
 
       object@distances %<>% bind_rows(tibble(
-        chromosome = chromosome,
+        chromosome = chromosomeId,
         position = rep(rep(positions, length(replicates)), 2),
         condition = conditionId,
         replicate = rep(rep(replicates, each = ncol(interactions)), 2),
@@ -115,7 +117,7 @@ detectConstrainedKMeans <- function(object) {
       ))
 
       object@centroids %<>% bind_rows(tibble(
-        chromosome = chromosome,
+        chromosome = chromosomeId,
         condition = conditionId,
         compartment = c(1, 2),
         centroid = centroids
@@ -146,6 +148,9 @@ detectConstrainedKMeans <- function(object) {
     condition = factor(condition),
     compartment = factor(compartment)
   )
+
+  object <- predictABCompartments(object)
+  object <- computePValues(object)
 
   return(object)
 }

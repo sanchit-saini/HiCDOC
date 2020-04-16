@@ -1,13 +1,5 @@
 KR <- function(A, tol = 1e-6, delta = 0.1, Delta = 3) {
 
-  # Remove any cols/rows of 0s
-  zeros <- unique(which(colSums(A) == 0), which(rowSums(A) == 0))
-  if (length(zeros) > 0) {
-    A = A[-zeros, -zeros]
-    message('Cols/Rows removed: ')
-    message(paste(" ", zeros, sep = " "))
-  }
-
   n <- nrow(A)
   e <- matrix(1, nrow = n, ncol = 1)
   x0 <- e
@@ -87,31 +79,18 @@ KR <- function(A, tol = 1e-6, delta = 0.1, Delta = 3) {
 
   result <- t(t(x[,1] * A) * x[,1])
 
-  # Refill cols/rows of 0s
-  if (length(zeros) > 0) {
-    refilled <- matrix(0, nrow=n+length(zeros), ncol=n+length(zeros))
-    refilled[-zeros, -zeros] <- result
-    return (refilled)
-  }
-
   return(result)
 }
 
 #' @export
-normalizeKnightRuiz <- function(object) {
+normalizeBiologicalBiases <- function(object) {
 
-  input <- object@interactions %>% mutate(
-    bin1 = `position 1` / object@binSize + 1,
-    bin2 = `position 2` / object@binSize + 1
-  )
+  interactions <- tibble()
 
-  object@interactions <- tibble()
+  for (chromosomeId in object@chromosomes) {
 
-  for (chromosome in object@chromosomes) {
-
-    message("Chromosome: ", chromosome)
-    chromosomeInteractions <- input[input$chromosome == chromosome,]
-    totalBins <- max(chromosomeInteractions$bin1, chromosomeInteractions$bin2)
+    message("Chromosome: ", chromosomeId)
+    totalBins <- object@totalBins[[chromosomeId]]
     if (totalBins == -Inf) next
 
     for (conditionId in unique(object@conditions)) {
@@ -120,27 +99,29 @@ normalizeKnightRuiz <- function(object) {
 
       for (replicateId in replicates) {
         message("Replicate: ", conditionId, ".", replicateId)
-        replicateInteractions <- chromosomeInteractions %>%
-          filter(condition == conditionId & replicate == replicateId) %>%
-          select(bin1, bin2, value)
-        normalizedInteractions <- KR(
-          sparseInteractionsToMatrix(replicateInteractions, totalBins)
+        normalizedMatrix <- KR(
+          sparseInteractionsToMatrix(
+            object,
+            chromosomeId,
+            conditionId,
+            replicateId,
+            filter = TRUE
+          )
         )
-        object@interactions %<>% bind_rows(
-          tibble(
-            chromosome = chromosome,
-            `position 1` = (rep(seq(totalBins), each = totalBins) - 1) * object@binSize,
-            `position 2` = (rep(seq(totalBins), times = totalBins) - 1) * object@binSize,
-            condition = conditionId,
-            replicate = replicateId,
-            value = as.vector(t(normalizedInteractions))
-          ) %>% filter(`position 1` <= `position 2` & value != 0)
+        interactions %<>% bind_rows(
+          matrixToSparseInteractions(
+            normalizedMatrix,
+            object,
+            chromosomeId,
+            conditionId,
+            replicateId
+          )
         )
       }
     }
   }
 
-  object@interactions %<>% mutate(
+  object@interactions <- interactions %>% mutate(
     chromosome = factor(chromosome),
     condition = factor(condition),
     replicate = factor(replicate)

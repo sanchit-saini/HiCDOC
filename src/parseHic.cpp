@@ -354,7 +354,7 @@ DataFrame parseHic(std::string &fname, int resolution) {
   }
   readFooter(fin, info, output);
   return DataFrame::create(_["chromosome"] = output.chromosome,
-                           _["position 1"] = output.bin1,
-                           _["position 2"] = output.bin2,
+                           _["position.1"] = output.bin1,
+                           _["position.2"] = output.bin2,
                            _["value"]      = output.count);
 }
