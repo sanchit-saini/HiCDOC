@@ -78,33 +78,53 @@ A small dataset is shipped with the package:
 object <- HiCDOCExample()
 ```
 
-The usual pipeline is then:
+After creating your HiCDOC object, follow these steps:
 
 ```R
 object  <- filterSmallChromosomes(object)
 object  <- filterWeakPositions(object)
-p <- plotInteractionMatrix(object, log = TRUE)
-p[[1]]
+
 object <- normalizeTechnicalBiases(object)
-p <- plotInteractionMatrix(object, log = TRUE)
-p[[1]]
 object <- normalizeBiologicalBiases(object)
-p <- plotInteractionMatrix(object, log = TRUE)
-p[[1]]
-plotMD(object)
 object <- normalizeDistanceEffect(object)
-plotMD(object)
-p <- plotInteractionMatrix(object, log = FALSE)
-p[[1]]
+
 object <- detectCompartments(object)
+```
+
+Detected compartments and differences between conditions can be displayed with:
+
+```R
+object@compartments
+object@differences
+```
+
+Or saved to a file with:
+
+```R
+options(scipen=999)
+write.table(object@differences, file='differences.tsv', sep='\t', quote=FALSE)
+write.table(object@compartments, file='compartments.tsv', sep='\t', quote=FALSE)
+```
+
+Various visualizations are also available:
+
+```R
+p <- plotInteractionMatrix(object, log = TRUE)
+chromosome <- 1 # Chromosome index
+p[[chromosome]]
+
+plotMD(object)
+
 p <- plotAB(object)
-p[[1]]
+chromosome <- 1 # Chromosome index
+p[[chromosome]]
+
 plotConcordances(object)
+
+plotCentroids(object)
+
 p <- plotCompartmentChanges(object)
 plot(p[[1]])
-differences(object, pvalue = 1)
-concordances(object)
-compartments(object)
 ```
 
 ### Load from sparse matrix
