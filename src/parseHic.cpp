@@ -1,4 +1,5 @@
-#include"Rcpp.h"
+#include <Rcpp.h>
+
 using namespace Rcpp;
 
 /*
@@ -50,12 +51,6 @@ struct membuf : std::streambuf
   }
 };
 
-// stores chromosomes
-struct chrType {
-  std::string name;
-  int size;
-};
-
 // stores input information
 struct hicInfo {
   long master;
@@ -63,21 +58,18 @@ struct hicInfo {
   int resolution;
   int resolutionIdSelected;
   int version;
-  std::vector <chrType> chrTypes;
+  CharacterVector chrs;
+  std::vector <long> chrLengths;
+  int nChrs;
+  bool firstChromosomeAll;
 };
 
 // stores output information
 struct outputStr {
-  CharacterVector chromosome;
-  IntegerVector bin1;
-  IntegerVector bin2;
-  IntegerVector count;
-  void append(std::string &ch, int b1, int b2, int co) {
-    chromosome.push_back(ch);
-    bin1.push_back(b1);
-    bin2.push_back(b2);
-    count.push_back(co);
-  }
+  std::vector<int> chr;
+  std::vector<int> bin1;
+  std::vector<int> bin2;
+  std::vector<int> count;
 };
 
 
@@ -94,13 +86,12 @@ void readHeader(std::istream& fin, hicInfo &info) {
     stop("Hi-C magic string is missing, does not appear to be a hic file.");
   }
   fin.read((char*)& info.version, sizeof(int));
-  Rcerr << "Hi-C format version: " << info.version << "\n";
+  //Rcerr << "Hi-C format version: " << info.version << "\n";
   if (info.version < 6) {
     stop("Version " + std::to_string(info.version) + " no longer supported.");
   }
   std::string genome;
   int nattributes;
-  int nChrs;
   fin.read((char*) &info.master, sizeof(long));
   getline(fin, genome, '\0' );
   fin.read((char*)&nattributes, sizeof(int));
@@ -110,15 +101,16 @@ void readHeader(std::istream& fin, hicInfo &info) {
     getline(fin, key, '\0');
     getline(fin, value, '\0');
   }
-  fin.read((char*) &nChrs, sizeof(int));
+  fin.read((char*) &info.nChrs, sizeof(int));
   // chromosome map for finding matrix
-  for (int i = 0; i < nChrs; i++) {
+  for (int i = 0; i < info.nChrs; i++) {
     std::string name;
     int length;
     getline(fin, name, '\0');
     fin.read((char*) &length, sizeof(int));
     //cout << "Chromosome " << name << " (" << chrTypes.size() << "): " << length << "\n";
-    info.chrTypes.push_back({ name, length });
+    info.chrs.push_back(name);
+    info.chrLengths.push_back(length);
   }
   int nBpResolutions;
   fin.read((char*) &nBpResolutions, sizeof(int));
@@ -130,6 +122,8 @@ void readHeader(std::istream& fin, hicInfo &info) {
       info.resolutionIdSelected = i;
     }
   }
+  // The 'ALL' chromosome is useless.
+  info.firstChromosomeAll = ((info.chrs[0] == "ALL") || (info.chrs[0] == "All"));
 }
 
 
@@ -141,6 +135,8 @@ void readBlock(std::istream& fin, long position, int size, int chrId, hicInfo &i
   if (size == 0) {
     return;
   }
+  std::vector<int> chrIds, bins1, bins2, counts;
+
   char* compressedBytes = new char[size];
   char* uncompressedBytes = new char[size*10]; //biggest seen so far is 3
 
@@ -168,17 +164,22 @@ void readBlock(std::istream& fin, long position, int size, int chrId, hicInfo &i
   std::istream bufferin(&sbuf);
   int nRecords;
   bufferin.read((char*) &nRecords, sizeof(int));
+  bins1.reserve(nRecords);
+  bins2.reserve(nRecords);
+  counts.reserve(nRecords);
   // different versions have different specific formats
-  Rcerr << "  Reading " << info.chrTypes[chrId].name << " with " << nRecords << " records\n";
+  //Rcerr << "  Reading " << info.chrTypes[chrId].name << " with " << nRecords << " records\n";
   if (info.version < 7) {
     for (int i = 0; i < nRecords; i++) {
       int binX, binY;
-      float counts;
+      float count;
       bufferin.read((char*) &binX,   sizeof(int));
       bufferin.read((char*) &binY,   sizeof(int));
-      bufferin.read((char*) &counts, sizeof(float));
+      bufferin.read((char*) &count, sizeof(float));
       //cout << info.chrTypes[chrId1].name << "\t" << info.chrTypes[chrId2].name << "\t" << (binX * info.resolution) << "\t" << (binY * info.resolution) << "\t" << counts << "\n";
-      output.append(info.chrTypes[chrId].name, binX * info.resolution, binY * info.resolution, counts);
+      bins1.push_back(binX);
+      bins2.push_back(binY);
+      counts.push_back(count);
     }
   }
   else {
@@ -189,7 +190,7 @@ void readBlock(std::istream& fin, long position, int size, int chrId, hicInfo &i
     bufferin.read((char*) &binYOffset, sizeof(int));
     bufferin.read((char*) &useShort,   sizeof(char));
     bufferin.read((char*) &type,       sizeof(char));
-    Rcerr << "    Block " << binXOffset << "-" << binYOffset << " with format short " << static_cast<int>(useShort) << " and type " << static_cast<int>(type) << "\n";
+    //Rcerr << "    Block " << binXOffset << "-" << binYOffset << " with format short " << static_cast<int>(useShort) << " and type " << static_cast<int>(type) << "\n";
     if (type == 1) {
       // List-of-rows representation
       short rowCount;
@@ -206,19 +207,24 @@ void readBlock(std::istream& fin, long position, int size, int chrId, hicInfo &i
         for (int j = 0; j < colCount; j++) {
           short x;
           int binX;
-          float counts;
+          short c;
+          float count;
           bufferin.read((char*) &x, sizeof(short));
           binX = binXOffset + x;
           if (useShort == 0) { // yes this is opposite of usual
-            short c;
             bufferin.read((char*) &c, sizeof(short));
-            counts = c;
+            count = c;
+            bins1.push_back(binX);
+            bins2.push_back(binY);
+            counts.push_back(c);
           }
           else {
-            bufferin.read((char*) &counts, sizeof(float));
+            bufferin.read((char*) &count, sizeof(float));
+            bins1.push_back(binX);
+            bins2.push_back(binY);
+            counts.push_back(count);
           }
           //cout << info.chrTypes[chrId1].name << "\t" << info.chrTypes[chrId2].name << "\t" << (binX * info.resolution) << "\t" << (binY * info.resolution) << "\t" << counts << "\n";
-          output.append(info.chrTypes[chrId].name, binX * info.resolution, binY * info.resolution, counts);
         }
       }
     }
@@ -233,27 +239,34 @@ void readBlock(std::istream& fin, long position, int size, int chrId, hicInfo &i
         int col = i - row * w;
         int bin1 = binXOffset + col;
         int bin2 = binYOffset + row;
-
-        float counts;
+        float count;
+        short c;
         if (useShort == 0) { // yes this is opposite of the usual
-          short c;
           bufferin.read((char*) &c, sizeof(short));
           if (c != -32768) {
             //cout << info.chrTypes[chrId1].name << "\t" << info.chrTypes[chrId2].name << "\t" << (bin1 * info.resolution) << "\t" << (bin2 * info.resolution) << "\t" << c << "\n";
-            output.append(info.chrTypes[chrId].name, bin1 * info.resolution, bin2 * info.resolution, counts);
+            bins1.push_back(bin1);
+            bins2.push_back(bin2);
+            counts.push_back(c);
           }
         }
         else {
-          bufferin.read((char*) &counts, sizeof(float));
-          if (counts != 0x7fc00000) { // not sure this works
+          bufferin.read((char*) &count, sizeof(float));
+          if (count != 0x7fc00000) { // not sure this works
             //cout << info.chrTypes[chrId1].name << "\t" << info.chrTypes[chrId2].name << "\t" << (bin1 * info.resolution) << "\t" << (bin2 * info.resolution) << "\t" << counts << "\n";
-            output.append(info.chrTypes[chrId].name, bin1 * info.resolution, bin2 * info.resolution, counts);
+            bins1.push_back(bin1);
+            bins2.push_back(bin2);
+            counts.push_back(count);
           }
         }
       }
     }
   }
-  Rcerr << "  Done.\n";
+  chrIds = std::vector<int>(bins1.size(), chrId);
+  output.chr.insert(output.chr.end(),   chrIds.begin(), chrIds.end());
+  output.bin1.insert(output.bin1.end(),   bins1.begin(),   bins1.end());
+  output.bin2.insert(output.bin2.end(),   bins2.begin(),   bins2.end());
+  output.count.insert(output.count.end(), counts.begin(),  counts.end());
   delete[] compressedBytes;
   delete[] uncompressedBytes; // don't forget to delete your heap arrays in C++!
 }
@@ -268,7 +281,7 @@ void readMatrix(std::istream& fin, long start, int size, hicInfo &info, outputSt
     fin.read((char*) &chrId2, sizeof(int));
     if (chrId1 == chrId2) {
       fin.read((char*) &nResolutions, sizeof(int));
-      //cout << "  Reading matrix " << chrId1 << "/" << chrId2 << ": " << nResolutions << " resolutions\n";
+      //Rcerr << "  Reading matrix " << chrId1 << "/" << chrId2 << ": " << nResolutions << " resolutions\n";
       for (int resolutionId = 0; resolutionId < nResolutions; ++resolutionId) {
         std::string unit;
         int resIdx;
@@ -279,7 +292,7 @@ void readMatrix(std::istream& fin, long start, int size, hicInfo &info, outputSt
         int blockCount;
         getline(fin, unit, '\0');
         fin.read((char*) &resIdx,           sizeof(int));
-        //cout << "    Resolution # " << resIdx << " in " << unit << "\n";
+        //Rcerr << "    Resolution # " << resIdx << " in " << unit << "\n";
         fin.read((char*) &tmp2,             sizeof(float)); // sumCounts
         fin.read((char*) &tmp2,             sizeof(float)); // occupiedCellCount
         fin.read((char*) &tmp2,             sizeof(float)); // stdDev
@@ -288,16 +301,16 @@ void readMatrix(std::istream& fin, long start, int size, hicInfo &info, outputSt
         fin.read((char*) &blockBinCount,    sizeof(int));
         fin.read((char*) &blockColumnCount, sizeof(int));
         fin.read((char*) &blockCount,       sizeof(int));
-        //cout << "    # c blocks " << blockCount << "\n";
+        //Rcerr << "    # c blocks " << blockCount << "\n";
         for (int blockCountId = 0; blockCountId < blockCount; ++blockCountId) {
           int blockId, blockSize;
           long blockPosition;
           fin.read((char*) &blockId,       sizeof(int));
           fin.read((char*) &blockPosition, sizeof(long));
           fin.read((char*) &blockSize,     sizeof(int));
-          //cout << "      block # " << blockId << ": " << blockPosition << " / " << blockSize << "\n";
+          //Rcerr << "      block # " << blockId << ": " << blockPosition << " / " << blockSize << "\n";
           if (resolutionId == info.resolutionIdSelected) {
-            //cout << "        selected\n";
+            //Rcerr << "        selected\n";
             pos = fin.tellg();
             readBlock(fin, blockPosition, blockSize, chrId1, info, output);
             fin.seekg(pos, std::ios::beg);
@@ -353,8 +366,25 @@ DataFrame parseHic(std::string &fname, int resolution) {
     stop("Exiting.");
   }
   readFooter(fin, info, output);
-  return DataFrame::create(_["chromosome"] = output.chromosome,
-                           _["position.1"] = output.bin1,
-                           _["position.2"] = output.bin2,
-                           _["value"]      = output.count);
+  // Transform C++ vectors to R vectors and factors
+  IntegerVector chrs, bins1, bins2, counts;
+  chrs   = wrap(output.chr);
+  bins1  = wrap(output.bin1);
+  bins2  = wrap(output.bin2);
+  counts = wrap(output.count);
+  if (info.firstChromosomeAll) {
+    // the first chr can be 'ALL'; remove it
+    info.chrs.erase(0);
+  }
+  else {
+    // factors start with in R
+    bins1 = bins1 - 1;
+    bins2 = bins2 - 1;
+  }
+  chrs.attr("class") = "factor";
+  chrs.attr("levels") = info.chrs;
+  return DataFrame::create(_["chromosome"] = chrs,
+                           _["position.1"] = bins1,
+                           _["position.2"] = bins2,
+                           _["value"]      = counts);
 }
