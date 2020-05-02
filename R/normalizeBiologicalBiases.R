@@ -11,6 +11,8 @@ KR <- function(A, tol = 1e-6, delta = 0.1, Delta = 3) {
   x <- x0
   rt <- tol^2
   v <- x * (A %*% x)
+  #message("min row sum of A:")
+  #message(min(colSums(A)))
   rk <- 1 - v
   rho_km1 <- drop(t(rk) %*% rk)
   rout <- rho_km1
@@ -98,16 +100,16 @@ normalizeBiologicalBiases <- function(object) {
       replicates <- object@replicates[which(object@conditions == conditionId)]
 
       for (replicateId in replicates) {
-        message("Replicate: ", conditionId, ".", replicateId)
-        normalizedMatrix <- KR(
-          sparseInteractionsToMatrix(
-            object,
-            chromosomeId,
-            conditionId,
-            replicateId,
-            filter = TRUE
-          )
-        )
+        message("Replicate: ", conditionId, "/", replicateId)
+        firstMatrix <- sparseInteractionsToMatrix(object,
+                                                  chromosomeId,
+                                                  conditionId,
+                                                  replicateId,
+                                                  filter = TRUE)
+        if (min(colSums(firstMatrix)) == 0) {
+          stop("The matrix has an empty row/col")
+        }
+        normalizedMatrix <- KR(firstMatrix)
         interactions %<>% bind_rows(
           matrixToSparseInteractions(
             normalizedMatrix,
