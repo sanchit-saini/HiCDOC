@@ -398,18 +398,7 @@ HiCDOCExp <- function(
     ))
   }
 
-  object@totalBins <- sapply(object@chromosomes, function(x) NULL)
-  names(object@totalBins) <- object@chromosomes
-
-  for (chromosomeId in object@chromosomes) {
-    chromosomeInteractions <- object@interactions %>%
-      filter(chromosome == chromosomeId)
-
-    object@totalBins[[chromosomeId]] <- max(
-      chromosomeInteractions$position.1,
-      chromosomeInteractions$position.2
-    ) / object@binSize + 1
-  }
+  object@totalBins <- computeTotalBins(object)
 
   object@weakBins <- sapply(object@chromosomes, function(x) NULL)
   names(object@weakBins) <- object@chromosomes

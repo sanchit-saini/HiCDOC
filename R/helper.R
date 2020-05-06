@@ -2,6 +2,23 @@ checkParameters <- function(value) {
     # TODO
 }
 
+computeTotalBins <- function(object) {
+  totalBins <- sapply(object@chromosomes, function(x) NULL)
+  names(totalBins) <- object@chromosomes
+
+  for (chromosomeId in object@chromosomes) {
+    chromosomeInteractions <- object@interactions %>%
+      filter(chromosome == chromosomeId)
+
+    totalBins[[chromosomeId]] <- max(
+                                     chromosomeInteractions$position.1,
+                                     chromosomeInteractions$position.2
+                                     ) / object@binSize + 1
+  }
+  return(totalBins)
+}
+
+
 fullInteractions <- function(object) {
 
   # Duplicate positions

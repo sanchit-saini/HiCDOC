@@ -90,6 +90,7 @@ normalizeBiologicalBiases <- function(object) {
   # Refiltering, since previous normalizations  may have introduced empty
   # rows/cols.
   object  <- filterWeakPositions(object)
+  object  <- filterSmallChromosomes(object)
 
   interactions <- tibble()
 
