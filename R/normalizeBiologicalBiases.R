@@ -87,6 +87,10 @@ KR <- function(A, tol = 1e-6, delta = 0.1, Delta = 3) {
 #' @export
 normalizeBiologicalBiases <- function(object) {
 
+  # Refiltering, since previous normalizations  may have introduced empty
+  # rows/cols.
+  object  <- filterWeakPositions(object)
+
   interactions <- tibble()
 
   for (chromosomeId in object@chromosomes) {

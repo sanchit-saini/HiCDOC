@@ -22,6 +22,11 @@ normalizeDistanceEffect <- function(object) {
       select(distance, value) %>%
       arrange(distance)
 
+    if (nrow(sample) == 0) {
+      message("Warning: the chromosome has no value")
+      next
+    }
+
     optimizeSpan <- function(
       model,
       criterion = c("aicc", "gcv"),

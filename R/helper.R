@@ -64,7 +64,10 @@ sparseInteractionsToMatrix <- function(
       bin.2 = position.2 / object@binSize + 1
     ) %>%
     select(bin.1, bin.2, value)
-
+  if (nrow(interactions) == 0) {
+    message("Warning: interaction matrix is empty")
+    return(matrix(, nrow = 0, ncol = 0))
+  }
   result <- matrix(0, nrow = totalBins, ncol = totalBins)
   data <- as.matrix(sapply(interactions, as.numeric))
   result[ data[, 1:2] ] <- data[, 3]
