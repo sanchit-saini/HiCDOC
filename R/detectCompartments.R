@@ -9,17 +9,17 @@ distanceRatio <- function(x, centroids, eps=1e-10) {
   ))
 }
 
-#' @export
-detectCompartments <- function(object) {
 
+clusterize <- function(object) {
   object@compartments <- tibble()
   object@concordances <- tibble()
   object@distances    <- tibble()
   object@centroids    <- tibble()
+  progress            <- progress_estimated(length(object@chromosomes) * length(unique(object@conditions)))
 
   for (chromosomeId in object@chromosomes) {
 
-    message("Chromosome: ", chromosomeId)
+    #message("Chromosome: ", chromosomeId)
     totalBins <- object@totalBins[[chromosomeId]]
     if (totalBins == -Inf) next
 
@@ -37,17 +37,15 @@ detectCompartments <- function(object) {
       replicates <- object@replicates[which(object@conditions == conditionId)]
 
       for (replicateId in replicates) {
-        message("Replicate: ", conditionId, ".", replicateId)
-        interactions <- rbind(
-          interactions,
-          sparseInteractionsToMatrix(
-            object,
-            chromosomeId,
-            conditionId,
-            replicateId,
-            filter = TRUE
-          )
+        #message("Replicate: ", conditionId, ".", replicateId)
+        newInteractions <- sparseInteractionsToMatrix(
+          object,
+          chromosomeId,
+          conditionId,
+          replicateId,
+          filter = TRUE
         )
+        interactions <- rbind(interactions, newInteractions)
       }
 
       mustLink <- matrix(
@@ -122,8 +120,11 @@ detectCompartments <- function(object) {
         compartment = c(1, 2),
         centroid = centroids
       ))
+
+      progress$tick()$print()
     }
   }
+  progress$stop()
 
   object@compartments %<>% mutate(
     chromosome = factor(chromosome),
@@ -149,8 +150,25 @@ detectCompartments <- function(object) {
     compartment = factor(compartment)
   )
 
+  return(object)
+}
+
+#' @export
+detectCompartments <- function(object) {
+
+  # Refiltering, since previous normalizations  may have introduced empty
+  # rows/cols.
+  message("Refiltering data...")
+  #object  <- filterWeakPositions(object)
+  object <- filterSmallChromosomes(object)
+
+  message("Clustering...")
+  object <- clusterize(object)
+  message("Predicting compartments...")
   object <- predictABCompartments(object)
+  message("Computing p-values...")
   object <- computePValues(object)
+  message("...done.")
 
   return(object)
 }

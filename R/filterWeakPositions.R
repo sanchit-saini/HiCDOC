@@ -53,8 +53,5 @@ filterWeakPositions <- function(object) {
     if (nrow(weakBins) != 1) "s"
   )
 
-  # Update the sizes of the chromosomes, which may have changed
-  object@totalBins <- computeTotalBins(object)
-
   return (object)
 }

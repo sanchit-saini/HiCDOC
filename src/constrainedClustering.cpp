@@ -179,9 +179,9 @@ double clusterize(
     && totalIterations < maxIterations
   );
 
-  Rcout << "Finished clustering.\n";
-  Rcout << "Iterations: " << totalIterations << "/" << maxIterations << "\n";
-  Rcout << "Delta: " << centroidsDelta << "/" << maxDelta << "\n";
+  //Rcout << "Finished clustering.\n";
+  //Rcout << "Iterations: " << totalIterations << "/" << maxIterations << "\n";
+  //Rcout << "Delta: " << centroidsDelta << "/" << maxDelta << "\n";
 
   double quality = 0.0;
   for (int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
@@ -232,7 +232,7 @@ List constrainedClustering (
       }
     }
 
-    Rcout << "Quality: " << quality << "/" << minQuality << "\n";
+    //Rcout << "Quality: " << quality << "/" << minQuality << "\n";
   }
 
   if (

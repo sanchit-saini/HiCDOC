@@ -2,9 +2,19 @@ checkParameters <- function(value) {
     # TODO
 }
 
+makeSymmetric <- function(interactions) {
+  bind_rows(interactions, 
+            interactions %>%
+              rename(`tmp`       = `position.1`) %>%
+              rename(`position.1` = `position.2`) %>%
+              rename(`position.2` = `tmp`))
+}
+
+
 computeTotalBins <- function(object) {
   totalBins <- sapply(object@chromosomes, function(x) NULL)
   names(totalBins) <- object@chromosomes
+  totalBins <- unlist(compact(totalBins))
 
   for (chromosomeId in object@chromosomes) {
     chromosomeInteractions <- object@interactions %>%

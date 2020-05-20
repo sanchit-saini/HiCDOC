@@ -1,15 +1,26 @@
 #' @export
 filterSmallChromosomes <- function(object) {
 
-  smallChromosomes <- names(which(object@totalBins < object@minLength))
+  bigChromosomes <- makeSymmetric(object@interactions) %>%
+    select(chromosome, `position.1`) %>%
+    distinct() %>%
+    group_by(chromosome) %>%
+    summarize(nBins = n()) %>%
+    ungroup() %>%
+    filter(nBins >= object@minLength) %>%
+    pull(chromosome) %>%
+    as.character()
+
+  #smallChromosomes <- names(which(object@totalBins < object@minLength))
+  smallChromosomes <- object@chromosomes[!object@chromosomes %in% bigChromosomes]
 
   object@interactions %<>%
-    filter(!(chromosome %in% smallChromosomes)) %>%
+    filter(chromosome %in% bigChromosomes) %>%
     mutate(chromosome = factor(chromosome))
 
-  object@chromosomes <- object@chromosomes[!object@chromosomes %in% smallChromosomes]
-  object@totalBins[which(names(object@totalBins) %in% smallChromosomes)] <- NULL
-  object@weakBins[which(names(object@weakBins) %in% smallChromosomes)] <- NULL
+  object@chromosomes <- bigChromosomes
+  object@totalBins <- object@totalBins[bigChromosomes]
+  object@weakBins  <- object@weakBins[bigChromosomes]
 
   message(
     "Removed ",

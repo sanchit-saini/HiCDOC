@@ -11,8 +11,6 @@ KR <- function(A, tol = 1e-6, delta = 0.1, Delta = 3) {
   x <- x0
   rt <- tol^2
   v <- x * (A %*% x)
-  #message("min row sum of A:")
-  #message(min(colSums(A)))
   rk <- 1 - v
   rho_km1 <- drop(t(rk) %*% rk)
   rout <- rho_km1
@@ -38,6 +36,10 @@ KR <- function(A, tol = 1e-6, delta = 0.1, Delta = 3) {
 
       # Update search direction efficiently
       w <- x * (A %*% (x * p)) + v * p
+      if (max(w) == Inf) {
+        message("Warning: KR algorithm diverges.")
+        return(t(t(x[,1] * A) * x[,1]))
+      }
       alpha <- rho_km1 / drop(t(p) %*% w)
       ap <- alpha * p
       # Test distance to boundary of cone
