@@ -18,7 +18,7 @@ filterSmallChromosomes <- function(object) {
     filter(chromosome %in% bigChromosomes) %>%
     mutate(chromosome = factor(chromosome))
 
-  object@chromosomes <- bigChromosomes
+  object@chromosomes <- bigChromosomes[order(nchar(bigChromosomes), bigChromosomes)]
   object@totalBins <- object@totalBins[bigChromosomes]
   object@weakBins  <- object@weakBins[bigChromosomes]
 
