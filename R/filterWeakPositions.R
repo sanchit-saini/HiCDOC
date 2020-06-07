@@ -16,7 +16,7 @@ filterWeakPositions <- function(object) {
       setNames(
         group_keys(weakBins) %>% pull(chromosome)
       ) %>%
-      map(function(x) pull(x, bin))
+      map(function(x) unique(sort(pull(x, bin))))
     )
 
     weakBins <- as_tibble(do.call(rbind, mapply(
