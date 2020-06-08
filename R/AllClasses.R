@@ -397,6 +397,9 @@ HiCDOCExp <- function(
       ]
     ))
   }
+  else {
+    object@binSize <- binSize
+  }
 
   object@totalBins <- computeTotalBins(object)
 
