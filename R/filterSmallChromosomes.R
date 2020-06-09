@@ -11,9 +11,6 @@ filterSmallChromosomes <- function(object) {
     pull(chromosome) %>%
     as.character()
 
-  #smallChromosomes <- names(which(object@totalBins < object@minLength))
-  smallChromosomes <- object@chromosomes[!object@chromosomes %in% bigChromosomes]
-
   object@interactions %<>%
     filter(chromosome %in% bigChromosomes) %>%
     mutate(chromosome = factor(chromosome))
@@ -23,10 +20,10 @@ filterSmallChromosomes <- function(object) {
   object@weakBins  <- object@weakBins[bigChromosomes]
 
   message(
-    "Removed ",
-    length(smallChromosomes),
+    "Kept ",
+    length(bigChromosomes),
     " chromosome",
-    if (length(smallChromosomes) != 1) "s"
+    if (length(bigChromosomes) != 1) "s"
   )
 
   return (object)
