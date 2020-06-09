@@ -16,8 +16,8 @@ filterSmallChromosomes <- function(object) {
     mutate(chromosome = factor(chromosome))
 
   object@chromosomes <- bigChromosomes[order(nchar(bigChromosomes), bigChromosomes)]
-  object@totalBins <- object@totalBins[bigChromosomes]
-  object@weakBins  <- object@weakBins[bigChromosomes]
+  object@totalBins <- object@totalBins[object@chromosomes]
+  object@weakBins  <- object@weakBins[object@chromosomes]
 
   message(
     "Kept ",
