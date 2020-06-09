@@ -1,7 +1,7 @@
 #' @export
 filterSmallChromosomes <- function(object) {
 
-  bigChromosomes <- makeSymmetric(object@interactions) %>%
+  bigChromosomes <- fullInteractions(object) %>%
     select(chromosome, `position.1`) %>%
     distinct() %>%
     group_by(chromosome) %>%
