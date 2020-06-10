@@ -384,7 +384,7 @@ DataFrame parseHic(std::string &fname, int resolution) {
   chrs.attr("class") = "factor";
   chrs.attr("levels") = info.chrs;
   return DataFrame::create(_["chromosome"] = chrs,
-                           _["position.1"] = bins1,
-                           _["position.2"] = bins2,
+                           _["position.1"] = bins1 * resolution,
+                           _["position.2"] = bins2 * resolution,
                            _["value"]      = counts);
 }
