@@ -103,15 +103,21 @@ normalizeBiologicalBiases <- function(object) {
 
       for (replicateId in replicates) {
         message("Replicate: ", conditionId, "/", replicateId)
-        firstMatrix <- sparseInteractionsToMatrix(object,
-                                                  chromosomeId,
-                                                  conditionId,
-                                                  replicateId,
-                                                  filter = TRUE)
-        if (min(colSums(firstMatrix)) == 0) {
-          stop("The matrix has an empty row/col")
+
+        rawMatrix <- sparseInteractionsToMatrix(
+          object,
+          chromosomeId,
+          conditionId,
+          replicateId,
+          filter = TRUE
+        )
+
+        if (min(colSums(rawMatrix)) == 0) {
+          stop("The matrix has an empty row")
         }
-        normalizedMatrix <- KR(firstMatrix)
+
+        normalizedMatrix <- KR(rawMatrix)
+
         interactions %<>% bind_rows(
           matrixToSparseInteractions(
             normalizedMatrix,

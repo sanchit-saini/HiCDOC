@@ -23,7 +23,7 @@ normalizeDistanceEffect <- function(object) {
       arrange(distance)
 
     if (nrow(sample) == 0) {
-      message("Warning: the chromosome has no value")
+      message("The chromosome is empty")
       next
     }
 

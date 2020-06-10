@@ -9,17 +9,18 @@ distanceRatio <- function(x, centroids, eps=1e-10) {
   ))
 }
 
-
 clusterize <- function(object) {
   object@compartments <- tibble()
   object@concordances <- tibble()
   object@distances    <- tibble()
   object@centroids    <- tibble()
-  progress            <- progress_estimated(length(object@chromosomes) * length(unique(object@conditions)))
+
+  progress <- progress_estimated(
+    length(object@chromosomes) * length(unique(object@conditions))
+  )
 
   for (chromosomeId in object@chromosomes) {
 
-    #message("Chromosome: ", chromosomeId)
     totalBins <- object@totalBins[[chromosomeId]]
     if (totalBins == -Inf) next
 
@@ -28,15 +29,6 @@ clusterize <- function(object) {
     # Correct for filtered bins
     if (!is.null(object@weakBins[[chromosomeId]])) {
       positions <- positions[-object@weakBins[[chromosomeId]]]
-      if (totalBins < length(object@weakBins[[chromosomeId]])) {
-        message("Problem while filtering bins")
-        message("Chr: ", chromosomeId)
-        message("# bins: ", totalBins)
-        message("max bins", max(object@interactions$position.1, object@interactions$position.2))
-        message("bin size", object@binSize)
-        message("# weak bins: ", length(object@weakBins[[chromosomeId]]))
-        message("weak bins: ", paste(object@weakBins[[chromosomeId]]), " ")
-      }
       totalBins <- totalBins - length(object@weakBins[[chromosomeId]])
     }
 
@@ -46,15 +38,14 @@ clusterize <- function(object) {
       replicates <- object@replicates[which(object@conditions == conditionId)]
 
       for (replicateId in replicates) {
-        #message("Replicate: ", conditionId, ".", replicateId)
-        newInteractions <- sparseInteractionsToMatrix(
+        replicateInteractions <- sparseInteractionsToMatrix(
           object,
           chromosomeId,
           conditionId,
           replicateId,
           filter = TRUE
         )
-        interactions <- rbind(interactions, newInteractions)
+        interactions <- rbind(interactions, replicateInteractions)
       }
 
       mustLink <- matrix(
@@ -133,6 +124,7 @@ clusterize <- function(object) {
       progress$tick()$print()
     }
   }
+
   progress$stop()
 
   object@compartments %<>% mutate(
@@ -171,7 +163,7 @@ detectCompartments <- function(object) {
   object <- predictABCompartments(object)
   message("Computing p-values...")
   object <- computePValues(object)
-  message("...done.")
+  message("Done.")
 
   return(object)
 }

@@ -34,7 +34,7 @@ fullInteractions <- function(object) {
     condition = factor(condition),
     replicate = factor(replicate),
     position.1 = as.integer(position.1),
-    position.2 = as.integer(position.2),
+    position.2 = as.integer(position.2)
   ) %>% anti_join(
     interactions,
     by = c("chromosome", "condition", "replicate", "position.1", "position.2")

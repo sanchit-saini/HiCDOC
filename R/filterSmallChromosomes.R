@@ -5,9 +5,9 @@ filterSmallChromosomes <- function(object) {
     select(chromosome, `position.1`) %>%
     distinct() %>%
     group_by(chromosome) %>%
-    summarize(nBins = n()) %>%
+    summarize(totalBins = n()) %>%
     ungroup() %>%
-    filter(nBins >= object@minLength) %>%
+    filter(totalBins >= object@minLength) %>%
     pull(chromosome) %>%
     as.character()
 
