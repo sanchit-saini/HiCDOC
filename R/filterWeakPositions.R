@@ -4,8 +4,8 @@ filterWeakPositions <- function(object) {
   weakBins <- fullInteractions(object) %>%
     mutate(bin = position.1 / object@binSize + 1) %>%
     group_by(chromosome, condition, replicate, bin) %>%
-    summarize(sum = sum(value)) %>%
-    filter(sum <= object@filterThreshold)
+    summarize(mean = mean(value)) %>%
+    filter(mean <= object@filterThreshold)
 
   if (nrow(weakBins) > 0) {
 
