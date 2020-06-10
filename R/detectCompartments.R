@@ -165,12 +165,6 @@ clusterize <- function(object) {
 #' @export
 detectCompartments <- function(object) {
 
-  # Refiltering, since previous normalizations  may have introduced empty
-  # rows/cols.
-  message("Refiltering data...")
-  #object  <- filterWeakPositions(object)
-  object <- filterSmallChromosomes(object)
-
   message("Clustering...")
   object <- clusterize(object)
   message("Predicting compartments...")
