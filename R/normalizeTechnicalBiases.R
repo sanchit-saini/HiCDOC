@@ -1,9 +1,8 @@
 #' @export
 normalizeTechnicalBiases <- function(object) {
 
-  chromosome_as_list <- levels(object@interactions$chromosome)
-
   matrices <- object@interactions %>%
+    arrange(order(mixedsort(chromosome))) %>%
     mutate(chromosome = as.integer(chromosome)) %>%
     group_split(condition, replicate) %>%
     map(function(x) select(x, -c(condition, replicate)))
@@ -34,7 +33,7 @@ normalizeTechnicalBiases <- function(object) {
     mutate(i = factor(as.integer(i))) %>%
     mutate(condition = factor(object@conditions[i])) %>%
     mutate(replicate = factor(object@replicates[i])) %>%
-    mutate(chromosome = factor(chromosome_as_list[chromosome])) %>%
+    mutate(chromosome = factor(object@chromosomes[chromosome])) %>%
     select(chromosome, position.1, position.2, condition, replicate, value)
 
   return(object)

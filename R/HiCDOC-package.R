@@ -57,6 +57,7 @@
 #' @import ggExtra
 #' @import hexbin
 #' @import gridExtra
+#' @import gtools
 #' @import GenomicRanges
 #' @import BiocParallel
 #' @importFrom BiocManager version

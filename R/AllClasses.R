@@ -378,8 +378,7 @@ HiCDOCExp <- function(
   object@replicates   <- dataSet@replicates
   object@conditions   <- dataSet@conditions
 
-  chromosomes <- as.vector(unique(object@interactions$chromosome))
-  object@chromosomes <- chromosomes[order(nchar(chromosomes), chromosomes)]
+  object@chromosomes <- mixedsort(as.vector(unique(object@interactions$chromosome)))
 
   object@totalReplicates <- sum(sapply(object@replicates, length))
 

@@ -265,7 +265,8 @@ computePValues <- function(object) {
     rename(start = position) %>%
     mutate(end = start + object@binSize) %>%
     mutate(direction = factor(if_else(compartment.1 == "A", "A->B", "B->A"))) %>%
-    select(chromosome, start, end, condition.1, condition.2, pvalue, padj, direction)
+    select(chromosome, start, end, condition.1, condition.2, pvalue, padj, direction) %>%
+    arrange(order(mixedsort(chromosome)), start, end, condition.1, condition.2)
 
   return(object)
 }
