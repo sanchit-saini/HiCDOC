@@ -227,7 +227,7 @@ List constrainedClustering (
     if (quality < minQuality) {
       minQuality = quality;
       bestClusters = clone(clusters);
-      for (int centroidId = 0; centroidId < centroids.size(); centroidId++) {
+      for (unsigned int centroidId = 0; centroidId < centroids.size(); centroidId++) {
         bestCentroids[centroidId] = clone(centroids[centroidId]);
       }
     }
