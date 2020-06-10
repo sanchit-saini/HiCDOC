@@ -3,9 +3,9 @@ checkParameters <- function(value) {
 }
 
 computeTotalBins <- function(object) {
-  totalBins <- sapply(object@chromosomes, function(x) NULL)
-  names(totalBins) <- object@chromosomes
-  totalBins <- unlist(compact(totalBins))
+  # totalBins <- sapply(object@chromosomes, function(x) NULL)
+  # names(totalBins) <- object@chromosomes
+  # totalBins <- unlist(compact(totalBins))
 
   for (chromosomeId in object@chromosomes) {
     chromosomeInteractions <- object@interactions %>%
@@ -14,7 +14,7 @@ computeTotalBins <- function(object) {
     totalBins[[chromosomeId]] <- max(
                                      chromosomeInteractions$position.1,
                                      chromosomeInteractions$position.2
-                                     ) / object@binSize + 1
+                                     )
   }
   return(totalBins)
 }
@@ -34,25 +34,25 @@ fullInteractions <- function(object) {
     chromosome = rep(object@chromosomes, lapply(object@totalBins, function(x) {
       x*x*length(object@replicates)
     })),
-    condition = unlist(sapply(object@totalBins, function(x) {
+    condition = as.vector(unlist(map(object@totalBins, function(x) {
       rep(object@conditions, each = x*x)
-    }), use.names = FALSE),
-    replicate = unlist(sapply(object@totalBins, function(x) {
+    }))),
+    replicate = as.vector(unlist(map(object@totalBins, function(x) {
       rep(object@replicates, each = x*x)
-    }), use.names = FALSE),
-    position.1 = unlist(sapply(object@totalBins, function(x) {
+    }))),
+    position.1 = as.vector(unlist(map(object@totalBins, function(x) {
       rep(0:(x-1), length(object@replicates)*x) * object@binSize
-    }), use.names = FALSE),
-    position.2 = unlist(sapply(object@totalBins, function(x) {
+    }))),
+    position.2 = as.vector(unlist(map(object@totalBins, function(x) {
       rep(0:(x-1), each = x, times = length(object@replicates)) * object@binSize
-    }), use.names = FALSE),
-    value = 0.0
+    }))),
+    value      = 0.0,
   ) %>% mutate(
     chromosome = factor(chromosome),
     condition = factor(condition),
     replicate = factor(replicate),
     position.1 = as.integer(position.1),
-    position.2 = as.integer(position.2)
+    position.2 = as.integer(position.2),
   ) %>% anti_join(
     interactions,
     by = c("chromosome", "condition", "replicate", "position.1", "position.2")
