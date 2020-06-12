@@ -29,6 +29,15 @@ clusterize <- function(object) {
     # Correct for filtered bins
     if (!is.null(object@weakBins[[chromosomeId]])) {
       positions <- positions[-object@weakBins[[chromosomeId]]]
+      if (totalBins < length(object@weakBins[[chromosomeId]])) {
+        message("Problem while filtering bins")
+        message("Chr: ", chromosomeId)
+        message("# bins: ", totalBins)
+        message("max bins: ", max(object@interactions$position.1, object@interactions$position.2))
+        message("bin size: ", object@binSize)
+        message("# weak bins: ", length(object@weakBins[[chromosomeId]]))
+        message("weak bins: ", paste(object@weakBins[[chromosomeId]]), sep = " ", collapse = " ")
+      }
       totalBins <- totalBins - length(object@weakBins[[chromosomeId]])
     }
 
