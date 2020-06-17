@@ -179,22 +179,22 @@ computePValues <- function(object) {
   concordanceDifferences %<>%
     # Duplicate each row "totalReplicates" times
     uncount(totalReplicates) %>%
-    bind_cols(
+    cbind(
       # Duplicate the table "totalReplicates" times
       concordanceDifferences[rep(
         seq_len(nrow(concordanceDifferences)),
         totalReplicates
       ),] %>%
       # Arrange by chromosome and position to join with the duplicated rows
-      arrange(chromosome, position)
+      arrange(chromosome, position) %>%
+      set_colnames(paste(colnames(concordanceDifferences), 2, sep="."))
     ) %>%
-    select(-chromosome1, -position1) %>%
-    rename(condition.1 = condition, condition.2 = condition1) %>%
+    select(-chromosome.2, -position.2) %>%
+    rename(condition.1 = condition, value.1 = value) %>%
     filter(as.numeric(condition.1) < as.numeric(condition.2)) %>%
     group_by(chromosome, position, condition.1, condition.2) %>%
-    summarise(value = median(abs(value - value1))) %>%
+    summarise(value = median(abs(value.1 - value.2))) %>%
     ungroup()
-
 
   # Format compartments per pair of conditions
   totalConditions = length(unique(object@conditions))
@@ -205,23 +205,23 @@ computePValues <- function(object) {
   compartmentComparisons %<>%
     # Duplicate each row "totalConditions" times
     uncount(totalConditions) %>%
-    bind_cols(
+    cbind(
       # Duplicate the table "totalConditions" times
       compartmentComparisons[rep(
         seq_len(nrow(compartmentComparisons)),
         totalConditions
       ),] %>%
       # Arrange by chromosome and position to join with the duplicated rows
-      arrange(chromosome, position)
+      arrange(chromosome, position) %>%
+      set_colnames(paste(colnames(compartmentComparisons), 2, sep="."))
     ) %>%
-    select(-chromosome1, -position1) %>%
+    select(-chromosome.2, -position.2) %>%
     rename(
       condition.1 = condition,
-      condition.2 = condition1,
       compartment.1 = value,
-      compartment.2 = value1
+      compartment.2 = value.2
     ) %>%
-    filter(as.numeric(condition.1) < as.numeric(condition.2))
+    filter(as.numeric(condition.1) < as.numeric(condition.2)) 
 
 
   # Compute p-values for switching positions
