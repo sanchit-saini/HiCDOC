@@ -47,7 +47,6 @@
 #' @import tibble
 #' @import dplyr
 #' @import tidyr
-#' @import magrittr
 #' @import readr
 #' @import purrr
 #' @import reshape2
@@ -56,12 +55,13 @@
 #' @import ggplot2
 #' @import ggExtra
 #' @import hexbin
-#' @import gridExtra
 #' @import gtools
 #' @import GenomicRanges
 #' @import BiocParallel
 #' @importFrom BiocManager version
 #' @importFrom Rcpp evalCpp sourceCpp
+#' @importFrom GridExtra arrangeGrob
+#' @importFrom magrittr %<>%
 #' @useDynLib HiCDOC
 #'
 #' @keywords package
