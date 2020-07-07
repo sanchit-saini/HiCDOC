@@ -9,7 +9,7 @@ parseInteractionMatrix3Columns <- function(object) {
     header = TRUE,
     comment.char = '#',
     check.names = FALSE
-  ) %>% as.tibble()
+  ) %>% as_tibble()
   if (colnames(object@interactions)[[1]] != "chromosome") {
     stop("First column of the input matrix should be named 'chromosome'.")
   }
@@ -200,7 +200,7 @@ parseInteractionMatrixHic <- function(object) {
   matrices <- bplapply(object@inputPath, parseHicMatrix, resolution = object@binSize)
   matrices <- map2(matrices, object@replicates, ~ mutate(.x, replicate = .y))
   matrices <- map2(matrices, object@conditions, ~ mutate(.x, condition = .y))
-  object@interactions <- bind_rows(matrices) %>% as.tibble()
+  object@interactions <- bind_rows(matrices) %>% as_tibble()
   #object@interactions <- tibble()
   # for (i in seq_along(object@inputPath)) {
   #     object@interactions <- bind_rows(object@interactions,
@@ -208,7 +208,7 @@ parseInteractionMatrixHic <- function(object) {
   #         mutate(replicate = object@replicates[[i]]) %>%
   #         mutate(condition = object@conditions[[i]]))
   # }
-  object@interactions <- object@interactions %>%
+  object@interactions %<>%
     mutate(chromosome = factor(chromosome)) %>%
     mutate(replicate = factor(replicate)) %>%
     mutate(condition = factor(condition))
