@@ -73,18 +73,23 @@ h5readCatch <- function(file, name) {
 }
 
 parseCoolMatrix <- function(fileName) {
+  split_name <- strsplit(fileName, '::/', fixed=T)[[1]]
+  # Separate file path from URI in case of mcool file
+  file_path <- split_name[1]
+  file_uri <- split_name[2]
+  uri <- function(path) { return(paste(file_uri, path, sep='/') }
   bins <- tibble(
     chromosome = factor(h5readCatch(
       file = fileName,
-      name = "bins/chrom"
+      name = uri("bins/chrom")
     )),
     start = h5readCatch(
       file = fileName,
-      name = "bins/start"
+      name = uri("bins/start")
     ),
     end = h5readCatch(
       file = fileName,
-      name = "bins/end"
+      name = uri("bins/end")
     )
   )
   step <- bins$end - bins$start
@@ -107,15 +112,15 @@ parseCoolMatrix <- function(fileName) {
   data <- tibble(
     id1 = h5readCatch(
       file = fileName,
-      name = "pixels/bin1_id"
+      name = uri("pixels/bin1_id")
     ),
     id2 = h5readCatch(
       file = fileName,
-      name = "pixels/bin2_id"
+      name = uri("pixels/bin2_id")
     ),
     value = h5readCatch(
       file = fileName,
-      name = "pixels/count"
+      name = uri("pixels/count")
     )
   ) %>%
     left_join(bins, by = c("id1" = "id")) %>%

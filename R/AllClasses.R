@@ -139,9 +139,11 @@ HiCDOCDataSetFromCool <- function(
     stop("'coolFileNames' must be a vector of characters.", call. = FALSE)
   }
   for (coolFileName in coolFileNames) {
-    if (!file.exists(coolFileName)) {
+    # Remove trailing URI in case of an mcool file
+    coolFilePath <- strsplit(coolFileName, '::/')[[1]][1]
+    if (!file.exists(coolFilePath)) {
       stop(
-        paste("Cool file name", coolFileName, "is not a valid file."),
+        paste("Cool file name", coolFilePath, "is not a valid file."),
         call. = FALSE
       )
     }
