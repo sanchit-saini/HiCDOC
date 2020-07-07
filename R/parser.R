@@ -76,7 +76,7 @@ parseCoolMatrix <- function(fileName) {
   splitName <- strsplit(fileName, '::', fixed=T)[[1]]
   # Separate file path from URI in case of mcool file
   filePath <- splitName[1]
-  fileUri <- splitName[2]
+  fileUri <- ifelse(length(splitName) > 1, splitName[2], '')
   uri <- function(path) { return(paste(fileUri, path, sep='/')) }
   bins <- tibble(
     chromosome = factor(h5readCatch(
