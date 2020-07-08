@@ -92,14 +92,14 @@ plotChr <- function(chr, object = object) {
                         minX    = minX,
                         maxX    = maxX)
   if (is.null(pPValue)) {
-    return(arrangeGrob(pCompartment,
+    return(gridExtra::arrangeGrob(pCompartment,
                        pConcordance,
                        ncol    = 1,
                        heights = c( 1, 5),
                        top     = chr,
                        padding = unit(0, "cm")))
   }
-  return(arrangeGrob(pPValue,
+  return(gridExtra::arrangeGrob(pPValue,
                      pCompartment,
                      pConcordance,
                      ncol    = 1,

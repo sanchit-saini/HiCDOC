@@ -66,7 +66,7 @@ sparseInteractionsToMatrix <- function(
     select(bin.1, bin.2, value)
   if (nrow(interactions) == 0) {
     message("Warning: interaction matrix is empty")
-    return(matrix(, nrow = 0, ncol = 0))
+    return(matrix(0, nrow = 0, ncol = 0))
   }
   result <- matrix(0, nrow = totalBins, ncol = totalBins)
   data <- as.matrix(sapply(interactions, as.numeric))
@@ -123,6 +123,7 @@ buildABComparison <- function(object) {
     group_by(chromosome, position, condition) %>%
     summarise(diagValue = median(value)) %>%
     ungroup()
+  
   offDiagonal <- fullInteractions(object) %>%
     filter(position.1 != position.2) %>%
     group_by(chromosome, position.1, condition, replicate) %>%
@@ -130,6 +131,7 @@ buildABComparison <- function(object) {
     summarise(offDiagValue = median(value)) %>%
     ungroup() %>%
     rename(position = position.1)
+  
   full_join(diagonal, offDiagonal, by = c("chromosome", "position", "condition")) %>%
     right_join( object@compartments, by = c("chromosome", "position", "condition")) %>%
     rename(compartment = value) %>%
@@ -147,23 +149,28 @@ predictABCompartments <- function(object) {
     spread(key = compartment, value = value, fill = 0) %>%
     mutate(A = if_else(`1` >= `2`, 1, 2)) %>%
     select(-c(`1`, `2`))
+  
   object@compartments %<>%
     left_join(compartments, by = c("chromosome", "condition")) %>%
     mutate(value = factor(if_else(value == A, "A", "B"))) %>%
     select(-c(A))
+  
   object@concordances %<>%
     left_join(compartments, by = c("chromosome", "condition")) %>%
     mutate(change = if_else(A == 1, 1, -1)) %>%
     mutate(value = change * value) %>%
     select(-c(A, change))
+  
   object@distances %<>%
     left_join(compartments, by = c("chromosome", "condition")) %>%
     mutate(cluster = factor(if_else(cluster == A, "A", "B"))) %>%
     select(-c(A))
+  
   object@centroids %<>%
     left_join(compartments, by = c("chromosome", "condition")) %>%
     mutate(compartment = factor(if_else(compartment == A, "A", "B"))) %>%
     select(-c(A))
+  
   return(object)
 }
 
@@ -187,7 +194,7 @@ computePValues <- function(object) {
       ),] %>%
       # Arrange by chromosome and position to join with the duplicated rows
       arrange(chromosome, position) %>%
-      set_colnames(paste(colnames(concordanceDifferences), 2, sep="."))
+      rename_with(function(old_colnames) paste(old_colnames, 2, sep="."))
     ) %>%
     select(-chromosome.2, -position.2) %>%
     rename(condition.1 = condition, value.1 = value) %>%
@@ -213,7 +220,7 @@ computePValues <- function(object) {
       ),] %>%
       # Arrange by chromosome and position to join with the duplicated rows
       arrange(chromosome, position) %>%
-      set_colnames(paste(colnames(compartmentComparisons), 2, sep="."))
+      rename_with(function(old_colnames) paste(old_colnames, 2, sep="."))
     ) %>%
     select(-chromosome.2, -position.2) %>%
     rename(

@@ -47,21 +47,22 @@
 #' @import tibble
 #' @import dplyr
 #' @import tidyr
-#' @import magrittr
 #' @import readr
-#' @import purrr
 #' @import reshape2
 #' @import HiCcompare
 #' @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
 #' @import ggplot2
 #' @import ggExtra
 #' @import hexbin
-#' @import gridExtra
 #' @import gtools
-#' @import GenomicRanges
 #' @import BiocParallel
 #' @importFrom BiocManager version
 #' @importFrom Rcpp evalCpp sourceCpp
+#' @importFrom GenomicRanges makeGRangesFromDataFrame
+#' @importFrom GridExtra arrangeGrob
+#' @importFrom magrittr %<>%
+#' @importFrom purrr map
+#' @importFrom plyr compact
 #' @useDynLib HiCDOC
 #'
 #' @keywords package
