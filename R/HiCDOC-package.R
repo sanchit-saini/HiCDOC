@@ -59,7 +59,7 @@
 #' @importFrom BiocManager version
 #' @importFrom Rcpp evalCpp sourceCpp
 #' @importFrom GenomicRanges makeGRangesFromDataFrame
-#' @importFrom GridExtra arrangeGrob
+#' @importFrom gridExtra arrangeGrob
 #' @importFrom magrittr %<>%
 #' @importFrom purrr map
 #' @importFrom plyr compact
