@@ -37,7 +37,7 @@ Imports:
     BiocManager,
     BiocStyle
 LinkingTo: Rcpp
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 biocViews:
     TODO
 Suggests: knitr,
