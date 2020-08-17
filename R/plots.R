@@ -53,6 +53,7 @@ plotMD <- function(object) {
     ggplot(aes(x = distance, y = value)) +
     stat_bin_hex() +
     scale_fill_gradient(low = "white", high = "blue", trans = "log2") +
+    geom_point(col="transparent") + # necessary for geom_smooth
     geom_smooth()
   p <- ggMarginal(p, margins = "x", type = "histogram", fill = "transparent")
   return(p)
