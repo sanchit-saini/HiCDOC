@@ -16,18 +16,18 @@ fullInteractions <- function(object) {
     chromosome = rep(object@chromosomes, lapply(object@totalBins, function(x) {
       x*x*length(object@replicates)
     })),
-    condition = as.vector(unlist(map(object@totalBins, function(x) {
+    condition = flatten_chr(map(object@totalBins, function(x) {
       rep(object@conditions, each = x*x)
-    }))),
-    replicate = as.vector(unlist(map(object@totalBins, function(x) {
+    })),
+    replicate = flatten_chr(map(object@totalBins, function(x) {
       rep(object@replicates, each = x*x)
-    }))),
-    position.1 = as.vector(unlist(map(object@totalBins, function(x) {
+    })),
+    position.1 = flatten_int(map(object@totalBins, function(x) {
       rep(0:(x-1), length(object@replicates)*x) * object@binSize
-    }))),
-    position.2 = as.vector(unlist(map(object@totalBins, function(x) {
+    })),
+    position.2 = flatten_int(map(object@totalBins, function(x) {
       rep(0:(x-1), each = x, times = length(object@replicates)) * object@binSize
-    }))),
+    })),
     value      = 0.0,
   ) %>% mutate(
     chromosome = factor(chromosome),
@@ -64,6 +64,7 @@ sparseInteractionsToMatrix <- function(
       bin.2 = position.2 / object@binSize + 1
     ) %>%
     select(bin.1, bin.2, value)
+  
   if (nrow(interactions) == 0) {
     message("Warning: interaction matrix is empty")
     return(matrix(0, nrow = 0, ncol = 0))

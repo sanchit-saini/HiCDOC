@@ -61,7 +61,7 @@
 #' @importFrom GenomicRanges makeGRangesFromDataFrame
 #' @importFrom gridExtra arrangeGrob
 #' @importFrom magrittr %<>%
-#' @importFrom purrr map
+#' @importFrom purrr map flatten_int flatten_chr
 #' @importFrom plyr compact
 #' @useDynLib HiCDOC
 #'
