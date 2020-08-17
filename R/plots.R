@@ -118,12 +118,18 @@ plotAB <- function(object) {
   df <- data %>%
     select(-chromosome) %>%
     spread(name, centroid) %>%
-    unnest() %>% t()
-  df
+    unnest(cols=data$name) %>% t()
+
   pca <- prcomp(df)
+  varpca <- pca$sdev^2
+  propvar <- varpca/sum(varpca)
+  propvar <- paste(round(100*propvar,2),"%")
+  
   pca <- as.data.frame(pca$x)
   pca$group <- row.names(df)
-  ggplot(pca, aes(x = PC1, y = PC2, color = group)) + geom_point()
+  ggplot(pca, aes(x = PC1, y = PC2, color = group)) + geom_point() +
+    xlab(paste("PC1 ", propvar[1])) + 
+    ylab(paste("PC2 ", propvar[2]))
 }
 
 #' @export
