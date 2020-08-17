@@ -124,7 +124,7 @@ plotConcordances(object)
 plotCentroids(object)
 
 p <- plotCompartmentChanges(object)
-plot(p[[1]])
+p[[1]]
 ```
 
 ### Load from sparse matrix

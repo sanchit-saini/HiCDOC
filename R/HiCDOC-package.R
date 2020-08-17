@@ -60,6 +60,7 @@
 #' @importFrom Rcpp evalCpp sourceCpp
 #' @importFrom GenomicRanges makeGRangesFromDataFrame
 #' @importFrom gridExtra arrangeGrob
+#' @importFrom ggpubr as_ggplot
 #' @importFrom magrittr %<>%
 #' @importFrom purrr map flatten_int flatten_chr
 #' @importFrom plyr compact
