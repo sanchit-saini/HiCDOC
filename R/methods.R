@@ -391,7 +391,7 @@ setMethod(
 printHiCDOCParameters <- function(x, ...) {
 
   cat("\n Global parameters: \n", "------------------ \n")
-  df <- data.frame(value = unlist(x[1:6]))
+  df <- data.frame(value = unlist(x[seq_len(6)]))
   print(df)
 
   cat("\n Constrained K-means parameters: \n", "---------------------- \n")
