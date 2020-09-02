@@ -124,11 +124,11 @@ plotChr <- function(chr, object = object) {
                             top     = paste0("chromosome ",chr),
                             padding = unit(0, "cm"))
     
-    legPvalue      <- gtable::gtable_filter(ggplotGrob(pPValue), "guide-box", invert=F)
+    legPvalue      <- gtable::gtable_filter(ggplotGrob(pPValue), "guide-box", invert=FALSE)
   }
   
-  legCompartment <- gtable::gtable_filter(ggplotGrob(pCompartment), "guide-box", invert=F)
-  legConcordance <- gtable::gtable_filter(ggplotGrob(pConcordance), "guide-box", invert=F)
+  legCompartment <- gtable::gtable_filter(ggplotGrob(pCompartment), "guide-box", invert=FALSE)
+  legConcordance <- gtable::gtable_filter(ggplotGrob(pConcordance), "guide-box", invert=FALSE)
   
   legplot <- gridExtra::arrangeGrob(legPvalue, legCompartment, legConcordance,
                          ncol    = 3,  padding = unit(0, "cm"))
