@@ -13,15 +13,15 @@ fullInteractions <- function(object) {
 
   # Fill missing positions with zeros
   interactions <- tibble(
-    chromosome = rep(object@chromosomes, lapply(object@totalBins, function(x) {
+    chromosome = rep(as.factor(object@chromosomes), lapply(object@totalBins, function(x) {
       x*x*length(object@replicates)
     })),
-    condition = flatten_chr(map(object@totalBins, function(x) {
+    condition = as.factor(flatten_chr(map(object@totalBins, function(x) {
       rep(object@conditions, each = x*x)
-    })),
-    replicate = flatten_chr(map(object@totalBins, function(x) {
+    }))),
+    replicate = as.factor(flatten_chr(map(object@totalBins, function(x) {
       rep(object@replicates, each = x*x)
-    })),
+    }))),
     position.1 = flatten_int(map(object@totalBins, function(x) {
       rep(0:(x-1), length(object@replicates)*x) * object@binSize
     })),
@@ -29,12 +29,6 @@ fullInteractions <- function(object) {
       rep(0:(x-1), each = x, times = length(object@replicates)) * object@binSize
     })),
     value      = 0.0,
-  ) %>% mutate(
-    chromosome = factor(chromosome),
-    condition = factor(condition),
-    replicate = factor(replicate),
-    position.1 = as.integer(position.1),
-    position.2 = as.integer(position.2)
   ) %>% anti_join(
     interactions,
     by = c("chromosome", "condition", "replicate", "position.1", "position.2")
@@ -63,15 +57,18 @@ sparseInteractionsToMatrix <- function(
       bin.1 = position.1 / object@binSize + 1,
       bin.2 = position.2 / object@binSize + 1
     ) %>%
-    select(bin.1, bin.2, value)
+    select(bin.1, bin.2, value) %>%
+    as.matrix()
   
   if (nrow(interactions) == 0) {
     message("Warning: interaction matrix is empty")
     return(matrix(0, nrow = 0, ncol = 0))
   }
+  if (is.numeric(interactions) == F) {
+    stop("Error: non numeric matrix of interactions", call. = TRUE)
+  }
   result <- matrix(0, nrow = totalBins, ncol = totalBins)
-  data <- as.matrix(sapply(interactions, as.numeric))
-  result[ data[, 1:2] ] <- data[, 3]
+  result[ interactions[, 1:2] ] <- interactions[, 3]
   result <- result + t(result) - diag(diag(result))
   if (!isSymmetric(result)) {
     stop("Matrix is not symmetric.")
