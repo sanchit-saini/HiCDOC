@@ -1,15 +1,18 @@
 #' @export
-normalizeTechnicalBiases <- function(object) {
+normalizeTechnicalBiases <- function(object, parallel=FALSE) {
 
+  object@weakBins <- object@weakBins[mixedsort(names(object@weakBins))]
+  object@chromosomes <- mixedsort(object@chromosomes)
+  
+  # One matrix by condition and replicate
   matrices <- object@interactions %>%
     arrange(order(mixedsort(chromosome))) %>%
+    mutate(chromosome = factor(chromosome, levels=object@chromosomes)) %>%
     mutate(chromosome = as.integer(chromosome)) %>%
     group_split(condition, replicate) %>%
     map(function(x) select(x, -c(condition, replicate)))
 
-  object@weakBins <- object@weakBins[mixedsort(names(object@weakBins))]
-  object@chromosomes <- mixedsort(object@chromosomes)
-
+  # Regions to remove
   remove.regions <- data.frame(cbind(
     unlist(mapply(
       function(bins, name) rep(name, length(bins)),
@@ -20,6 +23,7 @@ normalizeTechnicalBiases <- function(object) {
     unlist(object@weakBins) * object@binSize - 1
   ))
 
+  # Regions to remove in Granges format
   if (nrow(remove.regions) > 0) {
     colnames(remove.regions) <- c("chromosome", "start", "end")
     remove.regions <- GenomicRanges::makeGRangesFromDataFrame(remove.regions)
@@ -37,8 +41,7 @@ normalizeTechnicalBiases <- function(object) {
     A.min = 0
   )
 
-  normalized <- cyclic_loess(hicexp, parallel = FALSE)
-  #normalized <- cyclic_loess(hicexp, parallel = TRUE)
+  normalized <- cyclic_loess(hicexp, parallel = parallel)
   output <- hic_table(normalized) %>% as_tibble() %>% select(-D)
 
   colnames(output) <- c(
