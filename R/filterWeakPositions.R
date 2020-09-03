@@ -19,10 +19,11 @@ filterWeakPositions <- function(object) {
       map(function(x) unique(sort(pull(x, bin))))
     )
 
+    notempty <- vapply(object@weakBins, function(x) length(x)>0, FUN.VALUE=TRUE)
     weakBins <- as_tibble(do.call(rbind, mapply(
       function(chromosome, bin) cbind(chromosome, bin),
-      names(object@weakBins[sapply(object@weakBins, function(x) is.vector(x))]),
-      object@weakBins[sapply(object@weakBins, function(x) is.vector(x))],
+      names(object@weakBins[notempty]),
+      object@weakBins[notempty],
       SIMPLIFY = FALSE
     ))) %>% mutate(
       chromosome = factor(chromosome, levels = object@chromosomes),
