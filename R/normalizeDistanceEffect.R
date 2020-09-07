@@ -49,10 +49,16 @@ normalizeDistanceEffect <- function(object) {
       return (result$minimum)
     }
 
-    l <- loess(value ~ distance, data = sample)
+    methodtrace <- "approximate"
+    if(object@sampleSize <= 1000) 
+      methodtrace <- "exact"
+    
+    l <- loess(value ~ distance, data = sample, 
+               control = loess.control(trace.hat=methodtrace))
     span <- optimizeSpan(l, criterion = "gcv")
-    l <- loess(value ~ distance, span = span, data = sample)
-
+    l <- loess(value ~ distance, span = span, data = sample, 
+               control = loess.control(trace.hat=methodtrace))
+    
     sample %<>%
       mutate(loess = predict(l)) %>%
       mutate(loess = pmax(loess, 0)) %>%
@@ -64,9 +70,9 @@ normalizeDistanceEffect <- function(object) {
     uniqueDistances <- unique(sort(chromosomeInteractions$distance))
     valueMap <- tibble(
       distance = uniqueDistances,
-      sampleDistance = sapply(uniqueDistances, function(x) {
+      sampleDistance = vapply(uniqueDistances, function(x) {
         sampleDistances[which.min(abs(x - sampleDistances))]
-      })
+      }, FUN.VALUE = c(0))
     ) %>%
       left_join(sample, by = "sampleDistance") %>%
       select(-sampleDistance)
