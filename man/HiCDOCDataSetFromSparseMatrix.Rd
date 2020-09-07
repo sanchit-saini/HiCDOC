@@ -3,7 +3,7 @@
 \docType{class}
 \name{HiCDOCDataSetFromSparseMatrix}
 \alias{HiCDOCDataSetFromSparseMatrix}
-\title{Reads a sparse matrix a fill a \code{HiCDOCDataSet} with its content.}
+\title{Reads a sparse matrix and fill a \code{HiCDOCDataSet} with its content.}
 \usage{
 HiCDOCDataSetFromSparseMatrix(matrix = NULL)
 }
@@ -15,7 +15,7 @@ HiCDOCDataSetFromSparseMatrix(matrix = NULL)
         object of class S4.
 }
 \description{
-Reads a sparse matrix a fill a \code{HiCDOCDataSet} with its content.
+Reads a sparse matrix and fill a \code{HiCDOCDataSet} with its content.
 }
 \examples{
 basedir    <- system.file("extdata", package="HiCDOC", mustWork = TRUE)

@@ -1,5 +1,7 @@
-KR <- function(A, tol = 1e-6, delta = 0.1, Delta = 3) {
-
+KR <- function(A,
+               tol = 1e-6,
+               delta = 0.1,
+               Delta = 3) {
   n <- nrow(A)
   e <- matrix(1, nrow = n, ncol = 1)
   x0 <- e
@@ -9,7 +11,7 @@ KR <- function(A, tol = 1e-6, delta = 0.1, Delta = 3) {
   eta <- etamax
   stop_tol <- tol * .5
   x <- x0
-  rt <- tol^2
+  rt <- tol ^ 2
   v <- x * (A %*% x)
   rk <- 1 - v
   rho_km1 <- drop(t(rk) %*% rk)
@@ -17,12 +19,14 @@ KR <- function(A, tol = 1e-6, delta = 0.1, Delta = 3) {
   rold <- rout
   MVP <- 0 # We'll count matrix vector products.
   i <- 0 # Outer iteration count.
-  while (rout > rt) { # Outer iteration
+  while (rout > rt) {
+    # Outer iteration
     i <- i + 1
     k <- 0
     y <- e
-    innertol <- max(c(eta^2 * rout, rt))
-    while (rho_km1 > innertol) { # Inner iteration by CG
+    innertol <- max(c(eta ^ 2 * rout, rt))
+    while (rho_km1 > innertol) {
+      # Inner iteration by CG
       k <- k + 1
       if (k == 1) {
         Z <- rk / v
@@ -33,19 +37,20 @@ KR <- function(A, tol = 1e-6, delta = 0.1, Delta = 3) {
         beta <- rho_km1 / rho_km2
         p <- Z + beta * p
       }
-
+      
       # Update search direction efficiently
       w <- x * (A %*% (x * p)) + v * p
       if (max(w) == Inf) {
         message("Warning: KR algorithm diverges.")
-        return(t(t(x[,1] * A) * x[,1]))
+        return(t(t(x[, 1] * A) * x[, 1]))
       }
       alpha <- rho_km1 / drop(t(p) %*% w)
       ap <- alpha * p
       # Test distance to boundary of cone
       ynew <- y + ap
       if (min(ynew) <= delta) {
-        if (delta == 0) break()
+        if (delta == 0)
+          break()
         ind <- which(ap < 0)
         gamma <- min((delta - y[ind]) / ap[ind])
         y <- y + gamma * ap
@@ -75,49 +80,46 @@ KR <- function(A, tol = 1e-6, delta = 0.1, Delta = 3) {
     res_norm <- sqrt(rout)
     eta_o <- eta
     eta <- g * rat
-    if (g * eta_o^2 > 0.1) {
-      eta <- max(c(eta, g * eta_o^2))
+    if (g * eta_o ^ 2 > 0.1) {
+      eta <- max(c(eta, g * eta_o ^ 2))
     }
     eta <- max(c(min(c(eta, etamax)), stop_tol / res_norm))
   }
-
-  result <- t(t(x[,1] * A) * x[,1])
-
+  
+  result <- t(t(x[, 1] * A) * x[, 1])
+  
   return(result)
 }
 
 #' @export
 normalizeBiologicalBiases <- function(object) {
-
   interactions <- tibble()
-
+  
   for (chromosomeId in object@chromosomes) {
-
     message("Chromosome: ", chromosomeId)
     totalBins <- object@totalBins[[chromosomeId]]
-    if (totalBins == -Inf) next
-
+    if (totalBins == -Inf)
+      next
+    
     for (conditionId in unique(object@conditions)) {
-
-      replicates <- object@replicates[which(object@conditions == conditionId)]
-
+      replicates <-
+        object@replicates[which(object@conditions == conditionId)]
+      
       for (replicateId in replicates) {
         message("Replicate: ", conditionId, "/", replicateId)
-
-        rawMatrix <- sparseInteractionsToMatrix(
-          object,
-          chromosomeId,
-          conditionId,
-          replicateId,
-          filter = TRUE
-        )
-
+        
+        rawMatrix <- sparseInteractionsToMatrix(object,
+                                                chromosomeId,
+                                                conditionId,
+                                                replicateId,
+                                                filter = TRUE)
+        
         if (min(colSums(rawMatrix)) == 0) {
           stop("The matrix has an empty row")
         }
-
+        
         normalizedMatrix <- KR(rawMatrix)
-
+        
         interactions %<>% bind_rows(
           matrixToSparseInteractions(
             normalizedMatrix,
@@ -130,12 +132,12 @@ normalizeBiologicalBiases <- function(object) {
       }
     }
   }
-
+  
   object@interactions <- interactions %>% mutate(
     chromosome = factor(chromosome),
     condition = factor(condition),
     replicate = factor(replicate)
   )
-
+  
   return(object)
 }
