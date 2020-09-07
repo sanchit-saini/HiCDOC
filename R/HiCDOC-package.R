@@ -58,12 +58,15 @@
 #' @import BiocParallel
 #' @importFrom BiocManager version
 #' @importFrom Rcpp evalCpp sourceCpp
-#' @importFrom GenomicRanges makeGRangesFromDataFrame
+#' @importFrom GenomicRanges makeGRangesFromDataFrame makeGRangesListFromDataFrame
 #' @importFrom gridExtra arrangeGrob
 #' @importFrom ggpubr as_ggplot
 #' @importFrom magrittr %<>%
 #' @importFrom purrr map flatten_int flatten_chr
 #' @importFrom plyr compact
+#' @importFrom stats D ecdf end loess loess.control median optimize p.adjust prcomp predict quantile setNames start update
+#' @importFrom utils modifyList read.table
+#' @importFrom gtable gtable_filter
 #' @useDynLib HiCDOC
 #'
 #' @keywords package
