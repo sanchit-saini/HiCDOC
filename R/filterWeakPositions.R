@@ -57,11 +57,6 @@ fun_weak_chr <- function(inter_chr, totalBins_chr, binsize, replicates, conditio
       inter_chr <- inter_chr %>% filter(value>0)
     }
   }
-  # Compute the bins from position
-  message("Chromosome", chr, ": removed ", nbRemovedBins, " position",
-          if (nbRemovedBins > 1) 
-            "s"
-          )
   return(list("pos"= weakpos_chr, "interactions" = inter_chr ))
 }
 
@@ -87,6 +82,8 @@ filterWeakPositions <- function(object) {
   
   weakBins <- weakPositions %>% map("pos")
   weakBins <- lapply(weakBins, function(x) x / object@binSize + 1)
+  nullweak <- vapply(weakBins, function(x) length(x) == 0, FUN.VALUE = TRUE)
+  weakBins[nullweak] <- list(NULL)
   
   interactions <- weakPositions %>% purrr::map("interactions") %>% bind_rows()
 
@@ -95,6 +92,9 @@ filterWeakPositions <- function(object) {
   object@interactions <- interactions
   
   nbweak <- sum(vapply(weakBins, length, c(0)))
+  
+  message(cat(paste0("Chromosome ", names(weakBins), ": ", 
+                       lapply(weakBins, length), " position(s) removed"), sep="\n"))
   message("Removed ",
           nbweak,
           " position",
