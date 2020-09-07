@@ -39,18 +39,21 @@ HiCDOCDefaultParameters <- list(
 #'                    segmentation methods. See \code{\link{parameters}}.
 #'
 #' @export
-setClass("HiCDOCDataSet", slots = c(
-  inputPath    = "ANY",
-  interactions = "ANY",
-  replicates   = "ANY",
-  conditions   = "ANY",
-  binSize      = "ANY"
-))
+setClass(
+  "HiCDOCDataSet",
+  slots = c(
+    inputPath    = "ANY",
+    interactions = "ANY",
+    replicates   = "ANY",
+    conditions   = "ANY",
+    binSize      = "ANY"
+  )
+)
 
 
 ##- HiCDOCDataSet S4 class constructor from sparse matrix --------------------#
 ##----------------------------------------------------------------------------#
-#' Reads a sparse matrix a fill a \code{HiCDOCDataSet} with its content.
+#' Reads a sparse matrix and fill a \code{HiCDOCDataSet} with its content.
 #'
 #' @rdname HiCDOCDataSetFromSparseMatrix
 #' @docType class
@@ -69,36 +72,36 @@ setClass("HiCDOCDataSet", slots = c(
 #'
 #' @export
 HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
-
   ##- checking general input arguments -------------------------------------#
   ##------------------------------------------------------------------------#
-
+  
   ##- matrix
   if (is.null(matrix)) {
     stop("'matrix' must be the path to a matrix", call. = FALSE)
   }
-
+  
   if (!is.character(matrix)) {
     stop("'matrix' must be a character.", call. = FALSE)
   }
-
+  
   if (!file.exists(matrix)) {
     stop("'matrix' must be a valid file.", call. = FALSE)
   }
-
+  
   ##- end checking ---------------------------------------------------------#
-
+  
   object <- new("HiCDOCDataSet")
-
+  
   object@inputPath <- matrix
   object <- parseInteractionMatrix3Columns(object)
-
+  
   return(invisible(object))
 }
 
 
 ##- HiCDOCDataSet S4 class constructor from cool files -----------------------#
 ##----------------------------------------------------------------------------#
+#' Construct a \code{HiCDOCDataSet} from a cool file.
 #' @rdname HiCDOCDataSetFromCool
 #' @docType class
 #'
@@ -116,15 +119,12 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
 #' dataSet
 #'
 #' @export
-HiCDOCDataSetFromCool <- function(
-  coolFileNames,
-  replicates,
-  conditions
-) {
-
+HiCDOCDataSetFromCool <- function(coolFileNames,
+                                  replicates,
+                                  conditions) {
   ##- checking general input arguments -------------------------------------#
   ##------------------------------------------------------------------------#
-
+  
   ##- coolFileNames
   if (is.null(coolFileNames)) {
     stop("'coolFileNames' must be paths to cool files", call. = FALSE)
@@ -140,13 +140,11 @@ HiCDOCDataSetFromCool <- function(
   }
   for (coolFileName in coolFileNames) {
     if (!file.exists(coolFileName)) {
-      stop(
-        paste("Cool file name", coolFileName, "is not a valid file."),
-        call. = FALSE
-      )
+      stop(paste("Cool file name", coolFileName, "is not a valid file."),
+           call. = FALSE)
     }
   }
-
+  
   ##- conditions
   if (is.null(conditions)) {
     stop("'conditions' should not be null.", call. = FALSE)
@@ -155,21 +153,22 @@ HiCDOCDataSetFromCool <- function(
     conditions <- as.vector(conditions)
   }
   ##- end checking ---------------------------------------------------------#
-
+  
   object <- new("HiCDOCDataSet")
-
+  
   object@inputPath  <- coolFileNames
   object@replicates <- replicates
   object@conditions <- conditions
-
+  
   object <- parseInteractionMatrixCool(object)
-
+  
   return(invisible(object))
 }
 
 
 ##- HiCDOCDataSet S4 class constructor from hic files ------------------------#
 ##----------------------------------------------------------------------------#
+#' Construct a \code{HiCDOCDataSet} from a hic file.
 #' @rdname HiCDOCDataSetFromHic
 #' @docType class
 #'
@@ -188,16 +187,14 @@ HiCDOCDataSetFromCool <- function(
 #' dataSet
 #'
 #' @export
-HiCDOCDataSetFromHic <- function(
-  hicFileNames,
-  replicates,
-  conditions,
-  resolution
-) {
-
+#'
+HiCDOCDataSetFromHic <- function(hicFileNames,
+                                 replicates,
+                                 conditions,
+                                 resolution) {
   ##- checking general input arguments -------------------------------------#
   ##------------------------------------------------------------------------#
-
+  
   ##- hicFileNames
   if (is.null(hicFileNames)) {
     stop("'hicFileNames' must be paths to hic files", call. = FALSE)
@@ -213,13 +210,11 @@ HiCDOCDataSetFromHic <- function(
   }
   for (hicFileName in hicFileNames) {
     if (!file.exists(hicFileName)) {
-      stop(
-        paste("hic file name", hicFileName, "is not a valid file."),
-        call. = FALSE
-      )
+      stop(paste("hic file name", hicFileName, "is not a valid file."),
+           call. = FALSE)
     }
   }
-
+  
   ##- conditions
   if (is.null(conditions)) {
     stop("'conditions' should not be null.", call. = FALSE)
@@ -227,7 +222,7 @@ HiCDOCDataSetFromHic <- function(
   if (is.factor(conditions)) {
     conditions <- as.vector(conditions)
   }
-
+  
   ##- resolution
   if (is.null(resolution)) {
     stop("'resolution' should not be null.", call. = FALSE)
@@ -241,18 +236,18 @@ HiCDOCDataSetFromHic <- function(
   if (length(resolution) != 1) {
     stop("'resolution' should not be a vector.", call. = FALSE)
   }
-
+  
   ##- end checking ---------------------------------------------------------#
-
+  
   object <- new("HiCDOCDataSet")
-
+  
   object@inputPath  <- hicFileNames
   object@replicates <- replicates
   object@conditions <- conditions
   object@binSize    <- resolution
-
+  
   object <- parseInteractionMatrixHic(object)
-
+  
   return(invisible(object))
 }
 
@@ -279,7 +274,8 @@ HiCDOCDataSetFromHic <- function(
 #' @export
 HiCDOCExample <- function() {
   object  <- NULL
-  basedir <- system.file("extdata", package = "HiCDOC", mustWork = TRUE)
+  basedir <-
+    system.file("extdata", package = "HiCDOC", mustWork = TRUE)
   matrix  <- file.path(basedir, "sample.tsv")
   dataSet <- HiCDOCDataSetFromSparseMatrix(matrix)
   object  <- HiCDOCExp(dataSet)
@@ -308,31 +304,34 @@ HiCDOCExample <- function() {
 #'                    segmentation methods. See \code{\link{parameters}}.
 #'
 #' @export
-setClass("HiCDOCExp", slots = c(
-  inputPath                   = "ANY",
-  interactions                = "ANY",
-  weakBins                    = "ANY",
-  filterThreshold             = "ANY",
-  chromosomes                 = "ANY",
-  replicates                  = "ANY",
-  totalReplicates             = "ANY",
-  totalReplicatesPerCondition = "ANY",
-  conditions                  = "ANY",
-  totalBins                   = "ANY",
-  binSize                     = "ANY",
-  sampleSize                  = "ANY",
-  distances                   = "ANY",
-  compartments                = "ANY",
-  concordances                = "ANY",
-  differences                 = "ANY",
-  centroids                   = "ANY",
-  loessSpan                   = "ANY",
-  kMeansIterations            = "ANY",
-  kMeansDelta                 = "ANY",
-  kMeansRestarts              = "ANY",
-  minLength                   = "ANY",
-  parameters                  = "ANY"
-))
+setClass(
+  "HiCDOCExp",
+  slots = c(
+    inputPath                   = "ANY",
+    interactions                = "ANY",
+    weakBins                    = "ANY",
+    filterThreshold             = "ANY",
+    chromosomes                 = "ANY",
+    replicates                  = "ANY",
+    totalReplicates             = "ANY",
+    totalReplicatesPerCondition = "ANY",
+    conditions                  = "ANY",
+    totalBins                   = "ANY",
+    binSize                     = "ANY",
+    sampleSize                  = "ANY",
+    distances                   = "ANY",
+    compartments                = "ANY",
+    concordances                = "ANY",
+    differences                 = "ANY",
+    centroids                   = "ANY",
+    loessSpan                   = "ANY",
+    kMeansIterations            = "ANY",
+    kMeansDelta                 = "ANY",
+    kMeansRestarts              = "ANY",
+    minLength                   = "ANY",
+    parameters                  = "ANY"
+  )
+)
 
 
 ##- HiCDOCExp S4 class constructor -------------------------------------------#
@@ -353,78 +352,75 @@ setClass("HiCDOCExp", slots = c(
 #' srnaExp
 #'
 #' @export
-HiCDOCExp <- function(
-  dataSet = NULL,
-  parameters = NULL,
-  binSize = NULL
-) {
-
+HiCDOCExp <- function(dataSet = NULL,
+                      parameters = NULL,
+                      binSize = NULL) {
   ##- checking general input arguments -------------------------------------#
   ##------------------------------------------------------------------------#
-
+  
   ##- dataSet
   if (is.null(dataSet)) {
     stop("'dataSet' must be specified", call. = FALSE)
   }
-
+  
   ##- parameters
-
-
+  
+  
   ##- end checking ---------------------------------------------------------#
-
+  
   object <- new("HiCDOCExp")
-
+  
   object@interactions <- dataSet@interactions
   object@replicates   <- dataSet@replicates
   object@conditions   <- dataSet@conditions
-
-  object@chromosomes <- mixedsort(as.vector(unique(object@interactions$chromosome)))
-
-  object@totalReplicates <- sum(sapply(object@replicates, length))
-
-  object@totalReplicatesPerCondition <- sapply(c(1, 2), function(x) {
-    length(which(object@conditions == x))
-  })
-
+  
+  object@chromosomes <-
+    mixedsort(as.vector(unique(object@interactions$chromosome)))
+  
+  object@totalReplicates <-
+    sum(vapply(object@replicates, length, FUN.VALUE = c(0)))
+  
+  object@totalReplicatesPerCondition <-
+    vapply(c(1, 2), function(x) {
+      length(which(object@conditions == x))
+    }, FUN.VALUE = c(0))
+  
   if (is.null(binSize)) {
     object@binSize <- min(abs(
-      object@interactions$position.1[
-        object@interactions$position.1 != object@interactions$position.2
-      ]
-      - object@interactions$position.2[
-        object@interactions$position.1 != object@interactions$position.2
-      ]
+      object@interactions$position.1[object@interactions$position.1 != object@interactions$position.2]
+      - object@interactions$position.2[object@interactions$position.1 != object@interactions$position.2]
     ))
   }
   else {
     object@binSize <- binSize
   }
-
-  object@totalBins <- sapply(object@chromosomes, function(x) NULL)
+  
+  object@totalBins <- sapply(object@chromosomes, function(x)
+    NULL)
   names(object@totalBins) <- object@chromosomes
-  object@totalBins <- unlist(compact(object@totalBins))
-
+  # object@totalBins <- unlist(compact(object@totalBins))
+  
   for (chromosomeId in object@chromosomes) {
     chromosomeInteractions <- object@interactions %>%
       filter(chromosome == chromosomeId)
-
-    object@totalBins[[chromosomeId]] <- max(
-      chromosomeInteractions$position.1,
-      chromosomeInteractions$position.2
-    ) / object@binSize + 1
+    
+    object@totalBins[[chromosomeId]] <- max(chromosomeInteractions$position.1,
+                                            chromosomeInteractions$position.2) / object@binSize + 1
   }
-
-  object@weakBins <- sapply(object@chromosomes, function(x) NULL)
+  
+  object@weakBins <- sapply(object@chromosomes, function(x)
+    NULL)
   names(object@weakBins) <- object@chromosomes
-
-  object@kMeansIterations <- HiCDOCDefaultParameters$kMeansIterations
+  
+  object@kMeansIterations <-
+    HiCDOCDefaultParameters$kMeansIterations
   object@kMeansDelta      <- HiCDOCDefaultParameters$kMeansDelta
   object@kMeansRestarts   <- HiCDOCDefaultParameters$kMeansRestarts
   object@sampleSize       <- HiCDOCDefaultParameters$sampleSize
   object@loessSpan        <- HiCDOCDefaultParameters$loessSpan
   object@minLength        <- HiCDOCDefaultParameters$minLength
   object@filterThreshold  <- HiCDOCDefaultParameters$filterThreshold
-
+  
   return(invisible(object))
 }
 
@@ -442,9 +438,9 @@ HiCDOC <- function(object) {
   plotInteractionMatrix(object, log = TRUE)
   object <- normalizeBiologicalBiases(object)
   plotInteractionMatrix(object, log = TRUE)
-  plotMD(object)
+  plotDistanceEffect(object)
   object <- normalizeDistanceEffect(object)
-  plotMD(object)
+  plotDistanceEffect(object)
   plotInteractionMatrix(object, log = FALSE)
   object <- detectCompartments(object)
   object <- detectCompartmentSwitches(object)

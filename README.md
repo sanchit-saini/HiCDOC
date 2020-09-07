@@ -113,7 +113,7 @@ p <- plotInteractionMatrix(object, log = TRUE)
 chromosome <- 1 # Chromosome index
 p[[chromosome]]
 
-plotMD(object)
+plotDistanceEffect(object)
 
 p <- plotAB(object)
 chromosome <- 1 # Chromosome index

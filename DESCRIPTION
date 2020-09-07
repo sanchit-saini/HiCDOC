@@ -1,6 +1,6 @@
 Package: HiCDOC
 Type: Package
-Title: Robust differential compartment detection.
+Title: Robust differential compartment detection
 Version: 0.99.0
 Date: 2019-07-29
 Authors@R: c(
@@ -15,27 +15,32 @@ Encoding: UTF-8
 LazyData: false
 SystemRequirements: C++11
 Imports:
-    Rcpp (>= 0.12.8),
+    stats,
+    utils,
     methods,
     rhdf5,
     devtools,
     tibble,
     dplyr,
     tidyr,
-    magrittr,
     readr,
-    purrr,
     reshape2,
     HiCcompare,
     multiHiCcompare,
     ggplot2,
     ggExtra,
     hexbin,
-    gridExtra,
-    GenomicRanges,
+    gtools,
     BiocParallel,
     BiocManager,
-    BiocStyle
+    Rcpp (>= 0.12.8),
+    GenomicRanges,
+    gridExtra,
+    magrittr,
+    purrr,
+    ggpubr,
+    plyr,
+    gtable
 LinkingTo: Rcpp
 RoxygenNote: 7.1.0
 biocViews:

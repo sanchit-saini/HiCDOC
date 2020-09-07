@@ -40,21 +40,29 @@ plotInteractionMatrix <- function(object, log) {
   return(plots)
 }
 
+
+#' Title
+#'
+#' @param object 
+#'
+#' @return
 #' @export
-plotMD <- function(object) {
+#'
+#' @examples
+plotDistanceEffect <- function(object) {
 
   if (is.null(object@interactions)) {
     stop(paste0("Interaction matrix is not loaded yet.  ",
                 "Please provide a matrix first."))
   }
 
-  p <- object@interactions %>%
+    p <- object@interactions %>%
     mutate(distance = position.2 - position.1) %>%
     ggplot(aes(x = distance, y = value)) +
-    stat_bin_hex() +
+    geom_bin2d() +
     scale_fill_gradient(low = "white", high = "blue", trans = "log2") +
     geom_point(col="transparent") + # necessary for geom_smooth
-    geom_smooth()
+    geom_smooth(col="red")
   p <- ggMarginal(p, margins = "x", type = "histogram", fill = "transparent")
   return(p)
 }
