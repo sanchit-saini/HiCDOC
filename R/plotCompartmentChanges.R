@@ -184,12 +184,14 @@ plotCompartments <- function(object,
 #' @export
 #'
 #' @examples
-plotChr <-
+plotCompartmentChanges <-
   function(object,
            chromosomeId,
            padjThreshold = 0.05,
            xlim = NULL,
            points = FALSE) {
+    
+    # TODO : test for object slots.
     
     chr <- testchromosome(object, chromosomeId)
     pConcordance <- plotConcordance(object,
@@ -244,7 +246,7 @@ plotChr <-
   }
 
 
-#' Plot the changes of compartments
+#' Plot the changes of compartments, for all chromosomes
 #'
 #' @param object a HicDOCExp object, on which \code{\link{detectComparments}} have run
 #' @param padjThreshold threshold for the adjusted p-value to show significant changes. Default to 0.05
@@ -255,7 +257,7 @@ plotChr <-
 #' @export
 #'
 #' @examples
-plotCompartmentChanges <-
+plotAllCompartmentChanges <-
   function(object,
            padjThreshold = 0.05,
            xlim = NULL,
@@ -278,14 +280,7 @@ plotCompartmentChanges <-
         )
       )
     }
-    if (is.null(xlim) == F) {
-      if (length(xlim) != 2) {
-        message("incorrect value for 'xlim'")
-      } else {
-        xlim <- sort(xlim)
-      }
-    }
-    
+
     plots <-
       lapply(object@chromosomes,
              plotChr,
