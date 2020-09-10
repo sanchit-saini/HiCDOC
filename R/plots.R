@@ -1,6 +1,6 @@
 
 #' @export
-plotInteractionMatrix <- function(object, log) {
+plotInteractionMatrix <- function(object, log = TRUE) {
 
   if (is.null(object@interactions)) {
     stop(paste0("Interaction matrix is not loaded yet.  ",
@@ -74,12 +74,8 @@ plotConcordances <- function(object) {
     stop(paste0("Interaction matrix is not loaded yet.  ",
                 "Please provide a matrix first."))
   }
-  if (is.null(object@differences)) {
-    stop(paste0("Differentially interacting regions are not computed.  ",
-                "Please run 'detectCompartmentSwitches' first."))
-  }
-  if (is.null(object@concordances)) {
-    stop(paste0("Concordance is not computed.  ",
+  if (is.null(object@differences) | is.null(object@concordances)) {
+    stop(paste0("differences or concordances are not computed.  ",
                 "Please run 'detectCompartments' first."))
   }
 
@@ -124,6 +120,7 @@ plotAB <- function(object) {
 }
 
 .plotCentroids <- function(data) {
+  chr <- data[1,]$chromosome
   df <- data %>%
     select(-chromosome) %>%
     spread(name, centroid) %>%
@@ -136,9 +133,11 @@ plotAB <- function(object) {
   
   pca <- as.data.frame(pca$x)
   pca$group <- row.names(df)
-  ggplot(pca, aes(x = PC1, y = PC2, color = group)) + geom_point() +
+  ggplot(pca, aes(x = PC1, y = PC2, color = group)) + 
+    geom_point(size=4, alpha=0.8) +
     xlab(paste("PC1 ", propvar[1])) + 
-    ylab(paste("PC2 ", propvar[2]))
+    ylab(paste("PC2 ", propvar[2])) + 
+    labs(title = paste("chromosome", chr))
 }
 
 #' @export
