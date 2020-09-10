@@ -52,7 +52,6 @@
 #' @import HiCcompare
 #' @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
 #' @import ggplot2
-#' @import ggExtra
 #' @import hexbin
 #' @import gtools
 #' @import BiocParallel
@@ -60,13 +59,14 @@
 #' @importFrom Rcpp evalCpp sourceCpp
 #' @importFrom GenomicRanges makeGRangesFromDataFrame makeGRangesListFromDataFrame
 #' @importFrom gridExtra arrangeGrob
-#' @importFrom ggpubr as_ggplot
+#' @importFrom ggpubr as_ggplot text_grob
 #' @importFrom magrittr %<>%
 #' @importFrom purrr map flatten_int flatten_chr
 #' @importFrom plyr compact
-#' @importFrom stats D ecdf end loess loess.control median optimize p.adjust prcomp predict quantile setNames start update
+#' @importFrom stats D ecdf loess loess.control median optimize p.adjust prcomp predict quantile setNames update
 #' @importFrom utils modifyList read.table
 #' @importFrom gtable gtable_filter
+#' @importFrom ggExtra ggMarginal
 #' @useDynLib HiCDOC
 #'
 #' @keywords package

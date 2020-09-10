@@ -123,8 +123,8 @@ plotConcordances(object)
 
 plotCentroids(object)
 
-p <- plotCompartmentChanges(object)
-p[[1]]
+plotCompartmentChanges(object, chromosomeId=1)
+plotCompartmentChanges(object, chromosomeId="18")
 ```
 
 ### Load from sparse matrix
