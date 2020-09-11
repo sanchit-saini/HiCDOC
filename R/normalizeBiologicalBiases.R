@@ -37,7 +37,7 @@ KR <- function(A,
         beta <- rho_km1 / rho_km2
         p <- Z + beta * p
       }
-      
+
       # Update search direction efficiently
       w <- x * (A %*% (x * p)) + v * p
       if (max(w) == Inf) {
@@ -85,41 +85,57 @@ KR <- function(A,
     }
     eta <- max(c(min(c(eta, etamax)), stop_tol / res_norm))
   }
-  
+
   result <- t(t(x[, 1] * A) * x[, 1])
-  
+
   return(result)
 }
 
+##- normalizeBiologicalBiases ------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Remove biological biases by normalizing with Knight-Ruiz matrix balancing.
+#'
+#' @rdname normalizeBiologicalBiases
+#'
+#' @param object A \code{HiCDOCExp} object.
+#'
+#' @return A \code{HiCDOCExp} object, with the normalized matrices.
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
 #' @export
 normalizeBiologicalBiases <- function(object) {
   interactions <- tibble()
-  
+
   for (chromosomeId in object@chromosomes) {
     message("Chromosome: ", chromosomeId)
     totalBins <- object@totalBins[[chromosomeId]]
     if (totalBins == -Inf)
       next
-    
+
     for (conditionId in unique(object@conditions)) {
       replicates <-
         object@replicates[which(object@conditions == conditionId)]
-      
+
       for (replicateId in replicates) {
         message("Replicate: ", conditionId, "/", replicateId)
-        
+
         rawMatrix <- sparseInteractionsToMatrix(object,
                                                 chromosomeId,
                                                 conditionId,
                                                 replicateId,
                                                 filter = TRUE)
-        
+
         if (min(colSums(rawMatrix)) == 0) {
           stop("The matrix has an empty row")
         }
-        
+
         normalizedMatrix <- KR(rawMatrix)
-        
+
         interactions %<>% bind_rows(
           matrixToSparseInteractions(
             normalizedMatrix,
@@ -132,12 +148,12 @@ normalizeBiologicalBiases <- function(object) {
       }
     }
   }
-  
+
   object@interactions <- interactions %>% mutate(
     chromosome = factor(chromosome),
     condition = factor(condition),
     replicate = factor(replicate)
   )
-  
+
   return(object)
 }

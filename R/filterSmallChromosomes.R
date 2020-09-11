@@ -2,15 +2,15 @@
 #'
 #' The function return an HiCDOCExp object, with only the big chromosomes.
 #' The big chromosomes must have a totalBins > object@minLength.
-#' The interactions are reduced to keep only those corresponding 
-#' to the remaining chromosomes 
-#' 
+#' The interactions are reduced to keep only those corresponding
+#' to the remaining chromosomes
+#'
 #' @param object A HiCDOC object
 #'
 #' @return A HiCDOC object
 #' @export
 #'
-#' @examples 
+#' @examples
 #' object <- HiCDOCExample()
 #' object@chromosomes
 #' object <- filterSmallChromosomes(object)

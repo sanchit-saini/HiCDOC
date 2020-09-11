@@ -1,6 +1,13 @@
-
+#' Plot the interaction matrices (as heatmaps).
+#'
+#' @param objet an \code{HiCDOCExp} object
+#' @param log a logical scalar: should the color be in log scale
+#' @return A list of \code{ggplot}, one for each chromosome.
+#' @examples
+#' object <- HiCDOCExample()
+#' p <- plotInteractionMatrix(object, log = TRUE)
 #' @export
-plotInteractionMatrix <- function(object, log = TRUE) {
+plotInteractionMatrix <- function(object, log) {
 
   if (is.null(object@interactions)) {
     stop(paste0("Interaction matrix is not loaded yet.  ",
@@ -41,14 +48,14 @@ plotInteractionMatrix <- function(object, log = TRUE) {
 }
 
 
-#' Title
+#' Plot the distance vs intensity matrix.
 #'
-#' @param object 
-#'
-#' @return
-#' @export
-#'
+#' @param objet an \code{HiCDOCExp} object
+#' @return A \code{ggplot}.
 #' @examples
+#' object <- HiCDOCExample()
+#' plotDistanceEffect(object)
+#' @export
 plotDistanceEffect <- function(object) {
 
   if (is.null(object@interactions)) {
@@ -67,6 +74,19 @@ plotDistanceEffect <- function(object) {
   return(p)
 }
 
+#' Plot the concordance, i.e. the relative distance of the genomic positions with respect to the centroids.
+#'
+#' @param objet an \code{HiCDOCExp} object
+#' @return A list of \code{ggplot}, one for each chromosome.
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
+#' plotConcordances(object)
 #' @export
 plotConcordances <- function(object) {
 
@@ -74,8 +94,12 @@ plotConcordances <- function(object) {
     stop(paste0("Interaction matrix is not loaded yet.  ",
                 "Please provide a matrix first."))
   }
-  if (is.null(object@differences) | is.null(object@concordances)) {
-    stop(paste0("differences or concordances are not computed.  ",
+  if (is.null(object@differences)) {
+    stop(paste0("Differentially interacting regions are not computed.  ",
+                "Please run 'detectCompartmentSwitches' first."))
+  }
+  if (is.null(object@concordances)) {
+    stop(paste0("Concordance is not computed.  ",
                 "Please run 'detectCompartments' first."))
   }
 
@@ -109,6 +133,19 @@ plotConcordances <- function(object) {
     labs(color = "Compartment", x = "Compartment", y = "Difference of int.")
 }
 
+#' Plot the distribution of A/B compartments along the genomic positions.
+#'
+#' @param objet an \code{HiCDOCExp} object
+#' @return A list of \code{ggplot}, one for each chromosome.
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
+#' plotAB(object)
 #' @export
 plotAB <- function(object) {
   p <- buildABComparison(object) %>%
@@ -120,7 +157,6 @@ plotAB <- function(object) {
 }
 
 .plotCentroids <- function(data) {
-  chr <- data[1,]$chromosome
   df <- data %>%
     select(-chromosome) %>%
     spread(name, centroid) %>%
@@ -133,11 +169,9 @@ plotAB <- function(object) {
   
   pca <- as.data.frame(pca$x)
   pca$group <- row.names(df)
-  ggplot(pca, aes(x = PC1, y = PC2, color = group)) + 
-    geom_point(size=4, alpha=0.8) +
+  ggplot(pca, aes(x = PC1, y = PC2, color = group)) + geom_point() +
     xlab(paste("PC1 ", propvar[1])) + 
-    ylab(paste("PC2 ", propvar[2])) + 
-    labs(title = paste("chromosome", chr))
+    ylab(paste("PC2 ", propvar[2]))
 }
 
 #' @export

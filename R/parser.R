@@ -1,6 +1,25 @@
 ##- Parse input data ---------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-
+#' Read interaction matrices in tabular 3-column format.
+#'
+#' This function parses the tsv files provided in
+#' \code{object@inputMatrixPath}.
+#'
+#' @name parseInteractionMatrix3Columns
+#' @rdname parseInteractionMatrix3Columns
+#'
+#' @aliases parseInteractionMatrix3Columns
+#'
+#' @param object An \code{HiCDOCExp} object.
+#'
+#' @return object An \code{HiCDOCExp} object.
+#'
+#' @examples
+#' basedir <-
+#'   system.file("extdata", package = "HiCDOC", mustWork = TRUE)
+#' matrix  <- file.path(basedir, "sample.tsv")
+#' data   <- makeHiCDOCDataSet(inputPath = matrix)
+#' object <- parseInteractionMatrix3Columns(data)
 #' @export
 parseInteractionMatrix3Columns <- function(object) {
   object@interactions <- read.table(

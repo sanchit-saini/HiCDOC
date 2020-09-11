@@ -163,6 +163,25 @@ clusterize <- function(object) {
   return(object)
 }
 
+##- detectCompartments -------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Detect the compartments for each position of the genome.
+#' Call the differential binding.
+#'
+#' @rdname detectCompartments
+#'
+#' @param object A \code{HiCDOCExp} object.
+#'
+#' @return A \code{HiCDOCExp} object, with the compartment calling.
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
 #' @export
 detectCompartments <- function(object) {
 
