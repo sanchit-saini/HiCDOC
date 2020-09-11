@@ -14,10 +14,8 @@
 #' for at least one condition and a replicate (after we reconstruct the 0 values).
 #' Default to 0.
 #'
-#' @return
-#' @export
-#'
-#' @examples
+#' @return A list with two components : `pos` = the weak positions, 
+#' `ìnteractions` = the filtered interactions matrix.
 fun_weak_chr <- function(inter_chr, totalBins_chr, binsize, replicates, conditions, threshold=0){
 
   # Initialization
@@ -61,14 +59,24 @@ fun_weak_chr <- function(inter_chr, totalBins_chr, binsize, replicates, conditio
 }
 
 
-#' Indentifies and remove the weak bins of an HiCDOC object, by chromosome. 
+#' Remove the weak bins of an HiCDOC object
 #' 
-#' @param object 
+#' The function indentifies and remove the weak bins of an HiCDOC object, 
+#' chromosome by chromosome. 
+#' To be kept, the bins (positions) must have a mean value greater than 
+#' object@filterThreshold, on all replicates and all conditions. 
+#' The mean is computed on the row of the reconstructed full interaction 
+#' matrix.
+#' 
+#' @param object A HiCDOC object
 #'
-#' @return
+#' @return A HiCDOC object whith a reduced interactions slot
 #' @export
 #'
 #' @examples
+#' object <- HiCDOCExample()
+#' object2  <- filterWeakPositions(object)
+#' 
 filterWeakPositions <- function(object) {
   weakPositions <- lapply(object@chromosomes, 
                           function(chr) fun_weak_chr(object@interactions[object@interactions$chromosome == chr,], 
