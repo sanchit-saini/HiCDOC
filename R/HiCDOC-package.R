@@ -39,7 +39,7 @@
 #' @name HiCDOC
 #' @aliases HiCDOC-package
 #'
-#' @author Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac
+#' @author Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac and Élise Maigné
 #'
 #' @import methods
 #' @import rhdf5
@@ -61,7 +61,7 @@
 #' @importFrom gridExtra arrangeGrob
 #' @importFrom ggpubr as_ggplot text_grob
 #' @importFrom magrittr %<>%
-#' @importFrom purrr map flatten_int flatten_chr
+#' @importFrom purrr map map2 flatten_int flatten_chr
 #' @importFrom plyr compact
 #' @importFrom stats D ecdf loess loess.control median optimize p.adjust prcomp predict quantile setNames update
 #' @importFrom utils modifyList read.table

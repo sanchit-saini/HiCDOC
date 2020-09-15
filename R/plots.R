@@ -174,6 +174,19 @@ plotAB <- function(object) {
     ylab(paste("PC2 ", propvar[2]))
 }
 
+#' Plot the centroid distributions along the genomic positions.
+#'
+#' @param objet an \code{HiCDOCExp} object
+#' @return A list of \code{ggplot}, one for each chromosome.
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
+#' plotCentroids(object)
 #' @export
 plotCentroids <- function(object) {
 

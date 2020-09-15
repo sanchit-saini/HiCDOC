@@ -44,20 +44,26 @@ testxlim <- function(xlim, positions) {
   return(xlim)
 }
 
-#' Title
+#' Plot the concordance distribution of all the replicates along one chromosome.
 #'
-#' @param concordance
-#' @param differences
-#' @param chr
-#' @param binSize
-#' @param xlim
-#' @param padjThreshold
-#' @param points
+#' @param object       A \code{HiCDOCExp}.
+#' @param chromosomeId Name or number of the chromosome, like in object@chromosome
+#' @param xlim A numeric-value pair, indicating the interval of positions to represent.
+#' Default to NULL = all positions.
+#' @param points Boolean. Should points be plotted on concordance plot ? Default to FALSE.
 #'
-#' @return
-#' @export
+#' @return A \code{ggplot} object.
 #'
 #' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
+#' plotConcordance(object, 1)
+#' @export
 plotConcordance <- function(object,
                             chromosomeId,
                             xlim = NULL,
@@ -127,17 +133,25 @@ plotConcordance <- function(object,
   return(gp)
 }
 
-#' Title
+#' Plot the compartment distribution of all the replicates along one chromosome.
 #'
-#' @param compartments
-#' @param chr
-#' @param binSize
-#' @param xlim
+#' @param object       A \code{HiCDOCExp}.
+#' @param chromosomeId Name or number of the chromosome, like in object@chromosome
+#' @param xlim A numeric-value pair, indicating the interval of positions to represent.
+#' Default to NULL = all positions.
 #'
-#' @return
-#' @export
+#' @return A \code{ggplot} object.
 #'
 #' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
+#' plotCompartments(object, 1)
+#' @export
 plotCompartments <- function(object,
                              chromosomeId,
                              xlim = NULL) {
@@ -181,9 +195,17 @@ plotCompartments <- function(object,
 #' @param points Boolean. Should points be plotted on concordance plot ? Default to FALSE.
 #'
 #' @return A ggplot object.
-#' @export
 #'
 #' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
+#' plotCompartmentsChanges(object, 1)
+#' @export
 plotCompartmentChanges <-
   function(object,
            chromosomeId,
@@ -248,15 +270,23 @@ plotCompartmentChanges <-
 
 #' Plot the changes of compartments, for all chromosomes
 #'
-#' @param object a HicDOCExp object, on which \code{\link{detectComparments}} have run
+#' @param object a HicDOCExp object, on which \code{\link{detectCompartments}} have run
 #' @param padjThreshold threshold for the adjusted p-value to show significant changes. Default to 0.05
 #' @param xlim numerical vector of length 2. Giving the limits on the x-axis (position) to show. Default to NULL
 #' @param points boolean (default to FALSE). If TRUE, points are represented on the concordance lines.
 #'
-#' @return
-#' @export
+#' @return A list of \code{ggplot} objects, one for each chromosome.
 #'
 #' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
+#' plotCompartmentsChanges(object)
+#' @export
 plotAllCompartmentChanges <-
   function(object,
            padjThreshold = 0.05,

@@ -71,9 +71,9 @@ fun_weak_chr <- function(inter_chr, totalBins_chr, binsize, replicates, conditio
 
 #' Indentifies and remove the weak bins of an HiCDOC object, by chromosome.
 #'
-#' @param object
+#' @param object A \code{HicDOCExp} object.
 #'
-#' @return
+#' @return A \code{HicDOCExp} object, with a mark on weak bins.
 #' @export
 #'
 #' @examples

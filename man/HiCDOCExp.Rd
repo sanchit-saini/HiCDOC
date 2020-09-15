@@ -12,9 +12,14 @@ HiCDOCExp(dataSet = NULL, parameters = NULL, binSize = NULL)
 \S4method{show}{HiCDOCExp}(object)
 }
 \arguments{
-\item{object}{An \code{HiCDOCExp} object.}
+\item{dataSet}{A \code{HiCDOCDataSet} object.}
 
-\item{inputMatrix}{A matrix with the data.}
+\item{parameters}{A named \code{list}. The parameters for the
+segmentation methods. See \code{\link{parameters}}.}
+
+\item{binSize}{The resolution.}
+
+\item{object}{An \code{HiCDOCExp} object.}
 }
 \value{
 \code{HiCDOCExp} constructor returns an \code{HiCDOCExp}
@@ -34,17 +39,56 @@ TODO
 \section{Slots}{
 
 \describe{
-\item{\code{inputMatrix}}{The input matrix}
+\item{\code{inputPath}}{The names of the matrix input files.}
+
+\item{\code{interactions}}{The interaction matrices.}
+
+\item{\code{weakBins}}{The empty bins.}
+
+\item{\code{filterThreshold}}{The threshold used to discard (almost) empty bins.}
+
+\item{\code{chromosomes}}{The list of chromosomes.}
+
+\item{\code{replicates}}{The names of the replicates.}
+
+\item{\code{totalReplicates}}{The names of the replicates, glued with the name of the conditions.}
+
+\item{\code{totalReplicatesPerCondition}}{A 2-element list, one for each condition, where the union is the names of the replicates.}
+
+\item{\code{conditions}}{The names of the conditions (exactly two different).}
+
+\item{\code{totalBins}}{The number of bins per chromosome.}
+
+\item{\code{binSize}}{The resolution.}
+
+\item{\code{sampleSize}}{The number of bins used when sampling all the bins.}
+
+\item{\code{distances}}{The distribution of distances to the centroids.}
+
+\item{\code{compartments}}{The A/B compartments distribution, along the chromosomes.}
+
+\item{\code{concordances}}{The concordance distribution, along the chromosomes.}
+
+\item{\code{differences}}{The distribution of the difference of the concordance.}
+
+\item{\code{centroids}}{The position of the centroids.}
+
+\item{\code{loessSpan}}{The optimal span value used for the diagonal normalization.}
+
+\item{\code{kMeansIterations}}{The maximum number of 2-means iterations.}
+
+\item{\code{kMeansDelta}}{The stop criterion of convergence of the 2-means method.}
+
+\item{\code{kMeansRestarts}}{The maximum number of restarts for the 2-means.}
+
+\item{\code{minLength}}{The minimum chromosome size (in number of bins).}
 
 \item{\code{parameters}}{An named \code{list}. The parameters for the
 segmentation methods. See \code{\link{parameters}}.}
 }}
 
 \examples{
-basedir    <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
-matrix     <- read.csv(file.path(basedir, "sampleMatrix.tsv"))
-
+basedir <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
+matrix  <- read.csv(file.path(basedir, "sampleMatrix.tsv"))
 srnaExp <- HiCDOCExp(matrix)
-srnaExp
-
 }

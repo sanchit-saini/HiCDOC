@@ -34,9 +34,15 @@ HiCDOCDefaultParameters <- list(
 #' @docType class
 #' @aliases HiCDOCDatSet HiCDOCDataSet-class
 #'
-#' @slot inputMatrix  The input matrix
-#' @slot parameters   An named \code{list}. The parameters for the
-#'                    segmentation methods. See \code{\link{parameters}}.
+#' @slot inputPath    The input matrix/matrices.  Can be the path(s) to
+#'                    to one, or several files, depending on the format
+#'                    considered.
+#' @slot interaction  A data frame storing the matrices.  Is built using
+#'                    the values in the \code{inputPath} files.
+#' @slot replicates   A vector storing the names of the replicates.
+#' @slot conditions   A vector storing the names of the conditions.
+#'                    There should be exactly two different conditions.
+#' @slot binSize      The resolution.
 #'
 #' @export
 setClass(
@@ -82,8 +88,11 @@ makeHiCDOCDataSet <- function(inputPath    = NULL,
     stop("'inputPath' must be a character.", call. = FALSE)
   }
 
-  if (!file.exists(inputPath)) {
-    stop("'inputPath' must be valid file(s).", call. = FALSE)
+  for (fileName in inputPath) {
+    if (!file.exists(fileName)) {
+      stop(paste("File name", fileName, "is not a valid file."),
+           call. = FALSE)
+    }
   }
 
   ##- end checking ---------------------------------------------------------#
@@ -145,7 +154,9 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
 #' @rdname HiCDOCDataSetFromCool
 #' @docType class
 #'
-#' @param matrices s
+#' @param coolFileNames A vector of file names, each one being a .cool file.
+#' @param replicates   The list of the replicate names.
+#' @param conditions   The names of the two conditions.
 #'
 #' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
 #'         object of class S4.
@@ -209,7 +220,10 @@ HiCDOCDataSetFromCool <- function(coolFileNames,
 #' @rdname HiCDOCDataSetFromHic
 #' @docType class
 #'
-#' @param matrices s
+#' @param hicFileNames A vector of file names, each one being a .hic file.
+#' @param replicates   The list of the replicate names.
+#' @param conditions   The names of the two conditions.
+#' @param resolution   The resolution.
 #'
 #' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
 #'         object of class S4.
@@ -333,7 +347,28 @@ HiCDOCExample <- function() {
 #' @docType class
 #' @aliases HiCDOCExp HiCDOCExp-class
 #'
-#' @slot inputMatrix  The input matrix
+#' @slot inputPath                   The names of the matrix input files.
+#' @slot interactions                The interaction matrices.
+#' @slot weakBins                    The empty bins.
+#' @slot filterThreshold             The threshold used to discard (almost) empty bins.
+#' @slot chromosomes                 The list of chromosomes.
+#' @slot replicates                  The names of the replicates.
+#' @slot totalReplicates             The names of the replicates, glued with the name of the conditions.
+#' @slot totalReplicatesPerCondition A 2-element list, one for each condition, where the union is the names of the replicates.
+#' @slot conditions                  The names of the conditions (exactly two different).
+#' @slot totalBins                   The number of bins per chromosome.
+#' @slot binSize                     The resolution.
+#' @slot sampleSize                  The number of bins used when sampling all the bins.
+#' @slot distances                   The distribution of distances to the centroids.
+#' @slot compartments                The A/B compartments distribution, along the chromosomes.
+#' @slot concordances                The concordance distribution, along the chromosomes.
+#' @slot differences                 The distribution of the difference of the concordance.
+#' @slot centroids                   The position of the centroids.
+#' @slot loessSpan                   The optimal span value used for the diagonal normalization.
+#' @slot kMeansIterations            The maximum number of 2-means iterations.
+#' @slot kMeansDelta                 The stop criterion of convergence of the 2-means method.
+#' @slot kMeansRestarts              The maximum number of restarts for the 2-means.
+#' @slot minLength                   The minimum chromosome size (in number of bins).
 #' @slot parameters   An named \code{list}. The parameters for the
 #'                    segmentation methods. See \code{\link{parameters}}.
 #'
@@ -461,9 +496,9 @@ HiCDOCExp <- function(dataSet = NULL,
 
 ##- Main method --------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Main method
+#' Main method.  Start the pipeline with default parameters.
 #'
-#' TODO
+#' @param object A \code{HiCDOCDataSet} object.
 #'
 #' @export
 HiCDOC <- function(object) {
