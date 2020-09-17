@@ -1,3 +1,21 @@
+##- normalizeDistanceEffect --------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Normalize the distance effect using a loess on the intensity vs distance
+#' to diagonal.
+#'
+#' @rdname normalizeDistanceEffect
+#'
+#' @param object A \code{HiCDOCExp} object.
+#'
+#' @return A \code{HiCDOCExp} object, with the normalized matrices.
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
 #' @export
 normalizeDistanceEffect <- function(object) {
 
@@ -50,15 +68,15 @@ normalizeDistanceEffect <- function(object) {
     }
 
     methodtrace <- "approximate"
-    if(object@sampleSize <= 1000) 
+    if(object@sampleSize <= 1000)
       methodtrace <- "exact"
-    
-    l <- loess(value ~ distance, data = sample, 
+
+    l <- loess(value ~ distance, data = sample,
                control = loess.control(trace.hat=methodtrace))
     span <- optimizeSpan(l, criterion = "gcv")
-    l <- loess(value ~ distance, span = span, data = sample, 
+    l <- loess(value ~ distance, span = span, data = sample,
                control = loess.control(trace.hat=methodtrace))
-    
+
     sample %<>%
       mutate(loess = predict(l)) %>%
       mutate(loess = pmax(loess, 0)) %>%

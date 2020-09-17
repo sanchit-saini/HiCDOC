@@ -1,9 +1,24 @@
+##- normalizeTechnicalBiases -------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Normalize the distance effect using a cyclic loess on all the matrices.
+#'
+#' @rdname normalizeTechnicalBiases
+#'
+#' @param object A \code{HiCDOCExp} object.
+#'
+#' @return A \code{HiCDOCExp} object, with the normalized matrices.
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
 #' @export
 normalizeTechnicalBiases <- function(object, parallel=FALSE) {
 
   object@weakBins <- object@weakBins[mixedsort(names(object@weakBins))]
   object@chromosomes <- mixedsort(object@chromosomes)
-  
+
   # One matrix by condition and replicate
   matrices <- object@interactions %>%
     arrange(order(mixedsort(chromosome))) %>%
