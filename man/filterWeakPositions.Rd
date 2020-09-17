@@ -10,7 +10,8 @@ filterWeakPositions(object)
 \item{object}{A HiCDOC object}
 }
 \value{
-A \code{HicDOCExp} object, with a mark on weak bins.
+A \code{HicDOCExp} object with a reduced \code{interactions} slot, 
+and the weak bins identified by chromosomes in \code{object@weakBins}.
 }
 \description{
 The function indentifies and remove the weak bins of an HiCDOC object, 

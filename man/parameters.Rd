@@ -35,7 +35,7 @@ values in the \code{useParameters} argument of the \code{\link{HiCDOC}}
 function or using the assignment function \code{\link{parameters<-}}.
 }
 \details{
-Parameters in a HiCDOC experment.
+Parameters in a HiCDOC experiment.
 
 \subsection{Global parameters}{
  \describe{

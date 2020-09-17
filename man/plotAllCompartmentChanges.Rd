@@ -18,7 +18,7 @@ plotAllCompartmentChanges(
 
 \item{xlim}{numerical vector of length 2. Giving the limits on the x-axis (position) to show. Default to NULL}
 
-\item{points}{boolean (default to FALSE). If TRUE, points are represented on the concordance lines.}
+\item{points}{Logical (default to FALSE). If TRUE, points will be added on the concordance lines.}
 }
 \value{
 A list of \code{ggplot} objects, one for each chromosome.
