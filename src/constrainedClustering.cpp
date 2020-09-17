@@ -57,7 +57,9 @@ void updateCentroids(
     totalClusterMembers[clusters[vectorId]]++;
   }
   for (unsigned int centroidId = 0; centroidId < centroids.size(); centroidId++) {
-    centroids[centroidId] = centroids[centroidId] / totalClusterMembers[centroidId];
+    if (totalClusterMembers[centroidId] > 0) {
+      centroids[centroidId] = centroids[centroidId] / totalClusterMembers[centroidId];
+    }
   }
 }
 
@@ -179,10 +181,6 @@ double clusterize(
     && totalIterations < maxIterations
   );
 
-  //Rcout << "Finished clustering.\n";
-  //Rcout << "Iterations: " << totalIterations << "/" << maxIterations << "\n";
-  //Rcout << "Delta: " << centroidsDelta << "/" << maxDelta << "\n";
-
   double quality = 0.0;
   for (int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
     quality += getDistance(matrix.row(vectorId), centroids[clusters[vectorId]]);
@@ -194,7 +192,7 @@ double clusterize(
 List constrainedClustering (
   NumericMatrix &matrix,
   IntegerMatrix &links,
-  double maxDelta   = 0.0001,
+  double maxDelta = 0.0001,
   int maxIterations = 50,
   int totalRestarts = 20,
   int totalClusters = 2
@@ -216,32 +214,32 @@ List constrainedClustering (
   IntegerVector clusters(matrix.nrow()), bestClusters(matrix.nrow());
   std::vector<NumericVector> centroids(totalClusters), bestCentroids(totalClusters);
 
-  double quality, minQuality = std::numeric_limits<double>::max();
+  if (matrix.nrow() > 0) {
+    double quality, minQuality = std::numeric_limits<double>::max();
 
-  for (int restart = 0; restart < totalRestarts; restart++) {
+    for (int restart = 0; restart < totalRestarts; restart++) {
 
-    quality = clusterize(
-      matrix, links, clusters, centroids, maxDelta, maxIterations
-    );
+      quality = clusterize(
+        matrix, links, clusters, centroids, maxDelta, maxIterations
+      );
 
-    if (quality < minQuality) {
-      minQuality = quality;
-      bestClusters = clone(clusters);
-      for (unsigned int centroidId = 0; centroidId < centroids.size(); centroidId++) {
-        bestCentroids[centroidId] = clone(centroids[centroidId]);
+      if (quality < minQuality) {
+        minQuality = quality;
+        bestClusters = clone(clusters);
+        for (unsigned int centroidId = 0; centroidId < centroids.size(); centroidId++) {
+          bestCentroids[centroidId] = clone(centroids[centroidId]);
+        }
       }
     }
 
-    //Rcout << "Quality: " << quality << "/" << minQuality << "\n";
-  }
-
-  if (
-    is_false(any(bestClusters == 0))
-    || is_false(any(bestClusters == 1))
-  ) {
-    throw std::invalid_argument(
-      "Failed clustering: one of the clusters is empty.\n"
-    );
+    if (
+      is_false(any(bestClusters == 0))
+      || is_false(any(bestClusters == 1))
+    ) {
+      throw std::invalid_argument(
+        "Failed clustering: one of the clusters is empty.\n"
+      );
+    }
   }
 
   List output;

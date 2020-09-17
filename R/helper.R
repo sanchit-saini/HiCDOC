@@ -39,7 +39,6 @@ fullInteractionsChr <- function(chr, interactionsChr, totalBinsChr, binSize, rep
   return(fullmatrixChr)
 }
 
-
 #' Full Interactions Matrix
 #'
 #' From an interactions matrix, that can be sparse and an upper of lower matrix, 
@@ -106,11 +105,40 @@ fullInteractions <- function(object) {
   return (interactions)
 }
 
-sparseInteractionsToMatrix <- function(object,
-                                       chromosomeId,
-                                       conditionId,
-                                       replicateId,
-                                       filter = FALSE) {
+##- sparseInteractionsToMatrix -----------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Get the interaction matrix for a chromosome in a condition and replicate.
+#'
+#' @rdname sparseInteractionsToMatrix
+#'
+#' @param object        A \code{HiCDOCExp} object.
+#' @param chromosomeId  A chromosome.
+#' @param conditionId   A condition.
+#' @param replicateId   A replicate.
+#' @param filter        Shrink the matrix by removing weak rows/columns.
+#'
+#' @return A matrix
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' m <- sparseInteractionsToMatrix(
+#'   object,
+#'   object@chromosomes[[1]],
+#'   object@conditions[[1]],
+#'   object@replicates[[1]],
+#'   TRUE
+#' )
+#' head(m)
+#' @export
+sparseInteractionsToMatrix <- function(
+  object,
+  chromosomeId,
+  conditionId,
+  replicateId,
+  filter = FALSE
+) {
   totalBins <- object@totalBins[[chromosomeId]]
   
   interactions <- object@interactions %>%
@@ -122,13 +150,12 @@ sparseInteractionsToMatrix <- function(object,
     select(bin.1, bin.2, value) %>%
     filter(value != 0) %>%
     as.matrix()
-  
+
   if (nrow(interactions) == 0) {
-    message("Warning: interaction matrix is empty")
     return(matrix(0, nrow = 0, ncol = 0))
   }
-  if (is.numeric(interactions) == F) {
-    stop("Error: non numeric matrix of interactions", call. = TRUE)
+  if (!is.numeric(interactions)) {
+    stop("Error: non numeric matrix of interactions.", call. = TRUE)
   }
   result <- matrix(0, nrow = totalBins, ncol = totalBins)
   result[interactions[, c(1, 2)]] <- interactions[, 3]
@@ -144,11 +171,47 @@ sparseInteractionsToMatrix <- function(object,
   return (result)
 }
 
-matrixToSparseInteractions <- function(m,
-                                       object,
-                                       chromosomeId,
-                                       conditionId,
-                                       replicateId) {
+##- matrixToSparseInteractions -----------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Build the interactions tibble for a chromosome in a condition and replicate.
+#'
+#' @rdname sparseInteractionsToMatrix
+#'
+#' @param m             A matrix.
+#' @param object        A \code{HiCDOCExp} object.
+#' @param chromosomeId  A chromosome.
+#' @param conditionId   A condition.
+#' @param replicateId   A replicate.
+#'
+#' @return A matrix
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' m <- sparseInteractionsToMatrix(
+#'   object,
+#'   object@chromosomes[[1]],
+#'   object@conditions[[1]],
+#'   object@replicates[[1]],
+#'   TRUE
+#' )
+#' interactions <- matrixToSparseInteractions(
+#'   m,
+#'   object,
+#'   object@chromosomes[[1]],
+#'   object@conditions[[1]],
+#'   object@replicates[[1]]
+#' )
+#' interactions
+#' @export
+matrixToSparseInteractions <- function(
+  m,
+  object,
+  chromosomeId,
+  conditionId,
+  replicateId
+) {
   totalBins <- object@totalBins[[chromosomeId]]
   
   if (nrow(m) < totalBins) {
@@ -178,7 +241,7 @@ buildABComparison <- function(object) {
     group_by(chromosome, position, condition) %>%
     summarise(diagValue = median(value)) %>%
     ungroup()
-  
+
   offDiagonal <- fullInteractions(object) %>%
     filter(position.1 != position.2) %>%
     group_by(chromosome, position.1, condition, replicate) %>%
@@ -187,11 +250,8 @@ buildABComparison <- function(object) {
     ungroup() %>%
     rename(position = position.1)
   
-  full_join(diagonal,
-            offDiagonal,
-            by = c("chromosome", "position", "condition")) %>%
-    right_join(object@compartments,
-               by = c("chromosome", "position", "condition")) %>%
+  full_join(diagonal, offDiagonal, by = c("chromosome", "position", "condition")) %>%
+    right_join( object@compartments, by = c("chromosome", "position", "condition")) %>%
     rename(compartment = value) %>%
     replace_na(list(diagValue = 0, offDiagValue = 0)) %>%
     mutate(diffValue = diagValue - offDiagValue) %>%
@@ -199,6 +259,28 @@ buildABComparison <- function(object) {
     mutate(chromosome = factor(chromosome, levels = object@chromosomes))
 }
 
+##- predictABCompartments ----------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Use difference between diagonal and off-diagonal interactions to determine
+#' which clusters correspond to compartments A and B.
+#'
+#' @rdname predictABCompartments
+#'
+#' @param object A \code{HiCDOCExp} object.
+#'
+#' @return A \code{HiCDOCExp} object, with A and B labels replacing cluster
+#' numbers in centroids, compartments, distances and concordances.
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- clusterize(object)
+#' object <- predictABCompartments(object)
+#' @export
 predictABCompartments <- function(object) {
   compartments <- buildABComparison(object) %>%
     group_by(chromosome, condition, compartment) %>%
@@ -209,31 +291,61 @@ predictABCompartments <- function(object) {
            fill = 0) %>%
     mutate(A = if_else(`1` >= `2`, 1, 2)) %>%
     select(-c(`1`, `2`))
-  
+
   object@compartments %<>%
     left_join(compartments, by = c("chromosome", "condition")) %>%
     mutate(value = factor(if_else(value == A, "A", "B"))) %>%
     select(-c(A))
-  
+
   object@concordances %<>%
     left_join(compartments, by = c("chromosome", "condition")) %>%
     mutate(change = if_else(A == 1, 1, -1)) %>%
     mutate(value = change * value) %>%
     select(-c(A, change))
-  
+
   object@distances %<>%
     left_join(compartments, by = c("chromosome", "condition")) %>%
     mutate(cluster = factor(if_else(cluster == A, "A", "B"))) %>%
     select(-c(A))
-  
+
   object@centroids %<>%
     left_join(compartments, by = c("chromosome", "condition")) %>%
     mutate(compartment = factor(if_else(compartment == A, "A", "B"))) %>%
     select(-c(A))
-  
+
   return(object)
 }
 
+##- computePValues -----------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Get p-values for genomic positions whose assigned compartment switches
+#' between two conditions:
+#' 1. For each pair of replicates in different conditions, for each genomic
+#'    position, compute the absolute difference between its concordances.
+#' 2. For each pair of conditions, for each genomic position, compute the
+#'    median of its concordance differences.
+#' 3. For each pair of conditions, for each genomic position whose assigned
+#'    compartment switches, rank its median against the empirical cumulative
+#'    distribution of medians for all non-switching positions in that condition
+#'    pair. Adjust the resulting p-value with the Benjamini–Hochberg procedure.
+#'
+#' @rdname computePValues
+#'
+#' @param object A \code{HiCDOCExp} object.
+#'
+#' @return A \code{HiCDOCExp} object, with differences and their p-values.
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- clusterize(object)
+#' object <- predictABCompartments(object)
+#' object <- computePValues(object)
+#' @export
 computePValues <- function(object) {
   # Compute median of differences between pairs of concordances
   # N.b. median of differences != difference of medians
@@ -286,7 +398,7 @@ computePValues <- function(object) {
       compartment.2 = value.2
     ) %>%
     filter(as.numeric(condition.1) < as.numeric(condition.2))
-  
+
   # Compute p-values for switching positions
   # P-values for a condition pair computed from the whole genome distribution
   object@differences <- compartmentComparisons %>%
