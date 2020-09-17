@@ -20,17 +20,18 @@ fun_weak_chr <- function(inter_chr, totalBins_chr, binsize, replicates, conditio
 
   # Initialization
   chr <- inter_chr[1,"chromosome"]
-  weakbins_chr <- NULL
   nbNewEmptyBins <- 1
   nbRemovedBins <- 0
   fullbindata <- tibble("replicate"= factor(replicates), "condition" = factor(conditions)) %>% 
-    tidyr::expand(tidyr::nesting(replicate, condition), "position" = (seq_len(totalBins_chr)-1) * binsize)
+    tidyr::expand(tidyr::nesting(replicate, condition), 
+                  "position" = as.integer((seq_len(totalBins_chr)-1) * binsize))
   inter_chr <- inter_chr %>% filter(value>0)
-  
+
   # Recursive removal of bins - deleting a bin can create a new weak bin. 
   while(nbNewEmptyBins>0 & nbRemovedBins<=totalBins_chr){
     existing <- inter_chr %>% 
-      tidyr::pivot_longer(cols = c(`position.1`, `position.2`), names_to="pos_1or2", names_prefix="position.", values_to="position") %>%
+      tidyr::pivot_longer(cols = c(`position.1`, `position.2`), names_to="pos_1or2", 
+                          names_prefix="position.", values_to="position") %>%
       select(-pos_1or2) 
     
     fullbindatatest <- fullbindata %>% 
@@ -66,7 +67,7 @@ fun_weak_chr <- function(inter_chr, totalBins_chr, binsize, replicates, conditio
 #' To be kept, the bins (positions) must have a mean value greater than 
 #' object@filterThreshold, on all replicates and all conditions. 
 #' The mean is computed on the row of the reconstructed full interaction 
-#' matrix.
+#' matrix for 1 chromosome, 1 condition and 1 replicate.
 #' 
 #' @param object A HiCDOC object
 #'
@@ -88,12 +89,12 @@ filterWeakPositions <- function(object) {
   )
   names(weakPositions) <- object@chromosomes
   
-  weakBins <- weakPositions %>% map("pos")
+  weakBins <- weakPositions %>% purrr:::map("pos")
   weakBins <- lapply(weakBins, function(x) x / object@binSize + 1)
   nullweak <- vapply(weakBins, function(x) length(x) == 0, FUN.VALUE = TRUE)
   weakBins[nullweak] <- list(NULL)
   
-  interactions <- weakPositions %>% purrr::map("interactions") %>% bind_rows()
+  interactions <- weakPositions %>% purrr::map_dfr("interactions")
 
   # Affecting new values to the object 
   object@weakBins <- weakBins
