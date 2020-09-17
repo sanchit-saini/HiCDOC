@@ -109,7 +109,7 @@ write.table(object@compartments, file='compartments.tsv', sep='\t', quote=FALSE)
 Various visualizations are also available:
 
 ```R
-p <- plotInteractionMatrix(object, log = TRUE)
+p <- plotInteractionMatrix(object, log2 = TRUE)
 chromosome <- 1 # Chromosome index
 p[[chromosome]]
 
