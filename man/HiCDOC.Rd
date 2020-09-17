@@ -4,13 +4,14 @@
 \name{HiCDOC}
 \alias{HiCDOC}
 \alias{HiCDOC-package}
-\title{Main method}
+\title{Main method.  Start the pipeline with default parameters.}
 \usage{
 HiCDOC(object)
 }
+\arguments{
+\item{object}{A \code{HiCDOCDataSet} object.}
+}
 \description{
-TODO
-
 \code{HiCODC} is a package...
 TODO
 }
@@ -18,6 +19,6 @@ TODO
 
 }
 \author{
-Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac
+Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac and Élise Maigné
 }
 \keyword{package}
