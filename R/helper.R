@@ -59,13 +59,12 @@ sparseInteractionsToMatrix <- function(
     ) %>%
     select(bin.1, bin.2, value) %>%
     as.matrix()
-  
+
   if (nrow(interactions) == 0) {
-    message("Warning: interaction matrix is empty")
     return(matrix(0, nrow = 0, ncol = 0))
   }
-  if (is.numeric(interactions) == F) {
-    stop("Error: non numeric matrix of interactions", call. = TRUE)
+  if (!is.numeric(interactions)) {
+    stop("Error: non numeric matrix of interactions.", call. = TRUE)
   }
   result <- matrix(0, nrow = totalBins, ncol = totalBins)
   result[ interactions[, c(1,2)] ] <- interactions[, 3]

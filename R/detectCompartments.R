@@ -117,10 +117,10 @@ clusterize <- function(object) {
         condition = conditionId,
         replicate = rep(rep(replicates, each = ncol(interactions)), 2),
         cluster = c(
-          rep(1, length(replicates)*ncol(interactions)),
-          rep(2, length(replicates)*ncol(interactions))
+          rep(1, length(replicates) * ncol(interactions)),
+          rep(2, length(replicates) * ncol(interactions))
         ),
-        value = c(distances[1,], distances[2,])
+        value = c(t(distances))
       ))
 
       object@centroids %<>% bind_rows(tibble(
