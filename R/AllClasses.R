@@ -377,9 +377,8 @@ HiCDOCExp <- function(dataSet = NULL,
   object@chromosomes <-
     mixedsort(as.vector(unique(object@interactions$chromosome)))
   
-  object@totalReplicates <-
-    sum(vapply(object@replicates, length, FUN.VALUE = c(0)))
-  
+  object@totalReplicates <- length(object@replicates)
+
   object@totalReplicatesPerCondition <-
     vapply(c(1, 2), function(x) {
       length(which(object@conditions == x))
@@ -395,21 +394,18 @@ HiCDOCExp <- function(dataSet = NULL,
     object@binSize <- binSize
   }
   
-  object@totalBins <- sapply(object@chromosomes, function(x)
-    NULL)
+  object@totalBins <- vector("list",length(object@chromosomes))
   names(object@totalBins) <- object@chromosomes
-  # object@totalBins <- unlist(compact(object@totalBins))
   
   for (chromosomeId in object@chromosomes) {
     chromosomeInteractions <- object@interactions %>%
       filter(chromosome == chromosomeId)
-    
-    object@totalBins[[chromosomeId]] <- max(chromosomeInteractions$position.1,
-                                            chromosomeInteractions$position.2) / object@binSize + 1
+    object@totalBins[[chromosomeId]] <- 
+      max(chromosomeInteractions$position.1, 
+          chromosomeInteractions$position.2) / object@binSize + 1
   }
   
-  object@weakBins <- sapply(object@chromosomes, function(x)
-    NULL)
+  object@weakBins <- vector("list",length(object@chromosomes))
   names(object@weakBins) <- object@chromosomes
   
   object@kMeansIterations <-
