@@ -1,5 +1,5 @@
 #' Look for the weak positions for a given chromosome
-#' 
+#'
 #' The function identifies the weak positions from the interaction matrix
 #' for a given chromosome., in a recursive way.
 #'
@@ -7,21 +7,31 @@
 #' @param totalBins_chr Number of total bins for this chromosome
 #' @param binsize Size of the bins in the HiCDOC object
 #' @param replicates Levels of replicates. Given from object@conditions
-#' @param conditions Levels of conditions (repeted by replicates). 
+#' @param conditions Levels of conditions (repeated by replicates).
 #' Given from object@conditions
-#' @param threshold Threshold for the selection of "empty". The function will 
-#' return the bin if the mean of value if inferior to `threshold`, 
+#' @param threshold Threshold for the selection of "empty". The function will
+#' return the bin if the mean of value if inferior to `threshold`,
 #' for at least one condition and a replicate (after we reconstruct the 0 values).
 #' Default to 0.
 #'
-#' @return A list with two components : `pos` = the weak positions, 
-#' `ìnteractions` = the filtered interactions matrix.
+#' @return
+#'
+#' @examples
+#' exp <- HiCDOCExample()
+#' chr <- exp@chromosomes[[1]]
+#' fun_weak_chr(object@interactions[object@interactions$chromosome == chr,],
+#'              object@totalBins[[chr]],
+#'              object@binSize,
+#'              object@replicates,
+#'              object@conditions,
+#'              object@filterThreshold)
 fun_weak_chr <- function(inter_chr, totalBins_chr, binsize, replicates, conditions, threshold=0){
 
   # Initialization
   chr <- inter_chr[1,"chromosome"]
   nbNewEmptyBins <- 1
   nbRemovedBins <- 0
+
   fullbindata <- tibble("replicate"= factor(replicates), "condition" = factor(conditions)) %>% 
     tidyr::expand(tidyr::nesting(replicate, condition), 
                   "position" = as.integer((seq_len(totalBins_chr)-1) * binsize))
@@ -38,16 +48,16 @@ fun_weak_chr <- function(inter_chr, totalBins_chr, binsize, replicates, conditio
       dplyr::left_join(existing, by = c("replicate", "condition", "position")) %>%  
       mutate(value = ifelse(is.na(value)==T,0,value)) %>%
       group_by(replicate, condition, position) %>%
-      mutate(mean = mean(value)) %>% 
+      mutate(mean = mean(value)) %>%
       filter(mean <= threshold)
-    
-    weakpos_chr <- fullbindatatest %>%  
-      pull(position) %>% 
+
+    weakpos_chr <- fullbindatatest %>%
+      pull(position) %>%
       unique() %>%
       sort()
-    
+
     nbNewEmptyBins <- length(weakpos_chr) - nbRemovedBins
-    
+
     # Remove the positions in rows and columns in empty bins
     if(nbNewEmptyBins>0) {
       inter_chr[inter_chr$position.1 %in% weakpos_chr,]$value <- 0
@@ -71,24 +81,24 @@ fun_weak_chr <- function(inter_chr, totalBins_chr, binsize, replicates, conditio
 #' 
 #' @param object A HiCDOC object
 #'
-#' @return A HiCDOC object whith a reduced interactions slot
+#' @return A \code{HicDOCExp} object with a reduced \code{interactions} slot, 
+#' and the weak bins identified by chromosomes in \code{object@weakBins}.
 #' @export
 #'
 #' @examples
-#' object <- HiCDOCExample()
-#' object2  <- filterWeakPositions(object)
-#' 
+#' exp <- HiCDOCExample()
+#' exp <- filterWeakPositions(exp)
 filterWeakPositions <- function(object) {
-  weakPositions <- lapply(object@chromosomes, 
-                          function(chr) fun_weak_chr(object@interactions[object@interactions$chromosome == chr,], 
-                                                     object@totalBins[[chr]], 
-                                                     object@binSize, 
-                                                     object@replicates, 
-                                                     object@conditions, 
+  weakPositions <- lapply(object@chromosomes,
+                          function(chr) fun_weak_chr(object@interactions[object@interactions$chromosome == chr,],
+                                                     object@totalBins[[chr]],
+                                                     object@binSize,
+                                                     object@replicates,
+                                                     object@conditions,
                                                      object@filterThreshold)
   )
   names(weakPositions) <- object@chromosomes
-  
+
   weakBins <- weakPositions %>% purrr:::map("pos")
   weakBins <- lapply(weakBins, function(x) x / object@binSize + 1)
   nullweak <- vapply(weakBins, function(x) length(x) == 0, FUN.VALUE = TRUE)
@@ -96,19 +106,19 @@ filterWeakPositions <- function(object) {
   
   interactions <- weakPositions %>% purrr::map_dfr("interactions")
 
-  # Affecting new values to the object 
+  # Affecting new values to the object
   object@weakBins <- weakBins
   object@interactions <- interactions
-  
+
   nbweak <- sum(vapply(weakBins, length, c(0)))
-  
-  message(cat(paste0("Chromosome ", names(weakBins), ": ", 
+
+  message(cat(paste0("Chromosome ", names(weakBins), ": ",
                        lapply(weakBins, length), " position(s) removed"), sep="\n"))
   message("Removed ",
           nbweak,
           " position",
           if (nbweak > 1)
             "s")
-  
+
   return (object)
 }
