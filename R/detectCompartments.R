@@ -1,7 +1,36 @@
+##- euclideanDistance --------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Compute the euclidean distance between two vectors.
+#'
+#' @rdname euclideanDistance
+#'
+#' @param x          A vector.
+#' @param y          A vector.
+#'
+#' @return A float number.
+#'
+#' @examples
+#' euclideanDistance(c(1.5,2,3.8), c(0.5,1.1,0.4))
+#' @export
 euclideanDistance <- function(x, y) {
   sqrt(sum((x - y)^2))
 }
 
+##- distanceRatio ------------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Compute the log ratio of the distance of a position to each centroid.
+#'
+#' @rdname distanceRatio
+#'
+#' @param x          A vector of a genomic position.
+#' @param centroids  A list of 2 vectors.
+#' @param eps        A small epsilon to avoid log(0).
+#'
+#' @return A float number.
+#'
+#' @examples
+#' distanceRatio(c(1.5,2,3.8), list('1'=c(0.5,1.1,0.4), '2'=c(2.3,4.8,1)))
+#' @export
 distanceRatio <- function(x, centroids, eps=1e-10) {
   return (log(
     (euclideanDistance(x, centroids[[1]]) + eps)
@@ -9,6 +38,29 @@ distanceRatio <- function(x, centroids, eps=1e-10) {
   ))
 }
 
+##- clusterize ---------------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Segregate genomic positions into 2 clusters using constrained k-means.
+#'
+#' @rdname clusterize
+#'
+#' @param object A \code{HiCDOCExp} object.
+#'
+#' @return A \code{HiCDOCExp} object, with:
+#' - centroid (vector) for each cluster
+#' - compartment (cluster number) for each genomic position
+#' - distances to centroids (float) for each genomic position in each replicate
+#' - concordance (float in [-1, 1]) for each genomic position in each replicate
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- clusterize(object)
+#' @export
 clusterize <- function(object) {
   object@compartments <- tibble()
   object@concordances <- tibble()
@@ -117,10 +169,10 @@ clusterize <- function(object) {
         condition = conditionId,
         replicate = rep(rep(replicates, each = ncol(interactions)), 2),
         cluster = c(
-          rep(1, length(replicates)*ncol(interactions)),
-          rep(2, length(replicates)*ncol(interactions))
+          rep(1, length(replicates) * ncol(interactions)),
+          rep(2, length(replicates) * ncol(interactions))
         ),
-        value = c(distances[1,], distances[2,])
+        value = c(t(distances))
       ))
 
       object@centroids %<>% bind_rows(tibble(
