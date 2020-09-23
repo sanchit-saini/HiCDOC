@@ -12,7 +12,7 @@
 \item{object}{An \code{HiCDOCExp} object.}
 }
 \value{
-A \code{tibble} object of the concordance
+A \code{tibble} object of the compartments
 }
 \description{
 This function extracts the compartments from \code{\link{HiCDOCExp}}.

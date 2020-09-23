@@ -4,27 +4,20 @@
 \alias{fullInteractionsChr}
 \title{Title}
 \usage{
-fullInteractionsChr(
-  chr,
-  interactionsChr,
-  totalBinsChr,
-  binSize,
-  replicates,
-  conditions
-)
+fullInteractionsChr(object, chromosomeId)
 }
 \arguments{
 \item{chr}{current chromosome}
+
+\item{interactions_chr}{interaction matrix for the chromosome}
+
+\item{totalBins_chr}{totalBins for the chromosome}
 
 \item{binSize}{binSize of the object (object@binSize)}
 
 \item{replicates}{replicates of the object (as given by object@replicates)}
 
 \item{conditions}{conditions of the object, with repetitions (as given by object@conditions)}
-
-\item{interactions_chr}{interaction matrix for the chromosome}
-
-\item{totalBins_chr}{totalBins for the chromosome}
 }
 \value{
 the full interaction matrix (filled with 0 values) for the chromosome

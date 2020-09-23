@@ -2,22 +2,27 @@
 % Please edit documentation in R/plots.R
 \name{plotInteractionMatrix}
 \alias{plotInteractionMatrix}
-\title{Plot the interaction matrices (as heatmaps).}
+\title{Plot the interaction matrix (as heatmap).}
 \usage{
-plotInteractionMatrix(object, log2 = TRUE)
+plotInteractionMatrix(object, chromosomeId, trans = "log2")
 }
 \arguments{
-\item{objet}{an \code{HiCDOCExp} object}
+\item{chromosomeId}{The name or number of the chromosome to plot.
+If number, will be taken in \code{object@chromosomes[chromosomeId]}}
 
-\item{log}{logical: should the color be in log2 scale? Default to TRUE.}
+\item{trans}{character: transformation of the color scale. Default to "log2". 
+See \code{\link[ggplot2::scale_fill_gradient]{scale_fill_gradient}} for other accepted values. 
+Set to NULL for no transformation.}
+
+\item{objet}{an \code{HiCDOCExp} object}
 }
 \value{
-A list of \code{ggplot}, one for each chromosome.
+A \code{ggplot} object.
 }
 \description{
-Plot the interaction matrices (as heatmaps).
+Plot the interaction matrix (as heatmap).
 }
 \examples{
 object <- HiCDOCExample()
-p <- plotInteractionMatrix(object, log2 = TRUE)
+p <- plotInteractionMatrix(object, chromosomeId = 1, trans = "log2")
 }

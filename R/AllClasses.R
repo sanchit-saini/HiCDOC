@@ -498,19 +498,19 @@ HiCDOCExp <- function(dataSet = NULL,
 #'
 #' @export
 HiCDOC <- function(object) {
-  plotInteractionMatrix(object, log = TRUE)
+  plotInteractionMatrix(object, chromosomeId = 1)
   object <- normalizeTechnicalBiases(object)
-  plotInteractionMatrix(object, log = TRUE)
+  plotInteractionMatrix(object, chromosomeId = 1)
   object <- normalizeBiologicalBiases(object)
-  plotInteractionMatrix(object, log = TRUE)
+  plotInteractionMatrix(object, chromosomeId = 1)
   plotDistanceEffect(object)
   object <- normalizeDistanceEffect(object)
   plotDistanceEffect(object)
-  plotInteractionMatrix(object, log = FALSE)
+  plotInteractionMatrix(object, chromosomeId = 1)
   object <- detectCompartments(object)
   object <- detectCompartmentSwitches(object)
-  plotConcordances(object)
-  plotCompartmentChanges(object)
+
+  plotCompartmentChanges(object, chromosomeId = 1)
   differences(object, pvalue = 0.1)
   concordances(object)
   compartments(object)
