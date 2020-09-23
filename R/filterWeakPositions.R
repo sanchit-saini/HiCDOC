@@ -114,8 +114,6 @@ filterWeakPositions <- function(object) {
 
   nbweak <- sum(vapply(weakBins, length, c(0)))
 
-  message(cat(paste0("Chromosome ", names(weakBins), ": ",
-                       lapply(weakBins, length), " position(s) removed"), sep="\n"))
   message("Removed ",
           nbweak,
           " position",
