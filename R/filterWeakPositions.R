@@ -108,7 +108,7 @@ filterWeakPositions <- function(object) {
   
   interactions <- weakPositions %>% purrr::map_dfr("interactions")
 
-  # Affecting new values to the object
+  # Save new values
   object@weakBins <- weakBins
   object@interactions <- interactions
 
@@ -119,8 +119,12 @@ filterWeakPositions <- function(object) {
   message("Removed ",
           nbweak,
           " position",
-          if (nbweak > 1)
-            "s")
+          if (nbweak != 1) "s"
+         )
+
+  if (nbweak >= sum(unlist(object@totalBins))) {
+    message('No data left!')
+  }
 
   return (object)
 }
