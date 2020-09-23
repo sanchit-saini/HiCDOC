@@ -433,22 +433,3 @@ computePValues <- function(object) {
   return(object)
 }
 
-#' Balanced condition levels, pasted with replicates
-#'
-#' @param conditions conditions vector, with repetitions, as in object@conditions
-#'
-#' @return Character vector filled to get the same number of replicates by condition, 
-#' to use in \code{plotInteractionsMatrix()}
-#'
-#' @examples
-CompleteCondLevels <- function(conditions, replicates){
-  repcond <- paste(conditions, replicates)
-  cond <- unique(conditions)
-  lc <- purrr::map_int(cond, function(x) length(conditions[conditions==x]))
-  lctofill <- max(lc) - lc
-  completecond <- c(mapply(function(x, y, z) c(rep(x, y), rep(x, z)), cond, lc, lctofill, SIMPLIFY = T))
-  return(completecond)
-}
-
-
-
