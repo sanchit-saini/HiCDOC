@@ -16,9 +16,11 @@ plotInteractionMatrix <- function(object, log2=TRUE) {
   fullMatrix <- fullInteractions(object) %>%
     mutate(value = value + 0.0001) %>%
     rename(intensity = value) %>%
-    unite("rep_cond", replicate, condition) %>%
-    mutate(rep_cond = factor(rep_cond, levels = paste(object@replicates, object@conditions, sep = "_")))
-  plots = list()
+    unite("rep_cond", replicate, condition, sep="_")
+  
+  plots = vector("list", length(object@chromosomes))
+  names(plots) <- object@chromosomes
+  
   for (chr in object@chromosomes) {
     tmp <- fullMatrix %>%
       filter(chromosome == chr)
