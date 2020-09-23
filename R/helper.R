@@ -15,11 +15,19 @@ checkParameters <- function(value) {
 #' @export
 #'
 #' @examples
-fullInteractionsChr <- function(chr, interactionsChr, totalBinsChr, binSize, replicates, conditions){
-  positionsChr <- (seq_len(totalBinsChr) - 1) * binSize
+fullInteractionsChr <- function(object, chromosomeId){
+  
+  testSlotsHiCDOCExp(object, slots = c("interactions", "totalBins", "binSize", "replicates", "conditions"))
+  chr <- testchromosome(object, chromosomeId)
+  
+  positionsChr <- (seq_len(object@totalBins[[chr]]) - 1) * object@binSize
 
   # Duplicate positions
-  interactionsChr <- interactionsChr %>% filter(value>0)
+  interactionsChr <- object@interactions %>%
+    filter(chromosome == chr) %>% 
+    select(-chromosome) %>%
+    filter(value>0)
+  
   interactionsChr <- interactionsChr %>%
     filter(position.1 != position.2) %>%
     rename(position.2 = position.1, position.1 = position.2) %>%
@@ -27,8 +35,11 @@ fullInteractionsChr <- function(chr, interactionsChr, totalBinsChr, binSize, rep
     group_by(condition, replicate, position.1, position.2) %>%
     mutate(value = mean(value))
 
-  fullmatrixChr <- tibble("condition" = factor(conditions), "replicate"= factor(replicates)) %>%
-    expand(nesting(condition, replicate),
+  fullmatrixChr <- tibble(
+                          "condition" = factor(object@conditions), 
+                          "replicate"= factor(object@replicates)) %>%
+    expand("chromosome"=chr, 
+           nesting(condition, replicate),
            "position.1" = positionsChr,
            "position.2" = positionsChr)
 
@@ -49,14 +60,8 @@ fullInteractionsChr <- function(chr, interactionsChr, totalBinsChr, binSize, rep
 fullInteractions <- function(object) {
   interactions <- purrr::map_dfr(object@chromosomes,
                                function(x)
-                                 fullInteractionsChr(
-                                   x,
-                                   object@interactions[object@interactions$chromosome == x,],
-                                   object@totalBins[[x]],
-                                   object@binSize,
-                                   object@replicates,
-                                   object@conditions
-                                 )) %>%
+                                 fullInteractionsChr( object, x)
+                               ) %>%
   mutate(chromosome = factor(chromosome, levels = object@chromosomes))
   
   # # Duplicate positions

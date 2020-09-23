@@ -1,48 +1,55 @@
-#' Plot the interaction matrices (as heatmaps).
+#' Plot the interaction matrix (as heatmap).
 #'
 #' @param objet an \code{HiCDOCExp} object
-#' @param log logical: should the color be in log2 scale? Default to TRUE.
-#' @return A list of \code{ggplot}, one for each chromosome.
+#' @param chromosomeId The name or number of the chromosome to plot.
+#' If number, will be taken in \code{object@chromosomes[chromosomeId]}
+#' @param trans character: transformation of the color scale. Default to "log2". 
+#' See \code{\link[ggplot2::scale_fill_gradient]{scale_fill_gradient}} for other accepted values. 
+#' Set to NULL for no transformation.
+#' @return A \code{ggplot} object.
 #' @examples
 #' object <- HiCDOCExample()
-#' p <- plotInteractionMatrix(object, log2 = TRUE)
+#' p <- plotInteractionMatrix(object, chromosomeId = 1, trans = "log2")
 #' @export
-plotInteractionMatrix <- function(object, log2=TRUE) {
-
-  if (is.null(object@interactions)) {
-    stop(paste0("Interaction matrix is not loaded yet.  ",
-                "Please provide a matrix first."))
-  }
-  fullMatrix <- fullInteractions(object) %>%
-    mutate(value = value + 0.0001) %>%
-    rename(intensity = value) %>%
+plotInteractionMatrix <- function(object, chromosomeId, trans = "log2") {
+  testSlotsHiCDOCExp(object,
+                     slots = c("interactions"))
+  chr <- testchromosome(object, chromosomeId)
+  
+  interactionsChr <- object@interactions %>% 
+    filter(chromosome == chr & value>0) 
+  
+  # Duplicate positions (sparse symetric matrix)
+  interactionsChr <- interactionsChr %>%
+    filter(position.1 != position.2) %>%
+    rename(position.2 = position.1, position.1 = position.2) %>%
+    bind_rows(interactionsChr) %>%
+    group_by(condition, replicate, position.1, position.2) %>%
+    mutate(intensity = mean(value)) %>%
     unite("rep_cond", replicate, condition, sep="_")
   
-  plots = vector("list", length(object@chromosomes))
-  names(plots) <- object@chromosomes
-  
-  for (chr in object@chromosomes) {
-    tmp <- fullMatrix %>%
-      filter(chromosome == chr)
-    
-    if (nrow(tmp) > 0) {
-      p <- tmp %>%
-        ggplot(aes(x = position.1, y = position.2, z = intensity)) +
-          geom_tile(aes(fill = intensity)) +
-          coord_fixed(ratio = 1) +
-          theme_bw() +
-          labs(x = "", y = "") +
-          facet_grid(cols = vars(rep_cond))
-      if ((length(unique(tmp$intensity)) > 1) & (log)) {
-        p <- p + scale_fill_gradient(low = "white", high = "blue", trans = "log2")
-      }
-      else {
-        p <- p + scale_fill_gradient(low = "white", high = "blue")
-      }
-      plots[[chr]] <- p
+  xylim <- c(0, (object@totalBins[[chr]] - 1) * object@binSize)
+ 
+  if (nrow(interactionsChr) > 0) {
+    p <- interactionsChr %>%
+      ggplot(aes(x = position.1, y = position.2, z = intensity)) +
+        geom_tile(aes(fill = intensity)) +
+        coord_fixed(ratio = 1) +
+        theme_bw() +
+        labs(x = "", y = "") +
+        facet_wrap(vars(rep_cond), nrow=length(unique(object@conditions))) + 
+        xlim(xylim) + ylim(xylim) + 
+        labs(title = paste("chromosome:", chr))
+    if ((length(unique(interactionsChr$intensity)) > 1) & is.null(trans)==F) {
+      p <- p + scale_fill_gradient(low = "white", high = "blue", trans = trans)
     }
+    else {
+      p <- p + scale_fill_gradient(low = "white", high = "blue")
+    }
+  } else {
+    p <- NULL
   }
-  return(plots)
+  return(p)
 }
 
 

@@ -277,37 +277,3 @@ plotCompartmentChanges <-
     return(finalplot)
   }
 
-
-#' Plot the changes of compartments, for all chromosomes
-#'
-#' @param object a HicDOCExp object, on which \code{\link{detectCompartments}} have run
-#' @param padjThreshold threshold for the adjusted p-value to show significant changes. Default to 0.05
-#' @param xlim numerical vector of length 2. Giving the limits on the x-axis (position) to show. Default to NULL
-#' @param points Logical (default to FALSE). If TRUE, points will be added on the concordance lines.
-#'
-#' @return A list of \code{ggplot} objects, one for each chromosome.
-#'
-#' @examples
-#' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- detectCompartments(object)
-#' plotCompartmentsChanges(object)
-#' @export
-plotAllCompartmentChanges <-
-  function(object,
-           padjThreshold = 0.05,
-           xlim = NULL,
-           points = FALSE) {
-    plots <-
-      lapply(object@chromosomes,
-             plotCompartmentChanges,
-             object = object,
-             padjThreshold,
-             xlim,
-             points)
-    return(plots)
-  }
