@@ -4,5 +4,5 @@
 .Ruserdata
 
 # Ignore object compiled files
-src/*.so
-src/*.o
+*.so
+*.o

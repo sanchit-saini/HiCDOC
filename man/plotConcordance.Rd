@@ -13,7 +13,7 @@ plotConcordance(
 )
 }
 \arguments{
-\item{object}{A \code{HiCDOCExp} object on which \code{detectCompartments()} have run.}
+\item{object}{A \code{HiCDOCExp} object on which \code{detectCompartments()} has run.}
 
 \item{chromosomeId}{The name or number of the chromosome to plot.
 If number, will be taken in \code{object@chromosomes[chromosomeId]}}
@@ -23,13 +23,13 @@ Default to NULL = all positions.}
 
 \item{padjThreshold}{Significance threshold for the changes. Default to 0.05.}
 
-\item{points}{Boolean. Should points be plotted on concordance plot ? Default to FALSE.}
+\item{points}{Logical (default to FALSE). If TRUE, points will be added on the concordance lines.}
 }
 \value{
 A ggplot.
 }
 \description{
-Plot the concordance distribution of all the replicates along one chromosome.
+Plot the concordance distribution of all the replicates for one chromosome.
 }
 \examples{
 object <- HiCDOCExample()

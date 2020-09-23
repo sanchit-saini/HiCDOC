@@ -7,7 +7,7 @@
 plotCompartments(object, chromosomeId, xlim = NULL)
 }
 \arguments{
-\item{object}{A \code{HiCDOCExp} object on which \code{detectCompartments()} have run.}
+\item{object}{A \code{HiCDOCExp} object on which \code{detectCompartments()} has run.}
 
 \item{chromosomeId}{The name or number of the chromosome to plot.
 If number, will be taken in \code{object@chromosomes[chromosomeId]}}

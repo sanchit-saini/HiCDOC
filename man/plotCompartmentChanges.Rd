@@ -22,7 +22,7 @@ plotCompartmentChanges(
 \item{xlim}{A numeric-value pair, indicating the interval of positions to represent.
 Default to NULL = all positions.}
 
-\item{points}{Boolean. Should points be plotted on concordance plot ? Default to FALSE.}
+\item{points}{Logical (default to FALSE). If TRUE, points will be added on the concordance lines.}
 }
 \value{
 A ggplot object.

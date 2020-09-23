@@ -4,12 +4,12 @@
 \alias{plotInteractionMatrix}
 \title{Plot the interaction matrices (as heatmaps).}
 \usage{
-plotInteractionMatrix(object, log)
+plotInteractionMatrix(object, log2 = TRUE)
 }
 \arguments{
-\item{log}{a logical scalar: should the color be in log scale}
-
 \item{objet}{an \code{HiCDOCExp} object}
+
+\item{log}{logical: should the color be in log2 scale? Default to TRUE.}
 }
 \value{
 A list of \code{ggplot}, one for each chromosome.
@@ -19,5 +19,5 @@ Plot the interaction matrices (as heatmaps).
 }
 \examples{
 object <- HiCDOCExample()
-p <- plotInteractionMatrix(object, log = TRUE)
+p <- plotInteractionMatrix(object, log2 = TRUE)
 }
