@@ -160,7 +160,7 @@ setMethod(
 #'
 #' @param object An \code{HiCDOCExp} object.
 #'
-#' @return A \code{tibble} object of the concordance
+#' @return A \code{tibble} object of the compartments
 #'
 #' @examples
 #' exp <- HiCDOCExample()
@@ -179,25 +179,30 @@ setMethod(
       )
     } else {
       grl <- object@compartments %>%
-        mutate(start = position + 1) %>%
-        mutate(end = start + object@binSize - 1) %>%
-        select(-position) %>%
-        mutate(condition = factor(condition)) %>%
-        rename(compartment = value) %>%
-        makeGRangesListFromDataFrame(
-          keep.extra.columns = TRUE,
-          ignore.strand = TRUE,
-          split.field = "condition"
-        )
-      grl2 <- lapply(grl, function(x) { split(x, ~ compartment) })
-      grl3 <- as(lapply(grl2, function(x) {
-        unlist(as(lapply(names(x), function(y) {
-          z <- GenomicRanges::reduce(x[[y]])
-          z$compartment <- factor(y)
-          return(z)
-        }), "GRangesList"))
-      }), "GRangesList")
-      return(grl3)
+          mutate(start = position + 1) %>%
+          mutate(end = start + object@binSize - 1) %>%
+          select(-position)
+      return(grl)
+      # grl <- object@compartments %>%
+      #   mutate(start = position + 1) %>%
+      #   mutate(end = start + object@binSize - 1) %>%
+      #   select(-position) %>%
+      #   mutate(condition = factor(condition)) %>%
+      #   rename(compartment = value) %>%
+      #   GenomicRanges::makeGRangesListFromDataFrame(
+      #     keep.extra.columns = TRUE,
+      #     ignore.strand = TRUE,
+      #     split.field = "condition"
+      #   )
+      # grl2 <- lapply(grl, function(x) { split(x, ~ compartment) })
+      # grl3 <- as(lapply(grl2, function(x) {
+      #   unlist(as(lapply(names(x), function(y) {
+      #     z <- GenomicRanges::reduce(x[[y]])
+      #     z$compartment <- factor(y)
+      #     return(z)
+      #   }), "GRangesList"))
+      # }), "GRangesList")
+      # return(grl3)
     }
   }
 )
@@ -213,7 +218,7 @@ setMethod(
 #' values in the \code{useParameters} argument of the \code{\link{HiCDOC}}
 #' function or using the assignment function \code{\link{parameters<-}}.
 #'
-#' Parameters in a HiCDOC experment.
+#' Parameters in a HiCDOC experiment.
 #'
 #' \subsection{Global parameters}{
 #'  \describe{
@@ -221,45 +226,6 @@ setMethod(
 #'        coverage. Bases where at least one sample has (normalized)
 #'        coverage greater than \code{minDepth} be been retained.
 #'        Default to \code{10}.}
-#'    \item{\code{minSize}}{The minimum size (in base-pairs) of the
-#'        regions to be found. Default to \code{18}.}
-#'    \item{\code{maxSize}}{The maximum size (in base-pairs) of the
-#'        regions to be found. Default to \code{1000000}.}
-#'    \item{\code{minGap}}{The minimum gap between regions. Regions
-#'        separated by a gap of at most \code{minGap} positions
-#'        are merged. Default to \code{100}.}
-#'    \item{\code{maxDiff}}{The maximum number of different bases between
-#'        two regions. Near-identical regions are collapsed.
-#'        Only regions with at most \code{maxDiff} different
-#'        positions are considered identicals and are collapsed
-#'        into one single region. Default to \code{20}.}
-#'    \item{\code{minOverlap}}{This parameters is used in the construction
-#'        of the \code{\link{countMatrix}} matrix. Only reads (ranges)
-#'        with a minimum of \code{minOverlap} overlapping each expressed
-#'        region are considered to be overlapping. Default to \code{10}.}
-#'  }
-#' }
-#'
-#' \subsection{Parameters for the HMM method}{
-#'  \describe{
-#'    \item{\code{noDiffToDiff}}{Initial transition probability from
-#'        no differentially expressed state to differentially expressed.
-#'        Default to \code{0.001}.}
-#'    \item{\code{diffToNoDiff}}{Initial transition probability from
-#'        differentially expressed state to no differentially expressed.
-#'        Default to \code{0.000001}.}
-#'    \item{\code{emission}}{Emission probability. Default to \code{0.9}.}
-#'    \item{\code{emissionThreshold}}{Emission threshold. A real number
-#'        between \code{0} and \code{1}. Default to \code{0.1}.}
-#'  }
-#' }
-#'
-#' \subsection{Parameters for the Naive and Slice methods}{
-#'  \describe{
-#'    \item{\code{cutoff}}{The cutoff used in the naive method to
-#'        determine candidate regions. Default to \code{1}.}
-#'    \item{\code{minLogFC}}{The minimun sliding threshold used in the
-#'        Slice method. Default to \code{0.5}.}
 #'  }
 #' }
 #'
