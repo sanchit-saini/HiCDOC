@@ -91,6 +91,47 @@ KR <- function(A,
   return(result)
 }
 
+
+##- normalizeBiologicalBiasesChr ------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Remove biological biases by normalizing with Knight-Ruiz matrix balancing.
+#'
+#' @rdname normalizeBiologicalBiasesChr
+#'
+#' @param object A \code{HiCDOCExp} object.
+#' @param chromosomeId The name or number of the chromosome to plot.
+#' If number, will be taken in \code{object@chromosomes[chromosomeId]}
+#'
+#' @return A \code{HiCDOCExp} object, with the normalized matrices.
+normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
+  testSlotsHiCDOCExp(object,
+                     slots = c("interactions"))
+  chr <- testchromosome(object, chromosomeId)
+  message("Chromosome: ", chr)
+  
+  if (object@totalBins[[chr]] == -Inf)
+    return(NULL)
+  
+  rawMatrices  <- mapply(function(x,y) sparseInteractionsToMatrix(object, chr, x, y, filter=TRUE), 
+                         object@conditions,
+                         object@replicates, SIMPLIFY = FALSE)
+  
+  testEmptyRow <- vapply(rawMatrices, function(x) min(rowSums(x)), FUN.VALUE = c(0))
+  if(length(testEmptyRow[testEmptyRow == 0])>0){
+    id <- which(testEmptyRow == 0)
+    stop("A matrix has an empty row", paste0("condition ", object@conditions[id], " replicate ", object@replicates[id]))
+  }
+  
+  normalizedMatrices  <- lapply(rawMatrices, KR)
+  sparseIntMatrices<- mapply(function(x,y,z) matrixToSparseInteractions(x, object, chr, y, z),
+                             normalizedMatrices,
+                             object@conditions,
+                             object@replicates, SIMPLIFY = FALSE)
+  
+  interactionsChr <- bind_rows(sparseIntMatrices)
+  return(interactionsChr)
+}
+
 ##- normalizeBiologicalBiases ------------------------------------------------#
 ##----------------------------------------------------------------------------#
 #' Remove biological biases by normalizing with Knight-Ruiz matrix balancing.
@@ -109,51 +150,12 @@ KR <- function(A,
 #' object <- normalizeBiologicalBiases(object)
 #' @export
 normalizeBiologicalBiases <- function(object) {
-  interactions <- tibble()
-
-  for (chromosomeId in object@chromosomes) {
-    message("Chromosome: ", chromosomeId)
-    totalBins <- object@totalBins[[chromosomeId]]
-    if (totalBins == -Inf)
-      next
-
-    for (conditionId in unique(object@conditions)) {
-      replicates <-
-        object@replicates[which(object@conditions == conditionId)]
-
-      for (replicateId in replicates) {
-        message("Replicate: ", conditionId, "/", replicateId)
-
-        rawMatrix <- sparseInteractionsToMatrix(object,
-                                                chromosomeId,
-                                                conditionId,
-                                                replicateId,
-                                                filter = TRUE)
-
-        if (min(colSums(rawMatrix)) == 0) {
-          stop("The matrix has an empty row")
-        }
-
-        normalizedMatrix <- KR(rawMatrix)
-
-        interactions %<>% bind_rows(
-          matrixToSparseInteractions(
-            normalizedMatrix,
-            object,
-            chromosomeId,
-            conditionId,
-            replicateId
-          )
-        )
-      }
-    }
-  }
-
-  object@interactions <- interactions %>% mutate(
-    chromosome = factor(chromosome),
-    condition = factor(condition),
-    replicate = factor(replicate)
-  )
-
+  interactionsNorm <- purrr::map_dfr(object@chromosomes,
+                                     function(x) normalizeBiologicalBiasesChr(object, x)) %>%
+    mutate(chromosome = factor(chromosome, levels = object@chromosomes)) %>%
+    mutate(condition = factor(condition)) %>%
+    mutate(replicate = factor(replicate))
+  object@interactions <- interactionsNorm
+  
   return(object)
 }

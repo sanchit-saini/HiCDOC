@@ -6,7 +6,8 @@
 #' @rdname normalizeDistanceEffectChr
 #'
 #' @param object A \code{HiCDOCExp} object.
-#' @param chromosomeId The number or name of the chromosome.
+#' @param chromosomeId The name or number of the chromosome to plot.
+#' If number, will be taken in \code{object@chromosomes[chromosomeId]}
 #'
 #' @return the normalized interaction matrix for this chromosome.
 normalizeDistanceEffectChr <- function(object, chromosomeId) {
@@ -15,8 +16,8 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
   chr <- testchromosome(object, chromosomeId)
   
   message("Chromosome: ", chr)
-  
-  interactionsChr <- object@interactions %>% 
+
+  interactionsChr <- object@interactions %>%
     filter(chromosome == chr & value>0) %>%
     mutate(distance = position.2 - position.1) %>%
     mutate(
@@ -121,7 +122,6 @@ normalizeDistanceEffect <- function(object) {
   interactionsNorm <- purrr::map_dfr(object@chromosomes,
                                      function(x) normalizeDistanceEffectChr(object, x)) %>%
     mutate(chromosome = factor(chromosome, levels = object@chromosomes))
-  
   object@interactions <- interactionsNorm
   
   return(object)
