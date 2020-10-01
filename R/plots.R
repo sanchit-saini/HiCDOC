@@ -130,7 +130,8 @@ plotDiffConcordances <- function(object) {
 #' plotAB(object, 1)
 #' @export
 plotAB <- function(object, chromosomeId) {
-  df <- buildABComparisonChr(object, chromosomeId)
+  chr <- testchromosome(object, chromosomeId)
+  df <- buildABComparisonChr(object, chr)
   p <- ggplot(df, aes(x = compartment, y = diffValue)) +
     geom_jitter(aes(color = compartment)) +
     geom_boxplot(outlier.colour = NA, fill = NA, colour = "grey20") +
