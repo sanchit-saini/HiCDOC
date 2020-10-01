@@ -4,46 +4,29 @@
 \alias{filterWeakChr}
 \title{Look for the weak positions for a given chromosome}
 \usage{
-filterWeakChr(
-  interChr,
-  totalBinsChr,
-  binsize,
-  replicates,
-  conditions,
-  threshold = 0
-)
+filterWeakChr(object, chromosomeId, threshold = 0)
 }
 \arguments{
-\item{binsize}{Size of the bins in the HiCDOC object}
+\item{object}{Interaction matrix for the chromosome}
 
-\item{replicates}{Levels of replicates. Given from object@conditions}
+\item{chromosomeId}{Number of total bins for this chromosome}
 
-\item{conditions}{Levels of conditions (repeated by replicates).
-Given from object@conditions}
-
-\item{threshold}{Threshold for the selection of "empty". The function will
-return the bin if the mean of value if inferior to `threshold`,
-for at least one condition and a replicate (after we reconstruct the 0 values).
-Default to 0.}
-
-\item{inter_chr}{Interaction matrix for the chromosome}
-
-\item{totalBins_chr}{Number of total bins for this chromosome}
+\item{threshold}{Numeric default to 0.}
 }
 \value{
-
+list of length 2 : \code{"pos"} = the weak positions, 
+\code{"interactions"} the interactions matrix for the chromosome, 
+whithout the weak bins.
 }
 \description{
-The function identifies the weak positions from the interaction matrix
-for a given chromosome., in a recursive way.
+The function identifies and remove the weak positions from the interaction matrix
+for a given chromosome, in a recursive way.
+To be kept, the bins (positions) must have a mean value greater than 
+\code{threshold}, on all replicates and all conditions. 
+The mean is computed on the row of the reconstructed full interaction 
+matrix for the chromosome, 1 condition and 1 replicate.
 }
 \examples{
 object <- HiCDOCExample()
-chr <- object@chromosomes[[1]]
-filterWeakChr(object@interactions[object@interactions$chromosome == chr,],
-             object@totalBins[[chr]],
-             object@binSize,
-             object@replicates,
-             object@conditions,
-             object@filterThreshold)
+filterWeakChr(object, 1)
 }

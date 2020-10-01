@@ -4,10 +4,12 @@
 \alias{filterWeakPositions}
 \title{Remove the weak bins of an HiCDOC object}
 \usage{
-filterWeakPositions(object)
+filterWeakPositions(object, threshold = 0)
 }
 \arguments{
 \item{object}{A HiCDOC object}
+
+\item{threshold}{Numeric, default to 0.}
 }
 \value{
 A \code{HicDOCExp} object with a reduced \code{interactions} slot, 
@@ -17,9 +19,10 @@ and the weak bins identified by chromosomes in \code{object@weakBins}.
 The function indentifies and remove the weak bins of an HiCDOC object, 
 chromosome by chromosome. 
 To be kept, the bins (positions) must have a mean value greater than 
-object@filterThreshold, on all replicates and all conditions. 
+\code{threshold}, on all replicates and all conditions. 
 The mean is computed on the row of the reconstructed full interaction 
-matrix for 1 chromosome, 1 condition and 1 replicate.
+matrix for 1 chromosome, 1 condition and 1 replicate. The weak bins will
+be discarded, and added in object@weakBins.
 }
 \examples{
 exp <- HiCDOCExample()

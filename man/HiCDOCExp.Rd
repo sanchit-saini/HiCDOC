@@ -45,8 +45,6 @@ TODO
 
 \item{\code{weakBins}}{The empty bins.}
 
-\item{\code{filterThreshold}}{The threshold used to discard (almost) empty bins.}
-
 \item{\code{chromosomes}}{The list of chromosomes.}
 
 \item{\code{replicates}}{The names of the replicates.}
