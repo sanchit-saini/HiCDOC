@@ -2,68 +2,62 @@ checkParameters <- function(value) {
   # TODO
 }
 
-#' Title
+##- sparseInteractionsToFullInteractions -------------------------------------#
+##----------------------------------------------------------------------------#
+#' Build the full interactions tibble filled with zeros for a chromosome in a
+#' condition and replicate.
 #'
-#' @param chr current chromosome
-#' @param interactions_chr interaction matrix for the chromosome
-#' @param totalBins_chr totalBins for the chromosome
-#' @param binSize binSize of the object (object@binSize)
-#' @param replicates replicates of the object (as given by object@replicates)
-#' @param conditions conditions of the object, with repetitions (as given by object@conditions)
+#' @param object        A \code{HiCDOCExp} object.
+#' @param chromosomeId  A chromosome.
+#' @param conditionId   A condition.
+#' @param replicateId   A replicate.
+#' @param filter        Whether to remove weak positions. Defaults to TRUE.
 #'
-#' @return the full interaction matrix (filled with 0 values) for the chromosome
-#' @export
-#'
-#' @examples
-fullInteractionsChr <- function(object, chromosomeId){
-  
-  testSlotsHiCDOCExp(object, slots = c("interactions", "totalBins", "binSize", "replicates", "conditions"))
-  chr <- testchromosome(object, chromosomeId)
-  
-  positionsChr <- (seq_len(object@totalBins[[chr]]) - 1) * object@binSize
+#' @return An interactions tibble.
+sparseInteractionsToFullInteractions <- function(
+  object,
+  chromosomeId,
+  conditionId,
+  replicateId,
+  filter = TRUE
+) {
+  totalBins <- object@totalBins[[chromosomeId]]
+  positions <- (seq_len(totalBins) - 1) * object@binSize
 
-  # Duplicate positions
-  interactionsChr <- object@interactions %>%
-    filter(chromosome == chr) %>% 
-    select(-chromosome) %>%
-    filter(value>0)
-  
-  interactionsChr <- interactionsChr %>%
+  interactions = object@interactions %>%
+    filter(chromosome == chromosomeId) %>%
+    filter(condition == conditionId) %>%
+    filter(replicate == replicateId)
+
+  mirrorInteractions = interactions %>%
     filter(position.1 != position.2) %>%
-    rename(position.2 = position.1, position.1 = position.2) %>%
-    bind_rows(interactionsChr) %>%
-    group_by(condition, replicate, position.1, position.2) %>%
-    mutate(value = mean(value))
+    rename(position.1 = position.2, position.2 = position.1)
 
-  fullmatrixChr <- tibble(
-                          "condition" = factor(object@conditions), 
-                          "replicate"= factor(object@replicates)) %>%
-    expand("chromosome"=chr, 
-           nesting(condition, replicate),
-           "position.1" = positionsChr,
-           "position.2" = positionsChr)
+  fullInteractions <- tibble(
+      chromosome = chromosomeId,
+      condition = conditionId,
+      replicate = replicateId,
+      position.1 = rep(positions, totalBins),
+      position.2 = rep(positions, each = totalBins),
+      value = 0
+    ) %>%
+    left_join(
+      bind_rows(interactions, mirrorInteractions),
+      by = c("chromosome", "condition", "replicate", "position.1", "position.2")
+    ) %>%
+    mutate(value = coalesce(value.y, value.x)) %>%
+    select(-c(value.x, value.y))
 
-  fullmatrixChr <- fullmatrixChr %>%
-    dplyr::left_join(interactionsChr, by = c("condition", "replicate", "position.1", "position.2")) %>%
-    dplyr::mutate(value = ifelse(is.na(value)==T, 0, value)) %>%
-    select(chromosome, condition, replicate, position.1, position.2, value)
-  return(fullmatrixChr)
-}
+  if (filter) {
+    weakBins <- object@weakBins[[chromosomeId]]
+    weakPositions <- (weakBins - 1) * object@binSize
 
-#' Full Interactions Matrix
-#'
-#' From an interactions matrix, that can be sparse and an upper of lower matrix, 
-#' generate the full interactions matrix, symetric and filling gaps with 0.
-#' @param object A \code{HiCDOCExp} object
-#'
-#' @return a tibble, long version of the full interactions matrix.
-fullInteractions <- function(object) {
-  interactions <- purrr::map_dfr(object@chromosomes,
-                               function(x)
-                                 fullInteractionsChr( object, x)
-                               ) %>%
-  mutate(chromosome = factor(chromosome, levels = object@chromosomes))
-  return (interactions)
+    fullInteractions %<>%
+     filter(!(position.1 %in% weakPositions)) %>%
+     filter(!(position.2 %in% weakPositions))
+  }
+
+  return (fullInteractions)
 }
 
 ##- sparseInteractionsToMatrix -----------------------------------------------#
