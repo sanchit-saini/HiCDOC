@@ -1,32 +1,24 @@
 #' Look for the weak positions for a given chromosome
 #'
-#' The function identifies the weak positions from the interaction matrix
-#' for a given chromosome., in a recursive way.
+#' The function identifies and remove the weak positions from the interaction matrix
+#' for a given chromosome, in a recursive way.
+#' To be kept, the bins (positions) must have a mean value greater than 
+#' \code{threshold}, on all replicates and all conditions. 
+#' The mean is computed on the row of the reconstructed full interaction 
+#' matrix for the chromosome, 1 condition and 1 replicate.
 #'
-#' @param inter_chr Interaction matrix for the chromosome
-#' @param totalBins_chr Number of total bins for this chromosome
-#' @param binsize Size of the bins in the HiCDOC object
-#' @param replicates Levels of replicates. Given from object@conditions
-#' @param conditions Levels of conditions (repeated by replicates).
-#' Given from object@conditions
-#' @param threshold Threshold for the selection of "empty". The function will
-#' return the bin if the mean of value if inferior to `threshold`,
-#' for at least one condition and a replicate (after we reconstruct the 0 values).
-#' Default to 0.
+#' @param object Interaction matrix for the chromosome
+#' @param chromosomeId Number of total bins for this chromosome
+#' @param threshold Numeric default to 0. 
 #'
-#' @return
+#' @return list of length 2 : \code{"pos"} = the weak positions, 
+#' \code{"interactions"} the interactions matrix for the chromosome, 
+#' whithout the weak bins.
 #'
 #' @examples
 #' object <- HiCDOCExample()
-#' chr <- object@chromosomes[[1]]
-#' filterWeakChr(object@interactions[object@interactions$chromosome == chr,],
-#'              object@totalBins[[chr]],
-#'              object@binSize,
-#'              object@replicates,
-#'              object@conditions,
-#'              object@filterThreshold)
+#' filterWeakChr(object, 1)
 filterWeakChr <- function(object, chromosomeId, threshold=0){
-
   testSlotsHiCDOCExp(object,
                      slots = c("interactions", "binSize", "replicates", "conditions", "totalBins"))
   chr <- testchromosome(object, chromosomeId)
@@ -81,11 +73,13 @@ filterWeakChr <- function(object, chromosomeId, threshold=0){
 #' The function indentifies and remove the weak bins of an HiCDOC object, 
 #' chromosome by chromosome. 
 #' To be kept, the bins (positions) must have a mean value greater than 
-#' object@filterThreshold, on all replicates and all conditions. 
+#' \code{threshold}, on all replicates and all conditions. 
 #' The mean is computed on the row of the reconstructed full interaction 
-#' matrix for 1 chromosome, 1 condition and 1 replicate.
+#' matrix for 1 chromosome, 1 condition and 1 replicate. The weak bins will
+#' be discarded, and added in object@weakBins.
 #' 
 #' @param object A HiCDOC object
+#' @param threshold Numeric, default to 0.
 #'
 #' @return A \code{HicDOCExp} object with a reduced \code{interactions} slot, 
 #' and the weak bins identified by chromosomes in \code{object@weakBins}.
@@ -94,11 +88,10 @@ filterWeakChr <- function(object, chromosomeId, threshold=0){
 #' @examples
 #' exp <- HiCDOCExample()
 #' exp <- filterWeakPositions(exp)
-filterWeakPositions <- function(object) {
+filterWeakPositions <- function(object, threshold = 0) {
   weakPositions <- lapply(object@chromosomes,
                           function(chr) filterWeakChr(object,
-                                                      chr,
-                                                      object@filterThreshold)
+                                                      chr, threshold)
   )
   names(weakPositions) <- object@chromosomes
 

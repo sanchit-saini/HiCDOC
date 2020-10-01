@@ -13,7 +13,6 @@ HiCDOCDefaultParameters <- list(
   kMeansDelta      = 0.0001,
   kMeansRestarts   = 20,
   sampleSize       = 20000,
-  filterThreshold  = 0,
   loessSpan        = 0.75,
   minLength        = 100
 )
@@ -350,7 +349,6 @@ HiCDOCExample <- function() {
 #' @slot inputPath                   The names of the matrix input files.
 #' @slot interactions                The interaction matrices.
 #' @slot weakBins                    The empty bins.
-#' @slot filterThreshold             The threshold used to discard (almost) empty bins.
 #' @slot chromosomes                 The list of chromosomes.
 #' @slot replicates                  The names of the replicates.
 #' @slot totalReplicates             The names of the replicates, glued with the name of the conditions.
@@ -379,7 +377,6 @@ setClass(
     inputPath                   = "ANY",
     interactions                = "ANY",
     weakBins                    = "ANY",
-    filterThreshold             = "ANY",
     chromosomes                 = "ANY",
     replicates                  = "ANY",
     totalReplicates             = "ANY",
@@ -484,7 +481,6 @@ HiCDOCExp <- function(dataSet = NULL,
   object@sampleSize       <- HiCDOCDefaultParameters$sampleSize
   object@loessSpan        <- HiCDOCDefaultParameters$loessSpan
   object@minLength        <- HiCDOCDefaultParameters$minLength
-  object@filterThreshold  <- HiCDOCDefaultParameters$filterThreshold
 
   return(invisible(object))
 }
