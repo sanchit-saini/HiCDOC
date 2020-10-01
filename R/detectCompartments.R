@@ -188,7 +188,7 @@ clusterize <- function(object) {
     compartment = factor(compartment)
   )
 
-  return(object)
+  return (object)
 }
 
 ##- detectCompartments -------------------------------------------------------#
@@ -220,5 +220,5 @@ detectCompartments <- function(object) {
   object <- computePValues(object)
   message("Done.")
 
-  return(object)
+  return (object)
 }

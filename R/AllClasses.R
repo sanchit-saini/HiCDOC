@@ -463,15 +463,15 @@ HiCDOCExp <- function(dataSet = NULL,
 
   object@totalBins <- vector("list",length(object@chromosomes))
   names(object@totalBins) <- object@chromosomes
-  
+
   for (chromosomeId in object@chromosomes) {
     chromosomeInteractions <- object@interactions %>%
       filter(chromosome == chromosomeId)
-    object@totalBins[[chromosomeId]] <- 
-      max(chromosomeInteractions$position.1, 
+    object@totalBins[[chromosomeId]] <-
+      max(chromosomeInteractions$position.1,
           chromosomeInteractions$position.2) / object@binSize + 1
   }
-  
+
   object@weakBins <- vector("list",length(object@chromosomes))
   names(object@weakBins) <- object@chromosomes
 
