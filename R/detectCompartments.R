@@ -2,16 +2,10 @@
 ##----------------------------------------------------------------------------#
 #' Compute the euclidean distance between two vectors.
 #'
-#' @rdname euclideanDistance
-#'
-#' @param x          A vector.
-#' @param y          A vector.
+#' @param x  A vector.
+#' @param y  A vector.
 #'
 #' @return A float number.
-#'
-#' @examples
-#' euclideanDistance(c(1.5,2,3.8), c(0.5,1.1,0.4))
-#' @export
 euclideanDistance <- function(x, y) {
   sqrt(sum((x - y)^2))
 }
@@ -20,17 +14,11 @@ euclideanDistance <- function(x, y) {
 ##----------------------------------------------------------------------------#
 #' Compute the log ratio of the distance of a position to each centroid.
 #'
-#' @rdname distanceRatio
-#'
 #' @param x          A vector of a genomic position.
 #' @param centroids  A list of 2 vectors.
 #' @param eps        A small epsilon to avoid log(0).
 #'
 #' @return A float number.
-#'
-#' @examples
-#' distanceRatio(c(1.5,2,3.8), list('1'=c(0.5,1.1,0.4), '2'=c(2.3,4.8,1)))
-#' @export
 distanceRatio <- function(x, centroids, eps=1e-10) {
   return (log(
     (euclideanDistance(x, centroids[[1]]) + eps)
@@ -42,25 +30,13 @@ distanceRatio <- function(x, centroids, eps=1e-10) {
 ##----------------------------------------------------------------------------#
 #' Segregate genomic positions into 2 clusters using constrained k-means.
 #'
-#' @rdname clusterize
-#'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object  A \code{HiCDOCExp} object.
 #'
 #' @return A \code{HiCDOCExp} object, with:
 #' - centroid (vector) for each cluster
 #' - compartment (cluster number) for each genomic position
 #' - distances to centroids (float) for each genomic position in each replicate
 #' - concordance (float in [-1, 1]) for each genomic position in each replicate
-#'
-#' @examples
-#' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- clusterize(object)
-#' @export
 clusterize <- function(object) {
   object@compartments <- tibble()
   object@concordances <- tibble()
@@ -217,14 +193,13 @@ clusterize <- function(object) {
 
 ##- detectCompartments -------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Detect the compartments for each position of the genome.
-#' Call the differential binding.
+#' Detect compartments for each genomic position in each condition, and compute
+#' p-values for compartment differences between conditions.
 #'
-#' @rdname detectCompartments
+#' @param object  A \code{HiCDOCExp} object.
 #'
-#' @param object A \code{HiCDOCExp} object.
-#'
-#' @return A \code{HiCDOCExp} object, with the compartment calling.
+#' @return A \code{HiCDOCExp} object, with centroids, compartments, distances,
+#' concordances and differences.
 #'
 #' @examples
 #' object <- HiCDOCExample()

@@ -68,9 +68,7 @@ fullInteractions <- function(object) {
 
 ##- sparseInteractionsToMatrix -----------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Get the interaction matrix for a chromosome in a condition and replicate.
-#'
-#' @rdname sparseInteractionsToMatrix
+#' Build the interaction matrix for a chromosome in a condition and replicate.
 #'
 #' @param object        A \code{HiCDOCExp} object.
 #' @param chromosomeId  A chromosome.
@@ -78,21 +76,7 @@ fullInteractions <- function(object) {
 #' @param replicateId   A replicate.
 #' @param filter        Shrink the matrix by removing weak rows/columns.
 #'
-#' @return A matrix
-#'
-#' @examples
-#' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' m <- sparseInteractionsToMatrix(
-#'   object,
-#'   object@chromosomes[[1]],
-#'   object@conditions[[1]],
-#'   object@replicates[[1]],
-#'   TRUE
-#' )
-#' head(m)
-#' @export
+#' @return A matrix.
 sparseInteractionsToMatrix <- function(
   object,
   chromosomeId,
@@ -136,36 +120,13 @@ sparseInteractionsToMatrix <- function(
 ##----------------------------------------------------------------------------#
 #' Build the interactions tibble for a chromosome in a condition and replicate.
 #'
-#' @rdname sparseInteractionsToMatrix
-#'
 #' @param m             A matrix.
 #' @param object        A \code{HiCDOCExp} object.
 #' @param chromosomeId  A chromosome.
 #' @param conditionId   A condition.
 #' @param replicateId   A replicate.
 #'
-#' @return A matrix
-#'
-#' @examples
-#' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' m <- sparseInteractionsToMatrix(
-#'   object,
-#'   object@chromosomes[[1]],
-#'   object@conditions[[1]],
-#'   object@replicates[[1]],
-#'   TRUE
-#' )
-#' interactions <- matrixToSparseInteractions(
-#'   m,
-#'   object,
-#'   object@chromosomes[[1]],
-#'   object@conditions[[1]],
-#'   object@replicates[[1]]
-#' )
-#' interactions
-#' @export
+#' @return An interactions tibble.
 matrixToSparseInteractions <- function(
   m,
   object,
@@ -319,26 +280,12 @@ predictABCompartments <- function(object) {
 #'    median of its concordance differences.
 #' 3. For each pair of conditions, for each genomic position whose assigned
 #'    compartment switches, rank its median against the empirical cumulative
-#'    distribution of medians for all non-switching positions in that condition
+#'    distribution of medians of all non-switching positions in that condition
 #'    pair. Adjust the resulting p-value with the Benjamini–Hochberg procedure.
-#'
-#' @rdname computePValues
 #'
 #' @param object A \code{HiCDOCExp} object.
 #'
 #' @return A \code{HiCDOCExp} object, with differences and their p-values.
-#'
-#' @examples
-#' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- clusterize(object)
-#' object <- predictABCompartments(object)
-#' object <- computePValues(object)
-#' @export
 computePValues <- function(object) {
   # Compute median of differences between pairs of concordances
   # N.b. median of differences != difference of medians
