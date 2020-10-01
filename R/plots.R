@@ -19,32 +19,29 @@ plotInteractionMatrix <- function(object, chromosomeId, trans = "log2") {
   interactionsChr <- object@interactions %>% 
     filter(chromosome == chr & value>0) 
   
-  # Duplicate positions (sparse symetric matrix)
-  interactionsChr <- interactionsChr %>%
-    filter(position.1 != position.2) %>%
-    rename(position.2 = position.1, position.1 = position.2) %>%
-    bind_rows(interactionsChr) %>%
-    group_by(condition, replicate, position.1, position.2) %>%
-    mutate(intensity = mean(value)) %>%
-    unite("rep_cond", replicate, condition, sep="_")
+  nblevels <- table(object@conditions)
+  nbrows <- 1
+  if(max(nblevels)==min(nblevels)) 
+    nbrows <- length(unique(object@conditions))
   
   xylim <- c(0, (object@totalBins[[chr]] - 1) * object@binSize)
  
   if (nrow(interactionsChr) > 0) {
-    p <- interactionsChr %>%
-      ggplot(aes(x = position.1, y = position.2, z = intensity)) +
-        geom_tile(aes(fill = intensity)) +
+    p <-ggplot(data = interactionsChr, aes(x = position.1, y = position.2, z = value)) +
+      geom_raster(aes(fill = value), na.rm = TRUE) +
+      geom_raster(data = interactionsChr[interactionsChr$position.1 != interactionsChr$position.2,], 
+                  aes(x = position.2, y = position.1, fill = value), na.rm = TRUE) +
         coord_fixed(ratio = 1) +
         theme_bw() +
         labs(x = "", y = "") +
-        facet_wrap(vars(rep_cond), nrow=length(unique(object@conditions))) + 
+        facet_wrap(condition ~ replicate, nrow=nbrows, labeller = label_wrap_gen(multi_line=FALSE)) + 
         xlim(xylim) + ylim(xylim) + 
         labs(title = paste("chromosome:", chr))
-    if ((length(unique(interactionsChr$intensity)) > 1) & is.null(trans)==F) {
-      p <- p + scale_fill_gradient(low = "white", high = "blue", trans = trans)
+    if ((length(unique(interactionsChr$value)) > 1) & is.null(trans)==F) {
+      p <- p + scale_fill_gradient(low = "white", high = "blue", trans = trans, name="Intensity")
     }
     else {
-      p <- p + scale_fill_gradient(low = "white", high = "blue")
+      p <- p + scale_fill_gradient(low = "white", high = "blue", name="Intensity")
     }
   } else {
     p <- NULL
