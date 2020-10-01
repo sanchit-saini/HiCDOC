@@ -77,7 +77,7 @@ plotConcordance <- function(object,
                             points = FALSE) {
   testSlotsHiCDOCExp(object,
                      slots = c("concordances", "differences"))
-  chr <- testchromosome(object, chromosomeId)
+  chr <- testChromosome(object, chromosomeId)
   xlim <- testxlim(xlim,
                    seq_len(object@totalBins[[chr]] - 1) * object@binSize)
   
@@ -170,7 +170,7 @@ plotCompartments <- function(object,
                              xlim = NULL) {
   testSlotsHiCDOCExp(object,
                      slots = c("compartments"))
-  chr <- testchromosome(object, chromosomeId)
+  chr <- testChromosome(object, chromosomeId)
   xlim <- testxlim(xlim,
                    seq_len(object@totalBins[[chr]] - 1) * object@binSize)
   
@@ -230,7 +230,7 @@ plotCompartmentChanges <-
     # Test parameters format
     testSlotsHiCDOCExp(object,
                        slots = c("concordances", "compartments", "differences"))
-    chr <- testchromosome(object, chromosomeId)
+    chr <- testChromosome(object, chromosomeId)
     
     pConcordance <- plotConcordance(object,
                                     chr,

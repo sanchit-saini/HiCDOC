@@ -106,7 +106,7 @@ KR <- function(A,
 normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
   testSlotsHiCDOCExp(object,
                      slots = c("interactions", "totalBins", "conditions", "replicates", "totalBins"))
-  chr <- testchromosome(object, chromosomeId)
+  chr <- testChromosome(object, chromosomeId)
   message("Chromosome: ", chr)
   
   if (object@totalBins[[chr]] == -Inf)

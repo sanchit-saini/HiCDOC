@@ -14,7 +14,7 @@
 plotInteractionMatrix <- function(object, chromosomeId, trans = "log2") {
   testSlotsHiCDOCExp(object,
                      slots = c("interactions", "conditions", "totalBins", "binSize"))
-  chr <- testchromosome(object, chromosomeId)
+  chr <- testChromosome(object, chromosomeId)
   
   interactionsChr <- object@interactions %>% 
     filter(chromosome == chr & value>0) 
@@ -159,7 +159,7 @@ plotAB <- function(object, chromosomeId) {
 plotCentroids <- function(object, chromosomeId) {
   testSlotsHiCDOCExp(object,
                      slots = c("centroids"))
-  chr <- testchromosome(object, chromosomeId)
+  chr <- testChromosome(object, chromosomeId)
   
   df <- object@centroids %>%
     filter(chromosome == chr) %>%

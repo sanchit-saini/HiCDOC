@@ -21,7 +21,7 @@
 filterWeakChr <- function(object, chromosomeId, threshold=0){
   testSlotsHiCDOCExp(object,
                      slots = c("interactions", "binSize", "replicates", "conditions", "totalBins"))
-  chr <- testchromosome(object, chromosomeId)
+  chr <- testChromosome(object, chromosomeId)
   
   # Initialization
   interChr <- object@interactions %>% 

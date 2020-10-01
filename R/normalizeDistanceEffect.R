@@ -13,7 +13,7 @@
 normalizeDistanceEffectChr <- function(object, chromosomeId) {
   testSlotsHiCDOCExp(object,
                      slots = c("interactions", "binSize", "weakBins", "sampleSize"))
-  chr <- testchromosome(object, chromosomeId)
+  chr <- testChromosome(object, chromosomeId)
   
   message("Chromosome: ", chr)
 

@@ -1,59 +1,65 @@
-#' Return valid chromosome as string
-#' 
-#' Test if the chromosome entred exists. 
-#' If a numerical value is verified, and exists, return the 
-#' corresponding character in object@chromosome
+##- testChromosome -----------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Test the existence of a given chromosome.
 #'
-#' @param object An HiCDOC object
-#' @param chrId Numerical or character value
+#' @param object        A \code{HiCDOCExp} object.
+#' @param chromosomeId  A chromosome.
 #'
-#' @return
-testchromosome <- function(object, chrId){
-  if(chrId %in% object@chromosomes) {
-    chr <- chrId      
-  } else {
-    if(is.numeric(chrId) && chrId %in% seq_len(length(object@chromosomes))){
-      chr <- object@chromosomes[chrId]
-    } else {
-      stop("Unknown chromosomeId") 
-    }
-  }
-  return(chr)
+#' @return A chromosome or an error.
+testChromosome <- function(object, chromosomeId) {
+  if (chromosomeId %in% object@chromosomes) return (chromosomeId)
+  if (chromosomeId %in% seq_len(length(object@chromosomes)))
+    return (object@chromosomes[as.numeric(chromosomeId)])
+  stop(paste("Unknown chromosome:", chromosomeId), call. = FALSE)
 }
 
-
+##- testSlotsHiCDOCExp -------------------------------------------------------#
+##----------------------------------------------------------------------------#
 #' Test the existence of slots in HiCDOCExp object
 #'
-#' @param object a R object
-#' @param slots the names of the slots to test the existence
+#' @param object  A \code{HiCDOCExp} object.
+#' @param slots   Names of slots to verify.
 #'
-#' @return An error if the object is not a HiCDOCExp object or
-#' a slot is missing, NULL otherwise
-testSlotsHiCDOCExp <- function(object, slots = NULL){
-  if(class(object) != "HiCDOCExp"){
-    stop("The object provided is not from class HiCDOCExp", call.=FALSE)
-  }
-  if(is.null(slots) == F){
+#' @return An error if the object is not a HiCDOCExp object or a slot is
+#' missing.
+testSlotsHiCDOCExp <- function(object, slots = NULL) {
+  if (class(object) != "HiCDOCExp")
+    stop("The object provided is not from class HiCDOCExp", call. = FALSE)
+
+  if (!is.null(slots)) {
     existing <- slotNames(object)
-    existing <- existing[vapply(existing, function(x) !is.null(slot(object, x)), TRUE)]
+    existing <- existing[vapply(
+      existing,
+      function(x) !is.null(slot(object, x)),
+      TRUE
+    )]
     missing <- slots[!(slots %in% existing)]
-    if(length(missing) > 0){
-      for(i in missing){
-        if(i == "interactions"){
-          message(paste0(
-            "Interaction matrix is not loaded yet. ",
-            "Please provide an HiCDOC object, with a non empty slot interactions."
-          ))
-        }
-        if(i %in% c("concordances", "compartments", "differences")){
-          message(paste0(
-            i, " are not computed. Please run 'detectCompartments' first."
-          ))
-        }
+    if (length(missing) > 0) {
+      missingInteractions = FALSE
+      missingCompartments = FALSE
+      compartmentSlots = c(
+        "compartments",
+        "concordances",
+        "differences",
+        "distances",
+        "centroids",
+        "diagonalRatios"
+      )
+      for (slot in missing) {
+        if (slot == "interactions") missingInteractions = TRUE
+        if (slot %in% compartmentSlots) missingCompartments = TRUE
       }
-      stop(paste("missing slot(s):", paste(missing, collapse = ", ")), call. = FALSE)
+      stop(
+        paste0(
+          "Missing slot(s): ",
+          paste(missing, collapse = ", "),
+          if (missingInteractions)
+            "\nPlease provide an HiCDOC object, with filled interactions.",
+          if (missingCompartments)
+            "\nPlease run 'detectCompartments' first."
+        ),
+        call. = FALSE
+      )
     }
-  } else {
-    return(NULL)
   }
 }
