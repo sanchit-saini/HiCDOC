@@ -215,7 +215,7 @@ detectCompartments <- function(object) {
   message("Clustering...")
   object <- clusterize(object)
   message("Predicting compartments...")
-  object <- predictABCompartments(object)
+  object <- predictAB(object)
   message("Computing p-values...")
   object <- computePValues(object)
   message("Done.")

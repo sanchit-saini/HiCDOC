@@ -149,95 +149,74 @@ matrixToSparseInteractions <- function(
   )
 }
 
-buildABComparisonChr <- function(object, chromosomeId) {
-  testSlotsHiCDOCExp(object,
-                     slots = c("interactions", "compartments"))
-  chr <- testchromosome(object, chromosomeId)
-  
-  diagonal <- object@interactions %>%
-    filter(chromosome == chr) %>%
-    filter(position.1 == position.2) %>%
-    select(-position.2) %>%
-    rename(position = position.1) %>%
-    group_by(chromosome, position, condition) %>%
-    summarise(diagValue = median(value)) %>%
-    ungroup()
-  
-  offDiagonal <- fullInteractionsChr(object, chromosomeId) %>%
-    filter(position.1 != position.2) %>%
-    group_by(chromosome, position.1, condition, replicate) %>%
-    summarise(value = mean(value)) %>%
-    summarise(offDiagValue = median(value)) %>%
-    ungroup() %>%
-    rename(position = position.1)
-  
-  res <- full_join(diagonal, offDiagonal, by = c("chromosome", "position", "condition")) %>%
-    right_join( object@compartments[object@compartments$chromosome == chr,], 
-                by = c("chromosome", "position", "condition")) %>%
-    rename(compartment = value) %>%
-    replace_na(list(diagValue = 0, offDiagValue = 0)) %>%
-    mutate(diffValue = diagValue - offDiagValue) %>%
-    select(-c(position, diagValue, offDiagValue)) 
-  return(res)
-}
-
-buildABComparison <- function(object) {
-  diagonal <- object@interactions %>%
-    filter(position.1 == position.2) %>%
-    rename(position = position.1) %>%
-    select(-position.2) %>%
-    group_by(chromosome, position, condition) %>%
-    summarise(diagValue = median(value)) %>%
-    ungroup()
-
-  offDiagonal <- fullInteractions(object) %>%
-    filter(position.1 != position.2) %>%
-    group_by(chromosome, position.1, condition, replicate) %>%
-    summarise(value = mean(value)) %>%
-    summarise(offDiagValue = median(value)) %>%
-    ungroup() %>%
-    rename(position = position.1)
-  
-  full_join(diagonal, offDiagonal, by = c("chromosome", "position", "condition")) %>%
-    right_join( object@compartments, by = c("chromosome", "position", "condition")) %>%
-    rename(compartment = value) %>%
-    replace_na(list(diagValue = 0, offDiagValue = 0)) %>%
-    mutate(diffValue = diagValue - offDiagValue) %>%
-    select(-c(position, diagValue, offDiagValue)) %>%
-    mutate(chromosome = factor(chromosome, levels = object@chromosomes))
-}
-
-##- predictABCompartments ----------------------------------------------------#
+##- predictAB ----------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Use difference between diagonal and off-diagonal interactions to determine
-#' which clusters correspond to compartments A and B.
-#'
-#' @rdname predictABCompartments
+#' Use ratio between diagonal and off-diagonal interactions to determine which
+#' clusters correspond to compartments A and B.
 #'
 #' @param object A \code{HiCDOCExp} object.
 #'
-#' @return A \code{HiCDOCExp} object, with A and B labels replacing cluster
-#' numbers in centroids, compartments, distances and concordances.
-#'
-#' @examples
-#' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- clusterize(object)
-#' object <- predictABCompartments(object)
-#' @export
-predictABCompartments <- function(object) {
-  compartments <- buildABComparison(object) %>%
+#' @return A \code{HiCDOCExp} object, with diagonalRatios, and with A and B
+#' labels replacing cluster numbers in centroids, compartments, distances and
+#' concordances.
+predictAB <- function(object) {
+
+  chromosomeIds = rep(object@chromosomes, each = length(object@replicates))
+  conditionIds = rep(object@conditions, length(object@chromosomes))
+  replicateIds = rep(object@replicates, length(object@chromosomes))
+
+  groups = cbind(chromosomeIds, conditionIds, replicateIds)
+
+  object@diagonalRatios <- bind_rows(apply(groups, 1, function(group) {
+    fullInteractions <- sparseInteractionsToFullInteractions(
+      object,
+      group[[1]],
+      group[[2]],
+      group[[3]]
+    )
+
+    diagonal <- fullInteractions %>%
+      filter(position.1 == position.2) %>%
+      select(-position.2) %>%
+      rename(position = position.1) %>%
+      rename(diagonal = value)
+
+    offDiagonal <- fullInteractions %>%
+      filter(position.1 != position.2) %>%
+      select(-position.2) %>%
+      rename(position = position.1) %>%
+      group_by(position) %>%
+      mutate(offDiagonal = median(value)) %>%
+      ungroup() %>%
+      select(-value) %>%
+      distinct()
+
+    diagonalRatios <- diagonal %>%
+      left_join(
+        offDiagonal,
+        by = c("chromosome", "condition", "replicate", "position")
+      ) %>%
+      mutate(value = diagonal - offDiagonal) %>%
+      select(-c(diagonal, offDiagonal))
+
+    return (diagonalRatios)
+  }))
+
+  compartments <- object@compartments %>%
+    rename(compartment = value) %>%
+    left_join(
+      object@diagonalRatios,
+      by = c("chromosome", "condition", "position")
+    ) %>%
     group_by(chromosome, condition, compartment) %>%
-    summarise(value = median(diffValue)) %>%
+    summarize(value = median(value)) %>%
     ungroup() %>%
-    spread(key = compartment,
-           value = value,
-           fill = 0) %>%
-    mutate(A = if_else(`1` >= `2`, 1, 2)) %>%
+    spread(
+      key = compartment,
+      value = value,
+      fill = 0
+    ) %>%
+    mutate(A = if_else(`1` >= `2`, 2, 1)) %>%
     select(-c(`1`, `2`))
 
   object@compartments %<>%

@@ -129,15 +129,19 @@ plotDiffConcordances <- function(object) {
 #' object <- detectCompartments(object)
 #' plotAB(object, 1)
 #' @export
-plotAB <- function(object, chromosomeId) {
-  chr <- testchromosome(object, chromosomeId)
-  df <- buildABComparisonChr(object, chr)
-  p <- ggplot(df, aes(x = compartment, y = diffValue)) +
-    geom_jitter(aes(color = compartment)) +
+plotAB <- function(object, chromosomeId, conditionId) {
+  data <- object@diagonalRatios %>%
+    left_join(
+      object@compartments %>% rename(compartment = value),
+      by = c("chromosome", "condition", "position")
+    ) %>%
+    filter(chromosome == chromosomeId) %>%
+    filter(condition == conditionId)
+
+  ggplot(data, aes(x = data$compartment, y = data$value)) +
+    geom_jitter(aes(color = data$compartment)) +
     geom_boxplot(outlier.colour = NA, fill = NA, colour = "grey20") +
-    labs(color = "Compartment", x = "Compartment", y = "Difference of int.",
-         title = paste0("Chromosome ", chr))
-  return(p)
+    labs(color = "Compartment", x = "Compartment", y = "Difference of int.")
 }
 
 #' Plot the centroid distributions along the genomic positions for a given chromosome.

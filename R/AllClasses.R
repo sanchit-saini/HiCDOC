@@ -386,6 +386,7 @@ setClass(
     binSize                     = "ANY",
     sampleSize                  = "ANY",
     distances                   = "ANY",
+    diagonalRatios              = "ANY",
     compartments                = "ANY",
     concordances                = "ANY",
     differences                 = "ANY",
