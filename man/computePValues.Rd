@@ -10,7 +10,7 @@ between two conditions:
    median of its concordance differences.
 3. For each pair of conditions, for each genomic position whose assigned
    compartment switches, rank its median against the empirical cumulative
-   distribution of medians for all non-switching positions in that condition
+   distribution of medians of all non-switching positions in that condition
    pair. Adjust the resulting p-value with the Benjamini–Hochberg procedure.}
 \usage{
 computePValues(object)
@@ -30,17 +30,6 @@ between two conditions:
    median of its concordance differences.
 3. For each pair of conditions, for each genomic position whose assigned
    compartment switches, rank its median against the empirical cumulative
-   distribution of medians for all non-switching positions in that condition
+   distribution of medians of all non-switching positions in that condition
    pair. Adjust the resulting p-value with the Benjamini–Hochberg procedure.
-}
-\examples{
-object <- HiCDOCExample()
-object <- filterSmallChromosomes(object)
-object <- filterWeakPositions(object)
-object <- normalizeTechnicalBiases(object)
-object <- normalizeBiologicalBiases(object)
-object <- normalizeDistanceEffect(object)
-object <- clusterize(object)
-object <- predictABCompartments(object)
-object <- computePValues(object)
 }

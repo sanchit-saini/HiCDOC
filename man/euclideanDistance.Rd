@@ -17,6 +17,3 @@ A float number.
 \description{
 Compute the euclidean distance between two vectors.
 }
-\examples{
-euclideanDistance(c(1.5,2,3.8), c(0.5,1.1,0.4))
-}

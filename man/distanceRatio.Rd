@@ -19,6 +19,3 @@ A float number.
 \description{
 Compute the log ratio of the distance of a position to each centroid.
 }
-\examples{
-distanceRatio(c(1.5,2,3.8), list('1'=c(0.5,1.1,0.4), '2'=c(2.3,4.8,1)))
-}

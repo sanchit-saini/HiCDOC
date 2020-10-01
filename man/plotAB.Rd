@@ -4,7 +4,7 @@
 \alias{plotAB}
 \title{Plot the distribution of A/B compartments along the genomic positions.}
 \usage{
-plotAB(object, chromosomeId)
+plotAB(object, chromosomeId, conditionId)
 }
 \arguments{
 \item{objet}{an \code{HiCDOCExp} object}
@@ -23,5 +23,5 @@ object <- normalizeTechnicalBiases(object)
 object <- normalizeBiologicalBiases(object)
 object <- normalizeDistanceEffect(object)
 object <- detectCompartments(object)
-plotAB(object, 1)
+plotAB(object)
 }
