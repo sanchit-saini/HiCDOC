@@ -13,7 +13,7 @@
 #' @export
 plotInteractionMatrix <- function(object, chromosomeId, trans = "log2") {
   testSlotsHiCDOCExp(object,
-                     slots = c("interactions"))
+                     slots = c("interactions", "conditions", "totalBins", "binSize"))
   chr <- testchromosome(object, chromosomeId)
   
   interactionsChr <- object@interactions %>% 
@@ -25,18 +25,18 @@ plotInteractionMatrix <- function(object, chromosomeId, trans = "log2") {
     nbrows <- length(unique(object@conditions))
   
   xylim <- c(0, (object@totalBins[[chr]] - 1) * object@binSize)
- 
+  
   if (nrow(interactionsChr) > 0) {
     p <-ggplot(data = interactionsChr, aes(x = position.1, y = position.2, z = value)) +
       geom_raster(aes(fill = value), na.rm = TRUE) +
       geom_raster(data = interactionsChr[interactionsChr$position.1 != interactionsChr$position.2,], 
                   aes(x = position.2, y = position.1, fill = value), na.rm = TRUE) +
-        coord_fixed(ratio = 1) +
-        theme_bw() +
-        labs(x = "", y = "") +
-        facet_wrap(condition ~ replicate, nrow=nbrows, labeller = label_wrap_gen(multi_line=FALSE)) + 
-        xlim(xylim) + ylim(xylim) + 
-        labs(title = paste("chromosome:", chr))
+      coord_fixed(ratio = 1) +
+      theme_bw() +
+      labs(x = "", y = "") +
+      facet_wrap(condition ~ replicate, nrow=nbrows, labeller = label_wrap_gen(multi_line=FALSE)) + 
+      xlim(xylim) + ylim(xylim) + 
+      labs(title = paste("chromosome:", chr))
     if ((length(unique(interactionsChr$value)) > 1) & is.null(trans)==F) {
       p <- p + scale_fill_gradient(low = "white", high = "blue", trans = trans, name="Intensity")
     }
@@ -59,13 +59,10 @@ plotInteractionMatrix <- function(object, chromosomeId, trans = "log2") {
 #' plotDistanceEffect(object)
 #' @export
 plotDistanceEffect <- function(object) {
-
-  if (is.null(object@interactions)) {
-    stop(paste0("Interaction matrix is not loaded yet.  ",
-                "Please provide a matrix first."))
-  }
-
-    p <- object@interactions %>%
+  testSlotsHiCDOCExp(object,
+                     slots = c("interactions"))
+  
+  p <- object@interactions %>%
     mutate(distance = position.2 - position.1) %>%
     ggplot(aes(x = distance, y = value)) +
     geom_bin2d() +
@@ -91,24 +88,14 @@ plotDistanceEffect <- function(object) {
 #' plotDiffConcordances(object)
 #' @export
 plotDiffConcordances <- function(object) {
-
-  if (is.null(object@interactions)) {
-    stop(paste0("Interaction matrix is not loaded yet.  ",
-                "Please provide a matrix first."))
-  }
-  if (is.null(object@differences)) {
-    stop(paste0("Differentially interacting regions are not computed.  ",
-                "Please run 'detectCompartmentSwitches' first."))
-  }
-  if (is.null(object@concordances)) {
-    stop(paste0("Concordance is not computed.  ",
-                "Please run 'detectCompartments' first."))
-  }
-
+  testSlotsHiCDOCExp(object,
+                     slots = c("interactions", "differences", "concordances"))
+  
   changed <- object@differences %>%
     select(-c(`end`, `padj`)) %>%
     rename(position = start) %>%
     mutate(changed = "T")
+  
   differences <- object@concordances %>%
     group_by(.dots = c("chromosome", "position", "condition")) %>%
     summarise(value = median(value)) %>%
@@ -119,20 +106,13 @@ plotDiffConcordances <- function(object) {
     left_join(changed, by = c("chromosome", "position")) %>%
     mutate(changed = replace_na(changed, "F")) %>%
     select(-c(chromosome, position))
-
+  
   p <- ggplot(differences, aes(x = value, fill = changed)) +
-       geom_histogram() +
-       ggtitle("Distribution of the differences of concordances") +
-       xlab("Concordance")
-
+    geom_histogram() +
+    ggtitle("Distribution of the differences of concordances") +
+    xlab("Concordance")
+  
   return(p)
-}
-
-.plotAB <- function(data) {
-  ggplot(data, aes(x = data$compartment, y = data$diffValue)) +
-    geom_jitter(aes(color = data$compartment)) +
-    geom_boxplot(outlier.colour = NA, fill = NA, colour = "grey20") +
-    labs(color = "Compartment", x = "Compartment", y = "Difference of int.")
 }
 
 #' Plot the distribution of A/B compartments along the genomic positions.
@@ -147,14 +127,15 @@ plotDiffConcordances <- function(object) {
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
 #' object <- detectCompartments(object)
-#' plotAB(object)
+#' plotAB(object, 1)
 #' @export
-plotAB <- function(object) {
-  p <- buildABComparison(object) %>%
-    group_by(chromosome) %>%
-    group_split() %>%
-    map(.plotAB)
-  names(p) <- object@chromosomes
+plotAB <- function(object, chromosomeId) {
+  df <- buildABComparisonChr(object, chromosomeId)
+  p <- ggplot(df, aes(x = compartment, y = diffValue)) +
+    geom_jitter(aes(color = compartment)) +
+    geom_boxplot(outlier.colour = NA, fill = NA, colour = "grey20") +
+    labs(color = "Compartment", x = "Compartment", y = "Difference of int.",
+         title = paste0("Chromosome ", chr))
   return(p)
 }
 
@@ -176,9 +157,9 @@ plotAB <- function(object) {
 #' @export
 plotCentroids <- function(object, chromosomeId) {
   testSlotsHiCDOCExp(object,
-                     slots = c("concordances", "compartments", "differences"))
+                     slots = c("centroids"))
   chr <- testchromosome(object, chromosomeId)
-
+  
   df <- object@centroids %>%
     filter(chromosome == chr) %>%
     select(-chromosome) %>%
@@ -187,17 +168,17 @@ plotCentroids <- function(object, chromosomeId) {
   df <- df %>%
     spread(name, centroid) %>%
     unnest(cols=names) %>% t()
-
+  
   pca <- prcomp(df)
   varpca <- pca$sdev^2
   propvar <- varpca/sum(varpca)
   propvar <- paste(round(100*propvar,2),"%")
-
+  
   pca <- as.data.frame(pca$x)
   pca$group <- row.names(df)
   p <- ggplot(pca, aes(x = PC1, y = PC2, color = group, shape = group)) + geom_point(size=2) +
     xlab(paste("PC1 ", propvar[1])) +
     ylab(paste("PC2 ", propvar[2])) + 
-    labs(title = paste0("Centroids of chromosome: ", chr))
+    labs(title = paste0("Centroids of chromosome ", chr))
   return(p)
 }

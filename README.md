@@ -113,9 +113,7 @@ plotInteractionMatrix(object, chromosomeId = 1, trans = "log2")
 
 plotDistanceEffect(object)
 
-p <- plotAB(object)
-chromosome <- 1 # Chromosome index
-p[[chromosome]]
+plotAB(object, chromosomeId = 1)
 
 plotDiffConcordances(object)
 

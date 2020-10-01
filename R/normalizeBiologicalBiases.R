@@ -105,7 +105,7 @@ KR <- function(A,
 #' @return A \code{HiCDOCExp} object, with the normalized matrices.
 normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
   testSlotsHiCDOCExp(object,
-                     slots = c("interactions"))
+                     slots = c("interactions", "totalBins", "conditions", "replicates", "totalBins"))
   chr <- testchromosome(object, chromosomeId)
   message("Chromosome: ", chr)
   

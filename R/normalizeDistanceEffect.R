@@ -12,7 +12,7 @@
 #' @return the normalized interaction matrix for this chromosome.
 normalizeDistanceEffectChr <- function(object, chromosomeId) {
   testSlotsHiCDOCExp(object,
-                     slots = c("interactions"))
+                     slots = c("interactions", "binSize", "weakBins", "sampleSize"))
   chr <- testchromosome(object, chromosomeId)
   
   message("Chromosome: ", chr)

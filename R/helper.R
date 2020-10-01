@@ -63,50 +63,6 @@ fullInteractions <- function(object) {
                                  fullInteractionsChr( object, x)
                                ) %>%
   mutate(chromosome = factor(chromosome, levels = object@chromosomes))
-  
-  # # Duplicate positions
-  # interactions <- object@interactions %>%
-  #   filter(position.1 != position.2) %>%
-  #   rename(temp = position.1, position.1 = position.2) %>%
-  #   rename(position.2 = temp) %>%
-  #   bind_rows(object@interactions)
-  # 
-  # # Fill missing positions with zeros
-  # interactions <- tibble(
-  #   chromosome = rep(
-  #     as.factor(object@chromosomes),
-  #     lapply(object@totalBins, function(x) {
-  #       x * x * length(object@replicates)
-  #     })
-  #   ),
-  #   condition = as.factor(flatten_chr(map(object@totalBins, function(x) {
-  #     rep(object@conditions, each = x * x)
-  #   }))),
-  #   replicate = as.factor(flatten_chr(map(object@totalBins, function(x) {
-  #     rep(object@replicates, each = x * x)
-  #   }))),
-  #   position.1 = flatten_int(map(object@totalBins, function(x) {
-  #     rep(0:(x - 1), length(object@replicates) * x) * object@binSize
-  #   })),
-  #   position.2 = flatten_int(map(object@totalBins, function(x) {
-  #     rep(0:(x - 1),
-  #         each = x,
-  #         times = length(object@replicates)) * object@binSize
-  #   })),
-  #   value      = 0.0,
-  # ) %>% anti_join(
-  #   interactions,
-  #   by = c(
-  #     "chromosome",
-  #     "condition",
-  #     "replicate",
-  #     "position.1",
-  #     "position.2"
-  #   )
-  # ) %>%
-  #   bind_rows(interactions) %>%
-  #   arrange(chromosome, condition, replicate, position.1, position.2)
-  
   return (interactions)
 }
 
@@ -236,6 +192,38 @@ matrixToSparseInteractions <- function(
       value = as.vector(t(m))
     ) %>% filter(position.1 <= position.2 & value != 0)
   )
+}
+
+buildABComparisonChr <- function(object, chromosomeId) {
+  testSlotsHiCDOCExp(object,
+                     slots = c("interactions", "compartments"))
+  chr <- testchromosome(object, chromosomeId)
+  
+  diagonal <- object@interactions %>%
+    filter(chromosome == chr) %>%
+    filter(position.1 == position.2) %>%
+    select(-position.2) %>%
+    rename(position = position.1) %>%
+    group_by(chromosome, position, condition) %>%
+    summarise(diagValue = median(value)) %>%
+    ungroup()
+  
+  offDiagonal <- fullInteractionsChr(object, chromosomeId) %>%
+    filter(position.1 != position.2) %>%
+    group_by(chromosome, position.1, condition, replicate) %>%
+    summarise(value = mean(value)) %>%
+    summarise(offDiagValue = median(value)) %>%
+    ungroup() %>%
+    rename(position = position.1)
+  
+  res <- full_join(diagonal, offDiagonal, by = c("chromosome", "position", "condition")) %>%
+    right_join( object@compartments[object@compartments$chromosome == chr,], 
+                by = c("chromosome", "position", "condition")) %>%
+    rename(compartment = value) %>%
+    replace_na(list(diagValue = 0, offDiagValue = 0)) %>%
+    mutate(diffValue = diagValue - offDiagValue) %>%
+    select(-c(position, diagValue, offDiagValue)) 
+  return(res)
 }
 
 buildABComparison <- function(object) {
