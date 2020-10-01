@@ -47,7 +47,7 @@ testxlim <- function(xlim, positions) {
 
 #' Plot the concordance
 #'
-#' Plot the concordance distribution of all the replicates for one chromosome.
+#' Plot the concordance of all the replicates for one chromosome.
 #'
 #' @param object A \code{HiCDOCExp} object on which \code{detectCompartments()} has run.
 #' @param chromosomeId The name or number of the chromosome to plot.
@@ -87,6 +87,7 @@ plotConcordance <- function(object,
     mutate(condition = paste0("confidence, cond. ", condition)) %>%
     mutate(position = position + 0.5 * object@binSize)
   
+  # Significant differences
   differences <- object@differences %>%
     filter(chromosome == chr) %>%
     filter(start >= xlim[1] & start <= xlim[2]) %>%

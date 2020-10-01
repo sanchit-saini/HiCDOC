@@ -88,9 +88,9 @@ plotDistanceEffect <- function(object) {
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
 #' object <- detectCompartments(object)
-#' plotConcordances(object)
+#' plotDiffConcordances(object)
 #' @export
-plotConcordances <- function(object) {
+plotDiffConcordances <- function(object) {
 
   if (is.null(object@interactions)) {
     stop(paste0("Interaction matrix is not loaded yet.  ",
@@ -158,28 +158,12 @@ plotAB <- function(object) {
   return(p)
 }
 
-.plotCentroids <- function(data) {
-  df <- data %>%
-    select(-chromosome) %>%
-    spread(name, centroid) %>%
-    unnest(cols=data$name) %>% t()
-
-  pca <- prcomp(df)
-  varpca <- pca$sdev^2
-  propvar <- varpca/sum(varpca)
-  propvar <- paste(round(100*propvar,2),"%")
-  
-  pca <- as.data.frame(pca$x)
-  pca$group <- row.names(df)
-  ggplot(pca, aes(x = PC1, y = PC2, color = group)) + geom_point() +
-    xlab(paste("PC1 ", propvar[1])) + 
-    ylab(paste("PC2 ", propvar[2]))
-}
-
-#' Plot the centroid distributions along the genomic positions.
+#' Plot the centroid distributions along the genomic positions for a given chromosome.
 #'
 #' @param objet an \code{HiCDOCExp} object
-#' @return A list of \code{ggplot}, one for each chromosome.
+#' @param chromosomeId Name or number of the chromosome, like in object@chromosome
+#' 
+#' @return A \code{ggplot} object
 #' @examples
 #' object <- HiCDOCExample()
 #' object <- filterSmallChromosomes(object)
@@ -188,15 +172,32 @@ plotAB <- function(object) {
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
 #' object <- detectCompartments(object)
-#' plotCentroids(object)
+#' plotCentroids(object, 1)
 #' @export
-plotCentroids <- function(object) {
+plotCentroids <- function(object, chromosomeId) {
+  testSlotsHiCDOCExp(object,
+                     slots = c("concordances", "compartments", "differences"))
+  chr <- testchromosome(object, chromosomeId)
 
-    p <- object@centroids %>%
-      unite(name, c(condition, compartment)) %>%
-      group_by(chromosome) %>%
-      group_split() %>%
-      map(.plotCentroids)
-    names(p) <- object@chromosomes
-    return(p)
+  df <- object@centroids %>%
+    filter(chromosome == chr) %>%
+    select(-chromosome) %>%
+    unite(name, c(condition, compartment)) 
+  names <- df$name
+  df <- df %>%
+    spread(name, centroid) %>%
+    unnest(cols=names) %>% t()
+
+  pca <- prcomp(df)
+  varpca <- pca$sdev^2
+  propvar <- varpca/sum(varpca)
+  propvar <- paste(round(100*propvar,2),"%")
+
+  pca <- as.data.frame(pca$x)
+  pca$group <- row.names(df)
+  p <- ggplot(pca, aes(x = PC1, y = PC2, color = group, shape = group)) + geom_point(size=2) +
+    xlab(paste("PC1 ", propvar[1])) +
+    ylab(paste("PC2 ", propvar[2])) + 
+    labs(title = paste0("Centroids of chromosome: ", chr))
+  return(p)
 }

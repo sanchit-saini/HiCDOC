@@ -117,12 +117,12 @@ p <- plotAB(object)
 chromosome <- 1 # Chromosome index
 p[[chromosome]]
 
-plotConcordances(object)
+plotDiffConcordances(object)
 
-plotCentroids(object)
+plotCentroids(object, chromosomeId = 1)
 
-plotCompartmentChanges(object, chromosomeId=1)
-plotCompartmentChanges(object, chromosomeId="18")
+plotCompartmentChanges(object, chromosomeId = 1)
+plotCompartmentChanges(object, chromosomeId = "18")
 ```
 
 ### Load from sparse matrix

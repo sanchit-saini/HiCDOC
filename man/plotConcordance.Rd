@@ -29,7 +29,7 @@ Default to NULL = all positions.}
 A ggplot.
 }
 \description{
-Plot the concordance distribution of all the replicates for one chromosome.
+Plot the concordance of all the replicates for one chromosome.
 }
 \examples{
 object <- HiCDOCExample()

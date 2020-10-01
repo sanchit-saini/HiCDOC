@@ -2,18 +2,20 @@
 % Please edit documentation in R/plots.R
 \name{plotCentroids}
 \alias{plotCentroids}
-\title{Plot the centroid distributions along the genomic positions.}
+\title{Plot the centroid distributions along the genomic positions for a given chromosome.}
 \usage{
-plotCentroids(object)
+plotCentroids(object, chromosomeId)
 }
 \arguments{
+\item{chromosomeId}{Name or number of the chromosome, like in object@chromosome}
+
 \item{objet}{an \code{HiCDOCExp} object}
 }
 \value{
-A list of \code{ggplot}, one for each chromosome.
+A \code{ggplot} object
 }
 \description{
-Plot the centroid distributions along the genomic positions.
+Plot the centroid distributions along the genomic positions for a given chromosome.
 }
 \examples{
 object <- HiCDOCExample()
@@ -23,5 +25,5 @@ object <- normalizeTechnicalBiases(object)
 object <- normalizeBiologicalBiases(object)
 object <- normalizeDistanceEffect(object)
 object <- detectCompartments(object)
-plotCentroids(object)
+plotCentroids(object, 1)
 }
