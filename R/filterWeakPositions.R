@@ -54,6 +54,7 @@ filterWeakChr <- function(object, chromosomeId, threshold=0){
 
     nbNewEmptyBins <- length(weakposChr) - nbRemovedBins
     removedBins <- c(removedBins, weakposChr)
+    
     # Remove the positions in rows and columns in empty bins
     if(nbNewEmptyBins>0) {
       interChr <- interChr[!(interChr$position.1 %in% weakposChr),]
