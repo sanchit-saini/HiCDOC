@@ -1,11 +1,16 @@
 ---
 title: "HiCDOC analysis"
-output: rmarkdown::html_vignette
+output: 
+    rmarkdown::html_vignette:
+       fig_width: 7
+       fig_height: 5
 vignette: >
   %\VignetteIndexEntry{HiCDOC analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignettePackage{HiCDOC}
 ---
+
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -95,8 +100,9 @@ plotInteractionMatrix(objectnormed, chromosomeId = 1)
 We can look at the distance effect before and after distance normalization: 
 
 ```{r}
-par(mfrow=c(1,2))
 plotDistanceEffect(object)
+```
+```{r}
 plotDistanceEffect(objectnormed)
 ```
 
@@ -128,11 +134,12 @@ objectnormed@compartments
 objectnormed@differences
 ```
 
+### Visualization
 
 Various visualizations are also available:
 
 ```{r}
-plotAB(objectnormed, chromosomeId = 1)
+plotAB(objectnormed, chromosomeId = "17", conditionId = "1")
 plotDiffConcordances(objectnormed)
 plotCentroids(objectnormed, chromosomeId = 1) + geom_point(size = 4)
 ```
