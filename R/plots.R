@@ -6,12 +6,16 @@
 #' @param trans character: transformation of the color scale. Default to "log2". 
 #' See \code{\link[ggplot2::scale_fill_gradient]{scale_fill_gradient}} for other accepted values. 
 #' Set to NULL for no transformation.
+#' @param lowcolor character, color for low values
+#' @param highcolor character, color for high values
+#' 
 #' @return A \code{ggplot} object.
 #' @examples
 #' object <- HiCDOCExample()
 #' p <- plotInteractionMatrix(object, chromosomeId = 1, trans = "log2")
 #' @export
-plotInteractionMatrix <- function(object, chromosomeId, trans = "log2") {
+plotInteractionMatrix <- function(object, chromosomeId, trans = "log2", 
+                                  lowcolor = "#000066", highcolor = "red") {
   testSlotsHiCDOCExp(object,
                      slots = c("interactions", "conditions", "totalBins", "binSize"))
   chr <- testchromosome(object, chromosomeId)
@@ -34,11 +38,12 @@ plotInteractionMatrix <- function(object, chromosomeId, trans = "log2") {
       coord_fixed(ratio = 1) +
       theme_bw() +
       labs(x = "", y = "") +
+      scale_y_reverse() + 
       facet_wrap(condition ~ replicate, nrow=nbrows, labeller = label_wrap_gen(multi_line=FALSE)) + 
       xlim(xylim) + ylim(xylim) + 
       labs(title = paste("chromosome:", chr))
     if ((length(unique(interactionsChr$value)) > 1) & is.null(trans)==F) {
-      p <- p + scale_fill_gradient(low = "white", high = "blue", trans = trans, name="Intensity")
+      p <- p + scale_fill_gradient(low = lowcolor, high = highcolor, trans = trans, name="Intensity")
     }
     else {
       p <- p + scale_fill_gradient(low = "white", high = "blue", name="Intensity")
@@ -115,6 +120,13 @@ plotDiffConcordances <- function(object) {
   return(p)
 }
 
+.plotAB <- function(data) {
+  ggplot(data, aes(x = data$compartment, y = data$diffValue)) +
+  geom_jitter(aes(color = data$compartment)) +
+  geom_boxplot(outlier.colour = NA, fill = NA, colour = "grey20") +
+  labs(color = "Compartment", x = "Compartment", y = "Difference of int.")
+}
+
 #' Plot the distribution of A/B compartments along the genomic positions.
 #'
 #' @param objet an \code{HiCDOCExp} object
@@ -139,6 +151,7 @@ plotAB <- function(object, chromosomeId) {
          title = paste0("Chromosome ", chr))
   return(p)
 }
+
 
 #' Plot the centroid distributions along the genomic positions for a given chromosome.
 #'

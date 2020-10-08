@@ -504,7 +504,6 @@ HiCDOC <- function(object) {
   plotDistanceEffect(object)
   plotInteractionMatrix(object, chromosomeId = 1)
   object <- detectCompartments(object)
-  object <- detectCompartmentSwitches(object)
 
   plotCompartmentChanges(object, chromosomeId = 1)
   differences(object, pvalue = 0.1)
