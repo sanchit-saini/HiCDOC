@@ -2,75 +2,67 @@ checkParameters <- function(value) {
   # TODO
 }
 
-#' Title
+##- sparseInteractionsToFullInteractions -------------------------------------#
+##----------------------------------------------------------------------------#
+#' Build the full interactions tibble filled with zeros for a chromosome in a
+#' condition and replicate.
 #'
-#' @param chr current chromosome
-#' @param interactions_chr interaction matrix for the chromosome
-#' @param totalBins_chr totalBins for the chromosome
-#' @param binSize binSize of the object (object@binSize)
-#' @param replicates replicates of the object (as given by object@replicates)
-#' @param conditions conditions of the object, with repetitions (as given by object@conditions)
+#' @param object        A \code{HiCDOCExp} object.
+#' @param chromosomeId  A chromosome.
+#' @param conditionId   A condition.
+#' @param replicateId   A replicate.
+#' @param filter        Whether to remove weak positions. Defaults to TRUE.
 #'
-#' @return the full interaction matrix (filled with 0 values) for the chromosome
-#' @export
-#'
-#' @examples
-fullInteractionsChr <- function(object, chromosomeId){
-  
-  testSlotsHiCDOCExp(object, slots = c("interactions", "totalBins", "binSize", "replicates", "conditions"))
-  chr <- testchromosome(object, chromosomeId)
-  
-  positionsChr <- (seq_len(object@totalBins[[chr]]) - 1) * object@binSize
+#' @return An interactions tibble.
+sparseInteractionsToFullInteractions <- function(
+  object,
+  chromosomeId,
+  conditionId,
+  replicateId,
+  filter = TRUE
+) {
+  totalBins <- object@totalBins[[chromosomeId]]
+  positions <- (seq_len(totalBins) - 1) * object@binSize
 
-  # Duplicate positions
-  interactionsChr <- object@interactions %>%
-    filter(chromosome == chr) %>% 
-    select(-chromosome) %>%
-    filter(value>0)
-  
-  interactionsChr <- interactionsChr %>%
+  interactions = object@interactions %>%
+    filter(chromosome == chromosomeId) %>%
+    filter(condition == conditionId) %>%
+    filter(replicate == replicateId)
+
+  mirrorInteractions = interactions %>%
     filter(position.1 != position.2) %>%
-    rename(position.2 = position.1, position.1 = position.2) %>%
-    bind_rows(interactionsChr) %>%
-    group_by(condition, replicate, position.1, position.2) %>%
-    mutate(value = mean(value))
+    rename(position.1 = position.2, position.2 = position.1)
 
-  fullmatrixChr <- tibble(
-                          "condition" = factor(object@conditions), 
-                          "replicate"= factor(object@replicates)) %>%
-    expand("chromosome"=chr, 
-           nesting(condition, replicate),
-           "position.1" = positionsChr,
-           "position.2" = positionsChr)
+  fullInteractions <- tibble(
+      chromosome = chromosomeId,
+      condition = conditionId,
+      replicate = replicateId,
+      position.1 = rep(positions, totalBins),
+      position.2 = rep(positions, each = totalBins),
+      value = 0
+    ) %>%
+    left_join(
+      bind_rows(interactions, mirrorInteractions),
+      by = c("chromosome", "condition", "replicate", "position.1", "position.2")
+    ) %>%
+    mutate(value = coalesce(value.y, value.x)) %>%
+    select(-c(value.x, value.y))
 
-  fullmatrixChr <- fullmatrixChr %>%
-    dplyr::left_join(interactionsChr, by = c("condition", "replicate", "position.1", "position.2")) %>%
-    dplyr::mutate(value = ifelse(is.na(value)==T, 0, value)) %>%
-    select(chromosome, condition, replicate, position.1, position.2, value)
-  return(fullmatrixChr)
-}
+  if (filter) {
+    weakBins <- object@weakBins[[chromosomeId]]
+    weakPositions <- (weakBins - 1) * object@binSize
 
-#' Full Interactions Matrix
-#'
-#' From an interactions matrix, that can be sparse and an upper of lower matrix, 
-#' generate the full interactions matrix, symetric and filling gaps with 0.
-#' @param object A \code{HiCDOCExp} object
-#'
-#' @return a tibble, long version of the full interactions matrix.
-fullInteractions <- function(object) {
-  interactions <- purrr::map_dfr(object@chromosomes,
-                               function(x)
-                                 fullInteractionsChr( object, x)
-                               ) %>%
-  mutate(chromosome = factor(chromosome, levels = object@chromosomes))
-  return (interactions)
+    fullInteractions %<>%
+     filter(!(position.1 %in% weakPositions)) %>%
+     filter(!(position.2 %in% weakPositions))
+  }
+
+  return (fullInteractions)
 }
 
 ##- sparseInteractionsToMatrix -----------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Get the interaction matrix for a chromosome in a condition and replicate.
-#'
-#' @rdname sparseInteractionsToMatrix
+#' Build the interaction matrix for a chromosome in a condition and replicate.
 #'
 #' @param object        A \code{HiCDOCExp} object.
 #' @param chromosomeId  A chromosome.
@@ -78,21 +70,7 @@ fullInteractions <- function(object) {
 #' @param replicateId   A replicate.
 #' @param filter        Shrink the matrix by removing weak rows/columns.
 #'
-#' @return A matrix
-#'
-#' @examples
-#' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' m <- sparseInteractionsToMatrix(
-#'   object,
-#'   object@chromosomes[[1]],
-#'   object@conditions[[1]],
-#'   object@replicates[[1]],
-#'   TRUE
-#' )
-#' head(m)
-#' @export
+#' @return A matrix.
 sparseInteractionsToMatrix <- function(
   object,
   chromosomeId,
@@ -101,13 +79,15 @@ sparseInteractionsToMatrix <- function(
   filter = FALSE
 ) {
   totalBins <- object@totalBins[[chromosomeId]]
-  
+
   interactions <- object@interactions %>%
     filter(chromosome == chromosomeId) %>%
     filter(condition == conditionId) %>%
     filter(replicate == replicateId) %>%
-    mutate(bin.1 = position.1 / object@binSize + 1,
-           bin.2 = position.2 / object@binSize + 1) %>%
+    mutate(
+      bin.1 = position.1 / object@binSize + 1,
+      bin.2 = position.2 / object@binSize + 1
+    ) %>%
     select(bin.1, bin.2, value) %>%
     filter(value != 0) %>%
     as.matrix()
@@ -124,11 +104,14 @@ sparseInteractionsToMatrix <- function(
   if (!isSymmetric(result)) {
     stop("Matrix is not symmetric.")
   }
-  
+
   if (filter && length(object@weakBins[[chromosomeId]]) > 0) {
-    result = result[-object@weakBins[[chromosomeId]], -object@weakBins[[chromosomeId]]]
+    result <- result[
+      -object@weakBins[[chromosomeId]],
+      -object@weakBins[[chromosomeId]]
+    ]
   }
-  
+
   return (result)
 }
 
@@ -136,36 +119,13 @@ sparseInteractionsToMatrix <- function(
 ##----------------------------------------------------------------------------#
 #' Build the interactions tibble for a chromosome in a condition and replicate.
 #'
-#' @rdname sparseInteractionsToMatrix
-#'
 #' @param m             A matrix.
 #' @param object        A \code{HiCDOCExp} object.
 #' @param chromosomeId  A chromosome.
 #' @param conditionId   A condition.
 #' @param replicateId   A replicate.
 #'
-#' @return A matrix
-#'
-#' @examples
-#' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' m <- sparseInteractionsToMatrix(
-#'   object,
-#'   object@chromosomes[[1]],
-#'   object@conditions[[1]],
-#'   object@replicates[[1]],
-#'   TRUE
-#' )
-#' interactions <- matrixToSparseInteractions(
-#'   m,
-#'   object,
-#'   object@chromosomes[[1]],
-#'   object@conditions[[1]],
-#'   object@replicates[[1]]
-#' )
-#' interactions
-#' @export
+#' @return An interactions tibble.
 matrixToSparseInteractions <- function(
   m,
   object,
@@ -174,14 +134,16 @@ matrixToSparseInteractions <- function(
   replicateId
 ) {
   totalBins <- object@totalBins[[chromosomeId]]
-  
+
   if (nrow(m) < totalBins) {
     refilled <- matrix(0, nrow = totalBins, ncol = totalBins)
-    refilled[-object@weakBins[[chromosomeId]], -object@weakBins[[chromosomeId]]] <-
-      m
+    refilled[
+      -object@weakBins[[chromosomeId]],
+      -object@weakBins[[chromosomeId]]
+    ] <- m
     m <- refilled
   }
-  
+
   return (
     tibble(
       chromosome = chromosomeId,
@@ -193,236 +155,3 @@ matrixToSparseInteractions <- function(
     ) %>% filter(position.1 <= position.2 & value != 0)
   )
 }
-
-buildABComparisonChr <- function(object, chromosomeId) {
-  testSlotsHiCDOCExp(object,
-                     slots = c("interactions", "compartments"))
-  chr <- testchromosome(object, chromosomeId)
-  
-  diagonal <- object@interactions %>%
-    filter(chromosome == chr) %>%
-    filter(position.1 == position.2) %>%
-    select(-position.2) %>%
-    rename(position = position.1) %>%
-    group_by(chromosome, position, condition) %>%
-    summarise(diagValue = median(value)) %>%
-    ungroup()
-  
-  offDiagonal <- fullInteractionsChr(object, chromosomeId) %>%
-    filter(position.1 != position.2) %>%
-    group_by(chromosome, position.1, condition, replicate) %>%
-    summarise(value = mean(value)) %>%
-    summarise(offDiagValue = median(value)) %>%
-    ungroup() %>%
-    rename(position = position.1)
-  
-  res <- full_join(diagonal, offDiagonal, by = c("chromosome", "position", "condition")) %>%
-    right_join( object@compartments[object@compartments$chromosome == chr,], 
-                by = c("chromosome", "position", "condition")) %>%
-    rename(compartment = value) %>%
-    replace_na(list(diagValue = 0, offDiagValue = 0)) %>%
-    mutate(diffValue = diagValue - offDiagValue) %>%
-    select(-c(position, diagValue, offDiagValue)) 
-  return(res)
-}
-
-buildABComparison <- function(object) {
-  diagonal <- object@interactions %>%
-    filter(position.1 == position.2) %>%
-    rename(position = position.1) %>%
-    select(-position.2) %>%
-    group_by(chromosome, position, condition) %>%
-    summarise(diagValue = median(value)) %>%
-    ungroup()
-
-  offDiagonal <- fullInteractions(object) %>%
-    filter(position.1 != position.2) %>%
-    group_by(chromosome, position.1, condition, replicate) %>%
-    summarise(value = mean(value)) %>%
-    summarise(offDiagValue = median(value)) %>%
-    ungroup() %>%
-    rename(position = position.1)
-  
-  full_join(diagonal, offDiagonal, by = c("chromosome", "position", "condition")) %>%
-    right_join( object@compartments, by = c("chromosome", "position", "condition")) %>%
-    rename(compartment = value) %>%
-    replace_na(list(diagValue = 0, offDiagValue = 0)) %>%
-    mutate(diffValue = diagValue - offDiagValue) %>%
-    select(-c(position, diagValue, offDiagValue)) %>%
-    mutate(chromosome = factor(chromosome, levels = object@chromosomes))
-}
-
-##- predictABCompartments ----------------------------------------------------#
-##----------------------------------------------------------------------------#
-#' Use difference between diagonal and off-diagonal interactions to determine
-#' which clusters correspond to compartments A and B.
-#'
-#' @rdname predictABCompartments
-#'
-#' @param object A \code{HiCDOCExp} object.
-#'
-#' @return A \code{HiCDOCExp} object, with A and B labels replacing cluster
-#' numbers in centroids, compartments, distances and concordances.
-#'
-#' @examples
-#' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- clusterize(object)
-#' object <- predictABCompartments(object)
-#' @export
-predictABCompartments <- function(object) {
-  compartments <- buildABComparison(object) %>%
-    group_by(chromosome, condition, compartment) %>%
-    summarise(value = median(diffValue)) %>%
-    ungroup() %>%
-    spread(key = compartment,
-           value = value,
-           fill = 0) %>%
-    mutate(A = if_else(`1` >= `2`, 1, 2)) %>%
-    select(-c(`1`, `2`))
-
-  object@compartments %<>%
-    left_join(compartments, by = c("chromosome", "condition")) %>%
-    mutate(value = factor(if_else(value == A, "A", "B"))) %>%
-    select(-c(A))
-
-  object@concordances %<>%
-    left_join(compartments, by = c("chromosome", "condition")) %>%
-    mutate(change = if_else(A == 1, 1, -1)) %>%
-    mutate(value = change * value) %>%
-    select(-c(A, change))
-
-  object@distances %<>%
-    left_join(compartments, by = c("chromosome", "condition")) %>%
-    mutate(cluster = factor(if_else(cluster == A, "A", "B"))) %>%
-    select(-c(A))
-
-  object@centroids %<>%
-    left_join(compartments, by = c("chromosome", "condition")) %>%
-    mutate(compartment = factor(if_else(compartment == A, "A", "B"))) %>%
-    select(-c(A))
-
-  return(object)
-}
-
-##- computePValues -----------------------------------------------------------#
-##----------------------------------------------------------------------------#
-#' Get p-values for genomic positions whose assigned compartment switches
-#' between two conditions:
-#' 1. For each pair of replicates in different conditions, for each genomic
-#'    position, compute the absolute difference between its concordances.
-#' 2. For each pair of conditions, for each genomic position, compute the
-#'    median of its concordance differences.
-#' 3. For each pair of conditions, for each genomic position whose assigned
-#'    compartment switches, rank its median against the empirical cumulative
-#'    distribution of medians for all non-switching positions in that condition
-#'    pair. Adjust the resulting p-value with the Benjamini–Hochberg procedure.
-#'
-#' @rdname computePValues
-#'
-#' @param object A \code{HiCDOCExp} object.
-#'
-#' @return A \code{HiCDOCExp} object, with differences and their p-values.
-#'
-#' @examples
-#' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- clusterize(object)
-#' object <- predictABCompartments(object)
-#' object <- computePValues(object)
-#' @export
-computePValues <- function(object) {
-  # Compute median of differences between pairs of concordances
-  # N.b. median of differences != difference of medians
-  totalReplicates = length(object@replicates)
-  
-  concordanceDifferences <- object@concordances %>%
-    arrange(chromosome, position, condition, replicate)
-  
-  concordanceDifferences %<>%
-    # Duplicate each row "totalReplicates" times
-    uncount(totalReplicates) %>%
-    cbind(
-      # Duplicate the table "totalReplicates" times
-      concordanceDifferences[rep(seq_len(nrow(concordanceDifferences)),
-                                 totalReplicates),] %>%
-        # Arrange by chromosome and position to join with the duplicated rows
-        arrange(chromosome, position) %>%
-        rename_with(function(old_colnames)
-          paste(old_colnames, 2, sep = "."))
-    ) %>%
-    select(-chromosome.2, -position.2) %>%
-    rename(condition.1 = condition, value.1 = value) %>%
-    filter(as.numeric(condition.1) < as.numeric(condition.2)) %>%
-    group_by(chromosome, position, condition.1, condition.2) %>%
-    summarise(value = median(abs(value.1 - value.2))) %>%
-    ungroup()
-  
-  # Format compartments per pair of conditions
-  totalConditions = length(unique(object@conditions))
-  
-  compartmentComparisons <- object@compartments %>%
-    arrange(chromosome, position, condition)
-  
-  compartmentComparisons %<>%
-    # Duplicate each row "totalConditions" times
-    uncount(totalConditions) %>%
-    cbind(
-      # Duplicate the table "totalConditions" times
-      compartmentComparisons[rep(seq_len(nrow(compartmentComparisons)),
-                                 totalConditions),] %>%
-        # Arrange by chromosome and position to join with the duplicated rows
-        arrange(chromosome, position) %>%
-        rename_with(function(old_colnames)
-          paste(old_colnames, 2, sep = "."))
-    ) %>%
-    select(-chromosome.2, -position.2) %>%
-    rename(
-      condition.1 = condition,
-      compartment.1 = value,
-      compartment.2 = value.2
-    ) %>%
-    filter(as.numeric(condition.1) < as.numeric(condition.2))
-
-  # Compute p-values for switching positions
-  # P-values for a condition pair computed from the whole genome distribution
-  object@differences <- compartmentComparisons %>%
-    left_join(
-      concordanceDifferences,
-      by = c("chromosome", "position", "condition.1", "condition.2")
-    ) %>%
-    mutate(H0_value = if_else(compartment.1 == compartment.2,
-                              value,
-                              NA_real_)) %>%
-    group_by(condition.1, condition.2) %>%
-    mutate(quantile = ecdf(H0_value)(value)) %>%
-    filter(compartment.1 != compartment.2) %>%
-    mutate(pvalue = 1 - quantile) %>%
-    mutate(pvalue = if_else(pvalue < 0, 0, pvalue)) %>%
-    mutate(pvalue = if_else(pvalue > 1, 1, pvalue)) %>%
-    mutate(padj = p.adjust(pvalue, method = "BH")) %>%
-    ungroup() %>%
-    rename(start = position) %>%
-    mutate(end = start + object@binSize) %>%
-    mutate(direction = factor(if_else(compartment.1 == "A", "A->B", "B->A"))) %>%
-    select(chromosome,
-           start,
-           end,
-           condition.1,
-           condition.2,
-           pvalue,
-           padj,
-           direction) %>%
-    arrange(order(mixedsort(chromosome)), start, end, condition.1, condition.2)
-  
-  return(object)
-}
-

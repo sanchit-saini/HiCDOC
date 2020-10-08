@@ -2,8 +2,7 @@
 % Please edit documentation in R/helper.R
 \name{sparseInteractionsToMatrix}
 \alias{sparseInteractionsToMatrix}
-\alias{matrixToSparseInteractions}
-\title{Get the interaction matrix for a chromosome in a condition and replicate.}
+\title{Build the interaction matrix for a chromosome in a condition and replicate.}
 \usage{
 sparseInteractionsToMatrix(
   object,
@@ -12,8 +11,6 @@ sparseInteractionsToMatrix(
   replicateId,
   filter = FALSE
 )
-
-matrixToSparseInteractions(m, object, chromosomeId, conditionId, replicateId)
 }
 \arguments{
 \item{object}{A \code{HiCDOCExp} object.}
@@ -25,47 +22,10 @@ matrixToSparseInteractions(m, object, chromosomeId, conditionId, replicateId)
 \item{replicateId}{A replicate.}
 
 \item{filter}{Shrink the matrix by removing weak rows/columns.}
-
-\item{m}{A matrix.}
 }
 \value{
-A matrix
-
-A matrix
+A matrix.
 }
 \description{
-Get the interaction matrix for a chromosome in a condition and replicate.
-
-Build the interactions tibble for a chromosome in a condition and replicate.
-}
-\examples{
-object <- HiCDOCExample()
-object <- filterSmallChromosomes(object)
-object <- filterWeakPositions(object)
-m <- sparseInteractionsToMatrix(
-  object,
-  object@chromosomes[[1]],
-  object@conditions[[1]],
-  object@replicates[[1]],
-  TRUE
-)
-head(m)
-object <- HiCDOCExample()
-object <- filterSmallChromosomes(object)
-object <- filterWeakPositions(object)
-m <- sparseInteractionsToMatrix(
-  object,
-  object@chromosomes[[1]],
-  object@conditions[[1]],
-  object@replicates[[1]],
-  TRUE
-)
-interactions <- matrixToSparseInteractions(
-  m,
-  object,
-  object@chromosomes[[1]],
-  object@conditions[[1]],
-  object@replicates[[1]]
-)
-interactions
+Build the interaction matrix for a chromosome in a condition and replicate.
 }

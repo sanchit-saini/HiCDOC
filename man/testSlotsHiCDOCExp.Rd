@@ -7,13 +7,13 @@
 testSlotsHiCDOCExp(object, slots = NULL)
 }
 \arguments{
-\item{object}{a R object}
+\item{object}{A \code{HiCDOCExp} object.}
 
-\item{slots}{the names of the slots to test the existence}
+\item{slots}{Names of slots to verify.}
 }
 \value{
-An error if the object is not a HiCDOCExp object or
-a slot is missing, NULL otherwise
+An error if the object is not a HiCDOCExp object or a slot is
+missing.
 }
 \description{
 Test the existence of slots in HiCDOCExp object

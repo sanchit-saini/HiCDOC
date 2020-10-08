@@ -18,7 +18,7 @@ plotInteractionMatrix <- function(object, chromosomeId, trans = "log2",
                                   lowcolor = "#000066", highcolor = "red") {
   testSlotsHiCDOCExp(object,
                      slots = c("interactions", "conditions", "totalBins", "binSize"))
-  chr <- testchromosome(object, chromosomeId)
+  chr <- testChromosome(object, chromosomeId)
   
   interactionsChr <- object@interactions %>% 
     filter(chromosome == chr & value>0) 
@@ -141,15 +141,19 @@ plotDiffConcordances <- function(object) {
 #' object <- detectCompartments(object)
 #' plotAB(object, 1)
 #' @export
-plotAB <- function(object, chromosomeId) {
-  chr <- testchromosome(object, chromosomeId)
-  df <- buildABComparisonChr(object, chr)
-  p <- ggplot(df, aes(x = compartment, y = diffValue)) +
-    geom_jitter(aes(color = compartment)) +
+plotAB <- function(object, chromosomeId, conditionId) {
+  data <- object@diagonalRatios %>%
+    left_join(
+      object@compartments %>% rename(compartment = value),
+      by = c("chromosome", "condition", "position")
+    ) %>%
+    filter(chromosome == chromosomeId) %>%
+    filter(condition == conditionId)
+
+  ggplot(data, aes(x = data$compartment, y = data$value)) +
+    geom_jitter(aes(color = data$compartment)) +
     geom_boxplot(outlier.colour = NA, fill = NA, colour = "grey20") +
-    labs(color = "Compartment", x = "Compartment", y = "Difference of int.",
-         title = paste0("Chromosome ", chr))
-  return(p)
+    labs(color = "Compartment", x = "Compartment", y = "Difference of int.")
 }
 
 
@@ -172,7 +176,7 @@ plotAB <- function(object, chromosomeId) {
 plotCentroids <- function(object, chromosomeId) {
   testSlotsHiCDOCExp(object,
                      slots = c("centroids"))
-  chr <- testchromosome(object, chromosomeId)
+  chr <- testChromosome(object, chromosomeId)
   
   df <- object@centroids %>%
     filter(chromosome == chr) %>%

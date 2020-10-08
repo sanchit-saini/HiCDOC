@@ -2,8 +2,8 @@
 % Please edit documentation in R/detectCompartments.R
 \name{detectCompartments}
 \alias{detectCompartments}
-\title{Detect the compartments for each position of the genome.
-Call the differential binding.}
+\title{Detect compartments for each genomic position in each condition, and compute
+p-values for compartment differences between conditions.}
 \usage{
 detectCompartments(object)
 }
@@ -11,11 +11,12 @@ detectCompartments(object)
 \item{object}{A \code{HiCDOCExp} object.}
 }
 \value{
-A \code{HiCDOCExp} object, with the compartment calling.
+A \code{HiCDOCExp} object, with centroids, compartments, distances,
+concordances and differences.
 }
 \description{
-Detect the compartments for each position of the genome.
-Call the differential binding.
+Detect compartments for each genomic position in each condition, and compute
+p-values for compartment differences between conditions.
 }
 \examples{
 object <- HiCDOCExample()

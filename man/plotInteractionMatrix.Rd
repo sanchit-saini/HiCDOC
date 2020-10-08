@@ -10,8 +10,8 @@ plotInteractionMatrix(object, chromosomeId, trans = "log2")
 \item{chromosomeId}{The name or number of the chromosome to plot.
 If number, will be taken in \code{object@chromosomes[chromosomeId]}}
 
-\item{trans}{character: transformation of the color scale. Default to "log2". 
-See \code{\link[ggplot2::scale_fill_gradient]{scale_fill_gradient}} for other accepted values. 
+\item{trans}{character: transformation of the color scale. Default to "log2".
+See \code{\link[ggplot2::scale_fill_gradient]{scale_fill_gradient}} for other accepted values.
 Set to NULL for no transformation.}
 
 \item{objet}{an \code{HiCDOCExp} object}
