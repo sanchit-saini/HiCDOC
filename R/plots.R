@@ -46,13 +46,12 @@ plotInteractionMatrix <-
         ) +
         coord_fixed(ratio = 1) +
         theme_bw() +
-        labs(x = "", y = "") +
         xlim(xylim) +
         scale_y_reverse(limits = rev(xylim)) +
         facet_wrap(condition ~ replicate,
                    nrow = nbrows,
                    labeller = label_wrap_gen(multi_line = FALSE)) +
-        labs(title = paste("chromosome:", chr))
+        labs(title = paste("Chromosome:", chr), x = "", y = "")
         p <-
           p + scale_fill_gradientn(colours = colours,
                                    trans = trans,
@@ -85,7 +84,8 @@ plotDistanceEffect <- function(object) {
                         high = "blue",
                         trans = "log2") +
     geom_point(col = "transparent") + # necessary for geom_smooth
-    geom_smooth(col = "red")
+    geom_smooth(col = "red") + 
+    labs(title = "Distance effect")
   p <-
     ggMarginal(p,
                margins = "x",
@@ -130,19 +130,9 @@ plotDiffConcordances <- function(object) {
   
   p <- ggplot(differences, aes(x = value, fill = changed)) +
     geom_histogram() +
-    ggtitle("Distribution of the differences of concordances") +
-    xlab("Concordance")
-  
+    labs(x = "Concordance",
+         title = "Distribution of the differences of concordances")
   return(p)
-}
-
-.plotAB <- function(data) {
-  ggplot(data, aes(x = data$compartment, y = data$diffValue)) +
-    geom_jitter(aes(color = data$compartment)) +
-    geom_boxplot(outlier.colour = NA,
-                 fill = NA,
-                 colour = "grey20") +
-    labs(color = "Compartment", x = "Compartment", y = "Difference of int.")
 }
 
 #' Plot the distribution of A/B compartments along the genomic positions.
@@ -157,23 +147,31 @@ plotDiffConcordances <- function(object) {
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
 #' object <- detectCompartments(object)
-#' plotAB(object, 1)
+#' plotAB(object, 1, 1)
 #' @export
 plotAB <- function(object, chromosomeId, conditionId) {
+  testSlotsHiCDOCExp(object,
+                     slots = c("diagonalRatios", "compartments"))
+  chr <- testChromosome(object, chromosomeId)
+  cond <- testCondition(object, conditionId)
+  
   data <- object@diagonalRatios %>%
     left_join(
       object@compartments %>% rename(compartment = value),
       by = c("chromosome", "condition", "position")
     ) %>%
-    filter(chromosome == chromosomeId) %>%
-    filter(condition == conditionId)
+    filter(chromosome == chr) %>%
+    filter(condition == cond)
   
-  ggplot(data, aes(x = data$compartment, y = data$value)) +
-    geom_jitter(aes(color = data$compartment)) +
+  ggplot(data, aes(x = compartment, y = value)) +
+    geom_jitter(aes(color = compartment)) +
     geom_boxplot(outlier.colour = NA,
                  fill = NA,
                  colour = "grey20") +
-    labs(color = "Compartment", x = "Compartment", y = "Difference of int.")
+    labs(color = "Compartment", 
+         x = "Compartment", 
+         y = "Difference of int.", 
+         title = paste0("Chromosome: ", chr, ", condition: ", cond))
 }
 
 
@@ -221,8 +219,8 @@ plotCentroids <- function(object, chromosomeId) {
       color = group,
       shape = group
     )) + geom_point(size = 2) +
-    xlab(paste("PC1 ", propvar[1])) +
-    ylab(paste("PC2 ", propvar[2])) +
-    labs(title = paste0("Centroids of chromosome ", chr))
+    labs(title = paste0("Centroids of chromosome ", chr),
+         x = paste("PC1 ", propvar[1]),
+         y= paste("PC2 ", propvar[2]))
   return(p)
 }

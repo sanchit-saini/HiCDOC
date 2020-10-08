@@ -8,9 +8,25 @@
 #' @return A chromosome or an error.
 testChromosome <- function(object, chromosomeId) {
   if (chromosomeId %in% object@chromosomes) return (chromosomeId)
-  if (chromosomeId %in% seq_len(length(object@chromosomes)))
-    return (object@chromosomes[as.numeric(chromosomeId)])
+  if (is.numeric(chromosomeId)==T && chromosomeId %in% seq_len(length(object@chromosomes)))
+    return (object@chromosomes[chromosomeId])
   stop(paste("Unknown chromosome:", chromosomeId), call. = FALSE)
+}
+
+##- testCondition -----------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Test the existence of a given condition
+#'
+#' @param object        A \code{HiCDOCExp} object.
+#' @param conditionId  A condition
+#'
+#' @return A chromosome or an error.
+testCondition <- function(object, conditionId) {
+  if (conditionId %in% object@conditions) return (conditionId)
+  uniquecond <- unique(object@conditions)
+  if (is.numeric(conditionId) && conditionId %in% seq_len(length(uniquecond)))
+    return (uniquecond[conditionId])
+  stop(paste("Unknown condition:", conditionId), call. = FALSE)
 }
 
 ##- testSlotsHiCDOCExp -------------------------------------------------------#
