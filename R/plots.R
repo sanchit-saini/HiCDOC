@@ -6,8 +6,8 @@
 #' @param trans character: transformation of the color scale. Default to "log2". 
 #' See \code{\link[ggplot2::scale_fill_gradient]{scale_fill_gradient}} for other accepted values. 
 #' Set to NULL for no transformation.
-#' @param lowcolor character, color for low values
-#' @param highcolor character, color for high values
+#' @param colours character vector, vector of colours to use for n-colour gradient.
+#' Default to \code{c("#000066", "#ffffbf", "#990000")}.
 #' 
 #' @return A \code{ggplot} object.
 #' @examples
@@ -15,7 +15,7 @@
 #' p <- plotInteractionMatrix(object, chromosomeId = 1, trans = "log2")
 #' @export
 plotInteractionMatrix <- function(object, chromosomeId, trans = "log2", 
-                                  lowcolor = "#000066", highcolor = "red") {
+                                  colours = c("#000066", "#ffffbf", "#990000")) {
   testSlotsHiCDOCExp(object,
                      slots = c("interactions", "conditions", "totalBins", "binSize"))
   chr <- testChromosome(object, chromosomeId)
@@ -38,15 +38,15 @@ plotInteractionMatrix <- function(object, chromosomeId, trans = "log2",
       coord_fixed(ratio = 1) +
       theme_bw() +
       labs(x = "", y = "") +
-      scale_y_reverse() + 
-      facet_wrap(condition ~ replicate, nrow=nbrows, labeller = label_wrap_gen(multi_line=FALSE)) + 
-      xlim(xylim) + ylim(xylim) + 
+      xlim(xylim) + 
+      scale_y_reverse(limits = rev(xylim)) + 
+      facet_wrap(condition ~ replicate, nrow=nbrows, labeller = label_wrap_gen(multi_line=FALSE)) +
       labs(title = paste("chromosome:", chr))
     if ((length(unique(interactionsChr$value)) > 1) & is.null(trans)==F) {
-      p <- p + scale_fill_gradient(low = lowcolor, high = highcolor, trans = trans, name="Intensity")
+      p <- p + scale_fill_gradientn(colours = colours,  trans = trans, name="Intensity")
     }
     else {
-      p <- p + scale_fill_gradient(low = "white", high = "blue", name="Intensity")
+      p <- p + scale_fill_gradientn(colours = colours, name="Intensity")
     }
   } else {
     p <- NULL
