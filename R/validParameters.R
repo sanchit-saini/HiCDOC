@@ -27,10 +27,10 @@ testSlotsHiCDOCExp <- function(object, slots = NULL) {
     stop("The object provided is not from class HiCDOCExp", call. = FALSE)
 
   if (!is.null(slots)) {
-    existing <- slotNames(object)
+    existing <- slotNames("HiCDOCExp")
     existing <- existing[vapply(
       existing,
-      function(x) !is.null(slot(object, x)),
+      function(x) .hasSlot(object, x) && !is.null(slot(object, x)),
       TRUE
     )]
     missing <- slots[!(slots %in% existing)]
