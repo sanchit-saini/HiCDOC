@@ -9,11 +9,11 @@
 #'
 #' @export
 HiCDOCDefaultParameters <- list(
-  kMeansIterations = 50,
-  kMeansDelta      = 0.0001,
-  kMeansRestarts   = 20,
-  sampleSize       = 20000,
-  loessSpan        = 0.75
+    kMeansIterations = 50,
+    kMeansDelta      = 0.0001,
+    kMeansRestarts   = 20,
+    sampleSize       = 20000,
+    loessSpan        = 0.75
 )
 
 ###############################################################################
@@ -44,14 +44,14 @@ HiCDOCDefaultParameters <- list(
 #'
 #' @export
 setClass(
-  "HiCDOCDataSet",
-  slots = c(
-    inputPath    = "ANY",
-    interactions = "ANY",
-    replicates   = "ANY",
-    conditions   = "ANY",
-    binSize      = "ANY"
-  )
+    "HiCDOCDataSet",
+    slots = c(
+        inputPath    = "ANY",
+        interactions = "ANY",
+        replicates   = "ANY",
+        conditions   = "ANY",
+        binSize      = "ANY"
+    )
 )
 
 ##- makeHiCDOCDataSet --------------------------------------------------------#
@@ -74,42 +74,43 @@ makeHiCDOCDataSet <- function(inputPath    = NULL,
                               replicates   = NULL,
                               conditions   = NULL,
                               binSize      = NULL) {
-  ##- checking general input arguments -------------------------------------#
-  ##------------------------------------------------------------------------#
-  
-  ##- matrix
-  if (is.null(inputPath)) {
-    stop("'inputPath' must be the path(es) to a matrix(ces)", call. = FALSE)
-  }
-  
-  if (!is.character(inputPath)) {
-    stop("'inputPath' must be a character.", call. = FALSE)
-  }
-  
-  for (fileName in inputPath) {
-    if (!file.exists(fileName)) {
-      stop(paste("File name", fileName, "is not a valid file."),
-           call. = FALSE)
+    ##- checking general input arguments -------------------------------------#
+    ##------------------------------------------------------------------------#
+
+    ##- matrix
+    if (is.null(inputPath)) {
+        stop("'inputPath' must be the path(es) to a matrix(ces)",
+             call. = FALSE)
     }
-  }
-  
-  ##- end checking ---------------------------------------------------------#
-  
-  object <- new("HiCDOCDataSet")
-  object@inputPath <- inputPath
-  if (!is.null(interactions)) {
-    object@interactions <- interactions
-  }
-  if (!is.null(replicates)) {
-    object@replicates <- replicates
-  }
-  if (!is.null(conditions)) {
-    object@conditions <- conditions
-  }
-  if (!is.null(binSize)) {
-    object@binSize <- binSize
-  }
-  return(object)
+
+    if (!is.character(inputPath)) {
+        stop("'inputPath' must be a character.", call. = FALSE)
+    }
+
+    for (fileName in inputPath) {
+        if (!file.exists(fileName)) {
+            stop(paste("File name", fileName, "is not a valid file."),
+                 call. = FALSE)
+        }
+    }
+
+    ##- end checking ---------------------------------------------------------#
+
+    object <- new("HiCDOCDataSet")
+    object@inputPath <- inputPath
+    if (!is.null(interactions)) {
+        object@interactions <- interactions
+    }
+    if (!is.null(replicates)) {
+        object@replicates <- replicates
+    }
+    if (!is.null(conditions)) {
+        object@conditions <- conditions
+    }
+    if (!is.null(binSize)) {
+        object@binSize <- binSize
+    }
+    return(object)
 }
 
 
@@ -132,15 +133,15 @@ makeHiCDOCDataSet <- function(inputPath    = NULL,
 #'
 #' @export
 HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
-  ##- checking general input arguments -------------------------------------#
-  ##------------------------------------------------------------------------#
-  
-  ##- end checking ---------------------------------------------------------#
-  
-  data   <- makeHiCDOCDataSet(inputPath = matrix)
-  object <- parseInteractionMatrix3Columns(data)
-  
-  return(invisible(object))
+    ##- checking general input arguments -------------------------------------#
+    ##------------------------------------------------------------------------#
+
+    ##- end checking ---------------------------------------------------------#
+
+    data <- makeHiCDOCDataSet(inputPath = matrix)
+    object <- parseInteractionMatrix3Columns(data)
+
+    return(invisible(object))
 }
 
 
@@ -171,44 +172,44 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
 HiCDOCDataSetFromCool <- function(coolFileNames,
                                   replicates,
                                   conditions) {
-  ##- checking general input arguments -------------------------------------#
-  ##------------------------------------------------------------------------#
-  
-  ##- coolFileNames
-  if (is.null(coolFileNames)) {
-    stop("'coolFileNames' must be paths to cool files", call. = FALSE)
-  }
-  if (is.factor(coolFileNames)) {
-    coolFileNames <- as.vector(coolFileNames)
-  }
-  if (!is.vector(coolFileNames)) {
-    stop("'coolFileNames' must be a vector.", call. = FALSE)
-  }
-  if (!is.character(coolFileNames)) {
-    stop("'coolFileNames' must be a vector of characters.", call. = FALSE)
-  }
-  for (coolFileName in coolFileNames) {
-    if (!file.exists(coolFileName)) {
-      stop(paste("Cool file name", coolFileName, "is not a valid file."),
-           call. = FALSE)
+    ##- checking general input arguments -------------------------------------#
+    ##------------------------------------------------------------------------#
+
+    ##- coolFileNames
+    if (is.null(coolFileNames)) {
+        stop("'coolFileNames' must be paths to cool files", call. = FALSE)
     }
-  }
-  
-  ##- conditions
-  if (is.null(conditions)) {
-    stop("'conditions' should not be null.", call. = FALSE)
-  }
-  if (is.factor(conditions)) {
-    conditions <- as.vector(conditions)
-  }
-  ##- end checking ---------------------------------------------------------#
-  
-  data   <- makeHiCDOCDataSet(inputPath  = coolFileNames,
-                              replicates = replicates,
-                              conditions = conditions)
-  object <- parseInteractionMatrixCool(data)
-  
-  return(invisible(object))
+    if (is.factor(coolFileNames)) {
+        coolFileNames <- as.vector(coolFileNames)
+    }
+    if (!is.vector(coolFileNames)) {
+        stop("'coolFileNames' must be a vector.", call. = FALSE)
+    }
+    if (!is.character(coolFileNames)) {
+        stop("'coolFileNames' must be a vector of characters.", call. = FALSE)
+    }
+    for (coolFileName in coolFileNames) {
+        if (!file.exists(coolFileName)) {
+            stop(paste("Cool file name", coolFileName, "is not a valid file."),
+                 call. = FALSE)
+        }
+    }
+
+    ##- conditions
+    if (is.null(conditions)) {
+        stop("'conditions' should not be null.", call. = FALSE)
+    }
+    if (is.factor(conditions)) {
+        conditions <- as.vector(conditions)
+    }
+    ##- end checking ---------------------------------------------------------#
+
+    data   <- makeHiCDOCDataSet(inputPath  = coolFileNames,
+                                replicates = replicates,
+                                conditions = conditions)
+    object <- parseInteractionMatrixCool(data)
+
+    return(invisible(object))
 }
 
 
@@ -242,62 +243,62 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
                                  replicates,
                                  conditions,
                                  resolution) {
-  ##- checking general input arguments -------------------------------------#
-  ##------------------------------------------------------------------------#
-  
-  ##- hicFileNames
-  if (is.null(hicFileNames)) {
-    stop("'hicFileNames' must be paths to hic files", call. = FALSE)
-  }
-  if (is.factor(hicFileNames)) {
-    hicFileNames <- as.vector(hicFileNames)
-  }
-  if (!is.vector(hicFileNames)) {
-    stop("'hicFileNames' must be a vector.", call. = FALSE)
-  }
-  if (!is.character(hicFileNames)) {
-    stop("'hicFileNames' must be a vector of characters.", call. = FALSE)
-  }
-  for (hicFileName in hicFileNames) {
-    if (!file.exists(hicFileName)) {
-      stop(paste("hic file name", hicFileName, "is not a valid file."),
-           call. = FALSE)
+    ##- checking general input arguments -------------------------------------#
+    ##------------------------------------------------------------------------#
+
+    ##- hicFileNames
+    if (is.null(hicFileNames)) {
+        stop("'hicFileNames' must be paths to hic files", call. = FALSE)
     }
-  }
-  
-  ##- conditions
-  if (is.null(conditions)) {
-    stop("'conditions' should not be null.", call. = FALSE)
-  }
-  if (is.factor(conditions)) {
-    conditions <- as.vector(conditions)
-  }
-  
-  ##- resolution
-  if (is.null(resolution)) {
-    stop("'resolution' should not be null.", call. = FALSE)
-  }
-  if (is.factor(resolution)) {
-    resolution <- as.vector(resolution)
-  }
-  if (!is.numeric(resolution)) {
-    stop("'resolution' should be an integer.", call. = FALSE)
-  }
-  if (length(resolution) != 1) {
-    stop("'resolution' should not be a vector.", call. = FALSE)
-  }
-  
-  ##- end checking ---------------------------------------------------------#
-  
-  data   <- makeHiCDOCDataSet(
-    inputPath  = hicFileNames,
-    replicates = replicates,
-    conditions = conditions,
-    binSize    = resolution
-  )
-  object <- parseInteractionMatrixHic(data)
-  
-  return(invisible(object))
+    if (is.factor(hicFileNames)) {
+        hicFileNames <- as.vector(hicFileNames)
+    }
+    if (!is.vector(hicFileNames)) {
+        stop("'hicFileNames' must be a vector.", call. = FALSE)
+    }
+    if (!is.character(hicFileNames)) {
+        stop("'hicFileNames' must be a vector of characters.", call. = FALSE)
+    }
+    for (hicFileName in hicFileNames) {
+        if (!file.exists(hicFileName)) {
+            stop(paste("hic file name", hicFileName, "is not a valid file."),
+                 call. = FALSE)
+        }
+    }
+
+    ##- conditions
+    if (is.null(conditions)) {
+        stop("'conditions' should not be null.", call. = FALSE)
+    }
+    if (is.factor(conditions)) {
+        conditions <- as.vector(conditions)
+    }
+
+    ##- resolution
+    if (is.null(resolution)) {
+        stop("'resolution' should not be null.", call. = FALSE)
+    }
+    if (is.factor(resolution)) {
+        resolution <- as.vector(resolution)
+    }
+    if (!is.numeric(resolution)) {
+        stop("'resolution' should be an integer.", call. = FALSE)
+    }
+    if (length(resolution) != 1) {
+        stop("'resolution' should not be a vector.", call. = FALSE)
+    }
+
+    ##- end checking ---------------------------------------------------------#
+
+    data   <- makeHiCDOCDataSet(
+        inputPath  = hicFileNames,
+        replicates = replicates,
+        conditions = conditions,
+        binSize    = resolution
+    )
+    object <- parseInteractionMatrixHic(data)
+
+    return(invisible(object))
 }
 
 ##- Example constructor ------------------------------------------------------#
@@ -316,13 +317,13 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
 #'
 #' @export
 HiCDOCExample <- function() {
-  object  <- NULL
-  basedir <-
-    system.file("extdata", package = "HiCDOC", mustWork = TRUE)
-  matrix  <- file.path(basedir, "sampleMatrix.tsv")
-  dataSet <- HiCDOCDataSetFromSparseMatrix(matrix)
-  object  <- HiCDOCExp(dataSet)
-  return(invisible(object))
+    object  <- NULL
+    basedir <-
+        system.file("extdata", package = "HiCDOC", mustWork = TRUE)
+    matrix  <- file.path(basedir, "sampleMatrix.tsv")
+    dataSet <- HiCDOCDataSetFromSparseMatrix(matrix)
+    object  <- HiCDOCExp(dataSet)
+    return(invisible(object))
 }
 
 ###############################################################################
@@ -347,9 +348,9 @@ HiCDOCExample <- function() {
 #' @slot weakBins The empty bins.
 #' @slot chromosomes The list of chromosomes.
 #' @slot replicates The names of the replicates.
-#' @slot totalReplicates The names of the replicates, glued with the 
+#' @slot totalReplicates The names of the replicates, glued with the
 #' name of the conditions.
-#' @slot totalReplicatesPerCondition A 2-element list, one for each condition, 
+#' @slot totalReplicatesPerCondition A 2-element list, one for each condition,
 #' where the union is the names of the replicates.
 #' @slot conditions The names of the conditions (exactly two different).
 #' @slot totalBins The number of bins per chromosome.
@@ -369,31 +370,31 @@ HiCDOCExample <- function() {
 #'
 #' @export
 setClass(
-  "HiCDOCExp",
-  slots = c(
-    inputPath                   = "ANY",
-    interactions                = "ANY",
-    weakBins                    = "ANY",
-    chromosomes                 = "ANY",
-    replicates                  = "ANY",
-    totalReplicates             = "ANY",
-    totalReplicatesPerCondition = "ANY",
-    conditions                  = "ANY",
-    totalBins                   = "ANY",
-    binSize                     = "ANY",
-    sampleSize                  = "ANY",
-    distances                   = "ANY",
-    diagonalRatios              = "ANY",
-    compartments                = "ANY",
-    concordances                = "ANY",
-    differences                 = "ANY",
-    centroids                   = "ANY",
-    loessSpan                   = "ANY",
-    kMeansIterations            = "ANY",
-    kMeansDelta                 = "ANY",
-    kMeansRestarts              = "ANY",
-    parameters                  = "ANY"
-  )
+    "HiCDOCExp",
+    slots = c(
+        inputPath                   = "ANY",
+        interactions                = "ANY",
+        weakBins                    = "ANY",
+        chromosomes                 = "ANY",
+        replicates                  = "ANY",
+        totalReplicates             = "ANY",
+        totalReplicatesPerCondition = "ANY",
+        conditions                  = "ANY",
+        totalBins                   = "ANY",
+        binSize                     = "ANY",
+        sampleSize                  = "ANY",
+        distances                   = "ANY",
+        diagonalRatios              = "ANY",
+        compartments                = "ANY",
+        concordances                = "ANY",
+        differences                 = "ANY",
+        centroids                   = "ANY",
+        loessSpan                   = "ANY",
+        kMeansIterations            = "ANY",
+        kMeansDelta                 = "ANY",
+        kMeansRestarts              = "ANY",
+        parameters                  = "ANY"
+    )
 )
 
 
@@ -418,68 +419,68 @@ setClass(
 HiCDOCExp <- function(dataSet = NULL,
                       parameters = NULL,
                       binSize = NULL) {
-  ##- checking general input arguments -------------------------------------#
-  ##------------------------------------------------------------------------#
-  
-  ##- dataSet
-  if (is.null(dataSet)) {
-    stop("'dataSet' must be specified", call. = FALSE)
-  }
-  
-  ##- parameters
-  
-  ##- end checking ---------------------------------------------------------#
-  
-  object <- new("HiCDOCExp")
-  
-  object@interactions <- dataSet@interactions
-  object@replicates   <- dataSet@replicates
-  object@conditions   <- dataSet@conditions
-  
-  object@chromosomes <-
-    mixedsort(as.vector(unique(object@interactions$chromosome)))
-  
-  object@totalReplicates <- length(object@replicates)
-  
-  object@totalReplicatesPerCondition <-
-    vapply(c(1, 2), function(x) {
-      length(which(object@conditions == x))
-    }, FUN.VALUE = c(0))
-  
-  if (is.null(binSize)) {
-    object@binSize <- min(abs(
-      object@interactions$position.1[object@interactions$position.1 
-                                     != object@interactions$position.2]
-      - object@interactions$position.2[object@interactions$position.1 
-                                       != object@interactions$position.2]
-    ))
-  }
-  else {
-    object@binSize <- binSize
-  }
-  
-  object@totalBins <- vector("list", length(object@chromosomes))
-  names(object@totalBins) <- object@chromosomes
-  
-  for (chromosomeId in object@chromosomes) {
-    chromosomeInteractions <- object@interactions %>%
-      filter(chromosome == chromosomeId)
-    object@totalBins[[chromosomeId]] <-
-      max(chromosomeInteractions$position.1,
-          chromosomeInteractions$position.2) / object@binSize + 1
-  }
-  
-  object@weakBins <- vector("list", length(object@chromosomes))
-  names(object@weakBins) <- object@chromosomes
-  
-  object@kMeansIterations <-
-    HiCDOCDefaultParameters$kMeansIterations
-  object@kMeansDelta      <- HiCDOCDefaultParameters$kMeansDelta
-  object@kMeansRestarts   <- HiCDOCDefaultParameters$kMeansRestarts
-  object@sampleSize       <- HiCDOCDefaultParameters$sampleSize
-  object@loessSpan        <- HiCDOCDefaultParameters$loessSpan
-  
-  return(invisible(object))
+    ##- checking general input arguments -------------------------------------#
+    ##------------------------------------------------------------------------#
+
+    ##- dataSet
+    if (is.null(dataSet)) {
+        stop("'dataSet' must be specified", call. = FALSE)
+    }
+
+    ##- parameters
+
+    ##- end checking ---------------------------------------------------------#
+
+    object <- new("HiCDOCExp")
+
+    object@interactions <- dataSet@interactions
+    object@replicates   <- dataSet@replicates
+    object@conditions   <- dataSet@conditions
+
+    object@chromosomes <-
+        mixedsort(as.vector(unique(object@interactions$chromosome)))
+
+    object@totalReplicates <- length(object@replicates)
+
+    object@totalReplicatesPerCondition <-
+        vapply(c(1, 2), function(x) {
+            length(which(object@conditions == x))
+        }, FUN.VALUE = c(0))
+
+    if (is.null(binSize)) {
+        object@binSize <- min(abs(
+            object@interactions$position.1[object@interactions$position.1
+                                           != object@interactions$position.2]
+            - object@interactions$position.2[object@interactions$position.1
+                                             != object@interactions$position.2]
+        ))
+    }
+    else {
+        object@binSize <- binSize
+    }
+
+    object@totalBins <- vector("list", length(object@chromosomes))
+    names(object@totalBins) <- object@chromosomes
+
+    for (chromosomeId in object@chromosomes) {
+        chromosomeInteractions <- object@interactions %>%
+            filter(chromosome == chromosomeId)
+        object@totalBins[[chromosomeId]] <-
+            max(chromosomeInteractions$position.1,
+                chromosomeInteractions$position.2) / object@binSize + 1
+    }
+
+    object@weakBins <- vector("list", length(object@chromosomes))
+    names(object@weakBins) <- object@chromosomes
+
+    object@kMeansIterations <-
+        HiCDOCDefaultParameters$kMeansIterations
+    object@kMeansDelta      <- HiCDOCDefaultParameters$kMeansDelta
+    object@kMeansRestarts   <- HiCDOCDefaultParameters$kMeansRestarts
+    object@sampleSize       <- HiCDOCDefaultParameters$sampleSize
+    object@loessSpan        <- HiCDOCDefaultParameters$loessSpan
+
+    return(invisible(object))
 }
 
 
@@ -491,20 +492,20 @@ HiCDOCExp <- function(dataSet = NULL,
 #'
 #' @export
 HiCDOC <- function(object) {
-  plotInteractionMatrix(object, chromosomeId = 1)
-  object <- normalizeTechnicalBiases(object)
-  plotInteractionMatrix(object, chromosomeId = 1)
-  object <- normalizeBiologicalBiases(object)
-  plotInteractionMatrix(object, chromosomeId = 1)
-  plotDistanceEffect(object)
-  object <- normalizeDistanceEffect(object)
-  plotDistanceEffect(object)
-  plotInteractionMatrix(object, chromosomeId = 1)
-  object <- detectCompartments(object)
-  
-  plotCompartmentChanges(object, chromosomeId = 1)
-  differences(object, pvalue = 0.1)
-  concordances(object)
-  compartments(object)
-  return(invisible(object))
+    plotInteractionMatrix(object, chromosomeId = 1)
+    object <- normalizeTechnicalBiases(object)
+    plotInteractionMatrix(object, chromosomeId = 1)
+    object <- normalizeBiologicalBiases(object)
+    plotInteractionMatrix(object, chromosomeId = 1)
+    plotDistanceEffect(object)
+    object <- normalizeDistanceEffect(object)
+    plotDistanceEffect(object)
+    plotInteractionMatrix(object, chromosomeId = 1)
+    object <- detectCompartments(object)
+
+    plotCompartmentChanges(object, chromosomeId = 1)
+    differences(object, pvalue = 0.1)
+    concordances(object)
+    compartments(object)
+    return(invisible(object))
 }

@@ -6,7 +6,7 @@
 #' to the remaining chromosomes.
 #'
 #' @param object A HiCDOC object
-#' @param minLength Numeric value, default to 100. The minimum chromosome 
+#' @param minLength Numeric value, default to 100. The minimum chromosome
 #' size (in number of bins), to be kept.
 #'
 #' @return A HiCDOC object
@@ -19,27 +19,27 @@
 #' object@chromosomes
 
 filterSmallChromosomes <- function(object, minLength = 100) {
-  message("Keeping only the chromosomes with ", minLength, " bins or more")
-  bigChromosomes <- vapply(object@totalBins, 
-                           function(x) x >= minLength, 
-                           FUN.VALUE = TRUE)
-  bigChromosomes <- names(bigChromosomes)[bigChromosomes == TRUE]
-  bigChromosomes <- mixedsort(bigChromosomes)
+    message("Keeping only the chromosomes with ", minLength, " bins or more")
+    bigChromosomes <- vapply(object@totalBins,
+                             function(x)
+                               x >= minLength,
+                             FUN.VALUE = TRUE)
+    bigChromosomes <- names(bigChromosomes)[bigChromosomes == TRUE]
+    bigChromosomes <- mixedsort(bigChromosomes)
 
-  object@interactions %<>%
-    filter(chromosome %in% bigChromosomes) %>%
-    mutate(chromosome = factor(chromosome))
+    object@interactions %<>%
+        filter(chromosome %in% bigChromosomes) %>%
+        mutate(chromosome = factor(chromosome))
 
-  object@chromosomes <- bigChromosomes
-  object@totalBins <- object@totalBins[object@chromosomes]
-  object@weakBins  <- object@weakBins[object@chromosomes]
+    object@chromosomes <- bigChromosomes
+    object@totalBins <- object@totalBins[object@chromosomes]
+    object@weakBins  <- object@weakBins[object@chromosomes]
 
-  message(
-    "Kept ",
-    length(bigChromosomes),
-    " chromosome",
-    if (length(bigChromosomes) != 1) "s"
-  )
+    message("Kept ",
+            length(bigChromosomes),
+            " chromosome",
+            if (length(bigChromosomes) != 1)
+              "s")
 
-  return (object)
+    return (object)
 }

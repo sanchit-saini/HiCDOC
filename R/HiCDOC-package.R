@@ -39,7 +39,8 @@
 #' @name HiCDOC
 #' @aliases HiCDOC-package
 #'
-#' @author Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac and Élise Maigné
+#' @author Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac and
+#' Élise Maigné
 #'
 #' @import methods
 #' @import rhdf5

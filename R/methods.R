@@ -2,7 +2,7 @@
 ##----------------------------------------------------------------------------#
 #' Accessors for the 'interactions' slot of an HiCDOCExp object
 #'
-#' The \code{interactions} slot contains the (transformed) interaction 
+#' The \code{interactions} slot contains the (transformed) interaction
 #' profiles.
 #'
 #' @docType methods
@@ -17,11 +17,11 @@
 #'
 #' @export
 setMethod(
-  f = "interactions",
-  signature = "HiCDOCExp",
-  definition = function(object) {
-  object@interactions
-  }
+    f = "interactions",
+    signature = "HiCDOCExp",
+    definition = function(object) {
+    object@interactions
+    }
 )
 
 
@@ -40,8 +40,8 @@ setMethod(
 #'
 #' @param object An \code{HiCDOCExp} object.
 #' @param pvalue Numeric cutoff value for adjusted p-values. Only regions with
-#'         adjusted p-values equal or lower than specified are returned.
-#'         Default to 1, all regions are returned.
+#' adjusted p-values equal or lower than specified are returned.
+#' Default to 1, all regions are returned.
 #'
 #' @return A \code{GenomicRanges} object of the selected differentially
 #' interacting regions.
@@ -53,59 +53,59 @@ setMethod(
 #'
 #' @export
 setMethod(
-  f = "differences",
-  signature = "HiCDOCExp",
-  definition = function(object, pvalue=1) {
-    if (is.null(object@differences)) {
-      message(
-        "No 'differences' slot found in the ",
-        "HiCDOCExp object. Run HiCDOC first."
-      )
-    }
-    else if (length(object@differences) == 0) {
-      message("No 'differences' found.")
-      return(GRanges())
-    }
-    else {
-      ##- checking input value ---------------------------------#
-      ##--------------------------------------------------------#
-      if (length(pvalue) != 1) {
-        stop("'pvalue' must be a single value.", call. = FALSE)
-      }
+    f = "differences",
+    signature = "HiCDOCExp",
+    definition = function(object, pvalue=1) {
+        if (is.null(object@differences)) {
+            message(
+                "No 'differences' slot found in the ",
+                "HiCDOCExp object. Run HiCDOC first."
+            )
+        }
+        else if (length(object@differences) == 0) {
+            message("No 'differences' found.")
+            return(GRanges())
+        }
+        else {
+            ##- checking input value ---------------------------------#
+            ##--------------------------------------------------------#
+            if (length(pvalue) != 1) {
+                stop("'pvalue' must be a single value.", call. = FALSE)
+            }
 
-      if (is.null(pvalue) || !is.numeric(pvalue) ||
-        !is.finite(pvalue)) {
-        stop("'pvalue' value must be numeric.", call. = FALSE)
-      }
+            if (is.null(pvalue) || !is.numeric(pvalue) ||
+                !is.finite(pvalue)) {
+                stop("'pvalue' value must be numeric.", call. = FALSE)
+            }
 
-      if ((pvalue > 1) || (pvalue < 0)) {
-        stop(
-          "'pvalue' value ", pvalue, ", outside the interval [0,1].",
-          call. = FALSE
-        )
-      }
-      ##- end check -------------------------------------------#
+            if ((pvalue > 1) || (pvalue < 0)) {
+                stop(
+                    "'pvalue' value ", pvalue, ", outside the interval [0,1].",
+                    call. = FALSE
+                )
+            }
+            ##- end check -------------------------------------------#
 
-      gr <- object@differences %>%
-        filter(abs(padj) <= pvalue) %>%
-        mutate(start = start + 1)
-      if (nrow(gr) == 0) {
-        message(paste0(
-          "No 'differences' found at p-value ",
-          pvalue,
-          ": best is: ",
-          min(abs(object@differences$padj)),
-          "."
-        ))
-        return(GRanges())
-      }
-      return (makeGRangesFromDataFrame(
-        gr,
-        keep.extra.columns = TRUE,
-        ignore.strand = TRUE
-      ))
+            gr <- object@differences %>%
+                filter(abs(padj) <= pvalue) %>%
+                mutate(start = start + 1)
+            if (nrow(gr) == 0) {
+                message(paste0(
+                    "No 'differences' found at p-value ",
+                    pvalue,
+                    ": best is: ",
+                    min(abs(object@differences$padj)),
+                    "."
+                ))
+                return(GRanges())
+            }
+            return (makeGRangesFromDataFrame(
+                gr,
+                keep.extra.columns = TRUE,
+                ignore.strand = TRUE
+            ))
+        }
     }
-  }
 )
 
 
@@ -132,18 +132,18 @@ setMethod(
 #'
 #' @export
 setMethod(
-  f = "concordances",
-  signature = "HiCDOCExp",
-  definition = function(object) {
-    if (is.null(object@concordances)) {
-      message(
-        "No 'concordances' slot found in the ",
-        "HiCDOCExp object. Run HiCDOC first."
-      )
-    } else {
-      return(object@concordances)
+    f = "concordances",
+    signature = "HiCDOCExp",
+    definition = function(object) {
+        if (is.null(object@concordances)) {
+            message(
+                "No 'concordances' slot found in the ",
+                "HiCDOCExp object. Run HiCDOC first."
+            )
+        } else {
+            return(object@concordances)
+        }
     }
-  }
 )
 
 
@@ -170,42 +170,42 @@ setMethod(
 #'
 #' @export
 setMethod(
-  f = "compartments",
-  signature = "HiCDOCExp",
-  definition = function(object) {
-    if (is.null(object@compartments)) {
-      message(
-        "No 'compartments' slot found in the ",
-        "HiCDOCExp object. Run HiCDOC first."
-      )
-    } else {
-      grl <- object@compartments %>%
-          mutate(start = position + 1) %>%
-          mutate(end = start + object@binSize - 1) %>%
-          select(-position)
-      return(grl)
-      # grl <- object@compartments %>%
-      #   mutate(start = position + 1) %>%
-      #   mutate(end = start + object@binSize - 1) %>%
-      #   select(-position) %>%
-      #   mutate(condition = factor(condition)) %>%
-      #   rename(compartment = value) %>%
-      #   GenomicRanges::makeGRangesListFromDataFrame(
-      #     keep.extra.columns = TRUE,
-      #     ignore.strand = TRUE,
-      #     split.field = "condition"
-      #   )
-      # grl2 <- lapply(grl, function(x) { split(x, ~ compartment) })
-      # grl3 <- as(lapply(grl2, function(x) {
-      #   unlist(as(lapply(names(x), function(y) {
-      #     z <- GenomicRanges::reduce(x[[y]])
-      #     z$compartment <- factor(y)
-      #     return(z)
-      #   }), "GRangesList"))
-      # }), "GRangesList")
-      # return(grl3)
+    f = "compartments",
+    signature = "HiCDOCExp",
+    definition = function(object) {
+        if (is.null(object@compartments)) {
+            message(
+                "No 'compartments' slot found in the ",
+                "HiCDOCExp object. Run HiCDOC first."
+            )
+        } else {
+            grl <- object@compartments %>%
+                    mutate(start = position + 1) %>%
+                    mutate(end = start + object@binSize - 1) %>%
+                    select(-position)
+            return(grl)
+            # grl <- object@compartments %>%
+            #     mutate(start = position + 1) %>%
+            #     mutate(end = start + object@binSize - 1) %>%
+            #     select(-position) %>%
+            #     mutate(condition = factor(condition)) %>%
+            #     rename(compartment = value) %>%
+            #     GenomicRanges::makeGRangesListFromDataFrame(
+            #         keep.extra.columns = TRUE,
+            #         ignore.strand = TRUE,
+            #         split.field = "condition"
+            #     )
+            # grl2 <- lapply(grl, function(x) { split(x, ~ compartment) })
+            # grl3 <- as(lapply(grl2, function(x) {
+            #     unlist(as(lapply(names(x), function(y) {
+            #         z <- GenomicRanges::reduce(x[[y]])
+            #         z$compartment <- factor(y)
+            #         return(z)
+            #     }), "GRangesList"))
+            # }), "GRangesList")
+            # return(grl3)
+        }
     }
-  }
 )
 
 
@@ -222,12 +222,12 @@ setMethod(
 #' Parameters in a HiCDOC experiment.
 #'
 #' \subsection{Global parameters}{
-#'  \describe{
-#'    \item{\code{minDepth}}{The cutoff to filter the base-level
-#'        coverage. Bases where at least one sample has (normalized)
-#'        coverage greater than \code{minDepth} be been retained.
-#'        Default to \code{10}.}
-#'  }
+#'    \describe{
+#'        \item{\code{minDepth}}{The cutoff to filter the base-level
+#'                coverage. Bases where at least one sample has (normalized)
+#'                coverage greater than \code{minDepth} be been retained.
+#'                Default to \code{10}.}
+#'    }
 #' }
 #'
 #' @docType methods
@@ -236,7 +236,7 @@ setMethod(
 #' @aliases parameters parameters,HiCDOCExp-method
 #' parameters<- parameters<-,HiCDOCExp-method
 #' @param object An \code{HiCDOCExp} object.
-#' @param value  A named \code{list} containing valid parameters. See details.
+#' @param value A named \code{list} containing valid parameters. See details.
 #' @return The named list of the parameters used in the analysis.
 #' @seealso
 #' \code{useParameters} argument in \code{\link{HiCDOC}} function.
@@ -247,78 +247,78 @@ setMethod(
 #'
 #' @export
 setMethod(
-  f = "parameters",
-  signature = "HiCDOCExp",
-  definition = function(object) {
-    if (is.null(object@parameters)) {
-      message(
-        "No 'parameters' slot found in the HiCDOCExp ",
-        "object. Run HiCDOC first or assign a named ",
-        "list of valid parameters. See help(parameters) ",
-        "for details."
-      )
-    } else {
-      object@parameters
-      class(object@parameters) <- "HiCDOCParameters"
-      return(invisible(object@parameters))
+    f = "parameters",
+    signature = "HiCDOCExp",
+    definition = function(object) {
+        if (is.null(object@parameters)) {
+            message(
+                "No 'parameters' slot found in the HiCDOCExp ",
+                "object. Run HiCDOC first or assign a named ",
+                "list of valid parameters. See help(parameters) ",
+                "for details."
+            )
+        } else {
+            object@parameters
+            class(object@parameters) <- "HiCDOCParameters"
+            return(invisible(object@parameters))
+        }
     }
-  }
 )
 
 #' @name parameters
 #' @rdname parameters
 #' @exportMethod "parameters<-"
 setReplaceMethod(
-  "parameters",
-  signature(object = "HiCDOCExp", value = "ANY"),
-  function(object, value) {
+    "parameters",
+    signature(object = "HiCDOCExp", value = "ANY"),
+    function(object, value) {
 
-    ##- checking input value ---------------------------------#
-    ##--------------------------------------------------------#
-    defaultParNames <- names(HiCDOCDefaultParameters)
+        ##- checking input value ---------------------------------#
+        ##--------------------------------------------------------#
+        defaultParNames <- names(HiCDOCDefaultParameters)
 
-    if (!is.null(object@parameters)) {
-      HiCDOCDefaultParameters <- object@parameters
+        if (!is.null(object@parameters)) {
+            HiCDOCDefaultParameters <- object@parameters
+        }
+
+        if (!is(value, "list")) {
+            print(value)
+            print(typeof(value))
+            print(class(value))
+            stop(
+                "'value' must be a named list. See ",
+                "help(parameters) for details.",
+                call. = FALSE
+            )
+        }
+
+        valueNames <- names(value)
+
+        if (any(duplicated(valueNames))) {
+            stop(
+                "duplicate name parameters in 'value'. See ",
+                "help(parameters) for details.",
+                call. = FALSE
+            )
+        }
+
+        if (!all(valueNames %in% defaultParNames)) {
+            stop(
+                "'value' must be a named list of valid ",
+                "parameters. See help(parameters) for details.",
+                call. = FALSE
+            )
+        }
+
+        ##- individual parameters
+        HiCDOCDefaultParameters[valueNames] <- value
+        checkParameters(HiCDOCDefaultParameters)
+
+        ##- end check -------------------------------------------#
+
+        object@parameters <- HiCDOCDefaultParameters
+        object
     }
-
-    if (!is(value, "list")) {
-      print(value)
-      print(typeof(value))
-      print(class(value))
-      stop(
-        "'value' must be a named list. See ",
-        "help(parameters) for details.",
-        call. = FALSE
-      )
-    }
-
-    valueNames <- names(value)
-
-    if (any(duplicated(valueNames))) {
-      stop(
-        "duplicate name parameters in 'value'. See ",
-        "help(parameters) for details.",
-        call. = FALSE
-      )
-    }
-
-    if (!all(valueNames %in% defaultParNames)) {
-      stop(
-        "'value' must be a named list of valid ",
-        "parameters. See help(parameters) for details.",
-        call. = FALSE
-      )
-    }
-
-    ##- individual parameters
-    HiCDOCDefaultParameters[valueNames] <- value
-    checkParameters(HiCDOCDefaultParameters)
-
-    ##- end check -------------------------------------------#
-
-    object@parameters <- HiCDOCDefaultParameters
-    object
-  }
 )
 
 ##- show ---------------------------------------------------------------------#
@@ -328,12 +328,12 @@ setReplaceMethod(
 #' @return The \code{show} method informatively display object contents.
 #' @export
 setMethod(
-  f = "show",
-  signature = "HiCDOCExp",
-  definition = function(object) {
-    cat("Object of class HiCDOCExp.\n", "Sample information\n")
-    print("TODO")
-  }
+    f = "show",
+    signature = "HiCDOCExp",
+    definition = function(object) {
+        cat("Object of class HiCDOCExp.\n", "Sample information\n")
+        print("TODO")
+    }
 )
 
 
@@ -355,11 +355,11 @@ setMethod(
 #' @export
 printHiCDOCParameters <- function(x, ...) {
 
-  cat("\n Global parameters: \n", "------------------ \n")
-  df <- data.frame(value = unlist(x[seq_len(6)]))
-  print(df)
+    cat("\n Global parameters: \n", "------------------ \n")
+    df <- data.frame(value = unlist(x[seq_len(6)]))
+    print(df)
 
-  cat("\n Constrained K-means parameters: \n", "---------------------- \n")
-  df <- data.frame(value = unlist(x[7:10]))
-  print(df)
+    cat("\n Constrained K-means parameters: \n", "---------------------- \n")
+    df <- data.frame(value = unlist(x[7:10]))
+    print(df)
 }
