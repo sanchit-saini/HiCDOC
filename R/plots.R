@@ -19,12 +19,12 @@ plotInteractionMatrix <-
            chromosomeId,
            trans = "log2",
            colours = c("#000066", "#ffffbf", "#990000")) {
-    
     # Parameters
     testSlotsHiCDOCExp(object,
                        slots = c("interactions", "conditions", "totalBins", "binSize"))
     chr <- testChromosome(object, chromosomeId)
-    if(is.null(trans)) trans <- "Identity"
+    if (is.null(trans))
+      trans <- "Identity"
     
     # Prepare data
     interactionsChr <- object@interactions %>%
@@ -40,7 +40,7 @@ plotInteractionMatrix <-
         ggplot(data = interactionsChr, aes(x = position.1, y = position.2, z = value)) +
         geom_raster(aes(fill = value), na.rm = TRUE) +
         geom_raster(
-          data = interactionsChr[interactionsChr$position.1 != interactionsChr$position.2, ],
+          data = interactionsChr[interactionsChr$position.1 != interactionsChr$position.2,],
           aes(x = position.2, y = position.1, fill = value),
           na.rm = TRUE
         ) +
@@ -51,11 +51,16 @@ plotInteractionMatrix <-
         facet_wrap(condition ~ replicate,
                    nrow = nbrows,
                    labeller = label_wrap_gen(multi_line = FALSE)) +
-        labs(title = paste("Chromosome:", chr), x = "", y = "")
-        p <-
-          p + scale_fill_gradientn(colours = colours,
-                                   trans = trans,
-                                   name = "Intensity", na.value = "transparent")
+        labs(title = paste("Chromosome:", chr),
+             x = "",
+             y = "")
+      p <-
+        p + scale_fill_gradientn(
+          colours = colours,
+          trans = trans,
+          name = "Intensity",
+          na.value = "transparent"
+        )
     } else {
       message("No interaction data, with positive value to plot")
       p <- NULL
@@ -84,7 +89,7 @@ plotDistanceEffect <- function(object) {
                         high = "blue",
                         trans = "log2") +
     geom_point(col = "transparent") + # necessary for geom_smooth
-    geom_smooth(col = "red") + 
+    geom_smooth(col = "red") +
     labs(title = "Distance effect")
   p <-
     ggMarginal(p,
@@ -168,10 +173,12 @@ plotAB <- function(object, chromosomeId, conditionId) {
     geom_boxplot(outlier.colour = NA,
                  fill = NA,
                  colour = "grey20") +
-    labs(color = "Compartment", 
-         x = "Compartment", 
-         y = "Difference of int.", 
-         title = paste0("Chromosome: ", chr, ", condition: ", cond))
+    labs(
+      color = "Compartment",
+      x = "Compartment",
+      y = "Difference of int.",
+      title = paste0("Chromosome: ", chr, ", condition: ", cond)
+    )
 }
 
 
@@ -219,8 +226,10 @@ plotCentroids <- function(object, chromosomeId) {
       color = group,
       shape = group
     )) + geom_point(size = 2) +
-    labs(title = paste0("Centroids of chromosome ", chr),
-         x = paste("PC1 ", propvar[1]),
-         y= paste("PC2 ", propvar[2]))
+    labs(
+      title = paste0("Centroids of chromosome ", chr),
+      x = paste("PC1 ", propvar[1]),
+      y = paste("PC2 ", propvar[2])
+    )
   return(p)
 }

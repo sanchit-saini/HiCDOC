@@ -15,7 +15,7 @@ List of HiCDOC default parameters.
 }
 \examples{
 exp <- HiCDOCExample()
-exp <- HiCDOC(exp, useParameters = HiCDOCDefaultParameters)
+exp <- HiCDOC(exp)
 
 }
 \keyword{data}

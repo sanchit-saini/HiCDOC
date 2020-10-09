@@ -49,9 +49,11 @@ TODO
 
 \item{\code{replicates}}{The names of the replicates.}
 
-\item{\code{totalReplicates}}{The names of the replicates, glued with the name of the conditions.}
+\item{\code{totalReplicates}}{The names of the replicates, glued with the 
+name of the conditions.}
 
-\item{\code{totalReplicatesPerCondition}}{A 2-element list, one for each condition, where the union is the names of the replicates.}
+\item{\code{totalReplicatesPerCondition}}{A 2-element list, one for each condition, 
+where the union is the names of the replicates.}
 
 \item{\code{conditions}}{The names of the conditions (exactly two different).}
 
