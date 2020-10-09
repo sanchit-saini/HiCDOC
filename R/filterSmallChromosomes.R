@@ -1,11 +1,13 @@
 #' Suppress the small chromosomes
 #'
 #' The function return an HiCDOCExp object, with only the big chromosomes.
-#' The big chromosomes must have a totalBins > object@minLength.
+#' The big chromosomes must have a totalBins >= minLength.
 #' The interactions are reduced to keep only those corresponding
-#' to the remaining chromosomes
+#' to the remaining chromosomes.
 #'
 #' @param object A HiCDOC object
+#' @param minLength Numeric value, default to 100. The minimum chromosome 
+#' size (in number of bins), to be kept.
 #'
 #' @return A HiCDOC object
 #' @export
@@ -16,9 +18,11 @@
 #' object <- filterSmallChromosomes(object)
 #' object@chromosomes
 
-filterSmallChromosomes <- function(object) {
-
-  bigChromosomes <- vapply(object@totalBins, function(x) x >= object@minLength, FUN.VALUE = TRUE)
+filterSmallChromosomes <- function(object, minLength = 100) {
+  message("Keeping only the chromosomes with ", minLength, " bins or more")
+  bigChromosomes <- vapply(object@totalBins, 
+                           function(x) x >= minLength, 
+                           FUN.VALUE = TRUE)
   bigChromosomes <- names(bigChromosomes)[bigChromosomes == TRUE]
   bigChromosomes <- mixedsort(bigChromosomes)
 
