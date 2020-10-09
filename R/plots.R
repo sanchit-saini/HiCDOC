@@ -142,6 +142,8 @@ plotDiffConcordances <- function(object) {
 #' Plot the distribution of A/B compartments along the genomic positions.
 #'
 #' @param object an \code{HiCDOCExp} object
+#' @param chromosomeId character or numeric value, name or number of chromosome
+#' @param conditionId character or numeric value, name or number of condition
 #' @return A list of \code{ggplot}, one for each chromosome.
 #' @examples
 #' object <- HiCDOCExample()

@@ -1,3 +1,29 @@
+##- chromosomes -------------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Accessors for the 'chromosomes' slot of an HiCDOCExp object
+#'
+#' The \code{chromosomes} slot contains the names of the chromosomes, eventually
+#' filtred after \code{filterSmallChromosomes()}
+#'
+#' @docType methods
+#' @name chromosomes
+#' @rdname chromosomes
+#' @aliases chromosomes chromosomes,HiCDOCExp-method
+#' @param object An \code{HiCDOCExp} object.
+#' @return A character vector
+#' @examples
+#' exp <- HiCDOCExample()
+#' chromosomes(exp)
+#'
+#' @export
+setMethod(
+    f = "chromosomes",
+    signature = "HiCDOCExp",
+    definition = function(object) {
+        object@chromosomes
+    }
+)
+
 ##- interactions -------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
 #' Accessors for the 'interactions' slot of an HiCDOCExp object
@@ -331,8 +357,12 @@ setMethod(
     f = "show",
     signature = "HiCDOCExp",
     definition = function(object) {
-        cat("Object of class HiCDOCExp.\n", "Sample information\n")
-        print("TODO")
+        nbCond <- length(unique(object@conditions))
+        nbRep <- length(unique(object@replicates))
+        cat("Object of class HiCDOCExp.\n", "HiCDOC Experiment with:\n")
+        cat(length(object@chromosomes), "chromosomes:", object@chromosomes, "\n")
+        cat(object@totalReplicates, "replications in",
+            lenght(unique(object@conditions)), "conditions\n")
     }
 )
 
