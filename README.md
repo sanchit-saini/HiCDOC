@@ -94,8 +94,8 @@ object <- detectCompartments(object)
 Detected compartments and differences between conditions can be displayed with:
 
 ```R
-object@compartments
-object@differences
+compartments(object)
+differences(differences)
 ```
 
 Or saved to a file with:
@@ -113,7 +113,7 @@ plotInteractionMatrix(object, chromosomeId = 1, trans = "log2")
 
 plotDistanceEffect(object)
 
-plotAB(object, chromosomeId = 1)
+plotAB(object, chromosomeId = 1, conditionId = 1)
 
 plotDiffConcordances(object)
 

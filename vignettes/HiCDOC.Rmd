@@ -127,13 +127,6 @@ concordances(objectnormed)
 compartments(objectnormed)
 ```
 
-Detected compartments and differences between conditions can be displayed with:
-
-```{r}
-objectnormed@compartments
-objectnormed@differences
-```
-
 ### Visualization
 
 Various visualizations are also available:

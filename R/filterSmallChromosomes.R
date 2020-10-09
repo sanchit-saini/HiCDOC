@@ -14,15 +14,15 @@
 #'
 #' @examples
 #' object <- HiCDOCExample()
-#' object@chromosomes
+#' chromosomes(object)
 #' object <- filterSmallChromosomes(object)
-#' object@chromosomes
+#' chromosomes(object)
 
 filterSmallChromosomes <- function(object, minLength = 100) {
     message("Keeping only the chromosomes with ", minLength, " bins or more")
     bigChromosomes <- vapply(object@totalBins,
                              function(x)
-                               x >= minLength,
+                                 x >= minLength,
                              FUN.VALUE = TRUE)
     bigChromosomes <- names(bigChromosomes)[bigChromosomes == TRUE]
     bigChromosomes <- mixedsort(bigChromosomes)
@@ -38,8 +38,8 @@ filterSmallChromosomes <- function(object, minLength = 100) {
     message("Kept ",
             length(bigChromosomes),
             " chromosome",
-            if (length(bigChromosomes) != 1)
-              "s")
+            if (length(bigChromosomes) != 1) "s"
+    )
 
     return (object)
 }
