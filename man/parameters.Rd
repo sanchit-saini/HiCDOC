@@ -51,8 +51,6 @@ exp <- HiCDOCExample()
 exp <- HiCDOC(exp)
 print(parameters(exp))
 
-parameters(srnaExp) <- list("minSize" = 1, "maxSize" = 1500)
-
 exp <- HiCDOCExample()
 exp <- HiCDOC(srnaExp)
 print(parameters(exp))

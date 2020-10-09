@@ -96,7 +96,7 @@ filterWeakPositions <- function(object, threshold = 0) {
   )
   names(weakPositions) <- object@chromosomes
 
-  weakBins <- weakPositions %>% purrr:::map("pos")
+  weakBins <- weakPositions %>% purrr::map("pos")
   weakBins <- lapply(weakBins, function(x) x / object@binSize + 1)
   nullweak <- vapply(weakBins, function(x) length(x) == 0, FUN.VALUE = TRUE)
   weakBins[nullweak] <- list(NULL)

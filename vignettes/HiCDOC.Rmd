@@ -20,8 +20,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-# library(HiCDOC)
-devtools::load_all(".")
+library(HiCDOC)
+#devtools::load_all(".")
 ```
 
 HiCDOC normalizes intrachromosomal Hi-C matrices and detects A/B compartments
@@ -141,7 +141,7 @@ Various visualizations are also available:
 ```{r}
 plotAB(objectnormed, chromosomeId = "17", conditionId = "1")
 plotDiffConcordances(objectnormed)
-plotCentroids(objectnormed, chromosomeId = 1) + geom_point(size = 4)
+plotCentroids(objectnormed, chromosomeId = 1)
 ```
 
 ## Input format

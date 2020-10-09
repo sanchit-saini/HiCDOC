@@ -2,7 +2,8 @@
 ##----------------------------------------------------------------------------#
 #' Accessors for the 'interactions' slot of an HiCDOCExp object
 #'
-#' The \code{interactions} slot contains the (transformed) interaction profiles.
+#' The \code{interactions} slot contains the (transformed) interaction 
+#' profiles.
 #'
 #' @docType methods
 #' @name interactions
@@ -243,8 +244,6 @@ setMethod(
 #' exp <- HiCDOCExample()
 #' exp <- HiCDOC(exp)
 #' print(parameters(exp))
-#'
-#' parameters(srnaExp) <- list("minSize" = 1, "maxSize" = 1500)
 #'
 #' @export
 setMethod(

@@ -27,7 +27,7 @@ textsignif <- function(differences, padjThreshold) {
 #'
 #' @return A length 2 numerical vector
 testxlim <- function(xlim, positions) {
-  if (is.null(xlim) == F) {
+  if (is.null(xlim) == FALSE) {
     if (length(xlim) != 2) {
       message("Incorrect values for xlim (numerical of length 2 expected),
              Set to NULL")
@@ -36,10 +36,10 @@ testxlim <- function(xlim, positions) {
       xlim <- sort(xlim)
     }
   }
-  if (is.null(xlim) == T) {
+  if (is.null(xlim) == TRUE) {
     xlim <-
-      c(min(positions, na.rm = T),
-        max(positions, na.rm = T))
+      c(min(positions, na.rm = TRUE),
+        max(positions, na.rm = TRUE))
   }
   return(xlim)
 }
@@ -272,7 +272,7 @@ plotCompartmentChanges <-
           ncol   = 2
         ),
         heights = c(10, 1),
-        top = paste0("chromosome ", chr)
+        top = paste0("Chromosome ", chr)
       )
     )
     return(finalplot)

@@ -5,7 +5,7 @@
 #' @keywords data
 #' @examples
 #' exp <- HiCDOCExample()
-#' exp <- HiCDOC(exp, useParameters = HiCDOCDefaultParameters)
+#' exp <- HiCDOC(exp)
 #'
 #' @export
 HiCDOCDefaultParameters <- list(
@@ -17,7 +17,7 @@ HiCDOCDefaultParameters <- list(
 )
 
 ###############################################################################
-### HiCDOCDataSet S4 class definition
+# HiCDOCDataSet S4 class definition
 ###############################################################################
 #' Infrastructure for HiCDOC data set
 #'
@@ -342,28 +342,30 @@ HiCDOCExample <- function() {
 #' @docType class
 #' @aliases HiCDOCExp HiCDOCExp-class
 #'
-#' @slot inputPath                   The names of the matrix input files.
-#' @slot interactions                The interaction matrices.
-#' @slot weakBins                    The empty bins.
-#' @slot chromosomes                 The list of chromosomes.
-#' @slot replicates                  The names of the replicates.
-#' @slot totalReplicates             The names of the replicates, glued with the name of the conditions.
-#' @slot totalReplicatesPerCondition A 2-element list, one for each condition, where the union is the names of the replicates.
-#' @slot conditions                  The names of the conditions (exactly two different).
-#' @slot totalBins                   The number of bins per chromosome.
-#' @slot binSize                     The resolution.
-#' @slot sampleSize                  The number of bins used when sampling all the bins.
-#' @slot distances                   The distribution of distances to the centroids.
-#' @slot compartments                The A/B compartments distribution, along the chromosomes.
-#' @slot concordances                The concordance distribution, along the chromosomes.
-#' @slot differences                 The distribution of the difference of the concordance.
-#' @slot centroids                   The position of the centroids.
-#' @slot loessSpan                   The optimal span value used for the diagonal normalization.
-#' @slot kMeansIterations            The maximum number of 2-means iterations.
-#' @slot kMeansDelta                 The stop criterion of convergence of the 2-means method.
-#' @slot kMeansRestarts              The maximum number of restarts for the 2-means.
-#' @slot parameters   An named \code{list}. The parameters for the
-#'                    segmentation methods. See \code{\link{parameters}}.
+#' @slot inputPath The names of the matrix input files.
+#' @slot interactions The interaction matrices.
+#' @slot weakBins The empty bins.
+#' @slot chromosomes The list of chromosomes.
+#' @slot replicates The names of the replicates.
+#' @slot totalReplicates The names of the replicates, glued with the 
+#' name of the conditions.
+#' @slot totalReplicatesPerCondition A 2-element list, one for each condition, 
+#' where the union is the names of the replicates.
+#' @slot conditions The names of the conditions (exactly two different).
+#' @slot totalBins The number of bins per chromosome.
+#' @slot binSize The resolution.
+#' @slot sampleSize The number of bins used when sampling all the bins.
+#' @slot distances The distribution of distances to the centroids.
+#' @slot compartments The A/B compartments distribution, along the chromosomes.
+#' @slot concordances The concordance distribution, along the chromosomes.
+#' @slot differences The distribution of the difference of the concordance.
+#' @slot centroids The position of the centroids.
+#' @slot loessSpan The optimal span value used for the diagonal normalization.
+#' @slot kMeansIterations The maximum number of 2-means iterations.
+#' @slot kMeansDelta The stop criterion of convergence of the 2-means method.
+#' @slot kMeansRestarts The maximum number of restarts for the 2-means.
+#' @slot parameters An named \code{list}. The parameters for the
+#' segmentation methods. See \code{\link{parameters}}.
 #'
 #' @export
 setClass(
@@ -395,8 +397,8 @@ setClass(
 )
 
 
-##- HiCDOCExp S4 class constructor -------------------------------------------#
-##----------------------------------------------------------------------------#
+##- HiCDOCExp S4 class constructor -----------------------------------------#
+##--------------------------------------------------------------------------#
 #' @rdname HiCDOCExp
 #' @docType class
 #'
@@ -426,7 +428,6 @@ HiCDOCExp <- function(dataSet = NULL,
   
   ##- parameters
   
-  
   ##- end checking ---------------------------------------------------------#
   
   object <- new("HiCDOCExp")
@@ -447,8 +448,10 @@ HiCDOCExp <- function(dataSet = NULL,
   
   if (is.null(binSize)) {
     object@binSize <- min(abs(
-      object@interactions$position.1[object@interactions$position.1 != object@interactions$position.2]
-      - object@interactions$position.2[object@interactions$position.1 != object@interactions$position.2]
+      object@interactions$position.1[object@interactions$position.1 
+                                     != object@interactions$position.2]
+      - object@interactions$position.2[object@interactions$position.1 
+                                       != object@interactions$position.2]
     ))
   }
   else {

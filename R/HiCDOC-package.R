@@ -57,7 +57,7 @@
 #' @import BiocParallel
 #' @importFrom BiocManager version
 #' @importFrom Rcpp evalCpp sourceCpp
-#' @importFrom GenomicRanges makeGRangesFromDataFrame makeGRangesListFromDataFrame
+#' @importFrom GenomicRanges makeGRangesFromDataFrame makeGRangesListFromDataFrame start end distance
 #' @importFrom gridExtra arrangeGrob
 #' @importFrom ggpubr as_ggplot text_grob
 #' @importFrom magrittr %<>%

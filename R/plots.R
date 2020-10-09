@@ -1,10 +1,10 @@
 #' Plot the interaction matrix (as heatmap).
 #'
-#' @param objet an \code{HiCDOCExp} object
+#' @param object an \code{HiCDOCExp} object
 #' @param chromosomeId The name or number of the chromosome to plot.
 #' If number, will be taken in \code{object@chromosomes[chromosomeId]}
 #' @param trans character: transformation of the color scale. Default to "log2".
-#' See \code{\link[ggplot2::scale_fill_gradient]{scale_fill_gradient}} for other accepted values.
+#' See \code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.
 #' Set to NULL for no transformation.
 #' @param colours character vector, vector of colours to use for n-colour gradient.
 #' Default to \code{c("#000066", "#ffffbf", "#990000")}.
@@ -66,7 +66,7 @@ plotInteractionMatrix <-
 
 #' Plot the distance vs intensity matrix.
 #'
-#' @param objet an \code{HiCDOCExp} object
+#' @param object an \code{HiCDOCExp} object
 #' @return A \code{ggplot}.
 #' @examples
 #' object <- HiCDOCExample()
@@ -96,7 +96,7 @@ plotDistanceEffect <- function(object) {
 
 #' Plot the concordance, i.e. the relative distance of the genomic positions with respect to the centroids.
 #'
-#' @param objet an \code{HiCDOCExp} object
+#' @param object an \code{HiCDOCExp} object
 #' @return A list of \code{ggplot}, one for each chromosome.
 #' @examples
 #' object <- HiCDOCExample()
@@ -137,7 +137,7 @@ plotDiffConcordances <- function(object) {
 
 #' Plot the distribution of A/B compartments along the genomic positions.
 #'
-#' @param objet an \code{HiCDOCExp} object
+#' @param object an \code{HiCDOCExp} object
 #' @return A list of \code{ggplot}, one for each chromosome.
 #' @examples
 #' object <- HiCDOCExample()
@@ -177,7 +177,7 @@ plotAB <- function(object, chromosomeId, conditionId) {
 
 #' Plot the centroid distributions along the genomic positions for a given chromosome.
 #'
-#' @param objet an \code{HiCDOCExp} object
+#' @param object an \code{HiCDOCExp} object
 #' @param chromosomeId Name or number of the chromosome, like in object@chromosome
 #'
 #' @return A \code{ggplot} object

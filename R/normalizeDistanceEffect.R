@@ -34,7 +34,7 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
   
   if (nrow(sample) == 0) {
     message("The chromosome is empty")
-    next
+    return(NULL)
   }
   
   optimizeSpan <- function(

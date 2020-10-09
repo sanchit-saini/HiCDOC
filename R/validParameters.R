@@ -3,24 +3,25 @@
 #' Test the existence of a given chromosome.
 #'
 #' @param object        A \code{HiCDOCExp} object.
-#' @param chromosomeId  A chromosome.
+#' @param chromosomeId  The condition name, or an error.
 #'
-#' @return A chromosome or an error.
+#' @return The chromosome name or an error.
 testChromosome <- function(object, chromosomeId) {
   if (chromosomeId %in% object@chromosomes) return (chromosomeId)
-  if (is.numeric(chromosomeId)==T && chromosomeId %in% seq_len(length(object@chromosomes)))
+  if (is.numeric(chromosomeId) == TRUE && 
+      chromosomeId %in% seq_len(length(object@chromosomes)))
     return (object@chromosomes[chromosomeId])
   stop(paste("Unknown chromosome:", chromosomeId), call. = FALSE)
 }
 
 ##- testCondition -----------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Test the existence of a given condition
+#' Test the existence of a given condition in a HiCDOC object
 #'
-#' @param object        A \code{HiCDOCExp} object.
-#' @param conditionId  A condition
+#' @param object A \code{HiCDOCExp} object.
+#' @param conditionId  A character or numeric value 
 #'
-#' @return A chromosome or an error.
+#' @return The condition name, or an error.
 testCondition <- function(object, conditionId) {
   if (conditionId %in% object@conditions) return (conditionId)
   uniquecond <- unique(object@conditions)
@@ -34,12 +35,13 @@ testCondition <- function(object, conditionId) {
 #' Test the existence of slots in HiCDOCExp object
 #'
 #' @param object  A \code{HiCDOCExp} object.
-#' @param slots   Names of slots to verify.
+#' @param slots   Character vector, names of slots to verify. Default to NULL.
+#' If NULL, check only for the class of \code{object}
 #'
 #' @return An error if the object is not a HiCDOCExp object or a slot is
 #' missing.
 testSlotsHiCDOCExp <- function(object, slots = NULL) {
-  if (class(object) != "HiCDOCExp")
+  if (!is(object, "HiCDOCExp"))
     stop("The object provided is not from class HiCDOCExp", call. = FALSE)
 
   if (!is.null(slots)) {

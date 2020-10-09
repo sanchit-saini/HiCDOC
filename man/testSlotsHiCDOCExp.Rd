@@ -9,7 +9,8 @@ testSlotsHiCDOCExp(object, slots = NULL)
 \arguments{
 \item{object}{A \code{HiCDOCExp} object.}
 
-\item{slots}{Names of slots to verify.}
+\item{slots}{Character vector, names of slots to verify. Default to NULL.
+If NULL, check only for the class of \code{object}}
 }
 \value{
 An error if the object is not a HiCDOCExp object or a slot is
