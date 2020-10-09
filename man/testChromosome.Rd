@@ -9,10 +9,10 @@ testChromosome(object, chromosomeId)
 \arguments{
 \item{object}{A \code{HiCDOCExp} object.}
 
-\item{chromosomeId}{A chromosome.}
+\item{chromosomeId}{The condition name, or an error.}
 }
 \value{
-A chromosome or an error.
+The chromosome name or an error.
 }
 \description{
 Test the existence of a given chromosome.

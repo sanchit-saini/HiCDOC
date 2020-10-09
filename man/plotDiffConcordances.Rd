@@ -7,7 +7,7 @@
 plotDiffConcordances(object)
 }
 \arguments{
-\item{objet}{an \code{HiCDOCExp} object}
+\item{object}{an \code{HiCDOCExp} object}
 }
 \value{
 A list of \code{ggplot}, one for each chromosome.

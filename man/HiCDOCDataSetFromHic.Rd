@@ -24,12 +24,13 @@ HiCDOCDataSetFromHic(hicFileNames, replicates, conditions, resolution)
 Construct a \code{HiCDOCDataSet} from a hic file.
 }
 \examples{
-basedir <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
-data    <- read.csv(file.path(basedir, "hicData.csv"))
+data <- read.csv(system.file("extdata", "hicData.csv", package="HiCDOC"))
+data
+\dontrun{
 dataSet <- HiCDOCDataSetFromHic(file.path(basedir, data$FileName),
                                  data$Replicate,
                                  data$Condition,
                                  100000)
-dataSet
+}
 
 }

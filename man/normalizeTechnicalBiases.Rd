@@ -8,6 +8,9 @@ normalizeTechnicalBiases(object, parallel = FALSE)
 }
 \arguments{
 \item{object}{A \code{HiCDOCExp} object.}
+
+\item{parallel}{Logical, defautl to FALSE. Should parallel computing be used 
+in \code{\link[multiHiCcompare]{cyclic_loess}} ?}
 }
 \value{
 A \code{HiCDOCExp} object, with the normalized matrices.

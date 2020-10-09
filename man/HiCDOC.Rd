@@ -9,7 +9,7 @@
 HiCDOC(object)
 }
 \arguments{
-\item{object}{A \code{HiCDOCDataSet} object.}
+\item{object}{A \code{HiCDOCExp} object.}
 }
 \description{
 \code{HiCODC} is a package...

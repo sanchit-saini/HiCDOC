@@ -79,8 +79,6 @@ TODO
 
 \item{\code{kMeansRestarts}}{The maximum number of restarts for the 2-means.}
 
-\item{\code{minLength}}{The minimum chromosome size (in number of bins).}
-
 \item{\code{parameters}}{An named \code{list}. The parameters for the
 segmentation methods. See \code{\link{parameters}}.}
 }}

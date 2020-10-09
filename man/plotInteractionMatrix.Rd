@@ -4,17 +4,25 @@
 \alias{plotInteractionMatrix}
 \title{Plot the interaction matrix (as heatmap).}
 \usage{
-plotInteractionMatrix(object, chromosomeId, trans = "log2")
+plotInteractionMatrix(
+  object,
+  chromosomeId,
+  trans = "log2",
+  colours = c("#000066", "#ffffbf", "#990000")
+)
 }
 \arguments{
+\item{object}{an \code{HiCDOCExp} object}
+
 \item{chromosomeId}{The name or number of the chromosome to plot.
 If number, will be taken in \code{object@chromosomes[chromosomeId]}}
 
 \item{trans}{character: transformation of the color scale. Default to "log2".
-See \code{\link[ggplot2::scale_fill_gradient]{scale_fill_gradient}} for other accepted values.
+See \code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.
 Set to NULL for no transformation.}
 
-\item{objet}{an \code{HiCDOCExp} object}
+\item{colours}{character vector, vector of colours to use for n-colour gradient.
+Default to \code{c("#000066", "#ffffbf", "#990000")}.}
 }
 \value{
 A \code{ggplot} object.

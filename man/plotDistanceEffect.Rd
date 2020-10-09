@@ -7,7 +7,7 @@
 plotDistanceEffect(object)
 }
 \arguments{
-\item{objet}{an \code{HiCDOCExp} object}
+\item{object}{an \code{HiCDOCExp} object}
 }
 \value{
 A \code{ggplot}.

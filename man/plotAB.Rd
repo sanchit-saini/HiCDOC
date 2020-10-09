@@ -7,7 +7,7 @@
 plotAB(object, chromosomeId, conditionId)
 }
 \arguments{
-\item{objet}{an \code{HiCDOCExp} object}
+\item{object}{an \code{HiCDOCExp} object}
 }
 \value{
 A list of \code{ggplot}, one for each chromosome.
@@ -23,5 +23,5 @@ object <- normalizeTechnicalBiases(object)
 object <- normalizeBiologicalBiases(object)
 object <- normalizeDistanceEffect(object)
 object <- detectCompartments(object)
-plotAB(object)
+plotAB(object, 1, 1)
 }

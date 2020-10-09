@@ -4,19 +4,22 @@
 \alias{filterSmallChromosomes}
 \title{Suppress the small chromosomes}
 \usage{
-filterSmallChromosomes(object)
+filterSmallChromosomes(object, minLength = 100)
 }
 \arguments{
 \item{object}{A HiCDOC object}
+
+\item{minLength}{Numeric value, default to 100. The minimum chromosome 
+size (in number of bins), to be kept.}
 }
 \value{
 A HiCDOC object
 }
 \description{
 The function return an HiCDOCExp object, with only the big chromosomes.
-The big chromosomes must have a totalBins > object@minLength.
+The big chromosomes must have a totalBins >= minLength.
 The interactions are reduced to keep only those corresponding
-to the remaining chromosomes
+to the remaining chromosomes.
 }
 \examples{
 object <- HiCDOCExample()

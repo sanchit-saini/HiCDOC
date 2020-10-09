@@ -7,9 +7,9 @@
 plotCentroids(object, chromosomeId)
 }
 \arguments{
-\item{chromosomeId}{Name or number of the chromosome, like in object@chromosome}
+\item{object}{an \code{HiCDOCExp} object}
 
-\item{objet}{an \code{HiCDOCExp} object}
+\item{chromosomeId}{Name or number of the chromosome, like in object@chromosome}
 }
 \value{
 A \code{ggplot} object

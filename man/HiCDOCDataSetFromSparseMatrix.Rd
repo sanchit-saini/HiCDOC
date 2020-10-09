@@ -18,10 +18,8 @@ HiCDOCDataSetFromSparseMatrix(matrix = NULL)
 Reads a sparse matrix and fill a \code{HiCDOCDataSet} with its content.
 }
 \examples{
-basedir    <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
-matrix     <- read.csv(file.path(basedir, "sampleMatrix.tsv"))
-
-srnaExp <- HiCDOCExp(matrix)
+matrixpath <- system.file("extdata", "sampleMatrix.tsv",  package="HiCDOC")
+srnaExp <- HiCDOCDataSetFromSparseMatrix(matrixpath)
 srnaExp
 
 }

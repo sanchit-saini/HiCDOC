@@ -15,12 +15,6 @@ Marti-Marimon et al.
 }
 \examples{
 ## The 'HiCDOCExp' object in this example was constructed by:
-
-\dontrun{
-
-TODO
-}
-
 exp <- HiCDOCExample()
 exp
 
