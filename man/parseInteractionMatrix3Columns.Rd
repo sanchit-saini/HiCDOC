@@ -17,9 +17,7 @@ This function parses the tsv files provided in
 \code{object@inputMatrixPath}.
 }
 \examples{
-basedir <-
-  system.file("extdata", package = "HiCDOC", mustWork = TRUE)
-matrix  <- file.path(basedir, "sample.tsv")
-data   <- makeHiCDOCDataSet(inputPath = matrix)
+linkToMatrix <-system.file("extdata", "sampleMatrix.tsv", package = "HiCDOC")
+data   <- makeHiCDOCDataSet(inputPath = linkToMatrix)
 object <- parseInteractionMatrix3Columns(data)
 }

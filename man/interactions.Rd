@@ -15,7 +15,7 @@
 A tibble
 }
 \description{
-The \code{interactions} slot contains the (transformed) interaction 
+The \code{interactions} slot contains the (transformed) interaction
 profiles.
 }
 \examples{

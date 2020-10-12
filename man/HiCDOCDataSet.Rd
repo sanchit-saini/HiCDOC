@@ -18,10 +18,9 @@ TODO
 
 \describe{
 \item{\code{inputPath}}{The input matrix/matrices.  Can be the path(s) to
-to one, or several files, depending on the format
-considered.}
+to one, or several files, depending on the format considered.}
 
-\item{\code{interaction}}{A data frame storing the matrices.  Is built using
+\item{\code{interactions}}{A data frame storing the matrices.  Is built using
 the values in the \code{inputPath} files.}
 
 \item{\code{replicates}}{A vector storing the names of the replicates.}

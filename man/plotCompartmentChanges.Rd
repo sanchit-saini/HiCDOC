@@ -38,5 +38,5 @@ object <- normalizeTechnicalBiases(object)
 object <- normalizeBiologicalBiases(object)
 object <- normalizeDistanceEffect(object)
 object <- detectCompartments(object)
-plotCompartmentsChanges(object, 1)
+plotCompartmentChanges(object, 1)
 }

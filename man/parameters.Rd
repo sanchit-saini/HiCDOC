@@ -38,12 +38,12 @@ function or using the assignment function \code{\link{parameters<-}}.
 Parameters in a HiCDOC experiment.
 
 \subsection{Global parameters}{
- \describe{
-   \item{\code{minDepth}}{The cutoff to filter the base-level
-       coverage. Bases where at least one sample has (normalized)
-       coverage greater than \code{minDepth} be been retained.
-       Default to \code{10}.}
- }
+   \describe{
+       \item{\code{minDepth}}{The cutoff to filter the base-level
+               coverage. Bases where at least one sample has (normalized)
+               coverage greater than \code{minDepth} be been retained.
+               Default to \code{10}.}
+   }
 }
 }
 \examples{
@@ -52,7 +52,7 @@ exp <- HiCDOC(exp)
 print(parameters(exp))
 
 exp <- HiCDOCExample()
-exp <- HiCDOC(srnaExp)
+exp <- HiCDOC(exp)
 print(parameters(exp))
 
 }

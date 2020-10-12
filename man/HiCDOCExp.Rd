@@ -49,10 +49,10 @@ TODO
 
 \item{\code{replicates}}{The names of the replicates.}
 
-\item{\code{totalReplicates}}{The names of the replicates, glued with the 
+\item{\code{totalReplicates}}{The names of the replicates, glued with the
 name of the conditions.}
 
-\item{\code{totalReplicatesPerCondition}}{A 2-element list, one for each condition, 
+\item{\code{totalReplicatesPerCondition}}{A 2-element list, one for each condition,
 where the union is the names of the replicates.}
 
 \item{\code{conditions}}{The names of the conditions (exactly two different).}
@@ -64,6 +64,8 @@ where the union is the names of the replicates.}
 \item{\code{sampleSize}}{The number of bins used when sampling all the bins.}
 
 \item{\code{distances}}{The distribution of distances to the centroids.}
+
+\item{\code{diagonalRatios}}{TODO}
 
 \item{\code{compartments}}{The A/B compartments distribution, along the chromosomes.}
 
@@ -86,7 +88,7 @@ segmentation methods. See \code{\link{parameters}}.}
 }}
 
 \examples{
-basedir <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
-matrix  <- read.csv(file.path(basedir, "sampleMatrix.tsv"))
-srnaExp <- HiCDOCExp(matrix)
+linkToMatrix <- system.file("extdata", "sampleMatrix.tsv", package="HiCDOC")
+srnaDataSet <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
+srnaExp <- HiCDOCExp(srnaDataSet)
 }

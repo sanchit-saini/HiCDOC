@@ -2,7 +2,8 @@
 % Please edit documentation in R/plots.R
 \name{plotDiffConcordances}
 \alias{plotDiffConcordances}
-\title{Plot the concordance, i.e. the relative distance of the genomic positions with respect to the centroids.}
+\title{Plot the concordance, i.e. the relative distance of the genomic positions
+with respect to the centroids.}
 \usage{
 plotDiffConcordances(object)
 }
@@ -13,7 +14,8 @@ plotDiffConcordances(object)
 A list of \code{ggplot}, one for each chromosome.
 }
 \description{
-Plot the concordance, i.e. the relative distance of the genomic positions with respect to the centroids.
+Plot the concordance, i.e. the relative distance of the genomic positions
+with respect to the centroids.
 }
 \examples{
 object <- HiCDOCExample()

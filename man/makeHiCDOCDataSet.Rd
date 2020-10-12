@@ -32,5 +32,5 @@ Constructor function for the \code{HiCDOCDataSet} class.
 \examples{
 basedir <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
 matrix  <- file.path(basedir, "sampleMatrix.tsv")
-data    <- makeHiDOCDataSet(inputPath = matrix)
+data    <- makeHiCDOCDataSet(inputPath = matrix)
 }

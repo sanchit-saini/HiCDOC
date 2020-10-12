@@ -9,7 +9,7 @@ filterSmallChromosomes(object, minLength = 100)
 \arguments{
 \item{object}{A HiCDOC object}
 
-\item{minLength}{Numeric value, default to 100. The minimum chromosome 
+\item{minLength}{Numeric value, default to 100. The minimum chromosome
 size (in number of bins), to be kept.}
 }
 \value{
@@ -23,7 +23,7 @@ to the remaining chromosomes.
 }
 \examples{
 object <- HiCDOCExample()
-object@chromosomes
+chromosomes(object)
 object <- filterSmallChromosomes(object)
-object@chromosomes
+chromosomes(object)
 }

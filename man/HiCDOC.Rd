@@ -11,6 +11,9 @@ HiCDOC(object)
 \arguments{
 \item{object}{A \code{HiCDOCExp} object.}
 }
+\value{
+Returns an \code{HiCDOCExp} object.
+}
 \description{
 \code{HiCODC} is a package...
 TODO
@@ -19,6 +22,7 @@ TODO
 
 }
 \author{
-Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac and Élise Maigné
+Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac and
+Élise Maigné
 }
 \keyword{package}

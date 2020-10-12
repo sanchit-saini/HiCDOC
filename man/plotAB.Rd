@@ -8,6 +8,10 @@ plotAB(object, chromosomeId, conditionId)
 }
 \arguments{
 \item{object}{an \code{HiCDOCExp} object}
+
+\item{chromosomeId}{character or numeric value, name or number of chromosome}
+
+\item{conditionId}{character or numeric value, name or number of condition}
 }
 \value{
 A list of \code{ggplot}, one for each chromosome.
