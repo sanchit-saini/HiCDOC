@@ -8,16 +8,13 @@
 #' matrix for the chromosome, 1 condition and 1 replicate.
 #'
 #' @param object Interaction matrix for the chromosome
-#' @param chromosomeId Number of total bins for this chromosome
+#' @param chromosomeId A character or numeric value.
+#' Name or number of the chromosome
 #' @param threshold Numeric default to 0.
 #'
 #' @return list of length 2 : \code{"pos"} = the weak positions,
 #' \code{"interactions"} the interactions matrix for the chromosome,
 #' whithout the weak bins.
-#'
-#' @examples
-#' object <- HiCDOCExample()
-#' filterWeakChr(object, 1)
 filterWeakChr <- function(object, chromosomeId, threshold = 0) {
     testSlotsHiCDOCExp(
         object,

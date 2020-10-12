@@ -182,10 +182,12 @@ plotAB <- function(object, chromosomeId, conditionId) {
 }
 
 
-#' Plot the centroid distributions along the genomic positions for a given chromosome.
+#' Plot the centroid distributions along the genomic positions
+#' for a given chromosome.
 #'
 #' @param object an \code{HiCDOCExp} object
-#' @param chromosomeId Name or number of the chromosome, like in object@chromosome
+#' @param chromosomeId Character or numeric value. Name or number of
+#' the chromosome, like in chromosomes(object)
 #'
 #' @return A \code{ggplot} object
 #' @examples

@@ -362,7 +362,7 @@ setMethod(
         cat("Object of class HiCDOCExp.\n", "HiCDOC Experiment with:\n")
         cat(length(object@chromosomes), "chromosomes:", object@chromosomes, "\n")
         cat(object@totalReplicates, "replications in",
-            lenght(unique(object@conditions)), "conditions\n")
+            length(unique(object@conditions)), "conditions\n")
     }
 )
 
@@ -379,7 +379,7 @@ setMethod(
 #' @param ... The other elements of the parameters
 #' @examples
 #' exp <- HiCDOCExample()
-#' exp <- HiCDOC(srnaExp)
+#' exp <- HiCDOC(exp)
 #' print(parameters(exp))
 #'
 #' @export

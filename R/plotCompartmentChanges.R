@@ -96,8 +96,8 @@ plotConcordance <- function(object,
     textdifference <- textsignif(differences, padjThreshold)
 
     ylim <-
-        c(min(concordance$value, na.rm = T),
-            max(concordance$value, na.rm = T))
+        c(min(concordance$value, na.rm = TRUE),
+            max(concordance$value, na.rm = TRUE))
 
     gp <- ggplot()
     if (nrow(differences) > 0) {
@@ -211,7 +211,7 @@ plotCompartments <- function(object,
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
 #' object <- detectCompartments(object)
-#' plotCompartmentsChanges(object, 1)
+#' plotCompartmentChanges(object, 1)
 #' @export
 plotCompartmentChanges <-
     function(object,

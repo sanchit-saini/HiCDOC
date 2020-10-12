@@ -32,15 +32,14 @@ HiCDOCDefaultParameters <- list(
 #' @docType class
 #' @aliases HiCDOCDatSet HiCDOCDataSet-class
 #'
-#' @slot inputPath    The input matrix/matrices.  Can be the path(s) to
-#'                    to one, or several files, depending on the format
-#'                    considered.
-#' @slot interaction  A data frame storing the matrices.  Is built using
-#'                    the values in the \code{inputPath} files.
-#' @slot replicates   A vector storing the names of the replicates.
-#' @slot conditions   A vector storing the names of the conditions.
-#'                    There should be exactly two different conditions.
-#' @slot binSize      The resolution.
+#' @slot inputPath The input matrix/matrices.  Can be the path(s) to
+#' to one, or several files, depending on the format considered.
+#' @slot interactions A data frame storing the matrices.  Is built using
+#' the values in the \code{inputPath} files.
+#' @slot replicates A vector storing the names of the replicates.
+#' @slot conditions A vector storing the names of the conditions.
+#' There should be exactly two different conditions.
+#' @slot binSize The resolution.
 #'
 #' @export
 setClass(
@@ -67,20 +66,21 @@ setClass(
 #' @examples
 #' basedir <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
 #' matrix  <- file.path(basedir, "sampleMatrix.tsv")
-#' data    <- makeHiDOCDataSet(inputPath = matrix)
+#' data    <- makeHiCDOCDataSet(inputPath = matrix)
 #' @export
-makeHiCDOCDataSet <- function(inputPath    = NULL,
-                              interactions = NULL,
-                              replicates   = NULL,
-                              conditions   = NULL,
-                              binSize      = NULL) {
+makeHiCDOCDataSet <- function(
+    inputPath    = NULL,
+    interactions = NULL,
+    replicates   = NULL,
+    conditions   = NULL,
+    binSize      = NULL) {
     ##- checking general input arguments -------------------------------------#
     ##------------------------------------------------------------------------#
 
     ##- matrix
     if (is.null(inputPath)) {
         stop("'inputPath' must be the path(es) to a matrix(ces)",
-             call. = FALSE)
+                 call. = FALSE)
     }
 
     if (!is.character(inputPath)) {
@@ -90,7 +90,7 @@ makeHiCDOCDataSet <- function(inputPath    = NULL,
     for (fileName in inputPath) {
         if (!file.exists(fileName)) {
             stop(paste("File name", fileName, "is not a valid file."),
-                 call. = FALSE)
+                    call. = FALSE)
         }
     }
 
@@ -127,8 +127,8 @@ makeHiCDOCDataSet <- function(inputPath    = NULL,
 #'         object of class S4.
 #'
 #' @examples
-#' matrixpath <- system.file("extdata", "sampleMatrix.tsv",  package="HiCDOC")
-#' srnaExp <- HiCDOCDataSetFromSparseMatrix(matrixpath)
+#' linkToMatrix <- system.file("extdata", "sampleMatrix.tsv",  package="HiCDOC")
+#' srnaExp <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
 #' srnaExp
 #'
 #' @export
@@ -357,6 +357,7 @@ HiCDOCExample <- function() {
 #' @slot binSize The resolution.
 #' @slot sampleSize The number of bins used when sampling all the bins.
 #' @slot distances The distribution of distances to the centroids.
+#' @slot diagonalRatios TODO
 #' @slot compartments The A/B compartments distribution, along the chromosomes.
 #' @slot concordances The concordance distribution, along the chromosomes.
 #' @slot differences The distribution of the difference of the concordance.
@@ -403,7 +404,7 @@ setClass(
 #' @rdname HiCDOCExp
 #' @docType class
 #'
-#' @param dataSet    A \code{HiCDOCDataSet} object.
+#' @param dataSet A \code{HiCDOCDataSet} object.
 #' @param parameters A named \code{list}. The parameters for the
 #'                    segmentation methods. See \code{\link{parameters}}.
 #' @param binSize    The resolution.
@@ -412,9 +413,9 @@ setClass(
 #'         object of class S4.
 #'
 #' @examples
-#' basedir <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
-#' matrix  <- read.csv(file.path(basedir, "sampleMatrix.tsv"))
-#' srnaExp <- HiCDOCExp(matrix)
+#' linkToMatrix <- system.file("extdata", "sampleMatrix.tsv", package="HiCDOC")
+#' srnaDataSet <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
+#' srnaExp <- HiCDOCExp(srnaDataSet)
 #' @export
 HiCDOCExp <- function(dataSet = NULL,
                       parameters = NULL,
@@ -489,23 +490,12 @@ HiCDOCExp <- function(dataSet = NULL,
 #' Main method.  Start the pipeline with default parameters.
 #'
 #' @param object A \code{HiCDOCExp} object.
-#'
+#' @return Returns an \code{HiCDOCExp} object.
 #' @export
 HiCDOC <- function(object) {
-    plotInteractionMatrix(object, chromosomeId = 1)
     object <- normalizeTechnicalBiases(object)
-    plotInteractionMatrix(object, chromosomeId = 1)
     object <- normalizeBiologicalBiases(object)
-    plotInteractionMatrix(object, chromosomeId = 1)
-    plotDistanceEffect(object)
     object <- normalizeDistanceEffect(object)
-    plotDistanceEffect(object)
-    plotInteractionMatrix(object, chromosomeId = 1)
     object <- detectCompartments(object)
-
-    plotCompartmentChanges(object, chromosomeId = 1)
-    differences(object, pvalue = 0.1)
-    concordances(object)
-    compartments(object)
     return(invisible(object))
 }
