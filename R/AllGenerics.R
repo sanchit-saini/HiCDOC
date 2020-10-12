@@ -1,3 +1,11 @@
+##- chromosomes
+setGeneric(
+    name = "chromosomes",
+    def = function(object) {
+        standardGeneric("chromosomes")
+    }
+)
+
 ##- interactions
 setGeneric(
     name = "interactions",
