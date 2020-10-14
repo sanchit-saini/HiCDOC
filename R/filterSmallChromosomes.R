@@ -28,8 +28,8 @@ filterSmallChromosomes <- function(object, minLength = 100) {
     bigChromosomes <- mixedsort(bigChromosomes)
 
     object@interactions %<>%
-        filter(chromosome %in% bigChromosomes) %>%
-        mutate(chromosome = factor(chromosome))
+        dplyr::filter(chromosome %in% bigChromosomes) %>%
+        dplyr::mutate(chromosome = factor(chromosome))
 
     object@chromosomes <- bigChromosomes
     object@totalBins <- object@totalBins[object@chromosomes]

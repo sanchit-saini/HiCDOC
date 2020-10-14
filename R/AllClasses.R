@@ -470,7 +470,7 @@ HiCDOCExp <- function(dataSet = NULL,
 
     for (chromosomeId in object@chromosomes) {
         chromosomeInteractions <- object@interactions %>%
-            filter(chromosome == chromosomeId)
+            dplyr::filter(chromosome == chromosomeId)
         object@totalBins[[chromosomeId]] <-
             max(chromosomeInteractions$position.1,
                 chromosomeInteractions$position.2) / object@binSize + 1

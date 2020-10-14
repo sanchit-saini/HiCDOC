@@ -24,10 +24,10 @@ normalizeTechnicalBiases <- function(object, parallel=FALSE) {
     # One matrix by condition and replicate
     matrices <- object@interactions %>%
         arrange(order(mixedsort(chromosome))) %>%
-        mutate(chromosome = factor(chromosome, levels=object@chromosomes)) %>%
-        mutate(chromosome = as.integer(chromosome)) %>%
-        group_split(condition, replicate) %>%
-        map(function(x) select(x, -c(condition, replicate)))
+        dplyr::mutate(chromosome = factor(chromosome, levels=object@chromosomes)) %>%
+        dplyr::mutate(chromosome = as.integer(chromosome)) %>%
+        dplyr::group_split(condition, replicate) %>%
+        purrr::map(function(x) dplyr::select(x, -c(condition, replicate)))
 
     # Regions to remove
     remove.regions <- data.frame(cbind(
@@ -59,7 +59,7 @@ normalizeTechnicalBiases <- function(object, parallel=FALSE) {
     )
 
     normalized <- cyclic_loess(hicexp, parallel = parallel)
-    output <- hic_table(normalized) %>% as_tibble() %>% select(-D)
+    output <- hic_table(normalized) %>% as_tibble() %>% dplyr::select(-D)
 
     colnames(output) <- c(
         "chromosome", "position.1", "position.2", seq_along(object@replicates)
@@ -71,11 +71,11 @@ normalizeTechnicalBiases <- function(object, parallel=FALSE) {
             key = "i",
             value = "value"
         ) %>%
-        mutate(i = factor(as.integer(i))) %>%
-        mutate(condition = factor(object@conditions[i])) %>%
-        mutate(replicate = factor(object@replicates[i])) %>%
-        mutate(chromosome = factor(object@chromosomes[chromosome])) %>%
-        select(chromosome, position.1, position.2, condition, replicate, value)
+        dplyr::mutate(i = factor(as.integer(i))) %>%
+        dplyr::mutate(condition = factor(object@conditions[i])) %>%
+        dplyr::mutate(replicate = factor(object@replicates[i])) %>%
+        dplyr::mutate(chromosome = factor(object@chromosomes[chromosome])) %>%
+        dplyr::select(chromosome, position.1, position.2, condition, replicate, value)
 
     return(object)
 }

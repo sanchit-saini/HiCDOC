@@ -79,19 +79,19 @@ plotConcordance <- function(object,
                      seq_len(object@totalBins[[chr]] - 1) * object@binSize)
 
     concordance <- object@concordances %>%
-        filter(chromosome == chr) %>%
-        filter(position >= xlim[1] & position <= xlim[2]) %>%
-        mutate(condition = paste0("confidence, cond. ", condition)) %>%
-        mutate(position = position + 0.5 * object@binSize)
+        dplyr::filter(chromosome == chr) %>%
+        dplyr::filter(position >= xlim[1] & position <= xlim[2]) %>%
+        dplyr::mutate(condition = paste0("confidence, cond. ", condition)) %>%
+        dplyr::mutate(position = position + 0.5 * object@binSize)
 
     # Significant differences
     differences <- object@differences %>%
-        filter(chromosome == chr) %>%
-        filter(start >= xlim[1] & start <= xlim[2]) %>%
-        filter(padj < padjThreshold) %>%
-        pivot_longer(cols = starts_with("condition"),
+        dplyr::filter(chromosome == chr) %>%
+        dplyr::filter(start >= xlim[1] & start <= xlim[2]) %>%
+        dplyr::filter(padj < padjThreshold) %>%
+        tidyr::pivot_longer(cols = starts_with("condition"),
                      values_to = "condition") %>%
-        mutate(condition = paste0("confidence, cond. ", condition))
+        dplyr::mutate(condition = paste0("confidence, cond. ", condition))
 
     textdifference <- textsignif(differences, padjThreshold)
 
@@ -169,10 +169,10 @@ plotCompartments <- function(object,
                      seq_len(object@totalBins[[chr]] - 1) * object@binSize)
 
     compartments <- object@compartments %>%
-        filter(chromosome == chr) %>%
-        filter(position >= xlim[1] & position <= xlim[2]) %>%
-        mutate(compartment = factor(value)) %>%
-        mutate(position = position + 0.5 * object@binSize)
+        dplyr::filter(chromosome == chr) %>%
+        dplyr::filter(position >= xlim[1] & position <= xlim[2]) %>%
+        dplyr::mutate(compartment = factor(value)) %>%
+        dplyr::mutate(position = position + 0.5 * object@binSize)
 
     ggplot(data = compartments, aes(x = position, fill = compartment)) +
         geom_histogram(binwidth = object@binSize,

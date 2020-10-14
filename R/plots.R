@@ -31,7 +31,7 @@ plotInteractionMatrix <-
 
         # Prepare data
         interactionsChr <- object@interactions %>%
-            filter(chromosome == chr & value > 0)
+            dplyr::filter(chromosome == chr & value > 0)
         nblevels <- table(object@conditions)
         nbrows <- 1
         if (max(nblevels) == min(nblevels))
@@ -83,7 +83,7 @@ plotDistanceEffect <- function(object) {
     testSlotsHiCDOCExp(object, slots = c("interactions"))
 
     p <- object@interactions %>%
-        mutate(distance = position.2 - position.1) %>%
+        dplyr::mutate(distance = position.2 - position.1) %>%
         ggplot(aes(x = distance, y = value)) +
         geom_bin2d() +
         scale_fill_gradient(low = "white",
@@ -117,20 +117,20 @@ plotDiffConcordances <- function(object) {
                        slots = c("interactions", "differences", "concordances"))
 
     changed <- object@differences %>%
-        select(-c(`end`, `padj`)) %>%
-        rename(position = start) %>%
-        mutate(changed = "T")
+        dplyr::select(-c(`end`, `padj`)) %>%
+        dplyr::rename(position = start) %>%
+        dplyr::mutate(changed = "T")
 
     differences <- object@concordances %>%
-        group_by(.dots = c("chromosome", "position", "condition")) %>%
-        summarise(value = median(value)) %>%
-        ungroup() %>%
-        spread(condition, value) %>%
-        mutate(value = `2` - `1`) %>%
-        select(-c(`1`, `2`)) %>%
-        left_join(changed, by = c("chromosome", "position")) %>%
-        mutate(changed = replace_na(changed, "F")) %>%
-        select(-c(chromosome, position))
+        dplyr::group_by(.dots = c("chromosome", "position", "condition")) %>%
+        dplyr::summarise(value = median(value)) %>%
+        dplyr::ungroup() %>%
+        tidyr::spread(condition, value) %>%
+        dplyr::mutate(value = `2` - `1`) %>%
+        dplyr::select(-c(`1`, `2`)) %>%
+        dplyr::left_join(changed, by = c("chromosome", "position")) %>%
+        dplyr::mutate(changed = replace_na(changed, "F")) %>%
+        dplyr::select(-c(chromosome, position))
 
     p <- ggplot(differences, aes(x = value, fill = changed)) +
         geom_histogram() +
@@ -161,12 +161,12 @@ plotAB <- function(object, chromosomeId, conditionId) {
     cond <- testCondition(object, conditionId)
 
     data <- object@diagonalRatios %>%
-        left_join(
-            object@compartments %>% rename(compartment = value),
+        dplyr::left_join(
+            object@compartments %>% dplyr::rename(compartment = value),
             by = c("chromosome", "condition", "position")
         ) %>%
-        filter(chromosome == chr) %>%
-        filter(condition == cond)
+        dplyr::filter(chromosome == chr) %>%
+        dplyr::filter(condition == cond)
 
     ggplot(data, aes(x = compartment, y = value)) +
         geom_jitter(aes(color = compartment)) +
@@ -205,13 +205,13 @@ plotCentroids <- function(object, chromosomeId) {
     chr <- testChromosome(object, chromosomeId)
 
     df <- object@centroids %>%
-        filter(chromosome == chr) %>%
-        select(-chromosome) %>%
-        unite(name, c(condition, compartment))
+        dplyr::filter(chromosome == chr) %>%
+        dplyr::select(-chromosome) %>%
+        tidyr::unite(name, c(condition, compartment))
     names <- df$name
     df <- df %>%
-        spread(name, centroid) %>%
-        unnest(cols = names) %>% t()
+        tidyr::spread(name, centroid) %>%
+        tidyr::unnest(cols = names) %>% t()
 
     pca <- prcomp(df)
     varpca <- pca$sdev ^ 2

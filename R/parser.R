@@ -53,16 +53,16 @@ parseInteractionMatrix3Columns <- function(object) {
     object@replicates <-
         gsub("^replicate .+?\\.(.+)$", '\\1', conditions.replicates)
     object@interactions %<>%
-        gather(conditions.replicates,
+        tidyr::gather(conditions.replicates,
                      key = condition.replicate,
                      value = value) %>%
-        separate(condition.replicate,
+        tidyr::separate(condition.replicate,
                          c(NA, "condition", "replicate"),
                          remove = FALSE) %>%
-        select(-condition.replicate) %>%
-        rename(position.1 = `position 1`) %>%
-        rename(position.2 = `position 2`) %>%
-        mutate(
+        dplyr::select(-condition.replicate) %>%
+        dplyr::rename(position.1 = `position 1`) %>%
+        dplyr::rename(position.2 = `position 2`) %>%
+        dplyr::mutate(
             chromosome = factor(chromosome),
             condition = factor(condition),
             replicate = factor(replicate)
@@ -123,10 +123,10 @@ parseCoolMatrix <- function(fileName) {
   step <- max(step)
 
   bins %<>%
-      select(-(end)) %>%
-      rename(position = start) %>%
-      rowid_to_column("id") %>%
-      mutate(id = id - 1)
+      dplyr::select(-(end)) %>%
+      dplyr::rename(position = start) %>%
+      tibble::rowid_to_column("id") %>%
+      dplyr::mutate(id = id - 1)
 
   data <- tibble(
     id1 = h5readCatch(
@@ -142,22 +142,22 @@ parseCoolMatrix <- function(fileName) {
       name = uri("pixels/count")
     )
   ) %>%
-    left_join(bins, by = c("id1" = "id")) %>%
-    rename(
+    dplyr::left_join(bins, by = c("id1" = "id")) %>%
+    dplyr::rename(
       chromosome.1 = chromosome,
       position.1 = position
     ) %>%
-    select(-id1) %>%
-    left_join(bins, by = c("id2" = "id")) %>%
-    rename(
+    dplyr::select(-id1) %>%
+    dplyr::left_join(bins, by = c("id2" = "id")) %>%
+    dplyr::rename(
       chromosome.2 = chromosome,
       position.2 = position
     ) %>%
-    select(-id2) %>%
-    filter(chromosome.1 == chromosome.2) %>%
-    select(-chromosome.2) %>%
-    rename(chromosome = chromosome.1) %>%
-    select(chromosome, position.1, position.2, value)
+    dplyr::select(-id2) %>%
+    dplyr::filter(chromosome.1 == chromosome.2) %>%
+    dplyr::select(-chromosome.2) %>%
+    dplyr::rename(chromosome = chromosome.1) %>%
+    dplyr::select(chromosome, position.1, position.2, value)
 
     return(data)
 }
@@ -168,9 +168,9 @@ mergeMatrices <- function(object, matrices) {
         matrices[[i]]$condition <- object@conditions[[i]]
     }
     object@interactions <- bind_rows(matrices) %>%
-        mutate(chromosome = factor(chromosome)) %>%
-        mutate(replicate = factor(replicate)) %>%
-        mutate(condition = factor(condition))
+        dplyr::mutate(chromosome = factor(chromosome)) %>%
+        dplyr::mutate(replicate = factor(replicate)) %>%
+        dplyr::mutate(condition = factor(condition))
 
     return(object)
 }
@@ -224,9 +224,9 @@ parseInteractionMatrixHic <- function(object) {
     matrices <-
         bplapply(object@inputPath, parseHicMatrix, resolution = object@binSize)
     matrices <-
-        map2(matrices, object@replicates, ~ mutate(.x, replicate = .y))
+        purrr::map2(matrices, object@replicates, ~ dplyr::mutate(.x, replicate = .y))
     matrices <-
-        map2(matrices, object@conditions, ~ mutate(.x, condition = .y))
+        purrr::map2(matrices, object@conditions, ~ dplyr::mutate(.x, condition = .y))
     object@interactions <- bind_rows(matrices) %>% as_tibble()
     #object@interactions <- tibble()
     # for (i in seq_along(object@inputPath)) {
@@ -236,8 +236,8 @@ parseInteractionMatrixHic <- function(object) {
     #                 mutate(condition = object@conditions[[i]]))
     # }
     object@interactions %<>%
-        mutate(chromosome = factor(chromosome)) %>%
-        mutate(replicate = factor(replicate)) %>%
-        mutate(condition = factor(condition))
+        dplyr::mutate(chromosome = factor(chromosome)) %>%
+        dplyr::mutate(replicate = factor(replicate)) %>%
+        dplyr::mutate(condition = factor(condition))
     return(object)
 }

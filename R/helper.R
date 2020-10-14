@@ -23,13 +23,13 @@ sparseInteractionsToFullInteractions <- function(object,
     positions <- (seq_len(totalBins) - 1) * object@binSize
 
     interactions = object@interactions %>%
-        filter(chromosome == chromosomeId) %>%
-        filter(condition == conditionId) %>%
-        filter(replicate == replicateId)
+        dplyr::filter(chromosome == chromosomeId) %>%
+        dplyr::filter(condition == conditionId) %>%
+        dplyr::filter(replicate == replicateId)
 
     mirrorInteractions = interactions %>%
-        filter(position.1 != position.2) %>%
-        rename(position.1 = position.2, position.2 = position.1)
+        dplyr::filter(position.1 != position.2) %>%
+        dplyr::rename(position.1 = position.2, position.2 = position.1)
 
     fullInteractions <- tibble(
         chromosome = chromosomeId,
@@ -39,7 +39,7 @@ sparseInteractionsToFullInteractions <- function(object,
         position.2 = rep(positions, each = totalBins),
         value = 0
     ) %>%
-        left_join(
+        dplyr::left_join(
             bind_rows(interactions, mirrorInteractions),
             by = c(
                 "chromosome",
@@ -49,16 +49,16 @@ sparseInteractionsToFullInteractions <- function(object,
                 "position.2"
             )
         ) %>%
-        mutate(value = coalesce(value.y, value.x)) %>%
-        select(-c(value.x, value.y))
+        dplyr::mutate(value = coalesce(value.y, value.x)) %>%
+        dplyr::select(-c(value.x, value.y))
 
     if (filter) {
         weakBins <- object@weakBins[[chromosomeId]]
         weakPositions <- (weakBins - 1) * object@binSize
 
         fullInteractions %<>%
-            filter(!(position.1 %in% weakPositions)) %>%
-            filter(!(position.2 %in% weakPositions))
+            dplyr::filter(!(position.1 %in% weakPositions)) %>%
+            dplyr::filter(!(position.2 %in% weakPositions))
     }
 
     return (fullInteractions)
@@ -83,13 +83,13 @@ sparseInteractionsToMatrix <- function(object,
     totalBins <- object@totalBins[[chromosomeId]]
 
     interactions <- object@interactions %>%
-        filter(chromosome == chromosomeId) %>%
-        filter(condition == conditionId) %>%
-        filter(replicate == replicateId) %>%
-        mutate(bin.1 = position.1 / object@binSize + 1,
+        dplyr::filter(chromosome == chromosomeId) %>%
+        dplyr::filter(condition == conditionId) %>%
+        dplyr::filter(replicate == replicateId) %>%
+        dplyr::mutate(bin.1 = position.1 / object@binSize + 1,
                    bin.2 = position.2 / object@binSize + 1) %>%
-        select(bin.1, bin.2, value) %>%
-        filter(value != 0) %>%
+        dplyr::select(bin.1, bin.2, value) %>%
+        dplyr::filter(value != 0) %>%
         as.matrix()
 
     if (nrow(interactions) == 0) {
@@ -148,6 +148,6 @@ matrixToSparseInteractions <- function(m,
             condition = conditionId,
             replicate = replicateId,
             value = as.vector(t(m))
-        ) %>% filter(position.1 <= position.2 & value != 0)
+        ) %>% dplyr::filter(position.1 <= position.2 & value != 0)
     )
 }

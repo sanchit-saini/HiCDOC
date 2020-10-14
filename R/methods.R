@@ -113,8 +113,8 @@ setMethod(
             ##- end check -------------------------------------------#
 
             gr <- object@differences %>%
-                filter(abs(padj) <= pvalue) %>%
-                mutate(start = start + 1)
+                dplyr::filter(abs(padj) <= pvalue) %>%
+                dplyr::mutate(start = start + 1)
             if (nrow(gr) == 0) {
                 message(paste0(
                     "No 'differences' found at p-value ",
@@ -206,9 +206,9 @@ setMethod(
             )
         } else {
             grl <- object@compartments %>%
-                    mutate(start = position + 1) %>%
-                    mutate(end = start + object@binSize - 1) %>%
-                    select(-position)
+                    dplyr::mutate(start = position + 1) %>%
+                    dplyr::mutate(end = start + object@binSize - 1) %>%
+                    dplyr::select(-position)
             return(grl)
             # grl <- object@compartments %>%
             #     mutate(start = position + 1) %>%

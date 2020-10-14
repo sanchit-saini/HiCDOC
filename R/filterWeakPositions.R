@@ -30,8 +30,8 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 
     # Initialization
     interChr <- object@interactions %>%
-        filter(chromosome == chr) %>%
-        filter(value > 0)
+        dplyr::filter(chromosome == chr) %>%
+        dplyr::filter(value > 0)
 
     totalBinsChr <- object@totalBins[[chr]]
     fullPos <- (seq_len(totalBinsChr) - 1) * object@binSize
@@ -52,18 +52,18 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
                 names_prefix = "position.",
                 values_to = "position"
             ) %>%
-            select(-pos_1or2, -chromosome) %>%
-            complete(position,
+            dplyr::select(-pos_1or2, -chromosome) %>%
+            tidyr::complete(position,
                      nesting(condition, replicate),
                      fill = list(value = 0)
             )
         weakdataset <- existing %>%
-            group_by(replicate, condition, position) %>%
-            mutate(mean = sum(value) / totalBinsChr) %>%
-            filter(mean <= threshold)
+            dplyr::group_by(replicate, condition, position) %>%
+            dplyr::mutate(mean = sum(value) / totalBinsChr) %>%
+            dplyr::filter(mean <= threshold)
 
         weakposChr <- weakdataset %>%
-            pull(position) %>%
+            dplyr::pull(position) %>%
             unique() %>%
             sort()
 
