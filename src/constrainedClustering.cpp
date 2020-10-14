@@ -1,5 +1,4 @@
 #include <Rcpp.h>
-#include <random>
 
 using namespace Rcpp;
 
@@ -98,7 +97,7 @@ void initializeCentroids(
   NumericVector row;
   double sum;
 
-  row = matrix.row(rand() % matrix.nrow());
+  row = matrix.row(unif_rand() * matrix.nrow());
   centroids[0] = clone(row);
 
   for (unsigned int centroidId = 1; centroidId < centroids.size(); centroidId++) {
@@ -107,7 +106,7 @@ void initializeCentroids(
       distances[vectorId] = getNearestCentroid(matrix.row(vectorId), centroids).distance;
       sum += distances[vectorId];
     }
-    sum = sum * rand() / (RAND_MAX - 1);
+    sum *= unif_rand();
     for (int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
       if ((sum -= distances[vectorId]) > 0) continue;
       row = matrix.row(vectorId);
@@ -210,6 +209,7 @@ List constrainedClustering (
   if (any(is_nan(links))) {
     throw std::invalid_argument("Links should not contain NANs.");
   }
+  GetRNGstate();
 
   IntegerVector clusters(matrix.nrow()), bestClusters(matrix.nrow());
   std::vector<NumericVector> centroids(totalClusters), bestCentroids(totalClusters);
@@ -236,6 +236,7 @@ List constrainedClustering (
       is_false(any(bestClusters == 0))
       || is_false(any(bestClusters == 1))
     ) {
+      PutRNGstate();
       throw std::invalid_argument(
         "Failed clustering: one of the clusters is empty.\n"
       );
@@ -245,5 +246,6 @@ List constrainedClustering (
   List output;
   output["clusters"] = bestClusters;
   output["centroids"] = bestCentroids;
+  PutRNGstate();
   return output;
 }
