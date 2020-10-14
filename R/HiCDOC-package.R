@@ -31,9 +31,9 @@
 #'
 #' \code{HiCODC} is a package...
 #' TODO
-
 #'
 #' @examples
+#' TODO
 #'
 #' @docType package
 #' @name HiCDOC
