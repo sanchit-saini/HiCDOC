@@ -159,7 +159,8 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
 #'         object of class S4.
 #'
 #' @examples
-#' data    <- read.csv(system.file("extdata","coolData.csv", package="HiCDOC"))
+#' basedir <- system.file("extdata", package="HiCDOC")
+#' data    <- file.path(basedir,"coolData.csv")
 #' data
 #' \dontrun{
 #' dataSet <- HiCDOCDataSetFromCool(file.path(basedir, data$FileName),
@@ -200,22 +201,23 @@ HiCDOCDataSetFromCool <- function(
         call. = FALSE
       )
     }
+  }
 
-    ##- conditions
-    if (is.null(conditions)) {
-        stop("'conditions' should not be null.", call. = FALSE)
-    }
-    if (is.factor(conditions)) {
-        conditions <- as.vector(conditions)
-    }
-    ##- end checking ---------------------------------------------------------#
+  ##- conditions
+  if (is.null(conditions)) {
+      stop("'conditions' should not be null.", call. = FALSE)
+  }
+  if (is.factor(conditions)) {
+      conditions <- as.vector(conditions)
+  }
+  ##- end checking ---------------------------------------------------------#
 
-    data   <- makeHiCDOCDataSet(inputPath  = coolFileNames,
-                                replicates = replicates,
-                                conditions = conditions)
-    object <- parseInteractionMatrixCool(data)
+  data   <- makeHiCDOCDataSet(inputPath  = coolFileNames,
+                              replicates = replicates,
+                              conditions = conditions)
+  object <- parseInteractionMatrixCool(data)
 
-    return(invisible(object))
+  return(invisible(object))
 }
 
 

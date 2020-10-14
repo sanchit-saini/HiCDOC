@@ -112,20 +112,21 @@ parseCoolMatrix <- function(fileName) {
       file = filePath,
       name = uri("bins/end")
     )
-    step <- bins$end - bins$start
-    pc <- sum(step == max(step)) / length(step)
-    if (length(step) < 0.9) {
-        stop(paste0("Cannot parse cool file ",
-                    fileName,
-                    ": fixed width only."))
-    }
-    step <- max(step)
+  )
+  step <- bins$end - bins$start
+  pc <- sum(step == max(step)) / length(step)
+  if (length(step) < 0.9) {
+      stop(paste0("Cannot parse cool file ",
+                  fileName,
+                  ": fixed width only."))
+  }
+  step <- max(step)
 
-    bins %<>%
-        select(-(end)) %>%
-        rename(position = start) %>%
-        rowid_to_column("id") %>%
-        mutate(id = id - 1)
+  bins %<>%
+      select(-(end)) %>%
+      rename(position = start) %>%
+      rowid_to_column("id") %>%
+      mutate(id = id - 1)
 
   data <- tibble(
     id1 = h5readCatch(
