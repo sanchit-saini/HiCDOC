@@ -11,16 +11,10 @@ An \code{HiCDOCExp} object called '\code{exp}'.
 }
 \description{
 This function provides an example of a \code{HiCDOCExp} object from
-TODO
+Marti-Marimon et al.
 }
 \examples{
 ## The 'HiCDOCExp' object in this example was constructed by:
-
-\dontrun{
-
-TODO
-}
-
 exp <- HiCDOCExample()
 exp
 

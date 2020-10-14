@@ -1,134 +1,265 @@
-plotConcordance <- function(concordance,
-                            minX    = minX,
-                            maxX    = maxX) {
-    concordance %>%
-      ggplot(aes(x = position, y = value, color = replicate)) +
-      geom_line() +
-      xlim(minX, maxX) +
-      geom_hline(yintercept = 0.0, size = 0.1) +
-      facet_grid(rows = vars(condition), margins = FALSE) +
-      theme(axis.title.y = element_blank(),
-            axis.text.y = element_blank(),
+#' Return the text indicating what represent the gray areas on
+#' plotConcordance()
+#'
+#' @param differences difference, from object@differences after
+#' detectCompartments() function
+#' @param padjThreshold threshold for the significance
+#'
+#' @return A character vector of length 1
+textsignif <- function(differences, padjThreshold) {
+    text <- "The grey areas are significant changes"
+    if (nrow(differences) == 0)
+        text <- "No change is significant"
+    text <- paste(text, "(pAdj <", round(100 * padjThreshold, 2), "%)")
+    return(text)
+}
+
+#' Return valid xlim
+#'
+#' test if the xlim is valid (length(2)) or \code{NULL} and return
+#' the xlim for the plot.
+#' If \code{NULL} or invalid return the min and max of \code{positions}.
+#'
+#' @param xlim The entred xlim
+#' @param positions The positions from the data
+#'
+#' @return A length 2 numerical vector
+testxlim <- function(xlim, positions) {
+    if (is.null(xlim) == FALSE) {
+        if (length(xlim) != 2) {
+            message("Incorrect values for xlim (numerical of length 2 expected),
+                         Set to NULL")
+            xlim <- NULL
+        } else {
+            xlim <- sort(xlim)
+        }
+    }
+    if (is.null(xlim) == TRUE) {
+        xlim <-
+            c(min(positions, na.rm = TRUE),
+                max(positions, na.rm = TRUE))
+    }
+    return(xlim)
+}
+
+
+#' Plot the concordance
+#'
+#' Plot the concordance of all the replicates for one chromosome.
+#'
+#' @param object A \code{HiCDOCExp} object on which \code{detectCompartments()} has run.
+#' @param chromosomeId The name or number of the chromosome to plot.
+#' If number, will be taken in \code{object@chromosomes[chromosomeId]}
+#' @param xlim A numeric-value pair, indicating the interval of positions to represent.
+#' Default to NULL = all positions.
+#' @param padjThreshold Significance threshold for the changes. Default to 0.05.
+#' @param points Logical (default to FALSE). If TRUE, points will be added on the concordance lines.
+#'
+#' @return A ggplot.
+#' @export
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
+#' plotConcordance(object, 1)
+#' @export
+plotConcordance <- function(object,
+                            chromosomeId,
+                            xlim = NULL,
+                            padjThreshold = 0.05,
+                            points = FALSE) {
+    testSlotsHiCDOCExp(object, slots = c("concordances", "differences"))
+    chr <- testChromosome(object, chromosomeId)
+    xlim <- testxlim(xlim,
+                     seq_len(object@totalBins[[chr]] - 1) * object@binSize)
+
+    concordance <- object@concordances %>%
+        filter(chromosome == chr) %>%
+        filter(position >= xlim[1] & position <= xlim[2]) %>%
+        mutate(condition = paste0("confidence, cond. ", condition)) %>%
+        mutate(position = position + 0.5 * object@binSize)
+
+    # Significant differences
+    differences <- object@differences %>%
+        filter(chromosome == chr) %>%
+        filter(start >= xlim[1] & start <= xlim[2]) %>%
+        filter(padj < padjThreshold) %>%
+        pivot_longer(cols = starts_with("condition"),
+                     values_to = "condition") %>%
+        mutate(condition = paste0("confidence, cond. ", condition))
+
+    textdifference <- textsignif(differences, padjThreshold)
+
+    ylim <-
+        c(min(concordance$value, na.rm = TRUE),
+            max(concordance$value, na.rm = TRUE))
+
+    gp <- ggplot()
+    if (nrow(differences) > 0) {
+        gp <- gp + geom_rect(
+            data = differences,
+            aes(
+                xmin = start,
+                xmax = end,
+                ymin = ylim[1],
+                ymax = ylim[2]
+            ),
+            color = NA,
+            fill = "gray80"
+        )
+    }
+    gp <- gp +
+        geom_line(data = concordance,
+                  aes(x = position, y = value, color = replicate))
+    if (points == TRUE) {
+        gp <- gp + geom_point(data = concordance,
+                              aes(x = position, y = value, color = replicate))
+    }
+    gp <- gp + labs(caption = textdifference) +
+        xlim(xlim[1] , xlim[2] + object@binSize) +
+        ylim(ylim) +
+        geom_hline(yintercept = 0.0, size = 0.1) +
+        facet_grid(rows = vars(condition),  margins = FALSE, switch = "y")    +
+        theme_minimal() +
+        theme(
+            axis.title.y = element_blank(),
             axis.line.y = element_blank(),
             axis.ticks = element_blank(),
-            panel.grid.major.y = element_blank(),
-            panel.grid.minor.y = element_blank(),
             legend.position = "bottom",
-            strip.text.y = element_blank(),
-            plot.margin = unit(c(0, 0, 0, 0), "cm"),
-            panel.spacing = unit(0, "cm"))
+            strip.placement = "outside"
+        )
+    return(gp)
 }
 
-plotCompartments <- function(compartments,
-                             binSize = binSize,
-                             minX    = minX,
-                             maxX    = maxX) {
-    compartments %>%
-      mutate(compartment = factor(value)) %>%
-      ggplot(aes(x = position, fill = compartment)) +
-      geom_histogram(binwidth = binSize) +
-      xlim(minX, maxX) +
-      facet_grid(rows = vars(condition),
-                 margins = FALSE) +
-      theme(axis.title = element_blank(),
-            axis.text = element_blank(),
-            axis.line = element_blank(),
-            axis.ticks = element_blank(),
-            panel.grid.major.y = element_blank(),
-            panel.grid.minor.y = element_blank(),
-            legend.position = "none",
-            strip.text.y = element_blank(),
-            plot.margin = unit(c(0, 0, 0, 0), "cm"),
-            panel.spacing = unit(0, "cm"))
-}
-
-plotPValue <- function(differences,
-                       binSize = binSize,
-                       minX    = minX,
-                       maxX    = maxX) {
-    if (nrow(differences) == 0) {
-      return(NULL)
-    }
-    differences %>%
-      mutate(padj = -sign(padj) * log10(abs(padj))) %>%
-      ggplot(aes(x = start,
-                 y = 0,
-                 width = binSize / 2)) +
-      geom_tile(aes(fill = padj)) +
-      xlim(minX, maxX) +
-      scale_fill_gradient2() +
-      theme(axis.title = element_blank(),
-            axis.text = element_blank(),
-            axis.line = element_blank(),
-            axis.ticks = element_blank(),
-            panel.grid.major.y = element_blank(),
-            panel.grid.minor.y = element_blank(),
-            legend.position = "top",
-            plot.margin = unit(c(0, 0, 0, 0), "cm"),
-            panel.spacing = unit(0, "cm"))
-}
-
-plotChr <- function(chr, object = object) {
-  theme_set(theme_minimal())
-  maxX <- object@concordances %>%
-    filter(chromosome == chr) %>%
-    summarise(max = max(position)) %>%
-    pull()
-  minX <- -maxX / 100.0
-  maxX <- 101 / 100 * maxX
-
-  pConcordance <- plotConcordance(object@concordances %>%
-                                    filter(chromosome == chr),
-                                  minX = minX,
-                                  maxX = maxX)
-  pCompartment <- plotCompartments(object@compartments %>%
-                                     filter(chromosome == chr),
-                                   binSize = object@binSize,
-                                   minX    = minX,
-                                   maxX    = maxX)
-  pPValue <- plotPValue(object@differences %>%
-                          filter(chromosome == chr),
-                        binSize = object@binSize,
-                        minX    = minX,
-                        maxX    = maxX)
-  if (is.null(pPValue)) {
-    return(gridExtra::arrangeGrob(pCompartment,
-                       pConcordance,
-                       ncol    = 1,
-                       heights = c( 1, 5),
-                       top     = chr,
-                       padding = unit(0, "cm")))
-  }
-  return(gridExtra::arrangeGrob(pPValue,
-                     pCompartment,
-                     pConcordance,
-                     ncol    = 1,
-                     heights = c(1, 1, 5),
-                     top     = chr,
-                     padding = unit(0, "cm")))
-}
-
+#' Plot the A & B compartments
+#'
+#' Plot the A and B compartments after \code{detectCompartments()} on
+#' a HiCDOCExp object, for a chromosome.
+#'
+#' @param object A \code{HiCDOCExp} object on which \code{detectCompartments()} has run.
+#' @param chromosomeId The name or number of the chromosome to plot.
+#' If number, will be taken in \code{object@chromosomes[chromosomeId]}
+#' @param xlim A numeric-value pair, indicating the interval of positions to represent.
+#' Default to NULL = all positions.
+#'
+#' @return A ggplot.
 #' @export
-plotCompartmentChanges <- function(object) {
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
+#' plotCompartments(object, 1)
+#' @export
+plotCompartments <- function(object,
+                             chromosomeId,
+                             xlim = NULL) {
+    testSlotsHiCDOCExp(object, slots = c("compartments"))
+    chr <- testChromosome(object, chromosomeId)
+    xlim <- testxlim(xlim,
+                     seq_len(object@totalBins[[chr]] - 1) * object@binSize)
 
-  if (is.null(object@interactions)) {
-    stop(paste0("Interaction matrix is not loaded yet.  ",
-                "Please provide a matrix first."))
-  }
-  if (is.null(object@differences)) {
-    stop(paste0("Differentially interacting regions are not computed.  ",
-                "Please run 'detectCompartmentSwitches' first."))
-  }
-  if (is.null(object@concordances)) {
-    stop(paste0("Concordance is not computed.  ",
-                "Please run 'detectCompartments' first."))
-  }
-  if (is.null(object@compartments)) {
-    stop(paste0("Compartments are not computed.  ",
-                "Please run 'detectCompartments' first."))
-  }
+    compartments <- object@compartments %>%
+        filter(chromosome == chr) %>%
+        filter(position >= xlim[1] & position <= xlim[2]) %>%
+        mutate(compartment = factor(value)) %>%
+        mutate(position = position + 0.5 * object@binSize)
 
-  plots <- lapply(object@chromosomes, plotChr, object = object)
-  #plots <- marrangeGrob(lapply(object@chromosomes, plotChr, object = object), ncol = 1, nrow = length(object@chromosomes))
-  return(plots)
+    ggplot(data = compartments, aes(x = position, fill = compartment)) +
+        geom_histogram(binwidth = object@binSize,
+                       colour = "gray90",
+                       size = 0.05) +
+        xlim(xlim[1] - 0.5 * object@binSize, xlim[2] + 0.5 * object@binSize) +
+        facet_grid(rows = vars(condition), margins = FALSE, switch = "y")    +
+        theme_minimal() +
+        theme(
+            axis.title = element_blank(),
+            axis.text = element_blank(),
+            axis.line = element_blank(),
+            axis.ticks = element_blank(),
+            panel.grid = element_blank(),
+            legend.position = "bottom" ,
+            strip.placement = "outside"
+        )
 }
+
+#' Run plotCompartments() and plotConcordance() and assemble them on the same plot
+#'
+#' @param object An HiCDOCExp object, after a detectCompartments() run
+#' @param chromosomeId Name or number of the chromosome, like in object@chromosome
+#' @param padjThreshold Significance threshold for the changes. Default to 0.05.
+#' @param xlim A numeric-value pair, indicating the interval of positions to represent.
+#' Default to NULL = all positions.
+#' @param points Logical (default to FALSE). If TRUE, points will be added on the concordance lines.
+#'
+#' @return A ggplot object.
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
+#' plotCompartmentChanges(object, 1)
+#' @export
+plotCompartmentChanges <-
+    function(object,
+                     chromosomeId,
+                     padjThreshold = 0.05,
+                     xlim = NULL,
+                     points = FALSE) {
+        # Test parameters format
+        testSlotsHiCDOCExp(object,
+                           slots = c("concordances", "compartments", "differences"))
+        chr <- testChromosome(object, chromosomeId)
+
+        pConcordance <- plotConcordance(object, chr, xlim, padjThreshold, points)
+
+        pCompartment <- plotCompartments(object, chr, xlim)
+
+        # Horizontal alignment of the sub-graphs (change width of the plots)
+        plotsgrobs <-
+            lapply(list(
+                pCompartment + theme(legend.position = "none"),
+                pConcordance + theme(legend.position = "none")
+            ),
+            ggplot2::ggplotGrob)
+
+        commonwidths <- plotsgrobs[[length(plotsgrobs)]]$widths
+        plotsgrobs <-
+            lapply(plotsgrobs, function(x) {
+                x$widths <- commonwidths
+                return(x)
+            })
+
+        finalplot <- ggpubr::as_ggplot(
+            gridExtra::arrangeGrob(
+                gridExtra::arrangeGrob(
+                    plotsgrobs[[1]],
+                    plotsgrobs[[2]],
+                    heights = c(1, 5),
+                    padding = unit(0, "cm")
+                ),
+                # Extract legends
+                gridExtra::arrangeGrob(
+                    gtable::gtable_filter(ggplotGrob(pCompartment), "guide-box"),
+                    gtable::gtable_filter(ggplotGrob(pConcordance), "guide-box"),
+                    ncol     = 2
+                ),
+                heights = c(10, 1),
+                top = paste0("Chromosome ", chr)
+            )
+        )
+        return(finalplot)
+    }

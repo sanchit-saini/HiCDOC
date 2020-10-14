@@ -94,8 +94,8 @@ object <- detectCompartments(object)
 Detected compartments and differences between conditions can be displayed with:
 
 ```R
-object@compartments
-object@differences
+compartments(object)
+differences(differences)
 ```
 
 Or saved to a file with:
@@ -109,22 +109,18 @@ write.table(object@compartments, file='compartments.tsv', sep='\t', quote=FALSE)
 Various visualizations are also available:
 
 ```R
-p <- plotInteractionMatrix(object, log = TRUE)
-chromosome <- 1 # Chromosome index
-p[[chromosome]]
+plotInteractionMatrix(object, chromosomeId = 1, trans = "log2")
 
-plotMD(object)
+plotDistanceEffect(object)
 
-p <- plotAB(object)
-chromosome <- 1 # Chromosome index
-p[[chromosome]]
+plotAB(object, chromosomeId = 1, conditionId = 1)
 
-plotConcordances(object)
+plotDiffConcordances(object)
 
-plotCentroids(object)
+plotCentroids(object, chromosomeId = 1)
 
-p <- plotCompartmentChanges(object)
-plot(p[[1]])
+plotCompartmentChanges(object, chromosomeId = 1)
+plotCompartmentChanges(object, chromosomeId = "18")
 ```
 
 ### Load from sparse matrix

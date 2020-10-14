@@ -39,7 +39,8 @@
 #' @name HiCDOC
 #' @aliases HiCDOC-package
 #'
-#' @author Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac
+#' @author Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac and
+#' Élise Maigné
 #'
 #' @import methods
 #' @import rhdf5
@@ -52,17 +53,21 @@
 #' @import HiCcompare
 #' @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
 #' @import ggplot2
-#' @import ggExtra
 #' @import hexbin
 #' @import gtools
 #' @import BiocParallel
 #' @importFrom BiocManager version
 #' @importFrom Rcpp evalCpp sourceCpp
-#' @importFrom GenomicRanges makeGRangesFromDataFrame
-#' @importFrom GridExtra arrangeGrob
+#' @importFrom GenomicRanges makeGRangesFromDataFrame makeGRangesListFromDataFrame start end distance
+#' @importFrom gridExtra arrangeGrob
+#' @importFrom ggpubr as_ggplot text_grob
 #' @importFrom magrittr %<>%
-#' @importFrom purrr map
+#' @importFrom purrr map map2 flatten_int flatten_chr map_dfr
 #' @importFrom plyr compact
+#' @importFrom stats D ecdf loess loess.control median optimize p.adjust prcomp predict quantile setNames update
+#' @importFrom utils modifyList read.table
+#' @importFrom gtable gtable_filter
+#' @importFrom ggExtra ggMarginal
 #' @useDynLib HiCDOC
 #'
 #' @keywords package

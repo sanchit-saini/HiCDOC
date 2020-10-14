@@ -4,7 +4,9 @@
 \name{HiCDOCDefaultParameters}
 \alias{HiCDOCDefaultParameters}
 \title{List of HiCDOC default parameters.}
-\format{An object of class \code{list} of length 6.}
+\format{
+An object of class \code{list} of length 5.
+}
 \usage{
 HiCDOCDefaultParameters
 }
@@ -13,7 +15,7 @@ List of HiCDOC default parameters.
 }
 \examples{
 exp <- HiCDOCExample()
-exp <- HiCDOC(exp, useParameters = HiCDOCDefaultParameters)
+exp <- HiCDOC(exp)
 
 }
 \keyword{data}

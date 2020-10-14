@@ -17,9 +17,17 @@ TODO
 \section{Slots}{
 
 \describe{
-\item{\code{inputMatrix}}{The input matrix}
+\item{\code{inputPath}}{The input matrix/matrices.  Can be the path(s) to
+to one, or several files, depending on the format considered.}
 
-\item{\code{parameters}}{An named \code{list}. The parameters for the
-segmentation methods. See \code{\link{parameters}}.}
+\item{\code{interactions}}{A data frame storing the matrices.  Is built using
+the values in the \code{inputPath} files.}
+
+\item{\code{replicates}}{A vector storing the names of the replicates.}
+
+\item{\code{conditions}}{A vector storing the names of the conditions.
+There should be exactly two different conditions.}
+
+\item{\code{binSize}}{The resolution.}
 }}
 
