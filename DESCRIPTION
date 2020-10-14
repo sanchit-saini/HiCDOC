@@ -3,12 +3,12 @@ Title: Robust differential compartment detection
 Version: 0.99.0
 Date: 2019-07-29
 Authors@R: c(
-    person("Kurylo",   "Cyril",    email = "Cyril.Kurylo@inrae.fr",      role = c("aut", "cre")),
+    person("Kurylo",   "Cyril",    email = "Cyril.Kurylo@inrae.fr",      role = c("aut")),
     person("Zytnicki", "Matthias", email = "matthias.zytnicki@inrae.fr", role = c("aut", "cre")),
-    person("Foissac",  "Sylvain",  email = "sylvain.foissac@inrae.fr",   role = c("aut", "cre")),
-    person("Maigné",   "Élise",    email = "elise.maigne@inrae.fr",      role = c("aut", "cre")))
+    person("Foissac",  "Sylvain",  email = "sylvain.foissac@inrae.fr",   role = c("aut")),
+    person("Maigné",   "Élise",    email = "elise.maigne@inrae.fr",      role = c("aut")))
 Description: Find compartments with significantly differential binding using replicated Hi-C data.
-License: LGPL (>= 3)
+License: LGPL (>= 3) + LICENSE
 Encoding: UTF-8
 LazyData: true
 SystemRequirements: C++11
