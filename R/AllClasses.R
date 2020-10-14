@@ -128,8 +128,8 @@ makeHiCDOCDataSet <- function(
 #'
 #' @examples
 #' linkToMatrix <- system.file("extdata", "sampleMatrix.tsv",  package="HiCDOC")
-#' srnaExp <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
-#' srnaExp
+#' dataSet <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
+#' dataSet
 #'
 #' @export
 HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
@@ -160,14 +160,11 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
 #'
 #' @examples
 #' basedir <- system.file("extdata", package="HiCDOC")
-#' data    <- file.path(basedir,"coolData.csv")
+#' data    <- read.csv(file.path(basedir, "coolData.csv"))
 #' data
-#' \dontrun{
 #' dataSet <- HiCDOCDataSetFromCool(file.path(basedir, data$FileName),
 #'                                  data$Replicate,
 #'                                  data$Condition)
-#' }
-
 #'
 #' @export
 HiCDOCDataSetFromCool <- function(

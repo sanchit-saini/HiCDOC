@@ -153,16 +153,11 @@ parseCoolMatrix <- function(fileName) {
       chromosome.2 = chromosome,
       position.2 = position
     ) %>%
-        left_join(bins, by = c("id1" = "id")) %>%
-        rename(chromosome.1 = chromosome, position.1 = position) %>%
-        select(-id1) %>%
-        left_join(bins, by = c("id2" = "id")) %>%
-        rename(chromosome.2 = chromosome, position.2 = position) %>%
-        select(-id2) %>%
-        filter(chromosome.1 == chromosome.2) %>%
-        select(-chromosome.2) %>%
-        rename(chromosome = chromosome.1) %>%
-        select(chromosome, position.1, position.2, value)
+    select(-id2) %>%
+    filter(chromosome.1 == chromosome.2) %>%
+    select(-chromosome.2) %>%
+    rename(chromosome = chromosome.1) %>%
+    select(chromosome, position.1, position.2, value)
 
     return(data)
 }
