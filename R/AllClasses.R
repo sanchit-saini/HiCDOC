@@ -169,30 +169,36 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
 
 #'
 #' @export
-HiCDOCDataSetFromCool <- function(coolFileNames,
-                                  replicates,
-                                  conditions) {
-    ##- checking general input arguments -------------------------------------#
-    ##------------------------------------------------------------------------#
+HiCDOCDataSetFromCool <- function(
+  coolFileNames,
+  replicates,
+  conditions
+) {
 
-    ##- coolFileNames
-    if (is.null(coolFileNames)) {
-        stop("'coolFileNames' must be paths to cool files", call. = FALSE)
-    }
-    if (is.factor(coolFileNames)) {
-        coolFileNames <- as.vector(coolFileNames)
-    }
-    if (!is.vector(coolFileNames)) {
-        stop("'coolFileNames' must be a vector.", call. = FALSE)
-    }
-    if (!is.character(coolFileNames)) {
-        stop("'coolFileNames' must be a vector of characters.", call. = FALSE)
-    }
-    for (coolFileName in coolFileNames) {
-        if (!file.exists(coolFileName)) {
-            stop(paste("Cool file name", coolFileName, "is not a valid file."),
-                 call. = FALSE)
-        }
+  ##- checking general input arguments -------------------------------------#
+  ##------------------------------------------------------------------------#
+
+  ##- coolFileNames
+  if (is.null(coolFileNames)) {
+    stop("'coolFileNames' must be paths to cool files", call. = FALSE)
+  }
+  if (is.factor(coolFileNames)) {
+    coolFileNames <- as.vector(coolFileNames)
+  }
+  if (!is.vector(coolFileNames)) {
+    stop("'coolFileNames' must be a vector.", call. = FALSE)
+  }
+  if (!is.character(coolFileNames)) {
+    stop("'coolFileNames' must be a vector of characters.", call. = FALSE)
+  }
+  for (coolFileName in coolFileNames) {
+    # Remove trailing URI in case of an mcool file
+    coolFilePath <- strsplit(coolFileName, '::/')[[1]][1]
+    if (!file.exists(coolFilePath)) {
+      stop(
+        paste("Cool file name", coolFilePath, "is not a valid file."),
+        call. = FALSE
+      )
     }
 
     ##- conditions

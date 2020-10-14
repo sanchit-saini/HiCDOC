@@ -94,10 +94,23 @@ h5readCatch <- function(file, name) {
 }
 
 parseCoolMatrix <- function(fileName) {
-    bins <- tibble(
-        chromosome = factor(h5readCatch(file = fileName, name = "bins/chrom")),
-        start = h5readCatch(file = fileName, name = "bins/start"),
-        end = h5readCatch(file = fileName, name = "bins/end")
+  splitName <- strsplit(fileName, '::', fixed=T)[[1]]
+  # Separate file path from URI in case of mcool file
+  filePath <- splitName[1]
+  fileUri <- ifelse(length(splitName) > 1, splitName[2], '')
+  uri <- function(path) { return(paste(fileUri, path, sep='/')) }
+  bins <- tibble(
+    chromosome = factor(h5readCatch(
+      file = filePath,
+      name = uri("bins/chrom")
+    )),
+    start = h5readCatch(
+      file = filePath,
+      name = uri("bins/start")
+    ),
+    end = h5readCatch(
+      file = filePath,
+      name = uri("bins/end")
     )
     step <- bins$end - bins$start
     pc <- sum(step == max(step)) / length(step)
@@ -114,10 +127,30 @@ parseCoolMatrix <- function(fileName) {
         rowid_to_column("id") %>%
         mutate(id = id - 1)
 
-    data <- tibble(
-        id1 = h5readCatch(file = fileName, name = "pixels/bin1_id"),
-        id2 = h5readCatch(file = fileName, name = "pixels/bin2_id"),
-        value = h5readCatch(file = fileName, name = "pixels/count")
+  data <- tibble(
+    id1 = h5readCatch(
+      file = filePath,
+      name = uri("pixels/bin1_id")
+    ),
+    id2 = h5readCatch(
+      file = filePath,
+      name = uri("pixels/bin2_id")
+    ),
+    value = h5readCatch(
+      file = filePath,
+      name = uri("pixels/count")
+    )
+  ) %>%
+    left_join(bins, by = c("id1" = "id")) %>%
+    rename(
+      chromosome.1 = chromosome,
+      position.1 = position
+    ) %>%
+    select(-id1) %>%
+    left_join(bins, by = c("id2" = "id")) %>%
+    rename(
+      chromosome.2 = chromosome,
+      position.2 = position
     ) %>%
         left_join(bins, by = c("id1" = "id")) %>%
         rename(chromosome.1 = chromosome, position.1 = position) %>%
