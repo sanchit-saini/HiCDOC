@@ -33,7 +33,7 @@
 #' TODO
 #'
 #' @examples
-#' TODO
+#' #TODO
 #'
 #' @docType package
 #' @name HiCDOC

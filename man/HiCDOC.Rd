@@ -19,6 +19,7 @@ Returns an \code{HiCDOCExp} object.
 TODO
 }
 \examples{
+#TODO
 
 }
 \author{
