@@ -22,12 +22,11 @@ HiCDOCDataSetFromCool(coolFileNames, replicates, conditions)
 Construct a \code{HiCDOCDataSet} from a cool file.
 }
 \examples{
-data    <- read.csv(system.file("extdata","coolData.csv", package="HiCDOC"))
+basedir <- system.file("extdata", package="HiCDOC")
+data    <- read.csv(file.path(basedir, "coolData.csv"))
 data
-\dontrun{
 dataSet <- HiCDOCDataSetFromCool(file.path(basedir, data$FileName),
                                  data$Replicate,
                                  data$Condition)
-}
 
 }
