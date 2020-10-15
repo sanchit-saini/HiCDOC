@@ -8,7 +8,7 @@ Authors@R: c(
     person("Foissac",  "Sylvain",  email = "sylvain.foissac@inrae.fr",   role = c("aut")),
     person("Maigné",   "Élise",    email = "elise.maigne@inrae.fr",      role = c("aut")))
 Description: Find compartments with significantly differential binding using replicated Hi-C data.
-License: LGPL (>= 3) + LICENSE
+License: LGPL (>= 3) + file LICENSE
 Encoding: UTF-8
 LazyData: true
 SystemRequirements: C++11
