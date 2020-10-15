@@ -123,16 +123,16 @@ plotDiffConcordances <- function(object) {
 
     differences <- object@concordances %>%
         dplyr::group_by(.dots = c("chromosome", "position", "condition")) %>%
-        dplyr::summarise(value = median(value)) %>%
+        dplyr::summarise(median = median(concordance)) %>%
         dplyr::ungroup() %>%
-        tidyr::spread(condition, value) %>%
-        dplyr::mutate(value = `2` - `1`) %>%
+        tidyr::spread(condition, median) %>%
+        dplyr::mutate(difference = `2` - `1`) %>%
         dplyr::select(-c(`1`, `2`)) %>%
         dplyr::left_join(changed, by = c("chromosome", "position")) %>%
         dplyr::mutate(changed = replace_na(changed, "F")) %>%
-        dplyr::select(-c(chromosome, position))
+        dplyr::select(-c(chromosome, position, concordance, median))
 
-    p <- ggplot(differences, aes(x = value, fill = changed)) +
+    p <- ggplot(differences, aes(x = difference, fill = changed)) +
         geom_histogram() +
         labs(x = "Concordance",
              title = "Distribution of the differences of concordances")
@@ -155,18 +155,16 @@ plotDiffConcordances <- function(object) {
 #' object <- detectCompartments(object)
 #' plotAB(object, 1, 1)
 #' @export
-plotAB <- function(object, chromosomeId, conditionId) {
+plotAB <- function(object, chromosomeId) {
     testSlotsHiCDOCExp(object, slots = c("diagonalRatios", "compartments"))
-    chr <- testChromosome(object, chromosomeId)
-    cond <- testCondition(object, conditionId)
+    chromosomeId <- testChromosome(object, chromosomeId)
 
     data <- object@diagonalRatios %>%
         dplyr::left_join(
-            object@compartments %>% dplyr::rename(compartment = value),
+            object@compartments,
             by = c("chromosome", "condition", "position")
         ) %>%
-        dplyr::filter(chromosome == chr) %>%
-        dplyr::filter(condition == cond)
+        dplyr::filter(chromosome == chromosomeId)
 
     ggplot(data, aes(x = compartment, y = value)) +
         geom_jitter(aes(color = compartment)) +
@@ -177,7 +175,7 @@ plotAB <- function(object, chromosomeId, conditionId) {
             color = "Compartment",
             x = "Compartment",
             y = "Difference of int.",
-            title = paste0("Chromosome: ", chr, ", condition: ", cond)
+            title = paste0("Chromosome: ", chromosomeId)
         )
 }
 

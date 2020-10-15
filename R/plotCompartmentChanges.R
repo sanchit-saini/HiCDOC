@@ -96,8 +96,8 @@ plotConcordance <- function(object,
     textdifference <- textsignif(differences, padjThreshold)
 
     ylim <-
-        c(min(concordance$value, na.rm = TRUE),
-            max(concordance$value, na.rm = TRUE))
+        c(min(concordance$concordance, na.rm = TRUE),
+            max(concordance$concordance, na.rm = TRUE))
 
     gp <- ggplot()
     if (nrow(differences) > 0) {
@@ -115,10 +115,10 @@ plotConcordance <- function(object,
     }
     gp <- gp +
         geom_line(data = concordance,
-                  aes(x = position, y = value, color = replicate))
+                  aes(x = position, y = concordance, color = replicate))
     if (points == TRUE) {
         gp <- gp + geom_point(data = concordance,
-                              aes(x = position, y = value, color = replicate))
+                              aes(x = position, y = concordance, color = replicate))
     }
     gp <- gp + labs(caption = textdifference) +
         xlim(xlim[1] , xlim[2] + object@binSize) +
@@ -171,7 +171,7 @@ plotCompartments <- function(object,
     compartments <- object@compartments %>%
         dplyr::filter(chromosome == chr) %>%
         dplyr::filter(position >= xlim[1] & position <= xlim[2]) %>%
-        dplyr::mutate(compartment = factor(value)) %>%
+        dplyr::mutate(compartment = factor(compartment)) %>%
         dplyr::mutate(position = position + 0.5 * object@binSize)
 
     ggplot(data = compartments, aes(x = position, fill = compartment)) +
