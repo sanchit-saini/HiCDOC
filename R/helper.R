@@ -40,7 +40,7 @@ sparseInteractionsToFullInteractions <- function(object,
         value = 0
     ) %>%
         dplyr::left_join(
-            bind_rows(interactions, mirrorInteractions),
+            dplyr::bind_rows(interactions, mirrorInteractions),
             by = c(
                 "chromosome",
                 "condition",
@@ -49,7 +49,7 @@ sparseInteractionsToFullInteractions <- function(object,
                 "position.2"
             )
         ) %>%
-        dplyr::mutate(value = coalesce(value.y, value.x)) %>%
+        dplyr::mutate(value = dplyr::coalesce(value.y, value.x)) %>%
         dplyr::select(-c(value.x, value.y))
 
     if (filter) {

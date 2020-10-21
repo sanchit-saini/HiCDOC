@@ -156,7 +156,7 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
             SIMPLIFY = FALSE
         )
 
-    interactionsChr <- bind_rows(sparseIntMatrices)
+    interactionsChr <- dplyr::bind_rows(sparseIntMatrices)
     return(interactionsChr)
 }
 

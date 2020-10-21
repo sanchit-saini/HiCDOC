@@ -114,7 +114,7 @@ clusterize <- function(object) {
                 )
             })
 
-            object@compartments %<>% bind_rows(
+            object@compartments %<>% dplyr::bind_rows(
                 tibble(
                     chromosome = chromosomeId,
                     position = positions,
@@ -123,7 +123,7 @@ clusterize <- function(object) {
                 )
             )
 
-            object@concordances %<>% bind_rows(
+            object@concordances %<>% dplyr::bind_rows(
                 tibble(
                     chromosome = chromosomeId,
                     position = rep(positions, length(replicates)),
@@ -134,7 +134,7 @@ clusterize <- function(object) {
                 )
             )
 
-            object@distances %<>% bind_rows(
+            object@distances %<>% dplyr::bind_rows(
                 tibble(
                     chromosome = chromosomeId,
                     position = rep(rep(positions, length(replicates)), 2),
@@ -148,7 +148,7 @@ clusterize <- function(object) {
                 )
             )
 
-            object@centroids %<>% bind_rows(
+            object@centroids %<>% dplyr::bind_rows(
                 tibble(
                     chromosome = chromosomeId,
                     condition = conditionId,

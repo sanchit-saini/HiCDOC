@@ -167,7 +167,7 @@ mergeMatrices <- function(object, matrices) {
         matrices[[i]]$replicate <- object@replicates[[i]]
         matrices[[i]]$condition <- object@conditions[[i]]
     }
-    object@interactions <- bind_rows(matrices) %>%
+    object@interactions <- dplyr::bind_rows(matrices) %>%
         dplyr::mutate(chromosome = factor(chromosome)) %>%
         dplyr::mutate(replicate = factor(replicate)) %>%
         dplyr::mutate(condition = factor(condition))
@@ -227,7 +227,7 @@ parseInteractionMatrixHic <- function(object) {
         purrr::map2(matrices, object@replicates, ~ dplyr::mutate(.x, replicate = .y))
     matrices <-
         purrr::map2(matrices, object@conditions, ~ dplyr::mutate(.x, condition = .y))
-    object@interactions <- bind_rows(matrices) %>% as_tibble()
+    object@interactions <- dplyr::bind_rows(matrices) %>% as_tibble()
     #object@interactions <- tibble()
     # for (i in seq_along(object@inputPath)) {
     #         object@interactions <- bind_rows(object@interactions,
