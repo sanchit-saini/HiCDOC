@@ -37,6 +37,15 @@ distanceRatio <- function(x, centroids, eps = 1e-10) {
 #' - compartment (cluster number) for each genomic position
 #' - distances to centroids (float) for each genomic position in each replicate
 #' - concordance (float in [-1, 1]) for each genomic position in each replicate
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
+#' object <- clusterize(object)
 clusterize <- function(object) {
     object@compartments <- tibble()
     object@concordances <- tibble()
@@ -196,56 +205,56 @@ tieCentroids <- function(object) {
     clusters <- object@centroids %>%
         dplyr::filter(condition == referenceCondition) %>%
         dplyr::group_by(chromosome, condition) %>%
-        spread(key = compartment, value = centroid) %>%
+        tidyr::spread(key = compartment, value = centroid) %>%
         dplyr::ungroup() %>%
-        uncount(totalConditions) %>%
+        tidyr::uncount(totalConditions) %>%
         dplyr::rename(reference.1 = `1`) %>%
         dplyr::rename(reference.2 = `2`) %>%
         dplyr::select(-c(condition)) %>%
         dplyr::bind_cols(
             object@centroids %>%
                 dplyr::group_by(chromosome, condition) %>%
-                spread(key = compartment, value = centroid) %>%
+                tidyr::spread(key = compartment, value = centroid) %>%
                 dplyr::ungroup() %>%
                 dplyr::rename(centroid.1 = `1`) %>%
                 dplyr::rename(centroid.2 = `2`) %>%
                 dplyr::select(-c(chromosome))
         ) %>%
         dplyr::rowwise() %>%
-        dplyr::mutate(`1` = if_else(
+        dplyr::mutate(`1` = dplyr::if_else(
             euclideanDistance(centroid.1, reference.1) *
             euclideanDistance(centroid.2, reference.2) <
             euclideanDistance(centroid.1, reference.2) *
             euclideanDistance(centroid.2, reference.1), 1, 2
         )) %>%
-        dplyr::mutate(`2` = if_else(`1` == 1, 2, 1)) %>%
+        dplyr::mutate(`2` = dplyr::if_else(`1` == 1, 2, 1)) %>%
         dplyr::select(-c(centroid.1, centroid.2, reference.1, reference.2))
 
     object@compartments %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
-        dplyr::mutate(compartment = if_else(compartment == 1, `1`, `2`)) %>%
+        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, `1`, `2`)) %>%
         dplyr::select(-c(`1`, `2`))
 
     object@concordances %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
         dplyr::rowwise() %>%
-        dplyr::mutate(change = if_else(
+        dplyr::mutate(change = dplyr::if_else(
             compartment == 1,
-            if_else(compartment == `1`, 1, -1),
-            if_else(compartment == `2`, 1, -1)
+            dplyr::if_else(compartment == `1`, 1, -1),
+            dplyr::if_else(compartment == `2`, 1, -1)
         )) %>%
         dplyr::mutate(concordance = change * concordance) %>%
-        dplyr::mutate(compartment = if_else(compartment == 1, `1`, `2`)) %>%
+        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, `1`, `2`)) %>%
         dplyr::select(-c(`1`, `2`, change))
 
     object@distances %<>%
         dplyr::left_join(clusters, by=c("chromosome", "condition")) %>%
-        dplyr::mutate(compartment = if_else(compartment == 1, `1`, `2`)) %>%
+        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, `1`, `2`)) %>%
         dplyr::select(-c(`1`, `2`))
 
     object@centroids %<>%
         dplyr::left_join(clusters, by=c("chromosome", "condition")) %>%
-        dplyr::mutate(compartment = if_else(compartment == 1, `1`, `2`)) %>%
+        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, `1`, `2`)) %>%
         dplyr::select(-c(`1`, `2`))
 
     return (object)
@@ -261,6 +270,16 @@ tieCentroids <- function(object) {
 #' @return A \code{HiCDOCExp} object, with diagonalRatios, and with A and B
 #' labels replacing cluster numbers in centroids, compartments, distances and
 #' concordances.
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- filterSmallChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object)
+#' object <- clusterize(object)
+#' object <- predictAB(object)
 predictAB <- function(object) {
     chromosomeIds = rep(object@chromosomes, each = length(object@replicates))
     conditionIds = rep(object@conditions, length(object@chromosomes))
@@ -316,28 +335,28 @@ predictAB <- function(object) {
             value = value,
             fill = 0
         ) %>%
-        dplyr::mutate(A = if_else(`1` >= `2`, 2, 1)) %>%
+        dplyr::mutate(A = dplyr::if_else(`1` >= `2`, 2, 1)) %>%
         dplyr::select(-c(`1`, `2`))
 
     object@compartments %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
-        dplyr::mutate(compartment = factor(if_else(compartment == A, "A", "B"))) %>%
+        dplyr::mutate(compartment = factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
         dplyr::select(-c(A))
 
     object@concordances %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
-        dplyr::mutate(change = if_else(A == 1, 1, -1)) %>%
+        dplyr::mutate(change = dplyr::if_else(A == 1, 1, -1)) %>%
         dplyr::mutate(concordance = change * concordance) %>%
         dplyr::select(-c(A, change))
 
     object@distances %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
-        dplyr::mutate(compartment = factor(if_else(compartment == A, "A", "B"))) %>%
+        dplyr::mutate(compartment = factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
         dplyr::select(-c(A))
 
     object@centroids %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
-        dplyr::mutate(compartment = factor(if_else(compartment == A, "A", "B"))) %>%
+        dplyr::mutate(compartment = factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
         dplyr::select(-c(A))
 
     return (object)
@@ -369,7 +388,7 @@ computePValues <- function(object) {
 
     concordanceDifferences %<>%
         # Duplicate each row "totalReplicates" times
-        uncount(totalReplicates) %>%
+        tidyr::uncount(totalReplicates) %>%
         cbind(
             # Duplicate the table "totalReplicates" times
             concordanceDifferences[rep(seq_len(nrow(concordanceDifferences)),
@@ -394,7 +413,7 @@ computePValues <- function(object) {
 
     compartmentComparisons %<>%
         # Duplicate each row "totalConditions" times
-        uncount(totalConditions) %>%
+        tidyr::uncount(totalConditions) %>%
         cbind(
             # Duplicate the table "totalConditions" times
             compartmentComparisons[rep(seq_len(nrow(compartmentComparisons)),
@@ -418,18 +437,18 @@ computePValues <- function(object) {
             concordanceDifferences,
             by = c("chromosome", "position", "condition.1", "condition.2")
         ) %>%
-        dplyr::mutate(H0_value = if_else(compartment.1 == compartment.2, value, NA_real_)) %>%
+        dplyr::mutate(H0_value = dplyr::if_else(compartment.1 == compartment.2, value, NA_real_)) %>%
         dplyr::group_by(condition.1, condition.2) %>%
         dplyr::mutate(quantile = ecdf(H0_value)(value)) %>%
         dplyr::filter(compartment.1 != compartment.2) %>%
         dplyr::mutate(pvalue = 1 - quantile) %>%
-        dplyr::mutate(pvalue = if_else(pvalue < 0, 0, pvalue)) %>%
-        dplyr::mutate(pvalue = if_else(pvalue > 1, 1, pvalue)) %>%
+        dplyr::mutate(pvalue = dplyr::if_else(pvalue < 0, 0, pvalue)) %>%
+        dplyr::mutate(pvalue = dplyr::if_else(pvalue > 1, 1, pvalue)) %>%
         dplyr::mutate(padj = p.adjust(pvalue, method = "BH")) %>%
         dplyr::ungroup() %>%
         dplyr::rename(start = position) %>%
         dplyr::mutate(end = start + object@binSize) %>%
-        dplyr::mutate(direction = factor(if_else(compartment.1 == "A", "A->B", "B->A"))) %>%
+        dplyr::mutate(direction = factor(dplyr::if_else(compartment.1 == "A", "A->B", "B->A"))) %>%
         dplyr::select(
             chromosome,
             start,
