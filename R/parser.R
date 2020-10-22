@@ -71,9 +71,20 @@ parseInteractionMatrix3Columns <- function(object) {
 }
 
 
-##- Parse a single cool Matrix -----------------------------------------------#
+##- h5readCatch --------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-
+#' Read an HDF5 file, and extract a field.
+#' It raises an exception if the field is not present.
+#'
+#' @name h5readCatch
+#' @rdname h5readCatch
+#'
+#' @aliases h5readCatch
+#'
+#' @param file The name of a file in HDF5 format.
+#' @param name The name a field name.
+#'
+#' @return The value associated with the field.
 h5readCatch <- function(file, name) {
     return(tryCatch(
         h5read(file = file, name = name),
@@ -93,8 +104,19 @@ h5readCatch <- function(file, name) {
     ))
 }
 
+##- parseCoolMatrix ----------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Parse a single interaction matrix in .cool format.
+#'
+#' @name parseCoolMatrix
+#' @rdname parseCoolMatrix
+#'
+#' @aliases parseCoolMatrix
+#'
+#' @param fileName The name of the matrix file in HDF5 format.
+#' @return object An \code{tibble} storing the (sparse) interaction matrix.
 parseCoolMatrix <- function(fileName) {
-  splitName <- strsplit(fileName, '::', fixed=T)[[1]]
+  splitName <- strsplit(fileName, '::', fixed = TRUE)[[1]]
   # Separate file path from URI in case of mcool file
   filePath <- splitName[1]
   fileUri <- ifelse(length(splitName) > 1, splitName[2], '')
@@ -162,6 +184,21 @@ parseCoolMatrix <- function(fileName) {
     return(data)
 }
 
+##- mergeMatrices ------------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Merge the matrices which have been parsed separately.
+#' Store the result into a \code{HiCDOCExp} object.
+#'
+#' @name mergeMatrices
+#' @rdname mergeMatrices
+#'
+#' @aliases mergeMatrices
+#'
+#' @param object A \code{HiCDOCExp} object, where the matrices should be
+#'          stored.
+#' @param matrices The different matrices (one per sample).
+#' @return object The \code{HiCDOCExp} object, where the matrices have been
+#'           added.
 mergeMatrices <- function(object, matrices) {
     for (i in seq_along(matrices)) {
         matrices[[i]]$replicate <- object@replicates[[i]]
@@ -198,6 +235,20 @@ parseInteractionMatrixCool <- function(object) {
     return(mergeMatrices(object, matrices))
 }
 
+##- parseHicMatrix -----------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Parse a single interaction matrix in .hic format.
+#'
+#' @name parseHicMatrix
+#' @rdname parseHicMatrix
+#'
+#' @aliases parseHicMatrix
+#'
+#' @param fileName   The file name of the .hic file.
+#' @param resolution The chosen resolution (should be present in the
+#'                     .hic file).
+#'
+#' @return object An \code{tibble} storing the (sparse) interaction matrix.
 parseHicMatrix <- function(fileName, resolution = resolution) {
     message(paste0("Parsing .hic matrix '", fileName, "'."))
     return(parseHic(fileName, resolution))
