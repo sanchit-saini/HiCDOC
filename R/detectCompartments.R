@@ -26,6 +26,192 @@ distanceRatio <- function(x, centroids, eps = 1e-10) {
     ))
 }
 
+##- tieCentroids -------------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Assign correct cluster labels by comparing centroids across conditions.
+#'
+#' @param object A \code{HiCDOCExp} object.
+#'
+#' @return A \code{HiCDOCExp} object, with diagonalRatios, and with corrected
+#' cluster labels in centroids, compartments, distances and concordances.
+tieCentroids <- function(object) {
+    totalConditions <- length(unique(object@conditions))
+    referenceCondition <- object@conditions[[1]]
+
+    clusters <- object@centroids %>%
+        dplyr::filter(condition == referenceCondition) %>%
+        tidyr::pivot_wider(names_from = compartment,
+                           values_from = centroid,
+                           names_prefix = "reference.") %>%
+        dplyr::select(-c(condition)) %>%
+        tidyr::uncount(totalConditions) %>%
+        dplyr::bind_cols(
+            object@centroids %>%
+                tidyr::pivot_wider(names_from = compartment,
+                                   values_from = centroid,
+                                   names_prefix = "centroid.") %>%
+                dplyr::select(-c(chromosome))
+        ) %>%
+        dplyr::rowwise() %>%
+        dplyr::mutate(cl1 = dplyr::if_else(
+            euclideanDistance(centroid.1, reference.1) *
+                euclideanDistance(centroid.2, reference.2) <
+                euclideanDistance(centroid.1, reference.2) *
+                euclideanDistance(centroid.2, reference.1), 1, 2
+        )) %>%
+        dplyr::mutate(cl2 = dplyr::if_else(cl1 == 1, 2, 1)) %>%
+        dplyr::select(-c(centroid.1, centroid.2, reference.1, reference.2))
+
+    object@compartments %<>%
+        dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
+        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, cl1, cl2)) %>%
+        dplyr::select(-c(cl1, cl2))
+
+    object@concordances %<>%
+        dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
+        dplyr::mutate(change = dplyr::if_else(
+            compartment == 1,
+            dplyr::if_else(compartment == cl1, 1, -1),
+            dplyr::if_else(compartment == cl2, 1, -1)
+        )) %>%
+        dplyr::mutate(concordance = change * concordance) %>%
+        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, cl1, cl2)) %>%
+        dplyr::select(-c(cl1, cl2, change))
+
+    object@distances %<>%
+        dplyr::left_join(clusters, by=c("chromosome", "condition")) %>%
+        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, cl1, cl2)) %>%
+        dplyr::select(-c(cl1, cl2))
+
+    object@centroids %<>%
+        dplyr::left_join(clusters, by=c("chromosome", "condition")) %>%
+        dplyr::mutate(compartment = dplyr::if_else(compartment == "1", cl1, cl2)) %>%
+        dplyr::select(-c(cl1, cl2))
+
+    return (object)
+}
+
+##- clusterize for 1 chromosome and 1 condition-------------------------------#
+##----------------------------------------------------------------------------#
+#' Segregate genomic positions into 2 clusters using constrained k-means.
+#'
+#' @param object  A \code{HiCDOCExp} object.
+#' @param chromosomeId A character or numeric value.
+#' Name or number of the chromosome
+#' @param conditionId #' A character or numeric value.
+#' Name or number of the chromosome
+#'
+#' @return A \code{HiCDOCExp} object, with:
+#' - centroid (vector) for each cluster
+#' - compartment (cluster number) for each genomic position
+#' - distances to centroids (float) for each genomic position in each replicate
+#' - concordance (float in [-1, 1]) for each genomic position in each replicate
+clusterizeChrCond <- function(object, chromosomeId, conditionId) {
+    testSlotsHiCDOCExp(
+        object,
+        slots = c(
+            "chromosomes",
+            "conditions",
+            "totalBins",
+            "binSize",
+            "weakBins",
+            "interactions"
+        )
+    )
+    chr <- testChromosome(object, chromosomeId)
+    cond <- testCondition(object, conditionId)
+
+    totalBinsChr <- object@totalBins[[chr]]
+    if (totalBinsChr == -Inf) next
+
+    positions <- (seq.int(totalBinsChr) - 1) * object@binSize
+
+    # Correct for filtered bins
+    if (!is.null(object@weakBins[[chromosomeId]])) {
+        positions <- positions[-object@weakBins[[chromosomeId]]]
+        totalBinsChr <- totalBinsChr - length(object@weakBins[[chromosomeId]])
+    }
+
+    replicates <- object@replicates[which(object@conditions == cond)]
+
+    replicateInteractions <- purrr::map(replicates, function(x)
+        sparseInteractionsToMatrix(object,
+                                   chr,
+                                   cond,
+                                   x,filter = TRUE))
+    interactions <- do.call("rbind", replicateInteractions)
+
+    mustLink <- matrix(
+        rep(0:(length(replicates) - 1), totalBinsChr) * totalBinsChr +
+            rep(0:(totalBinsChr - 1), each = length(replicates)),
+        nrow = totalBinsChr,
+        byrow = TRUE
+    )
+
+    clusteringOutput <- constrainedClustering(
+        interactions,
+        mustLink,
+        object@kMeansDelta,
+        object@kMeansIterations,
+        object@kMeansRestarts
+    )
+
+    clusters <- clusteringOutput[["clusters"]][0:totalBinsChr] + 1
+    centroids <- clusteringOutput[["centroids"]]
+
+    min <- distanceRatio(centroids[[1]], centroids)
+    max <- distanceRatio(centroids[[2]], centroids)
+
+    concordances <- apply(interactions, 1, function(row) {
+        2 * (distanceRatio(row, centroids) - min) / (max - min) - 1
+    })
+
+    distances <- apply(interactions, 1, function(row) {
+        c(
+            euclideanDistance(row, centroids[[1]]),
+            euclideanDistance(row, centroids[[2]])
+        )
+    })
+
+    dfCompartments <- tibble(
+        chromosome = factor(chr, levels = object@chromosomes),
+        position = positions,
+        condition = factor(cond, levels = unique(object@conditions)),
+        compartment = factor(clusters, levels = c(1,2))
+    )
+
+    dfConcordances <-
+        purrr::map_dfr(seq_len(length(replicates)), ~dfCompartments) %>%
+        dplyr::mutate(replicate = rep(factor(replicates, levels = unique(object@replicates)),
+                                      each = ncol(interactions)),
+                      concordance = concordances) %>%
+        dplyr::select(chromosome, position, condition, replicate, compartment, concordance)
+
+    dfDistances <-
+        purrr::map_dfr(seq_len(2), ~dfConcordances) %>%
+        dplyr::select(-concordance) %>%
+        dplyr::mutate(
+            compartment = rep(factor(c(1,2)),
+                              each = length(replicates) * ncol(interactions)),
+            distance = c(t(distances))
+        )
+
+    dfCentroids <- tibble(
+        chromosome = factor(chr, levels = object@chromosomes),
+        condition = factor(cond, levels = unique(object@conditions)),
+        compartment = factor(c(1,2)),
+        centroid = centroids
+    )
+
+    return(list(
+        "compartments" = dfCompartments,
+        "concordances" = dfConcordances,
+        "distances" = dfDistances,
+        "centroids" = dfCentroids
+    ))
+}
+
+
 ##- clusterize ---------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
 #' Segregate genomic positions into 2 clusters using constrained k-means.
@@ -44,220 +230,62 @@ distanceRatio <- function(x, centroids, eps = 1e-10) {
 #' object <- normalizeTechnicalBiases(object)
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
-#' object <- detectCompartments(object)
 #' object <- clusterize(object)
 clusterize <- function(object) {
-    object@compartments <- tibble()
-    object@concordances <- tibble()
-    object@distances    <- tibble()
-    object@centroids    <- tibble()
+    vectChr <- rep(object@chromosomes, each = length(unique(object@conditions)))
+    vectCond <- rep(unique(object@conditions), length(object@chromosomes))
+    clusterRes <- purrr::map2(vectChr, vectCond,
+                              function(.x, .y) clusterizeChrCond(object, .x, .y))
+    object@compartments <- purrr::map_dfr(clusterRes, "compartments")
+    object@concordances <- purrr::map_dfr(clusterRes, "concordances")
+    object@distances <- purrr::map_dfr(clusterRes, "distances")
+    object@centroids <- purrr::map_dfr(clusterRes, "centroids")
 
-    progress <- progress_estimated(length(object@chromosomes) * length(unique(object@conditions)))
-
-    for (chromosomeId in object@chromosomes) {
-        totalBins <- object@totalBins[[chromosomeId]]
-        if (totalBins == -Inf) next
-
-        positions <- (seq.int(totalBins) - 1) * object@binSize
-
-        # Correct for filtered bins
-        if (!is.null(object@weakBins[[chromosomeId]])) {
-            positions <- positions[-object@weakBins[[chromosomeId]]]
-            totalBins <- totalBins - length(object@weakBins[[chromosomeId]])
-        }
-
-        for (conditionId in unique(object@conditions)) {
-            interactions <- matrix(nrow = 0, ncol = totalBins)
-            replicates <- object@replicates[which(object@conditions == conditionId)]
-
-            for (replicateId in replicates) {
-                replicateInteractions <- sparseInteractionsToMatrix(
-                    object,
-                    chromosomeId,
-                    conditionId,
-                    replicateId,
-                    filter = TRUE
-                )
-                interactions <- rbind(interactions, replicateInteractions)
-            }
-
-            mustLink <- matrix(
-                rep(0:(length(replicates) - 1), totalBins)
-                * totalBins
-                + rep(0:(totalBins - 1), each = length(replicates)),
-                nrow = totalBins,
-                byrow = TRUE
-            )
-
-            clusteringOutput <- constrainedClustering(
-                interactions,
-                mustLink,
-                object@kMeansDelta,
-                object@kMeansIterations,
-                object@kMeansRestarts
-            )
-
-            clusters <- clusteringOutput[["clusters"]][0:totalBins] + 1
-            centroids <- clusteringOutput[["centroids"]]
-
-            min <- distanceRatio(centroids[[1]], centroids)
-            max <- distanceRatio(centroids[[2]], centroids)
-
-            concordances <- apply(interactions, 1, function(row) {
-                2 * (distanceRatio(row, centroids) - min) / (max - min) - 1
-            })
-
-            distances <- apply(interactions, 1, function(row) {
-                c(
-                    euclideanDistance(row, centroids[[1]]),
-                    euclideanDistance(row, centroids[[2]])
-                )
-            })
-
-            object@compartments %<>% dplyr::bind_rows(
-                tibble(
-                    chromosome = chromosomeId,
-                    position = positions,
-                    condition = conditionId,
-                    compartment = clusters
-                )
-            )
-
-            object@concordances %<>% dplyr::bind_rows(
-                tibble(
-                    chromosome = chromosomeId,
-                    position = rep(positions, length(replicates)),
-                    condition = conditionId,
-                    replicate = rep(replicates, each = ncol(interactions)),
-                    compartment = rep(clusters, length(replicates)),
-                    concordance = concordances
-                )
-            )
-
-            object@distances %<>% dplyr::bind_rows(
-                tibble(
-                    chromosome = chromosomeId,
-                    position = rep(rep(positions, length(replicates)), 2),
-                    condition = conditionId,
-                    replicate = rep(rep(replicates, each = ncol(interactions)), 2),
-                    compartment = c(
-                        rep(1, length(replicates) * ncol(interactions)),
-                        rep(2, length(replicates) * ncol(interactions))
-                    ),
-                    distance = c(t(distances))
-                )
-            )
-
-            object@centroids %<>% dplyr::bind_rows(
-                tibble(
-                    chromosome = chromosomeId,
-                    condition = conditionId,
-                    compartment = c(1, 2),
-                    centroid = centroids
-                )
-            )
-
-            progress$tick()$print()
-        }
-    }
-
-    progress$stop()
-
-    object@compartments %<>% dplyr::mutate(
-        chromosome = factor(chromosome),
-        condition = factor(condition),
-        compartment = factor(compartment)
-    )
-
-    object@concordances %<>% dplyr::mutate(
-        chromosome = factor(chromosome),
-        condition = factor(condition),
-        replicate = factor(replicate)
-    )
-
-    object@distances %<>% dplyr::mutate(
-        chromosome = factor(chromosome),
-        condition = factor(condition),
-        replicate = factor(replicate)
-    )
-
-    object@centroids %<>% dplyr::mutate(
-        chromosome = factor(chromosome),
-        condition = factor(condition),
-        compartment = factor(compartment)
-    )
-
-    return (tieCentroids(object))
+    object <- tieCentroids(object)
+    return(object)
 }
 
-##- tieCentroids -------------------------------------------------------------#
-##----------------------------------------------------------------------------#
-#' Assign correct cluster labels by comparing centroids across conditions.
+#' Compute diagonalRatios
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object
+#' @param chromosomeId
+#' @param conditionId
+#' @param replicateId
 #'
-#' @return A \code{HiCDOCExp} object, with diagonalRatios, and with corrected
-#' cluster labels in centroids, compartments, distances and concordances.
-tieCentroids <- function(object) {
-    totalConditions <- length(unique(object@conditions))
-    referenceCondition <- object@conditions[[1]]
+#' @return a tibble
+diagonalRatios <- function(object, chromosomeId, conditionId, replicateId){
+    fullInteractions <- sparseInteractionsToFullInteractions(
+        object,
+        chromosomeId,
+        conditionId,
+        replicateId)
 
-    clusters <- object@centroids %>%
-        dplyr::filter(condition == referenceCondition) %>%
-        dplyr::group_by(chromosome, condition) %>%
-        tidyr::spread(key = compartment, value = centroid) %>%
-        dplyr::ungroup() %>%
-        tidyr::uncount(totalConditions) %>%
-        dplyr::rename(reference.1 = `1`) %>%
-        dplyr::rename(reference.2 = `2`) %>%
-        dplyr::select(-c(condition)) %>%
-        dplyr::bind_cols(
-            object@centroids %>%
-                dplyr::group_by(chromosome, condition) %>%
-                tidyr::spread(key = compartment, value = centroid) %>%
-                dplyr::ungroup() %>%
-                dplyr::rename(centroid.1 = `1`) %>%
-                dplyr::rename(centroid.2 = `2`) %>%
-                dplyr::select(-c(chromosome))
-        ) %>%
-        dplyr::rowwise() %>%
-        dplyr::mutate(`1` = dplyr::if_else(
-            euclideanDistance(centroid.1, reference.1) *
-            euclideanDistance(centroid.2, reference.2) <
-            euclideanDistance(centroid.1, reference.2) *
-            euclideanDistance(centroid.2, reference.1), 1, 2
-        )) %>%
-        dplyr::mutate(`2` = dplyr::if_else(`1` == 1, 2, 1)) %>%
-        dplyr::select(-c(centroid.1, centroid.2, reference.1, reference.2))
+    diagonal <- fullInteractions %>%
+        filter(position.1 == position.2) %>%
+        select(-position.2) %>%
+        rename(position = position.1) %>%
+        rename(diagonal = value)
 
-    object@compartments %<>%
-        dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
-        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, `1`, `2`)) %>%
-        dplyr::select(-c(`1`, `2`))
+    offDiagonal <- fullInteractions %>%
+        filter(position.1 != position.2) %>%
+        select(-position.2) %>%
+        rename(position = position.1) %>%
+        group_by(position) %>%
+        mutate(offDiagonal = median(value)) %>%
+        ungroup() %>%
+        select(-value) %>%
+        distinct()
 
-    object@concordances %<>%
-        dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
-        dplyr::rowwise() %>%
-        dplyr::mutate(change = dplyr::if_else(
-            compartment == 1,
-            dplyr::if_else(compartment == `1`, 1, -1),
-            dplyr::if_else(compartment == `2`, 1, -1)
-        )) %>%
-        dplyr::mutate(concordance = change * concordance) %>%
-        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, `1`, `2`)) %>%
-        dplyr::select(-c(`1`, `2`, change))
+    diagonalRatios <- diagonal %>%
+        left_join(offDiagonal,
+                  by = c("chromosome",
+                         "condition",
+                         "replicate",
+                         "position")) %>%
+        mutate(value = diagonal - offDiagonal) %>%
+        select(-c(diagonal, offDiagonal))
 
-    object@distances %<>%
-        dplyr::left_join(clusters, by=c("chromosome", "condition")) %>%
-        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, `1`, `2`)) %>%
-        dplyr::select(-c(`1`, `2`))
-
-    object@centroids %<>%
-        dplyr::left_join(clusters, by=c("chromosome", "condition")) %>%
-        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, `1`, `2`)) %>%
-        dplyr::select(-c(`1`, `2`))
-
-    return (object)
+    return (diagonalRatios)
 }
 
 ##- predictAB ----------------------------------------------------------------#
@@ -277,7 +305,6 @@ tieCentroids <- function(object) {
 #' object <- normalizeTechnicalBiases(object)
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
-#' object <- detectCompartments(object)
 #' object <- clusterize(object)
 #' object <- predictAB(object)
 predictAB <- function(object) {
@@ -285,42 +312,10 @@ predictAB <- function(object) {
     conditionIds = rep(object@conditions, length(object@chromosomes))
     replicateIds = rep(object@replicates, length(object@chromosomes))
 
-    groups = cbind(chromosomeIds, conditionIds, replicateIds)
-
-    object@diagonalRatios <- bind_rows(apply(groups, 1, function(group) {
-        fullInteractions <- sparseInteractionsToFullInteractions(
-            object,
-            group[[1]],
-            group[[2]],
-            group[[3]]
-        )
-
-        diagonal <- fullInteractions %>%
-            dplyr::filter(position.1 == position.2) %>%
-            dplyr::select(-position.2) %>%
-            dplyr::rename(position = position.1) %>%
-            dplyr::rename(diagonal = value)
-
-        offDiagonal <- fullInteractions %>%
-            dplyr::filter(position.1 != position.2) %>%
-            dplyr::select(-position.2) %>%
-            dplyr::rename(position = position.1) %>%
-            dplyr::group_by(position) %>%
-            dplyr::mutate(offDiagonal = median(value)) %>%
-            dplyr::ungroup() %>%
-            dplyr::select(-value) %>%
-            dplyr::distinct()
-
-        diagonalRatios <- diagonal %>%
-            dplyr::left_join(
-                offDiagonal,
-                by = c("chromosome", "condition", "replicate", "position")
-            ) %>%
-            dplyr::mutate(value = diagonal - offDiagonal) %>%
-            dplyr::select(-c(diagonal, offDiagonal))
-
-        return (diagonalRatios)
-    }))
+    object@diagonalRatios <- purrr::pmap_dfr(
+        list(chromosomeIds, conditionIds, replicateIds),
+        function(x, y, z)
+            diagonalRatios(object, x, y, z))
 
     compartments <- object@compartments %>%
         dplyr::left_join(
@@ -330,13 +325,12 @@ predictAB <- function(object) {
         dplyr::group_by(chromosome, compartment) %>%
         dplyr::summarize(value = median(value)) %>%
         dplyr::ungroup() %>%
-        tidyr::spread(
-            key = compartment,
-            value = value,
-            fill = 0
-        ) %>%
-        dplyr::mutate(A = dplyr::if_else(`1` >= `2`, 2, 1)) %>%
-        dplyr::select(-c(`1`, `2`))
+        tidyr::pivot_wider(names_from = compartment,
+                           values_from = value,
+                           values_fill = 0,
+                           names_prefix = "val") %>%
+        dplyr::mutate(A = dplyr::if_else(val1 >= val2, 2, 1)) %>%
+        dplyr::select(-c(val1, val2))
 
     object@compartments %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
