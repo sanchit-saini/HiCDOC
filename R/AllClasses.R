@@ -18,43 +18,6 @@ HiCDOCDefaultParameters <- list(
     weakPosThreshold = 0
 )
 
-# ###############################################################################
-# # HiCDOCtemp S4 class definition
-# ###############################################################################
-# #' Infrastructure for HiCDOC temporary data set
-# #'
-# #' \code{HiCDOCtemp} is an S4 class providing the infrastructure (slots)
-# #' to store the input data.
-# #'
-# #' @details \code{HiCDOCTemp} does this and that...
-# #' TODO
-# #'
-# #' @name HiCDOCTemp
-# #' @rdname HiCDOCTemp
-# #' @docType class
-# #' @aliases HiCDOCTemp HiCDOCTemp-class
-# #'
-# #' @slot inputPath The input matrix/matrices.  Can be the path(s) to
-# #' to one, or several files, depending on the format considered.
-# #' @slot interactions A data frame storing the matrices.  Is built using
-# #' the values in the \code{inputPath} files.
-# #' @slot replicates A vector storing the names of the replicates.
-# #' @slot conditions A vector storing the names of the conditions.
-# #' There should be exactly two different conditions.
-# #' @slot binSize The resolution.
-# #'
-# #' @export
-# setClass(
-#     "HiCDOCTemp",
-#     slots = c(
-#         inputPath    = "ANY",
-#         interactions = "ANY",
-#         replicates   = "ANY",
-#         conditions   = "ANY",
-#         binSize      = "ANY"
-#     )
-# )
-
 ##- makeHiCDOCDataSet --------------------------------------------------------#
 ##----------------------------------------------------------------------------#
 #' Constructor function for the \code{HiCDOCDataSet} class.
@@ -333,9 +296,9 @@ HiCDOCExample <- function() {
     return(invisible(object))
 }
 
-###############################################################################
-### HiCDOCDataSet S4 class definition
-###############################################################################
+
+## HiCDOCDataSet S4 class definition ----------------------------------------#
+##---------------------------------------------------------------------------#
 #' Infrastructure for HiCDOC experiment and differential interaction
 #'
 #' \code{HiCDOCDataSet} is an S4 class providing the infrastructure (slots)
@@ -395,6 +358,13 @@ setClass(
 )
 
 
+#' Number of bins of a chromosome, from the interactions matrix
+#'
+#' @param chromosomeId Name of the chromosome
+#' @param interactions Interactions matrix
+#' @param binSize Numeric value, resolution
+#'
+#' @return a numeric value
 nbBinsChromosome <- function(chromosomeId, interactions, binSize){
   chromosomeInteractions <- interactions %>%
     dplyr::filter(chromosome == chromosomeId)
@@ -405,7 +375,7 @@ nbBinsChromosome <- function(chromosomeId, interactions, binSize){
 
 
 
-##- HiCDOCDataSet S4 class constructor -----------------------------------------#
+##- HiCDOCDataSet S4 class constructor -------------------------------------#
 ##--------------------------------------------------------------------------#
 #' @rdname HiCDOCDataSet
 #' @docType class
