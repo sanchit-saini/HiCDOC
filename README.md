@@ -113,7 +113,7 @@ plotInteractionMatrix(object, chromosomeId = 1, trans = "log2")
 
 plotDistanceEffect(object)
 
-plotAB(object, chromosomeId = 1, conditionId = 1)
+plotAB(object, chromosomeId = 1)
 
 plotDiffConcordances(object)
 
