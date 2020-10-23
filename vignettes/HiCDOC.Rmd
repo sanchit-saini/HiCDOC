@@ -178,8 +178,7 @@ Once your data is loaded, you can follow the usual pipe-line.
 
 Start you script with:
 ```R
-dataSet <- HiCDOCDataSetFromSparseMatrix(matrix)
-object  <- HiCDOCExp(dataSet)
+object <- HiCDOCDataSetFromSparseMatrix(matrix)
 ```
 Then, follow the usual pipe-line.
 
