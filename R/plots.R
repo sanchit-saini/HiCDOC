@@ -129,8 +129,7 @@ plotDiffConcordances <- function(object) {
         dplyr::mutate(difference = `2` - `1`) %>%
         dplyr::select(-c(`1`, `2`)) %>%
         dplyr::left_join(changed, by = c("chromosome", "position")) %>%
-        dplyr::mutate(changed = replace_na(changed, "F")) %>%
-        dplyr::select(-c(chromosome, position, concordance, median))
+        dplyr::mutate(changed = replace_na(changed, "F"))
 
     p <- ggplot(differences, aes(x = difference, fill = changed)) +
         geom_histogram() +
@@ -143,7 +142,6 @@ plotDiffConcordances <- function(object) {
 #'
 #' @param object an \code{HiCDOCDataSet} object
 #' @param chromosomeId character or numeric value, name or number of chromosome
-#' @param conditionId character or numeric value, name or number of condition
 #' @return A list of \code{ggplot}, one for each chromosome.
 #' @examples
 #' object <- HiCDOCExample()
@@ -153,7 +151,7 @@ plotDiffConcordances <- function(object) {
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
 #' object <- detectCompartments(object)
-#' plotAB(object, 1, 1)
+#' plotAB(object, 1)
 #' @export
 plotAB <- function(object, chromosomeId) {
     testSlotsHiCDOC(object, slots = c("diagonalRatios", "compartments"))

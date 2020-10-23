@@ -10,8 +10,6 @@ plotAB(object, chromosomeId)
 \item{object}{an \code{HiCDOCDataSet} object}
 
 \item{chromosomeId}{character or numeric value, name or number of chromosome}
-
-\item{conditionId}{character or numeric value, name or number of condition}
 }
 \value{
 A list of \code{ggplot}, one for each chromosome.
@@ -27,5 +25,5 @@ object <- normalizeTechnicalBiases(object)
 object <- normalizeBiologicalBiases(object)
 object <- normalizeDistanceEffect(object)
 object <- detectCompartments(object)
-plotAB(object, 1, 1)
+plotAB(object, 1)
 }
