@@ -107,23 +107,6 @@ tieCentroids <- function(object) {
 #' - distances to centroids (float) for each genomic position in each replicate
 #' - concordance (float in [-1, 1]) for each genomic position in each replicate
 clusterizeChrCond <- function(object, chromosomeId, conditionId) {
-    testSlotsHiCDOC(
-        object,
-        slots = c(
-            "chromosomes",
-            "conditions",
-            "totalBins",
-            "binSize",
-            "weakBins",
-            "interactions"
-        )
-    )
-
-    object@parameters <- checkParameters(object@parameters,
-                                         c("kMeansDelta",
-                                         "kMeansIterations",
-                                         "kMeansRestarts"))
-
     chr <- testChromosome(object, chromosomeId)
     cond <- testCondition(object, conditionId)
 
@@ -239,6 +222,10 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
 #' object <- normalizeDistanceEffect(object)
 #' object <- clusterize(object)
 clusterize <- function(object) {
+    object@parameters <- checkParameters(object@parameters,
+                                         c("kMeansDelta",
+                                           "kMeansIterations",
+                                           "kMeansRestarts"))
     vectChr <- rep(object@chromosomes, each = length(unique(object@conditions)))
     vectCond <- rep(unique(object@conditions), length(object@chromosomes))
     clusterRes <- purrr::map2(vectChr, vectCond,
@@ -491,6 +478,17 @@ computePValues <- function(object) {
 #' object <- detectCompartments(object)
 #' @export
 detectCompartments <- function(object) {
+    testSlotsHiCDOC(
+        object,
+        slots = c(
+            "chromosomes",
+            "conditions",
+            "totalBins",
+            "binSize",
+            "weakBins",
+            "interactions"
+        )
+    )
     message("Clustering...")
     object <- clusterize(object)
     message("Predicting compartments...")
