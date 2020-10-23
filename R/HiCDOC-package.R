@@ -14,7 +14,7 @@
 # Note: not all of these functions are exported.
 #
 # --------------------------------
-# HiCDOCExp
+# HiCDOCDataSet
 # |- functions
 # --------------------------------
 #

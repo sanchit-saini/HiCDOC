@@ -1,5 +1,14 @@
-checkParameters <- function(value) {
-    # TODO
+#' Check object@parameters, return default if NULL
+#'
+#' @param parameters list of parameters
+#' @param paramnames character vector, names of parameters to check
+#'
+#' @return list of updated parameters, default from HiCDOCDefaultParameters()
+#' if null.
+checkParameters <- function(parameters, paramnames) {
+    nullparam <- paramnames[ vapply(parameters[paramnames], is.null, TRUE) ]
+    parameters[nullparam] <- HiCDOCDefaultParameters[nullparam]
+    return(parameters)
 }
 
 ##- sparseInteractionsToFullInteractions -------------------------------------#
@@ -7,7 +16,7 @@ checkParameters <- function(value) {
 #' Build the full interactions tibble filled with zeros for a chromosome in a
 #' condition and replicate.
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #' @param chromosomeId A chromosome.
 #' @param conditionId A condition.
 #' @param replicateId A replicate.
@@ -68,7 +77,7 @@ sparseInteractionsToFullInteractions <- function(object,
 ##----------------------------------------------------------------------------#
 #' Build the interaction matrix for a chromosome in a condition and replicate.
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #' @param chromosomeId A chromosome.
 #' @param conditionId A condition.
 #' @param replicateId A replicate.
@@ -118,7 +127,7 @@ sparseInteractionsToMatrix <- function(object,
 #' Build the interactions tibble for a chromosome in a condition and replicate.
 #'
 #' @param m                         A matrix.
-#' @param object                A \code{HiCDOCExp} object.
+#' @param object                A \code{HiCDOCDataSet} object.
 #' @param chromosomeId    A chromosome.
 #' @param conditionId     A condition.
 #' @param replicateId     A replicate.

@@ -47,7 +47,7 @@ testxlim <- function(xlim, positions) {
 #'
 #' Plot the concordance of all the replicates for one chromosome.
 #'
-#' @param object A \code{HiCDOCExp} object on which \code{detectCompartments()} has run.
+#' @param object A \code{HiCDOCDataSet} object on which \code{detectCompartments()} has run.
 #' @param chromosomeId The name or number of the chromosome to plot.
 #' If number, will be taken in \code{object@chromosomes[chromosomeId]}
 #' @param xlim A numeric-value pair, indicating the interval of positions to represent.
@@ -73,7 +73,7 @@ plotConcordance <- function(object,
                             xlim = NULL,
                             padjThreshold = 0.05,
                             points = FALSE) {
-    testSlotsHiCDOCExp(object, slots = c("concordances", "differences"))
+    testSlotsHiCDOC(object, slots = c("concordances", "differences"))
     chr <- testChromosome(object, chromosomeId)
     xlim <- testxlim(xlim,
                      seq_len(object@totalBins[[chr]] - 1) * object@binSize)
@@ -139,9 +139,9 @@ plotConcordance <- function(object,
 #' Plot the A & B compartments
 #'
 #' Plot the A and B compartments after \code{detectCompartments()} on
-#' a HiCDOCExp object, for a chromosome.
+#' a HiCDOCDataSet object, for a chromosome.
 #'
-#' @param object A \code{HiCDOCExp} object on which \code{detectCompartments()} has run.
+#' @param object A \code{HiCDOCDataSet} object on which \code{detectCompartments()} has run.
 #' @param chromosomeId The name or number of the chromosome to plot.
 #' If number, will be taken in \code{object@chromosomes[chromosomeId]}
 #' @param xlim A numeric-value pair, indicating the interval of positions to represent.
@@ -163,7 +163,7 @@ plotConcordance <- function(object,
 plotCompartments <- function(object,
                              chromosomeId,
                              xlim = NULL) {
-    testSlotsHiCDOCExp(object, slots = c("compartments"))
+    testSlotsHiCDOC(object, slots = c("compartments"))
     chr <- testChromosome(object, chromosomeId)
     xlim <- testxlim(xlim,
                      seq_len(object@totalBins[[chr]] - 1) * object@binSize)
@@ -194,7 +194,7 @@ plotCompartments <- function(object,
 
 #' Run plotCompartments() and plotConcordance() and assemble them on the same plot
 #'
-#' @param object An HiCDOCExp object, after a detectCompartments() run
+#' @param object An HiCDOCDataSet object, after a detectCompartments() run
 #' @param chromosomeId Name or number of the chromosome, like in object@chromosome
 #' @param padjThreshold Significance threshold for the changes. Default to 0.05.
 #' @param xlim A numeric-value pair, indicating the interval of positions to represent.
@@ -220,7 +220,7 @@ plotCompartmentChanges <-
                      xlim = NULL,
                      points = FALSE) {
         # Test parameters format
-        testSlotsHiCDOCExp(object,
+        testSlotsHiCDOC(object,
                            slots = c("concordances", "compartments", "differences"))
         chr <- testChromosome(object, chromosomeId)
 

@@ -16,7 +16,7 @@
 #' \code{"interactions"} the interactions matrix for the chromosome,
 #' whithout the weak bins.
 filterWeakChr <- function(object, chromosomeId, threshold = 0) {
-    testSlotsHiCDOCExp(
+    testSlotsHiCDOC(
         object,
         slots = c(
             "interactions",
@@ -89,31 +89,35 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 }
 
 
-#' Remove the weak bins of an HiCDOC object
+#' Remove the weak bins of an HiCDOCDataSet object
 #'
-#' The function indentifies and remove the weak bins of an HiCDOC object,
+#' The function indentifies and remove the weak bins of an HiCDOCDataSet object,
 #' chromosome by chromosome.
-#' To be kept, the bins (positions) must have a mean value greater than
-#' \code{threshold}, on all replicates and all conditions.
+#' To be kept, the bins (positions)of a chromosome must have a mean value
+#' greater than \code{threshold}, on all replicates and all conditions.
 #' The mean is computed on the row of the reconstructed full interaction
 #' matrix for 1 chromosome, 1 condition and 1 replicate. The weak bins will
 #' be discarded, and added in object@weakBins.
 #'
-#' @param object A HiCDOC object
-#' @param threshold Numeric, default to 0.
+#' @param object A HiCDOCDataSet object
+#' @param threshold Numeric, default to HiCDOCDefaultParameters$weakPosThreshold
 #'
-#' @return A \code{HicDOCExp} object with a reduced \code{interactions} slot,
+#' @return A \code{HiCDOCDataSet} object with a reduced \code{interactions} slot,
 #' and the weak bins identified by chromosomes in \code{object@weakBins}.
 #' @export
 #'
 #' @examples
 #' exp <- HiCDOCExample()
 #' exp <- filterWeakPositions(exp)
-filterWeakPositions <- function(object, threshold = 0) {
+filterWeakPositions <- function(object, threshold = NULL) {
+    if(! is.null(threshold) ) object@parameters$weakPosThreshold <- threshold
+    object@parameters <- checkParameters(object@parameters,
+                                       c("weakPosThreshold"))
     weakPositions <- lapply(object@chromosomes,
-                            function(chr)
-                                filterWeakChr(object,
-                                              chr, threshold))
+        function(chr) filterWeakChr(object,
+                                    chr,
+                                    object@parameters$weakPosThreshold)
+        )
     names(weakPositions) <- object@chromosomes
 
     weakBins <- weakPositions %>% purrr::map("pos")

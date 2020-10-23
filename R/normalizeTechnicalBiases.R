@@ -4,11 +4,11 @@
 #'
 #' @rdname normalizeTechnicalBiases
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #' @param parallel Logical, defautl to FALSE. Should parallel computing be used
 #' in \code{\link[multiHiCcompare]{cyclic_loess}} ?
 #'
-#' @return A \code{HiCDOCExp} object, with the normalized matrices.
+#' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
 #'
 #' @examples
 #' object <- HiCDOCExample()

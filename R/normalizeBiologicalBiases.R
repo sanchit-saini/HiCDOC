@@ -98,13 +98,13 @@ KR <- function(A,
 #'
 #' @rdname normalizeBiologicalBiasesChr
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #' @param chromosomeId The name or number of the chromosome to plot.
 #' If number, will be taken in \code{object@chromosomes[chromosomeId]}
 #'
-#' @return A \code{HiCDOCExp} object, with the normalized matrices.
+#' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
 normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
-    testSlotsHiCDOCExp(
+    testSlotsHiCDOC(
         object,
         slots = c(
             "interactions",
@@ -166,9 +166,9 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
 #'
 #' @rdname normalizeBiologicalBiases
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #'
-#' @return A \code{HiCDOCExp} object, with the normalized matrices.
+#' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
 #'
 #' @examples
 #' object <- HiCDOCExample()

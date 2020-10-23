@@ -10,9 +10,9 @@
 #'
 #' @aliases parseInteractionMatrix3Columns
 #'
-#' @param object An \code{HiCDOCExp} object.
+#' @param object An \code{HiCDOCDataSet} object.
 #'
-#' @return object An \code{HiCDOCExp} object.
+#' @return object An \code{HiCDOCDataSet} object.
 #'
 #' @examples
 #' linkToMatrix <-system.file("extdata", "sampleMatrix.tsv", package = "HiCDOC")
@@ -187,17 +187,17 @@ parseCoolMatrix <- function(fileName) {
 ##- mergeMatrices ------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
 #' Merge the matrices which have been parsed separately.
-#' Store the result into a \code{HiCDOCExp} object.
+#' Store the result into a \code{HiCDOCDataSet} object.
 #'
 #' @name mergeMatrices
 #' @rdname mergeMatrices
 #'
 #' @aliases mergeMatrices
 #'
-#' @param object A \code{HiCDOCExp} object, where the matrices should be
+#' @param object A \code{HiCDOCDataSet} object, where the matrices should be
 #'          stored.
 #' @param matrices The different matrices (one per sample).
-#' @return object The \code{HiCDOCExp} object, where the matrices have been
+#' @return object The \code{HiCDOCDataSet} object, where the matrices have been
 #'           added.
 mergeMatrices <- function(object, matrices) {
     for (i in seq_along(matrices)) {
@@ -225,9 +225,9 @@ mergeMatrices <- function(object, matrices) {
 #'
 #' @aliases parseInteractionMatrixCool
 #'
-#' @param object An \code{HiCDOCExp} object.
+#' @param object An \code{HiCDOCDataSet} object.
 #'
-#' @return object An \code{HiCDOCExp} object.
+#' @return object An \code{HiCDOCDataSet} object.
 #'
 #' @export
 parseInteractionMatrixCool <- function(object) {
@@ -266,9 +266,9 @@ parseHicMatrix <- function(fileName, resolution = resolution) {
 #'
 #' @aliases parseInteractionMatrixHic
 #'
-#' @param object An \code{HiCDOCExp} object.
+#' @param object An \code{HiCDOCDataSet} object.
 #'
-#' @return object An \code{HiCDOCExp} object.
+#' @return object An \code{HiCDOCDataSet} object.
 #'
 #' @export
 parseInteractionMatrixHic <- function(object) {

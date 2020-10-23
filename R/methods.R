@@ -1,6 +1,6 @@
 ##- chromosomes -------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Accessors for the 'chromosomes' slot of an HiCDOCExp object
+#' Accessors for the 'chromosomes' slot of an HiCDOCDataSet object
 #'
 #' The \code{chromosomes} slot contains the names of the chromosomes, eventually
 #' filtred after \code{filterSmallChromosomes()}
@@ -8,8 +8,8 @@
 #' @docType methods
 #' @name chromosomes
 #' @rdname chromosomes
-#' @aliases chromosomes chromosomes,HiCDOCExp-method
-#' @param object An \code{HiCDOCExp} object.
+#' @aliases chromosomes chromosomes,HiCDOCDataSet-method
+#' @param object An \code{HiCDOCDataSet} object.
 #' @return A character vector
 #' @examples
 #' exp <- HiCDOCExample()
@@ -18,7 +18,7 @@
 #' @export
 setMethod(
     f = "chromosomes",
-    signature = "HiCDOCExp",
+    signature = "HiCDOCDataSet",
     definition = function(object) {
         object@chromosomes
     }
@@ -26,7 +26,7 @@ setMethod(
 
 ##- interactions -------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Accessors for the 'interactions' slot of an HiCDOCExp object
+#' Accessors for the 'interactions' slot of an HiCDOCDataSet object
 #'
 #' The \code{interactions} slot contains the (transformed) interaction
 #' profiles.
@@ -34,8 +34,8 @@ setMethod(
 #' @docType methods
 #' @name interactions
 #' @rdname interactions
-#' @aliases interactions interactions,HiCDOCExp-method
-#' @param object An \code{HiCDOCExp} object.
+#' @aliases interactions interactions,HiCDOCDataSet-method
+#' @param object An \code{HiCDOCDataSet} object.
 #' @return A tibble
 #' @examples
 #' exp <- HiCDOCExample()
@@ -44,7 +44,7 @@ setMethod(
 #' @export
 setMethod(
     f = "interactions",
-    signature = "HiCDOCExp",
+    signature = "HiCDOCDataSet",
     definition = function(object) {
     object@interactions
     }
@@ -53,18 +53,18 @@ setMethod(
 
 ##- differences --------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Extracts differentially interacting regions of an HiCDOCExp object
+#' Extracts differentially interacting regions of an HiCDOCDataSet object
 #'
 #' This function extracts the differentially interacting regions from
-#' \code{\link{HiCDOCExp}}.
+#' \code{\link{HiCDOCDataSet}}.
 #'
 #' @docType methods
 #' @name differences
 #' @rdname differences
 #'
-#' @aliases differences differences,HiCDOCExp-method
+#' @aliases differences differences,HiCDOCDataSet-method
 #'
-#' @param object An \code{HiCDOCExp} object.
+#' @param object An \code{HiCDOCDataSet} object.
 #' @param pvalue Numeric cutoff value for adjusted p-values. Only regions with
 #' adjusted p-values equal or lower than specified are returned.
 #' Default to 1, all regions are returned.
@@ -80,12 +80,12 @@ setMethod(
 #' @export
 setMethod(
     f = "differences",
-    signature = "HiCDOCExp",
+    signature = "HiCDOCDataSet",
     definition = function(object, pvalue=1) {
         if (is.null(object@differences)) {
             message(
                 "No 'differences' slot found in the ",
-                "HiCDOCExp object. Run HiCDOC first."
+                "HiCDOCDataSet object. Run HiCDOC first."
             )
         }
         else if (length(object@differences) == 0) {
@@ -139,15 +139,15 @@ setMethod(
 ##----------------------------------------------------------------------------#
 #' Extracts concordances
 #'
-#' This function extracts the concordances from \code{\link{HiCDOCExp}}.
+#' This function extracts the concordances from \code{\link{HiCDOCDataSet}}.
 #'
 #' @docType methods
 #' @name concordances
 #' @rdname concordances
 #'
-#' @aliases concordances concordances,HiCDOCExp-method
+#' @aliases concordances concordances,HiCDOCDataSet-method
 #'
-#' @param object An \code{HiCDOCExp} object.
+#' @param object An \code{HiCDOCDataSet} object.
 #'
 #' @return A \code{tibble} object of the concordance
 #'
@@ -159,12 +159,12 @@ setMethod(
 #' @export
 setMethod(
     f = "concordances",
-    signature = "HiCDOCExp",
+    signature = "HiCDOCDataSet",
     definition = function(object) {
         if (is.null(object@concordances)) {
             message(
                 "No 'concordances' slot found in the ",
-                "HiCDOCExp object. Run HiCDOC first."
+                "HiCDOCDataSet object. Run HiCDOC first."
             )
         } else {
             return(object@concordances)
@@ -177,15 +177,15 @@ setMethod(
 ##----------------------------------------------------------------------------#
 #' Extracts compartments
 #'
-#' This function extracts the compartments from \code{\link{HiCDOCExp}}.
+#' This function extracts the compartments from \code{\link{HiCDOCDataSet}}.
 #'
 #' @docType methods
 #' @name compartments
 #' @rdname compartments
 #'
-#' @aliases compartments compartments,HiCDOCExp-method
+#' @aliases compartments compartments,HiCDOCDataSet-method
 #'
-#' @param object An \code{HiCDOCExp} object.
+#' @param object An \code{HiCDOCDataSet} object.
 #'
 #' @return A \code{tibble} object of the compartments
 #'
@@ -197,12 +197,12 @@ setMethod(
 #' @export
 setMethod(
     f = "compartments",
-    signature = "HiCDOCExp",
+    signature = "HiCDOCDataSet",
     definition = function(object) {
         if (is.null(object@compartments)) {
             message(
                 "No 'compartments' slot found in the ",
-                "HiCDOCExp object. Run HiCDOC first."
+                "HiCDOCDataSet object. Run HiCDOC first."
             )
         } else {
             grl <- object@compartments %>%
@@ -237,7 +237,7 @@ setMethod(
 
 ##- parameters ---------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Accessors for the 'parameters' slot of an HiCDOCExp object
+#' Accessors for the 'parameters' slot of an HiCDOCDataSet object
 #'
 #' The \code{parameters} slot holds the parameter values
 #' used in an experiment as a named \code{list}. Default values
@@ -253,15 +253,33 @@ setMethod(
 #'                coverage. Bases where at least one sample has (normalized)
 #'                coverage greater than \code{minDepth} be been retained.
 #'                Default to \code{10}.}
+#'       \item{\code{sampleSize}}{The number of bins used when sampling
+#'                all the bins.}
+#'       \item{\code{loessSpan}}{The optimal span value used for the
+#'                diagonal normalization.}
+#'       \item{\code{kMeansIterations}}{The maximum number of 2-means
+#'                iterations.}
+#'       \item{\code{kMeansDelta}}{The stop criterion of convergence of
+#'                the 2-means method.}
+#'       \item{\code{kMeansRestarts}}{The maximum number of restarts
+#'                for the 2-means.}
+#'       \item{\code{minLengthChr}}{The minimum chromosome
+#'                size (in number of bins), to be kept.}
+#'       \item{\code{weakPosThreshold}}{To be kept, the bins (positions)
+#'                of a chromosome must have a mean value greater than
+#'                \code{weakPosThreshold}, on all replicates and all
+#'                conditions. The mean is computed on the row of the
+#'                reconstructed full interaction matrix for 1 chromosome,
+#'                1 condition and 1 replicate.}
 #'    }
 #' }
 #'
 #' @docType methods
 #' @name parameters
 #' @rdname parameters
-#' @aliases parameters parameters,HiCDOCExp-method
-#' parameters<- parameters<-,HiCDOCExp-method
-#' @param object An \code{HiCDOCExp} object.
+#' @aliases parameters parameters,HiCDOCDataSet-method
+#' parameters<- parameters<-,HiCDOCDataSet-method
+#' @param object An \code{HiCDOCDataSet} object.
 #' @param value A named \code{list} containing valid parameters. See details.
 #' @return The named list of the parameters used in the analysis.
 #' @seealso
@@ -274,11 +292,11 @@ setMethod(
 #' @export
 setMethod(
     f = "parameters",
-    signature = "HiCDOCExp",
+    signature = "HiCDOCDataSet",
     definition = function(object) {
         if (is.null(object@parameters)) {
             message(
-                "No 'parameters' slot found in the HiCDOCExp ",
+                "No 'parameters' slot found in the HiCDOCDataSet ",
                 "object. Run HiCDOC first or assign a named ",
                 "list of valid parameters. See help(parameters) ",
                 "for details."
@@ -296,7 +314,7 @@ setMethod(
 #' @exportMethod "parameters<-"
 setReplaceMethod(
     "parameters",
-    signature(object = "HiCDOCExp", value = "ANY"),
+    signature(object = "HiCDOCDataSet", value = "ANY"),
     function(object, value) {
 
         ##- checking input value ---------------------------------#
@@ -349,17 +367,17 @@ setReplaceMethod(
 
 ##- show ---------------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' @rdname HiCDOCExp
-#' @param object An \code{HiCDOCExp} object.
+#' @rdname HiCDOCDataSet
+#' @param object An \code{HiCDOCDataSet} object.
 #' @return The \code{show} method informatively display object contents.
 #' @export
 setMethod(
     f = "show",
-    signature = "HiCDOCExp",
+    signature = "HiCDOCDataSet",
     definition = function(object) {
         nbCond <- length(unique(object@conditions))
         nbRep <- length(unique(object@replicates))
-        cat("Object of class HiCDOCExp.\n", "HiCDOC Experiment with:\n")
+        cat("Object of class HiCDOCDataSet.\n", "HiCDOC Experiment with:\n")
         cat(length(object@chromosomes), "chromosomes:", object@chromosomes, "\n")
         cat(object@totalReplicates, "replications in",
             length(unique(object@conditions)), "conditions\n")
@@ -369,13 +387,15 @@ setMethod(
 
 ##- print method for parameters ----------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Dispatch print method for the parameters used by an \code{HiCDOC} object.
+#' Dispatch print method for the parameters used by an \code{HiCDOCDataSet}
+#' object.
 #'
 #' @docType methods
 #' @name parameters
 #' @rdname parameters
-#' @aliases parameters parameters,HiCDOCExp-method
-#' @param x The first element of the parameters used by an \code{HiCDOC} object
+#' @aliases parameters parameters,HiCDOCDataSet-method
+#' @param x The first element of the parameters used by an \code{HiCDOCDataSet}
+#' object
 #' @param ... The other elements of the parameters
 #' @examples
 #' exp <- HiCDOCExample()

@@ -13,45 +13,47 @@ HiCDOCDefaultParameters <- list(
     kMeansDelta      = 0.0001,
     kMeansRestarts   = 20,
     sampleSize       = 20000,
-    loessSpan        = 0.75
+    loessSpan        = 0.75,
+    minLengthChr     = 100,
+    weakPosThreshold = 0
 )
 
-###############################################################################
-# HiCDOCDataSet S4 class definition
-###############################################################################
-#' Infrastructure for HiCDOC data set
-#'
-#' \code{HiCDOCDataSet} is an S4 class providing the infrastructure (slots)
-#' to store the input data.
-#'
-#' @details \code{HiCDOCDataSet} does this and that...
-#' TODO
-#'
-#' @name HiCDOCDataSet
-#' @rdname HiCDOCDataSet
-#' @docType class
-#' @aliases HiCDOCDatSet HiCDOCDataSet-class
-#'
-#' @slot inputPath The input matrix/matrices.  Can be the path(s) to
-#' to one, or several files, depending on the format considered.
-#' @slot interactions A data frame storing the matrices.  Is built using
-#' the values in the \code{inputPath} files.
-#' @slot replicates A vector storing the names of the replicates.
-#' @slot conditions A vector storing the names of the conditions.
-#' There should be exactly two different conditions.
-#' @slot binSize The resolution.
-#'
-#' @export
-setClass(
-    "HiCDOCDataSet",
-    slots = c(
-        inputPath    = "ANY",
-        interactions = "ANY",
-        replicates   = "ANY",
-        conditions   = "ANY",
-        binSize      = "ANY"
-    )
-)
+# ###############################################################################
+# # HiCDOCtemp S4 class definition
+# ###############################################################################
+# #' Infrastructure for HiCDOC temporary data set
+# #'
+# #' \code{HiCDOCtemp} is an S4 class providing the infrastructure (slots)
+# #' to store the input data.
+# #'
+# #' @details \code{HiCDOCTemp} does this and that...
+# #' TODO
+# #'
+# #' @name HiCDOCTemp
+# #' @rdname HiCDOCTemp
+# #' @docType class
+# #' @aliases HiCDOCTemp HiCDOCTemp-class
+# #'
+# #' @slot inputPath The input matrix/matrices.  Can be the path(s) to
+# #' to one, or several files, depending on the format considered.
+# #' @slot interactions A data frame storing the matrices.  Is built using
+# #' the values in the \code{inputPath} files.
+# #' @slot replicates A vector storing the names of the replicates.
+# #' @slot conditions A vector storing the names of the conditions.
+# #' There should be exactly two different conditions.
+# #' @slot binSize The resolution.
+# #'
+# #' @export
+# setClass(
+#     "HiCDOCTemp",
+#     slots = c(
+#         inputPath    = "ANY",
+#         interactions = "ANY",
+#         replicates   = "ANY",
+#         conditions   = "ANY",
+#         binSize      = "ANY"
+#     )
+# )
 
 ##- makeHiCDOCDataSet --------------------------------------------------------#
 ##----------------------------------------------------------------------------#
@@ -67,7 +69,6 @@ setClass(
 #' basedir <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
 #' matrix  <- file.path(basedir, "sampleMatrix.tsv")
 #' data    <- makeHiCDOCDataSet(inputPath = matrix)
-#' @export
 makeHiCDOCDataSet <- function(
     inputPath    = NULL,
     interactions = NULL,
@@ -140,7 +141,7 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
 
     data <- makeHiCDOCDataSet(inputPath = matrix)
     object <- parseInteractionMatrix3Columns(data)
-
+    object <- HiCDOCDataSet(object)
     return(invisible(object))
 }
 
@@ -213,6 +214,7 @@ HiCDOCDataSetFromCool <- function(
                               replicates = replicates,
                               conditions = conditions)
   object <- parseInteractionMatrixCool(data)
+  object <- HiCDOCDataSet(object)
 
   return(invisible(object))
 }
@@ -243,7 +245,6 @@ HiCDOCDataSetFromCool <- function(
 #'                                  100000)
 #'
 #' @export
-#'
 HiCDOCDataSetFromHic <- function(hicFileNames,
                                  replicates,
                                  conditions,
@@ -302,6 +303,7 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
         binSize    = resolution
     )
     object <- parseInteractionMatrixHic(data)
+    object <- HiCDOCDataSet(object)
 
     return(invisible(object))
 }
@@ -310,13 +312,13 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
 ##----------------------------------------------------------------------------#
 #' Example constructor
 #'
-#' This function provides an example of a \code{HiCDOCExp} object from
+#' This function provides an example of a \code{HiCDOCDataSet} object from
 #' Marti-Marimon et al.
 #'
-#' @return An \code{HiCDOCExp} object called '\code{exp}'.
+#' @return An \code{HiCDOCDataSet} object called '\code{exp}'.
 #'
 #' @examples
-#' ## The 'HiCDOCExp' object in this example was constructed by:
+#' ## The 'HiCDOCDataSet' object in this example was constructed by:
 #' exp <- HiCDOCExample()
 #' exp
 #'
@@ -327,26 +329,25 @@ HiCDOCExample <- function() {
         system.file("extdata", package = "HiCDOC", mustWork = TRUE)
     matrix  <- file.path(basedir, "sampleMatrix.tsv")
     dataSet <- HiCDOCDataSetFromSparseMatrix(matrix)
-    object  <- HiCDOCExp(dataSet)
+    object  <- HiCDOCDataSet(dataSet)
     return(invisible(object))
 }
 
 ###############################################################################
-### HiCDOC S4 class definition
+### HiCDOCDataSet S4 class definition
 ###############################################################################
 #' Infrastructure for HiCDOC experiment and differential interaction
 #'
-#' \code{HiCDOC} is an S4 class providing the infrastructure (slots)
+#' \code{HiCDOCDataSet} is an S4 class providing the infrastructure (slots)
 #' to store the input data, methods parameters, intermediate calculations
 #' and results of a differential interaction pipeline
 #'
-#' @details \code{HiCDOCExp} does this and that...
-#' TODO
+#' @details HiCDOCDataSet does this
 #'
-#' @name HiCDOCExp
-#' @rdname HiCDOCExp
+#' @name HiCDOCDataSet
+#' @rdname HiCDOCDataSet
 #' @docType class
-#' @aliases HiCDOCExp HiCDOCExp-class
+#' @aliases HiCDOCDataSet HiCDOCDataSet-class
 #'
 #' @slot inputPath The names of the matrix input files.
 #' @slot interactions The interaction matrices.
@@ -360,23 +361,18 @@ HiCDOCExample <- function() {
 #' @slot conditions The names of the conditions (exactly two different).
 #' @slot totalBins The number of bins per chromosome.
 #' @slot binSize The resolution.
-#' @slot sampleSize The number of bins used when sampling all the bins.
 #' @slot distances The distribution of distances to the centroids.
 #' @slot diagonalRatios TODO
 #' @slot compartments The A/B compartments distribution, along the chromosomes.
 #' @slot concordances The concordance distribution, along the chromosomes.
 #' @slot differences The distribution of the difference of the concordance.
 #' @slot centroids The position of the centroids.
-#' @slot loessSpan The optimal span value used for the diagonal normalization.
-#' @slot kMeansIterations The maximum number of 2-means iterations.
-#' @slot kMeansDelta The stop criterion of convergence of the 2-means method.
-#' @slot kMeansRestarts The maximum number of restarts for the 2-means.
 #' @slot parameters An named \code{list}. The parameters for the
 #' segmentation methods. See \code{\link{parameters}}.
 #'
 #' @export
 setClass(
-    "HiCDOCExp",
+    "HiCDOCDataSet",
     slots = c(
         inputPath                   = "ANY",
         interactions                = "ANY",
@@ -388,25 +384,30 @@ setClass(
         conditions                  = "ANY",
         totalBins                   = "ANY",
         binSize                     = "ANY",
-        sampleSize                  = "ANY",
         distances                   = "ANY",
         diagonalRatios              = "ANY",
         compartments                = "ANY",
         concordances                = "ANY",
         differences                 = "ANY",
         centroids                   = "ANY",
-        loessSpan                   = "ANY",
-        kMeansIterations            = "ANY",
-        kMeansDelta                 = "ANY",
-        kMeansRestarts              = "ANY",
         parameters                  = "ANY"
     )
 )
 
 
-##- HiCDOCExp S4 class constructor -----------------------------------------#
+nbBinsChromosome <- function(chromosomeId, interactions, binSize){
+  chromosomeInteractions <- interactions %>%
+    dplyr::filter(chromosome == chromosomeId)
+  nbBins = max(chromosomeInteractions$position.1,
+               chromosomeInteractions$position.2) / binSize + 1
+  return(nbBins)
+}
+
+
+
+##- HiCDOCDataSet S4 class constructor -----------------------------------------#
 ##--------------------------------------------------------------------------#
-#' @rdname HiCDOCExp
+#' @rdname HiCDOCDataSet
 #' @docType class
 #'
 #' @param dataSet A \code{HiCDOCDataSet} object.
@@ -414,77 +415,79 @@ setClass(
 #'                    segmentation methods. See \code{\link{parameters}}.
 #' @param binSize    The resolution.
 #'
-#' @return \code{HiCDOCExp} constructor returns an \code{HiCDOCExp}
+#' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
 #'         object of class S4.
 #'
 #' @examples
 #' linkToMatrix <- system.file("extdata", "sampleMatrix.tsv", package="HiCDOC")
 #' srnaDataSet <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
-#' srnaExp <- HiCDOCExp(srnaDataSet)
+#' srnaExp <- HiCDOCDataSet(srnaDataSet)
 #' @export
-HiCDOCExp <- function(dataSet = NULL,
+HiCDOCDataSet <- function(object = NULL,
                       parameters = NULL,
                       binSize = NULL) {
-    ##- checking general input arguments -------------------------------------#
-    ##------------------------------------------------------------------------#
 
-    ##- dataSet
-    if (is.null(dataSet)) {
-        stop("'dataSet' must be specified", call. = FALSE)
+      if ( is.null(object) ) {
+        # stop("'dataSet' must be specified", call. = FALSE)
+        object <- new("HiCDOCDataSet")
     }
 
-    ##- parameters
+    if( !is.null(object@interactions) ) {
+        object@chromosomes <-
+            mixedsort(as.vector(unique(object@interactions$chromosome)))
 
-    ##- end checking ---------------------------------------------------------#
+        object@weakBins <- vector("list", length(object@chromosomes))
+        names(object@weakBins) <- object@chromosomes
+    }
+    if( !is.null(object@replicates) ) {
+        object@totalReplicates <- length(object@replicates)
+    }
+    if( !is.null(object@conditions) ) {
+        object@totalReplicatesPerCondition <-
+            vapply(c(1, 2), function(x) {
+                length(which(object@conditions == x))
+            }, FUN.VALUE = 0)
+    }
 
-    object <- new("HiCDOCExp")
-
-    object@interactions <- dataSet@interactions
-    object@replicates   <- dataSet@replicates
-    object@conditions   <- dataSet@conditions
-
-    object@chromosomes <-
-        mixedsort(as.vector(unique(object@interactions$chromosome)))
-
-    object@totalReplicates <- length(object@replicates)
-
-    object@totalReplicatesPerCondition <-
-        vapply(c(1, 2), function(x) {
-            length(which(object@conditions == x))
-        }, FUN.VALUE = c(0))
-
-    if (is.null(binSize)) {
-        object@binSize <- min(abs(
+    if ( !is.null(binSize) ) {
+        object@binSize <- binSize
+    } else {
+      if( !is.null(object@interactions) ) {
+          object@binSize <- min(abs(
             object@interactions$position.1[object@interactions$position.1
                                            != object@interactions$position.2]
             - object@interactions$position.2[object@interactions$position.1
                                              != object@interactions$position.2]
-        ))
-    }
-    else {
-        object@binSize <- binSize
+          ))
+      }
     }
 
-    object@totalBins <- vector("list", length(object@chromosomes))
-    names(object@totalBins) <- object@chromosomes
-
-    for (chromosomeId in object@chromosomes) {
-        chromosomeInteractions <- object@interactions %>%
-            dplyr::filter(chromosome == chromosomeId)
-        object@totalBins[[chromosomeId]] <-
-            max(chromosomeInteractions$position.1,
-                chromosomeInteractions$position.2) / object@binSize + 1
+    if( !is.null(object@binSize) & !is.null(object@interactions) ){
+        object@totalBins <- vapply(object@chromosomes,
+            function(x) nbBinsChromosome(x,
+                                         object@interactions,
+                                         object@binSize),
+            FUN.VALUE = 0
+            )
     }
 
-    object@weakBins <- vector("list", length(object@chromosomes))
-    names(object@weakBins) <- object@chromosomes
+    acceptedParam <- names(HiCDOCDefaultParameters)
+    object@parameters <- vector("list", length(acceptedParam))
+    names(object@parameters) <- acceptedParam
 
-    object@kMeansIterations <-
-        HiCDOCDefaultParameters$kMeansIterations
-    object@kMeansDelta      <- HiCDOCDefaultParameters$kMeansDelta
-    object@kMeansRestarts   <- HiCDOCDefaultParameters$kMeansRestarts
-    object@sampleSize       <- HiCDOCDefaultParameters$sampleSize
-    object@loessSpan        <- HiCDOCDefaultParameters$loessSpan
+    if( !is.null(parameters) ){
+      paramnames <- names(parameters)
+      paramOK <- match(paramnames, acceptedParam)
+      if(length(paramOK[is.na(paramOK)])>0) {
+          warning(paste0("Unknown parameters '",
+                        paste(paramnames[is.na(paramOK)], collapse="', '"),
+                        "'.\nAccepted parameters: '",
+                        paste(acceptedParam, collapse = "', '"), "'"),
+                  call. = FALSE)
+      }
+      paramnames <- paramnames[ !is.na(paramOK) ]
+      object@parameters[paramnames] <- parameters[paramnames]
+    }
 
     return(invisible(object))
 }
@@ -494,8 +497,8 @@ HiCDOCExp <- function(dataSet = NULL,
 ##----------------------------------------------------------------------------#
 #' Main method.  Start the pipeline with default parameters.
 #'
-#' @param object A \code{HiCDOCExp} object.
-#' @return Returns an \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
+#' @return Returns an \code{HiCDOCDataSet} object.
 #' @export
 HiCDOC <- function(object) {
     object <- normalizeTechnicalBiases(object)

@@ -1,6 +1,6 @@
 #' Plot the interaction matrix (as heatmap).
 #'
-#' @param object an \code{HiCDOCExp} object
+#' @param object an \code{HiCDOCDataSet} object
 #' @param chromosomeId The name or number of the chromosome to plot.
 #' If number, will be taken in \code{object@chromosomes[chromosomeId]}
 #' @param trans character: transformation of the color scale. Default to "log2".
@@ -20,7 +20,7 @@ plotInteractionMatrix <-
              trans = "log2",
              colours = c("#000066", "#ffffbf", "#990000")) {
         # Parameters
-        testSlotsHiCDOCExp(object,
+        testSlotsHiCDOC(object,
                            slots = c("interactions",
                                      "conditions",
                                      "totalBins",
@@ -73,14 +73,14 @@ plotInteractionMatrix <-
 
 #' Plot the distance vs intensity matrix.
 #'
-#' @param object an \code{HiCDOCExp} object
+#' @param object an \code{HiCDOCDataSet} object
 #' @return A \code{ggplot}.
 #' @examples
 #' object <- HiCDOCExample()
 #' plotDistanceEffect(object)
 #' @export
 plotDistanceEffect <- function(object) {
-    testSlotsHiCDOCExp(object, slots = c("interactions"))
+    testSlotsHiCDOC(object, slots = c("interactions"))
 
     p <- object@interactions %>%
         dplyr::mutate(distance = position.2 - position.1) %>%
@@ -100,7 +100,7 @@ plotDistanceEffect <- function(object) {
 #' Plot the concordance, i.e. the relative distance of the genomic positions
 #' with respect to the centroids.
 #'
-#' @param object an \code{HiCDOCExp} object
+#' @param object an \code{HiCDOCDataSet} object
 #' @return A list of \code{ggplot}, one for each chromosome.
 #' @examples
 #' object <- HiCDOCExample()
@@ -113,7 +113,7 @@ plotDistanceEffect <- function(object) {
 #' plotDiffConcordances(object)
 #' @export
 plotDiffConcordances <- function(object) {
-    testSlotsHiCDOCExp(object,
+    testSlotsHiCDOC(object,
                        slots = c("interactions", "differences", "concordances"))
 
     changed <- object@differences %>%
@@ -141,7 +141,7 @@ plotDiffConcordances <- function(object) {
 
 #' Plot the distribution of A/B compartments along the genomic positions.
 #'
-#' @param object an \code{HiCDOCExp} object
+#' @param object an \code{HiCDOCDataSet} object
 #' @param chromosomeId character or numeric value, name or number of chromosome
 #' @param conditionId character or numeric value, name or number of condition
 #' @return A list of \code{ggplot}, one for each chromosome.
@@ -156,7 +156,7 @@ plotDiffConcordances <- function(object) {
 #' plotAB(object, 1, 1)
 #' @export
 plotAB <- function(object, chromosomeId) {
-    testSlotsHiCDOCExp(object, slots = c("diagonalRatios", "compartments"))
+    testSlotsHiCDOC(object, slots = c("diagonalRatios", "compartments"))
     chromosomeId <- testChromosome(object, chromosomeId)
 
     data <- object@diagonalRatios %>%
@@ -183,7 +183,7 @@ plotAB <- function(object, chromosomeId) {
 #' Plot the centroid distributions along the genomic positions
 #' for a given chromosome.
 #'
-#' @param object an \code{HiCDOCExp} object
+#' @param object an \code{HiCDOCDataSet} object
 #' @param chromosomeId Character or numeric value. Name or number of
 #' the chromosome, like in chromosomes(object)
 #'
@@ -199,7 +199,7 @@ plotAB <- function(object, chromosomeId) {
 #' plotCentroids(object, 1)
 #' @export
 plotCentroids <- function(object, chromosomeId) {
-    testSlotsHiCDOCExp(object, slots = c("centroids"))
+    testSlotsHiCDOC(object, slots = c("centroids"))
     chr <- testChromosome(object, chromosomeId)
 
     df <- object@centroids %>%

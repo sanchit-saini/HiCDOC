@@ -30,9 +30,9 @@ distanceRatio <- function(x, centroids, eps = 1e-10) {
 ##----------------------------------------------------------------------------#
 #' Assign correct cluster labels by comparing centroids across conditions.
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #'
-#' @return A \code{HiCDOCExp} object, with diagonalRatios, and with corrected
+#' @return A \code{HiCDOCDataSet} object, with diagonalRatios, and with corrected
 #' cluster labels in centroids, compartments, distances and concordances.
 tieCentroids <- function(object) {
     totalConditions <- length(unique(object@conditions))
@@ -95,19 +95,19 @@ tieCentroids <- function(object) {
 ##----------------------------------------------------------------------------#
 #' Segregate genomic positions into 2 clusters using constrained k-means.
 #'
-#' @param object  A \code{HiCDOCExp} object.
+#' @param object  A \code{HiCDOCDataSet} object.
 #' @param chromosomeId A character or numeric value.
 #' Name or number of the chromosome
-#' @param conditionId #' A character or numeric value.
-#' Name or number of the chromosome
+#' @param conditionId A character or numeric value.
+#' Name or number of the condition
 #'
-#' @return A \code{HiCDOCExp} object, with:
+#' @return A \code{HiCDOCDataSet} object, with:
 #' - centroid (vector) for each cluster
 #' - compartment (cluster number) for each genomic position
 #' - distances to centroids (float) for each genomic position in each replicate
 #' - concordance (float in [-1, 1]) for each genomic position in each replicate
 clusterizeChrCond <- function(object, chromosomeId, conditionId) {
-    testSlotsHiCDOCExp(
+    testSlotsHiCDOC(
         object,
         slots = c(
             "chromosomes",
@@ -118,11 +118,18 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
             "interactions"
         )
     )
+
+    object@parameters <- checkParameters(object@parameters,
+                                         c("kMeansDelta",
+                                         "kMeansIterations",
+                                         "kMeansRestarts"))
+
     chr <- testChromosome(object, chromosomeId)
     cond <- testCondition(object, conditionId)
 
     totalBinsChr <- object@totalBins[[chr]]
-    if (totalBinsChr == -Inf) next
+    if (totalBinsChr == -Inf)
+        return(NULL)
 
     positions <- (seq.int(totalBinsChr) - 1) * object@binSize
 
@@ -151,9 +158,9 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
     clusteringOutput <- constrainedClustering(
         interactions,
         mustLink,
-        object@kMeansDelta,
-        object@kMeansIterations,
-        object@kMeansRestarts
+        object@parameters$kMeansDelta,
+        object@parameters$kMeansIterations,
+        object@parameters$kMeansRestarts
     )
 
     clusters <- clusteringOutput[["clusters"]][0:totalBinsChr] + 1
@@ -216,9 +223,9 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
 ##----------------------------------------------------------------------------#
 #' Segregate genomic positions into 2 clusters using constrained k-means.
 #'
-#' @param object  A \code{HiCDOCExp} object.
+#' @param object  A \code{HiCDOCDataSet} object.
 #'
-#' @return A \code{HiCDOCExp} object, with:
+#' @return A \code{HiCDOCDataSet} object, with:
 #' - centroid (vector) for each cluster
 #' - compartment (cluster number) for each genomic position
 #' - distances to centroids (float) for each genomic position in each replicate
@@ -247,10 +254,13 @@ clusterize <- function(object) {
 
 #' Compute diagonalRatios
 #'
-#' @param object
-#' @param chromosomeId
-#' @param conditionId
-#' @param replicateId
+#' @param object an HiCDOCDataSet object
+#' @param chromosomeId A character or numeric value.
+#' Name or number of the chromosome
+#' @param conditionId A character or numeric value.
+#' Name or number of the condition
+#' @param replicateId A character or numeric value.
+#' Name or number of the replicate
 #'
 #' @return a tibble
 diagonalRatios <- function(object, chromosomeId, conditionId, replicateId){
@@ -293,9 +303,9 @@ diagonalRatios <- function(object, chromosomeId, conditionId, replicateId){
 #' Use ratio between diagonal and off-diagonal interactions to determine which
 #' clusters correspond to compartments A and B.
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #'
-#' @return A \code{HiCDOCExp} object, with diagonalRatios, and with A and B
+#' @return A \code{HiCDOCDataSet} object, with diagonalRatios, and with A and B
 #' labels replacing cluster numbers in centroids, compartments, distances and
 #' concordances.
 #' @examples
@@ -369,9 +379,9 @@ predictAB <- function(object) {
 #'    distribution of medians of all non-switching positions in that condition
 #'    pair. Adjust the resulting p-value with the Benjamini–Hochberg procedure.
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #'
-#' @return A \code{HiCDOCExp} object, with differences and their p-values.
+#' @return A \code{HiCDOCDataSet} object, with differences and their p-values.
 computePValues <- function(object) {
     # Compute median of differences between pairs of concordances
     # N.b. median of differences != difference of medians
@@ -463,9 +473,9 @@ computePValues <- function(object) {
 #' Detect compartments for each genomic position in each condition, and compute
 #' p-values for compartment differences between conditions.
 #'
-#' @param object  A \code{HiCDOCExp} object.
+#' @param object  A \code{HiCDOCDataSet} object.
 #'
-#' @return A \code{HiCDOCExp} object, with centroids, compartments, distances,
+#' @return A \code{HiCDOCDataSet} object, with centroids, compartments, distances,
 #' concordances and differences.
 #'
 #' @examples

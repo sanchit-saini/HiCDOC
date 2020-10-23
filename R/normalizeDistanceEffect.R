@@ -5,19 +5,20 @@
 #'
 #' @rdname normalizeDistanceEffectChr
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #' @param chromosomeId The name or number of the chromosome to plot.
 #' If number, will be taken in \code{object@chromosomes[chromosomeId]}
 #'
 #' @return the normalized interaction matrix for this chromosome.
 normalizeDistanceEffectChr <- function(object, chromosomeId) {
-    testSlotsHiCDOCExp(object,
+    testSlotsHiCDOC(object,
                        slots = c("interactions",
                                  "binSize",
-                                 "weakBins",
-                                 "sampleSize"))
+                                 "weakBins"))
     chr <- testChromosome(object, chromosomeId)
 
+    object@parameters <- checkParameters(object@parameters,
+                                         c("sampleSize"))
     message("Chromosome: ", chr)
 
     interactionsChr <- object@interactions %>%
@@ -29,7 +30,8 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
     sample <- interactionsChr %>%
         dplyr::filter(!(bin.1 %in% object@weakBins[[chromosomeId]])) %>%
         dplyr::filter(!(bin.2 %in% object@weakBins[[chromosomeId]])) %>%
-        dplyr::sample_n(size = min(object@sampleSize, nrow(interactionsChr))) %>%
+        dplyr::sample_n(size = min(object@parameters$sampleSize,
+                                   nrow(interactionsChr))) %>%
         dplyr::select(distance, value) %>%
         dplyr::arrange(distance)
 
@@ -60,13 +62,14 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
     }
 
     methodtrace <- "approximate"
-    if (object@sampleSize <= 1000)
+    if (object@parameters$sampleSize <= 1000)
         methodtrace <- "exact"
 
     l <- loess(value ~ distance,
                data = sample,
                control = loess.control(trace.hat = methodtrace))
     span <- optimizeSpan(l, criterion = "gcv")
+
     l <- loess(
         value ~ distance,
         span = span,
@@ -110,9 +113,9 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
 #'
 #' @rdname normalizeDistanceEffect
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #'
-#' @return A \code{HiCDOCExp} object, with the normalized matrices.
+#' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
 #'
 #' @examples
 #' object <- HiCDOCExample()

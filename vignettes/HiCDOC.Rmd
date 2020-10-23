@@ -20,8 +20,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(HiCDOC)
-#devtools::load_all(".")
+#library(HiCDOC)
+devtools::load_all(".")
 ```
 
 HiCDOC normalizes intrachromosomal Hi-C matrices and detects A/B compartments
@@ -112,6 +112,9 @@ On the normalized object, we can now run the detection of compartments, and plot
 
 ```{r}
 objectnormed <- detectCompartments(objectnormed)
+```
+
+```{r}
 plotCompartmentChanges(objectnormed, chromosomeId = 1, padjThreshold = 0.05)
 ```
 

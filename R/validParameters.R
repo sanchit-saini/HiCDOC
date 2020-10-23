@@ -2,7 +2,7 @@
 ##----------------------------------------------------------------------------#
 #' Test the existence of a given chromosome.
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #' @param chromosomeId The condition name, or an error.
 #'
 #' @return The chromosome name or an error.
@@ -18,7 +18,7 @@ testChromosome <- function(object, chromosomeId) {
 ##---------------------------------------------------------------------------#
 #' Test the existence of a given condition in a HiCDOC object
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #' @param conditionId    A character or numeric value
 #'
 #' @return The condition name, or an error.
@@ -30,22 +30,22 @@ testCondition <- function(object, conditionId) {
     stop(paste("Unknown condition:", conditionId), call. = FALSE)
 }
 
-##- testSlotsHiCDOCExp -------------------------------------------------------#
+##- testSlotsHiCDOC -------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Test the existence of slots in HiCDOCExp object
+#' Test the existence of slots in HiCDOCDataSet object
 #'
-#' @param object A \code{HiCDOCExp} object.
+#' @param object A \code{HiCDOCDataSet} object.
 #' @param slots Character vector, names of slots to verify. Default to NULL.
 #' If NULL, check only for the class of \code{object}
 #'
-#' @return An error if the object is not a HiCDOCExp object or a slot is
+#' @return An error if the object is not a HiCDOCDataSet object or a slot is
 #' missing.
-testSlotsHiCDOCExp <- function(object, slots = NULL) {
-    if (!is(object, "HiCDOCExp"))
-        stop("The object provided is not from class HiCDOCExp", call. = FALSE)
+testSlotsHiCDOC <- function(object, slots = NULL) {
+    if (!is(object, "HiCDOCDataSet"))
+        stop("The object provided is not from class HiCDOCDataSet", call. = FALSE)
 
     if (!is.null(slots)) {
-        existing <- slotNames("HiCDOCExp")
+        existing <- slotNames("HiCDOCDataSet")
         existing <- existing[vapply(
             existing,
             function(x) .hasSlot(object, x) && !is.null(slot(object, x)),
