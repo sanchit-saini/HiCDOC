@@ -245,14 +245,17 @@ clusterize <- function(object) {
     return(object)
 }
 
-#' Compute diagonalRatios
+##- diagonalRatios -----------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Compute the ratio of the reads which are on the diagonal vs those off-
+#'   diagonal, for each bin, and each matrix.
 #'
-#' @param object
-#' @param chromosomeId
-#' @param conditionId
-#' @param replicateId
+#' @param object       A \code{HiCDOCExp} object
+#' @param chromosomeId The index a chromosome.
+#' @param conditionId  The index of a condition.
+#' @param replicateId  The index of a replicate.
 #'
-#' @return a tibble
+#' @return a \code{tibble}.
 diagonalRatios <- function(object, chromosomeId, conditionId, replicateId){
     fullInteractions <- sparseInteractionsToFullInteractions(
         object,

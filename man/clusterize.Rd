@@ -19,3 +19,12 @@ A \code{HiCDOCExp} object, with:
 \description{
 Segregate genomic positions into 2 clusters using constrained k-means.
 }
+\examples{
+object <- HiCDOCExample()
+object <- filterSmallChromosomes(object)
+object <- filterWeakPositions(object)
+object <- normalizeTechnicalBiases(object)
+object <- normalizeBiologicalBiases(object)
+object <- normalizeDistanceEffect(object)
+object <- clusterize(object)
+}

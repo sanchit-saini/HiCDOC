@@ -4,14 +4,12 @@
 \alias{plotAB}
 \title{Plot the distribution of A/B compartments along the genomic positions.}
 \usage{
-plotAB(object, chromosomeId, conditionId)
+plotAB(object, chromosomeId)
 }
 \arguments{
 \item{object}{an \code{HiCDOCExp} object}
 
 \item{chromosomeId}{character or numeric value, name or number of chromosome}
-
-\item{conditionId}{character or numeric value, name or number of condition}
 }
 \value{
 A list of \code{ggplot}, one for each chromosome.
@@ -27,5 +25,5 @@ object <- normalizeTechnicalBiases(object)
 object <- normalizeBiologicalBiases(object)
 object <- normalizeDistanceEffect(object)
 object <- detectCompartments(object)
-plotAB(object, 1, 1)
+plotAB(object, 1)
 }

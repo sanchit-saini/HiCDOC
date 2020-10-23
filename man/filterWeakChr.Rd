@@ -9,7 +9,8 @@ filterWeakChr(object, chromosomeId, threshold = 0)
 \arguments{
 \item{object}{Interaction matrix for the chromosome}
 
-\item{chromosomeId}{Number of total bins for this chromosome}
+\item{chromosomeId}{A character or numeric value.
+Name or number of the chromosome}
 
 \item{threshold}{Numeric default to 0.}
 }

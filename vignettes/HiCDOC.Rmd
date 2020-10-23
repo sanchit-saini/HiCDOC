@@ -132,7 +132,7 @@ compartments(objectnormed)
 Various visualizations are also available:
 
 ```{r}
-plotAB(objectnormed, chromosomeId = "17", conditionId = "1")
+plotAB(objectnormed, chromosomeId = "17")
 plotDiffConcordances(objectnormed)
 plotCentroids(objectnormed, chromosomeId = 1)
 ```

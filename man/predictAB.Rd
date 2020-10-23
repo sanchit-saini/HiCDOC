@@ -19,3 +19,13 @@ concordances.
 Use ratio between diagonal and off-diagonal interactions to determine which
 clusters correspond to compartments A and B.
 }
+\examples{
+object <- HiCDOCExample()
+object <- filterSmallChromosomes(object)
+object <- filterWeakPositions(object)
+object <- normalizeTechnicalBiases(object)
+object <- normalizeBiologicalBiases(object)
+object <- normalizeDistanceEffect(object)
+object <- clusterize(object)
+object <- predictAB(object)
+}
