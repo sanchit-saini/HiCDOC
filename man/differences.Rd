@@ -3,13 +3,13 @@
 \docType{methods}
 \name{differences}
 \alias{differences}
-\alias{differences,HiCDOCExp-method}
-\title{Extracts differentially interacting regions of an HiCDOCExp object}
+\alias{differences,HiCDOCDataSet-method}
+\title{Extracts differentially interacting regions of an HiCDOCDataSet object}
 \usage{
-\S4method{differences}{HiCDOCExp}(object, pvalue = 1)
+\S4method{differences}{HiCDOCDataSet}(object, pvalue = 1)
 }
 \arguments{
-\item{object}{An \code{HiCDOCExp} object.}
+\item{object}{An \code{HiCDOCDataSet} object.}
 
 \item{pvalue}{Numeric cutoff value for adjusted p-values. Only regions with
 adjusted p-values equal or lower than specified are returned.
@@ -21,7 +21,7 @@ interacting regions.
 }
 \description{
 This function extracts the differentially interacting regions from
-\code{\link{HiCDOCExp}}.
+\code{\link{HiCDOCDataSet}}.
 }
 \examples{
 exp <- HiCDOCExample()

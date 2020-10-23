@@ -3,19 +3,19 @@
 \docType{methods}
 \name{concordances}
 \alias{concordances}
-\alias{concordances,HiCDOCExp-method}
+\alias{concordances,HiCDOCDataSet-method}
 \title{Extracts concordances}
 \usage{
-\S4method{concordances}{HiCDOCExp}(object)
+\S4method{concordances}{HiCDOCDataSet}(object)
 }
 \arguments{
-\item{object}{An \code{HiCDOCExp} object.}
+\item{object}{An \code{HiCDOCDataSet} object.}
 }
 \value{
 A \code{tibble} object of the concordance
 }
 \description{
-This function extracts the concordances from \code{\link{HiCDOCExp}}.
+This function extracts the concordances from \code{\link{HiCDOCDataSet}}.
 }
 \examples{
 exp <- HiCDOCExample()

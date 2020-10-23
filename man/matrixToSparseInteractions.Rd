@@ -9,7 +9,7 @@ matrixToSparseInteractions(m, object, chromosomeId, conditionId, replicateId)
 \arguments{
 \item{m}{A matrix.}
 
-\item{object}{A \code{HiCDOCExp} object.}
+\item{object}{A \code{HiCDOCDataSet} object.}
 
 \item{chromosomeId}{A chromosome.}
 

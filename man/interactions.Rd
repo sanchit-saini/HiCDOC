@@ -3,13 +3,13 @@
 \docType{methods}
 \name{interactions}
 \alias{interactions}
-\alias{interactions,HiCDOCExp-method}
-\title{Accessors for the 'interactions' slot of an HiCDOCExp object}
+\alias{interactions,HiCDOCDataSet-method}
+\title{Accessors for the 'interactions' slot of an HiCDOCDataSet object}
 \usage{
-\S4method{interactions}{HiCDOCExp}(object)
+\S4method{interactions}{HiCDOCDataSet}(object)
 }
 \arguments{
-\item{object}{An \code{HiCDOCExp} object.}
+\item{object}{An \code{HiCDOCDataSet} object.}
 }
 \value{
 A tibble

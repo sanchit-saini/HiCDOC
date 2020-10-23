@@ -4,10 +4,10 @@
 \alias{plotAB}
 \title{Plot the distribution of A/B compartments along the genomic positions.}
 \usage{
-plotAB(object, chromosomeId, conditionId)
+plotAB(object, chromosomeId)
 }
 \arguments{
-\item{object}{an \code{HiCDOCExp} object}
+\item{object}{an \code{HiCDOCDataSet} object}
 
 \item{chromosomeId}{character or numeric value, name or number of chromosome}
 

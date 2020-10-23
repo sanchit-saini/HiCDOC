@@ -7,7 +7,7 @@
 plotCompartments(object, chromosomeId, xlim = NULL)
 }
 \arguments{
-\item{object}{A \code{HiCDOCExp} object on which \code{detectCompartments()} has run.}
+\item{object}{A \code{HiCDOCDataSet} object on which \code{detectCompartments()} has run.}
 
 \item{chromosomeId}{The name or number of the chromosome to plot.
 If number, will be taken in \code{object@chromosomes[chromosomeId]}}
@@ -20,7 +20,7 @@ A ggplot.
 }
 \description{
 Plot the A and B compartments after \code{detectCompartments()} on
-a HiCDOCExp object, for a chromosome.
+a HiCDOCDataSet object, for a chromosome.
 }
 \examples{
 object <- HiCDOCExample()

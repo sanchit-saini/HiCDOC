@@ -8,7 +8,7 @@ with respect to the centroids.}
 plotDiffConcordances(object)
 }
 \arguments{
-\item{object}{an \code{HiCDOCExp} object}
+\item{object}{an \code{HiCDOCDataSet} object}
 }
 \value{
 A list of \code{ggplot}, one for each chromosome.

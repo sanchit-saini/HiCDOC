@@ -7,13 +7,13 @@
 normalizeBiologicalBiasesChr(object, chromosomeId)
 }
 \arguments{
-\item{object}{A \code{HiCDOCExp} object.}
+\item{object}{A \code{HiCDOCDataSet} object.}
 
 \item{chromosomeId}{The name or number of the chromosome to plot.
 If number, will be taken in \code{object@chromosomes[chromosomeId]}}
 }
 \value{
-A \code{HiCDOCExp} object, with the normalized matrices.
+A \code{HiCDOCDataSet} object, with the normalized matrices.
 }
 \description{
 Remove biological biases by normalizing with Knight-Ruiz matrix balancing.

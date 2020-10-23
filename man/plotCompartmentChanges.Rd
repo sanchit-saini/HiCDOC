@@ -13,7 +13,7 @@ plotCompartmentChanges(
 )
 }
 \arguments{
-\item{object}{An HiCDOCExp object, after a detectCompartments() run}
+\item{object}{An HiCDOCDataSet object, after a detectCompartments() run}
 
 \item{chromosomeId}{Name or number of the chromosome, like in object@chromosome}
 

@@ -7,7 +7,7 @@
 testChromosome(object, chromosomeId)
 }
 \arguments{
-\item{object}{A \code{HiCDOCExp} object.}
+\item{object}{A \code{HiCDOCDataSet} object.}
 
 \item{chromosomeId}{The condition name, or an error.}
 }

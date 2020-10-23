@@ -16,10 +16,10 @@ between two conditions:
 computePValues(object)
 }
 \arguments{
-\item{object}{A \code{HiCDOCExp} object.}
+\item{object}{A \code{HiCDOCDataSet} object.}
 }
 \value{
-A \code{HiCDOCExp} object, with differences and their p-values.
+A \code{HiCDOCDataSet} object, with differences and their p-values.
 }
 \description{
 Get p-values for genomic positions whose assigned compartment switches

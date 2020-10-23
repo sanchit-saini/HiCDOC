@@ -7,10 +7,10 @@
 parseInteractionMatrixHic(object)
 }
 \arguments{
-\item{object}{An \code{HiCDOCExp} object.}
+\item{object}{An \code{HiCDOCDataSet} object.}
 }
 \value{
-object An \code{HiCDOCExp} object.
+object An \code{HiCDOCDataSet} object.
 }
 \description{
 This function parses the .hic files provided in

@@ -13,7 +13,7 @@ sparseInteractionsToMatrix(
 )
 }
 \arguments{
-\item{object}{A \code{HiCDOCExp} object.}
+\item{object}{A \code{HiCDOCDataSet} object.}
 
 \item{chromosomeId}{A chromosome.}
 

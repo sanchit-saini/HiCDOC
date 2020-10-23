@@ -8,7 +8,7 @@ to diagonal.}
 normalizeDistanceEffectChr(object, chromosomeId)
 }
 \arguments{
-\item{object}{A \code{HiCDOCExp} object.}
+\item{object}{A \code{HiCDOCDataSet} object.}
 
 \item{chromosomeId}{The name or number of the chromosome to plot.
 If number, will be taken in \code{object@chromosomes[chromosomeId]}}

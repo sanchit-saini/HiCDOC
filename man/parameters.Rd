@@ -3,24 +3,25 @@
 \docType{methods}
 \name{parameters}
 \alias{parameters}
-\alias{parameters,HiCDOCExp-method}
+\alias{parameters,HiCDOCDataSet-method}
 \alias{parameters<-}
-\alias{parameters<-,HiCDOCExp-method}
+\alias{parameters<-,HiCDOCDataSet-method}
 \alias{printHiCDOCParameters}
-\title{Accessors for the 'parameters' slot of an HiCDOCExp object}
+\title{Accessors for the 'parameters' slot of an HiCDOCDataSet object}
 \usage{
-\S4method{parameters}{HiCDOCExp}(object)
+\S4method{parameters}{HiCDOCDataSet}(object)
 
-\S4method{parameters}{HiCDOCExp}(object) <- value
+\S4method{parameters}{HiCDOCDataSet}(object) <- value
 
 printHiCDOCParameters(x, ...)
 }
 \arguments{
-\item{object}{An \code{HiCDOCExp} object.}
+\item{object}{An \code{HiCDOCDataSet} object.}
 
 \item{value}{A named \code{list} containing valid parameters. See details.}
 
-\item{x}{The first element of the parameters used by an \code{HiCDOC} object}
+\item{x}{The first element of the parameters used by an \code{HiCDOCDataSet}
+object}
 
 \item{...}{The other elements of the parameters}
 }
@@ -43,6 +44,24 @@ Parameters in a HiCDOC experiment.
                coverage. Bases where at least one sample has (normalized)
                coverage greater than \code{minDepth} be been retained.
                Default to \code{10}.}
+      \item{\code{sampleSize}}{The number of bins used when sampling
+               all the bins.}
+      \item{\code{loessSpan}}{The optimal span value used for the
+               diagonal normalization.}
+      \item{\code{kMeansIterations}}{The maximum number of 2-means
+               iterations.}
+      \item{\code{kMeansDelta}}{The stop criterion of convergence of
+               the 2-means method.}
+      \item{\code{kMeansRestarts}}{The maximum number of restarts
+               for the 2-means.}
+      \item{\code{minLengthChr}}{The minimum chromosome
+               size (in number of bins), to be kept.}
+      \item{\code{weakPosThreshold}}{To be kept, the bins (positions)
+               of a chromosome must have a mean value greater than
+               \code{weakPosThreshold}, on all replicates and all
+               conditions. The mean is computed on the row of the
+               reconstructed full interaction matrix for 1 chromosome,
+               1 condition and 1 replicate.}
    }
 }
 }

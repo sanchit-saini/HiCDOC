@@ -12,7 +12,7 @@ plotInteractionMatrix(
 )
 }
 \arguments{
-\item{object}{an \code{HiCDOCExp} object}
+\item{object}{an \code{HiCDOCDataSet} object}
 
 \item{chromosomeId}{The name or number of the chromosome to plot.
 If number, will be taken in \code{object@chromosomes[chromosomeId]}}

@@ -8,10 +8,10 @@ p-values for compartment differences between conditions.}
 detectCompartments(object)
 }
 \arguments{
-\item{object}{A \code{HiCDOCExp} object.}
+\item{object}{A \code{HiCDOCDataSet} object.}
 }
 \value{
-A \code{HiCDOCExp} object, with centroids, compartments, distances,
+A \code{HiCDOCDataSet} object, with centroids, compartments, distances,
 concordances and differences.
 }
 \description{

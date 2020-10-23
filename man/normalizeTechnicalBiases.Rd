@@ -7,13 +7,13 @@
 normalizeTechnicalBiases(object, parallel = FALSE)
 }
 \arguments{
-\item{object}{A \code{HiCDOCExp} object.}
+\item{object}{A \code{HiCDOCDataSet} object.}
 
 \item{parallel}{Logical, defautl to FALSE. Should parallel computing be used
 in \code{\link[multiHiCcompare]{cyclic_loess}} ?}
 }
 \value{
-A \code{HiCDOCExp} object, with the normalized matrices.
+A \code{HiCDOCDataSet} object, with the normalized matrices.
 }
 \description{
 Normalize the distance effect using a cyclic loess on all the matrices.

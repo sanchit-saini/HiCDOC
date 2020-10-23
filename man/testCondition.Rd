@@ -7,7 +7,7 @@
 testCondition(object, conditionId)
 }
 \arguments{
-\item{object}{A \code{HiCDOCExp} object.}
+\item{object}{A \code{HiCDOCDataSet} object.}
 
 \item{conditionId}{A character or numeric value}
 }

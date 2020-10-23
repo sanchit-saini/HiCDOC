@@ -8,7 +8,7 @@ for a given chromosome.}
 plotCentroids(object, chromosomeId)
 }
 \arguments{
-\item{object}{an \code{HiCDOCExp} object}
+\item{object}{an \code{HiCDOCDataSet} object}
 
 \item{chromosomeId}{Character or numeric value. Name or number of
 the chromosome, like in chromosomes(object)}

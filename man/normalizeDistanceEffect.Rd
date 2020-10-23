@@ -8,10 +8,10 @@ to diagonal.}
 normalizeDistanceEffect(object)
 }
 \arguments{
-\item{object}{A \code{HiCDOCExp} object.}
+\item{object}{A \code{HiCDOCDataSet} object.}
 }
 \value{
-A \code{HiCDOCExp} object, with the normalized matrices.
+A \code{HiCDOCDataSet} object, with the normalized matrices.
 }
 \description{
 Normalize the distance effect using a loess on the intensity vs distance

@@ -3,19 +3,19 @@
 \docType{methods}
 \name{compartments}
 \alias{compartments}
-\alias{compartments,HiCDOCExp-method}
+\alias{compartments,HiCDOCDataSet-method}
 \title{Extracts compartments}
 \usage{
-\S4method{compartments}{HiCDOCExp}(object)
+\S4method{compartments}{HiCDOCDataSet}(object)
 }
 \arguments{
-\item{object}{An \code{HiCDOCExp} object.}
+\item{object}{An \code{HiCDOCDataSet} object.}
 }
 \value{
 A \code{tibble} object of the compartments
 }
 \description{
-This function extracts the compartments from \code{\link{HiCDOCExp}}.
+This function extracts the compartments from \code{\link{HiCDOCDataSet}}.
 }
 \examples{
 exp <- HiCDOCExample()

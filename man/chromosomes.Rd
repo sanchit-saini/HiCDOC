@@ -3,13 +3,13 @@
 \docType{methods}
 \name{chromosomes}
 \alias{chromosomes}
-\alias{chromosomes,HiCDOCExp-method}
-\title{Accessors for the 'chromosomes' slot of an HiCDOCExp object}
+\alias{chromosomes,HiCDOCDataSet-method}
+\title{Accessors for the 'chromosomes' slot of an HiCDOCDataSet object}
 \usage{
-\S4method{chromosomes}{HiCDOCExp}(object)
+\S4method{chromosomes}{HiCDOCDataSet}(object)
 }
 \arguments{
-\item{object}{An \code{HiCDOCExp} object.}
+\item{object}{An \code{HiCDOCDataSet} object.}
 }
 \value{
 A character vector

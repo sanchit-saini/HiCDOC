@@ -2,24 +2,24 @@
 % Please edit documentation in R/filterWeakPositions.R
 \name{filterWeakPositions}
 \alias{filterWeakPositions}
-\title{Remove the weak bins of an HiCDOC object}
+\title{Remove the weak bins of an HiCDOCDataSet object}
 \usage{
-filterWeakPositions(object, threshold = 0)
+filterWeakPositions(object, threshold = NULL)
 }
 \arguments{
-\item{object}{A HiCDOC object}
+\item{object}{A HiCDOCDataSet object}
 
-\item{threshold}{Numeric, default to 0.}
+\item{threshold}{Numeric, default to HiCDOCDefaultParameters$weakPosThreshold}
 }
 \value{
-A \code{HicDOCExp} object with a reduced \code{interactions} slot,
+A \code{HiCDOCDataSet} object with a reduced \code{interactions} slot,
 and the weak bins identified by chromosomes in \code{object@weakBins}.
 }
 \description{
-The function indentifies and remove the weak bins of an HiCDOC object,
+The function indentifies and remove the weak bins of an HiCDOCDataSet object,
 chromosome by chromosome.
-To be kept, the bins (positions) must have a mean value greater than
-\code{threshold}, on all replicates and all conditions.
+To be kept, the bins (positions)of a chromosome must have a mean value
+greater than \code{threshold}, on all replicates and all conditions.
 The mean is computed on the row of the reconstructed full interaction
 matrix for 1 chromosome, 1 condition and 1 replicate. The weak bins will
 be discarded, and added in object@weakBins.

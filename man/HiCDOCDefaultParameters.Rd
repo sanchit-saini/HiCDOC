@@ -5,7 +5,7 @@
 \alias{HiCDOCDefaultParameters}
 \title{List of HiCDOC default parameters.}
 \format{
-An object of class \code{list} of length 5.
+An object of class \code{list} of length 7.
 }
 \usage{
 HiCDOCDefaultParameters
