@@ -45,7 +45,13 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 
     # Recursive removal of bins - deleting a bin can create a new weak bin.
     while (nbNewEmptyBins > 0 & nbRemovedBins <= totalBinsChr) {
+        interChrDiag <- interChr %>%
+          dplyr::filter(position.1 == position.2) %>%
+          dplyr::rename(position = position.1) %>%
+          dplyr::select(-chromosome, -position.2)
+
         existing <- interChr %>%
+            dplyr::filter(position.1 != position.2) %>%
             tidyr::pivot_longer(
                 cols = c(`position.1`, `position.2`),
                 names_to = "pos_1or2",
@@ -53,6 +59,7 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
                 values_to = "position"
             ) %>%
             dplyr::select(-pos_1or2, -chromosome) %>%
+          bind_rows(interChrDiag) %>%
             tidyr::complete(position,
                      nesting(condition, replicate),
                      fill = list(value = 0)
