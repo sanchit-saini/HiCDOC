@@ -31,6 +31,7 @@ filterSmallChromosomes <- function(object, minLength = NULL) {
                              FUN.VALUE = TRUE)
     bigChromosomes <- names(bigChromosomes)[bigChromosomes == TRUE]
     bigChromosomes <- mixedsort(bigChromosomes)
+    smallChr <- object@chromosomes[!(object@chromosomes %in% bigChromosomes)]
 
     object@interactions %<>%
         dplyr::filter(chromosome %in% bigChromosomes) %>%
@@ -43,7 +44,13 @@ filterSmallChromosomes <- function(object, minLength = NULL) {
     message("Kept ",
             length(bigChromosomes),
             " chromosome",
-            if (length(bigChromosomes) != 1) "s"
+            if (length(bigChromosomes) > 1) "s"
+    )
+    message("Removed ",
+            length(smallChr),
+            " chromosome",
+            if (length(smallChr) > 1) "s :",
+            paste(smallChr, collapse = ", ")
     )
 
     return (object)
