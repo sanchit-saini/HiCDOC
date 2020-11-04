@@ -367,7 +367,10 @@ setReplaceMethod(
 
 ##- show ---------------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' @rdname HiCDOCDataSet
+#' @docType methods
+#' @name show
+#' @rdname show
+#' @aliases show show,HiCDOCDataSet-method
 #' @param object An \code{HiCDOCDataSet} object.
 #' @return The \code{show} method informatively display object contents.
 #' @export

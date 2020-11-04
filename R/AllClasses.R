@@ -197,16 +197,6 @@ HiCDOCDataSetFromCool <- function(
 #' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
 #'         object of class S4.
 #'
-#' @examples
-#' basedir <-
-#'     system.file("extdata", package = "HiCDOC", mustWork = TRUE)
-#' data <- read.csv(file.path(basedir, "hicData.csv"))
-#' data
-#' dataSet <- HiCDOCDataSetFromHic(file.path(basedir, data$FileName),
-#'                                  data$Replicate,
-#'                                  data$Condition,
-#'                                  100000)
-#'
 #' @export
 HiCDOCDataSetFromHic <- function(hicFileNames,
                                  replicates,
@@ -380,7 +370,7 @@ nbBinsChromosome <- function(chromosomeId, interactions, binSize){
 #' @rdname HiCDOCDataSet
 #' @docType class
 #'
-#' @param dataSet A \code{HiCDOCDataSet} object.
+#' @param object     A \code{HiCDOCDataSet} object.
 #' @param parameters A named \code{list}. The parameters for the
 #'                    segmentation methods. See \code{\link{parameters}}.
 #' @param binSize    The resolution.

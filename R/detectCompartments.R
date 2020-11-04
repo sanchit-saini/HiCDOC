@@ -214,13 +214,6 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
 #' - distances to centroids (float) for each genomic position in each replicate
 #' - concordance (float in [-1, 1]) for each genomic position in each replicate
 #' @examples
-#' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- clusterize(object)
 clusterize <- function(object) {
     object@parameters <- checkParameters(object@parameters,
                                          c("kMeansDelta",
