@@ -228,6 +228,7 @@ clusterize <- function(object) {
                                            "kMeansRestarts"))
     vectChr <- rep(object@chromosomes, each = length(unique(object@conditions)))
     vectCond <- rep(unique(object@conditions), length(object@chromosomes))
+
     clusterRes <- purrr::map2(vectChr, vectCond,
                               function(.x, .y) clusterizeChrCond(object, .x, .y))
     object@compartments <- purrr::map_dfr(clusterRes, "compartments")
@@ -254,28 +255,26 @@ clusterize <- function(object) {
 #'
 #' @return a \code{tibble}.
 diagonalRatios <- function(object, chromosomeId, conditionId, replicateId){
-    fullInteractions <- sparseInteractionsToFullInteractions(
-        object,
-        chromosomeId,
-        conditionId,
-        replicateId)
-
-    diagonal <- fullInteractions %>%
+    interactions = object@interactions %>%
+        dplyr::filter(chromosome == chromosomeId) %>%
+        dplyr::filter(condition == conditionId) %>%
+        dplyr::filter(replicate == replicateId)
+    
+    diagonal <- interactions %>%
         filter(position.1 == position.2) %>%
         select(-position.2) %>%
         rename(position = position.1) %>%
         rename(diagonal = value)
-
-    offDiagonal <- fullInteractions %>%
+    
+    offDiagonal <- interactions %>%
         filter(position.1 != position.2) %>%
-        select(-position.2) %>%
-        rename(position = position.1) %>%
-        group_by(position) %>%
-        mutate(offDiagonal = median(value)) %>%
-        ungroup() %>%
-        select(-value) %>%
-        distinct()
-
+        pivot_longer(cols=starts_with("position"), names_to="namepos",
+                     values_to="position") %>%
+                     select(-namepos) %>%
+                     group_by(chromosome, condition, replicate, position) %>%
+                     summarise(offDiagonal = median(value)) %>%
+                     ungroup()
+                     
     diagonalRatios <- diagonal %>%
         left_join(offDiagonal,
                   by = c("chromosome",
@@ -284,7 +283,7 @@ diagonalRatios <- function(object, chromosomeId, conditionId, replicateId){
                          "position")) %>%
         mutate(value = diagonal - offDiagonal) %>%
         select(-c(diagonal, offDiagonal))
-
+    
     return (diagonalRatios)
 }
 
