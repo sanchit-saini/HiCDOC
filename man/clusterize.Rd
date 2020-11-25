@@ -4,10 +4,14 @@
 \alias{clusterize}
 \title{Segregate genomic positions into 2 clusters using constrained k-means.}
 \usage{
-clusterize(object)
+clusterize(object, parallel = FALSE, nbCores = NULL)
 }
 \arguments{
 \item{object}{A \code{HiCDOCDataSet} object.}
+
+\item{parallel}{Logical. Should parallel processing be used?}
+
+\item{nbCores}{Integer, the number of cores to use for parallelization.}
 }
 \value{
 A \code{HiCDOCDataSet} object, with:
@@ -18,13 +22,4 @@ A \code{HiCDOCDataSet} object, with:
 }
 \description{
 Segregate genomic positions into 2 clusters using constrained k-means.
-}
-\examples{
-object <- HiCDOCExample()
-object <- filterSmallChromosomes(object)
-object <- filterWeakPositions(object)
-object <- normalizeTechnicalBiases(object)
-object <- normalizeBiologicalBiases(object)
-object <- normalizeDistanceEffect(object)
-object <- clusterize(object)
 }

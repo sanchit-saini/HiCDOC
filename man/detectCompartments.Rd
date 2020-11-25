@@ -5,10 +5,14 @@
 \title{Detect compartments for each genomic position in each condition, and compute
 p-values for compartment differences between conditions.}
 \usage{
-detectCompartments(object)
+detectCompartments(object, parallel = FALSE, nbCores = NULL)
 }
 \arguments{
 \item{object}{A \code{HiCDOCDataSet} object.}
+
+\item{parallel}{ogical. Should parallel processing be used? Default to FALSE.}
+
+\item{nbCores}{Integer, the number of cores to use for parallelization.}
 }
 \value{
 A \code{HiCDOCDataSet} object, with centroids, compartments, distances,
