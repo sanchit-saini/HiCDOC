@@ -471,6 +471,8 @@ HiCDOCDataSet <- function(object = NULL,
 #' @return Returns an \code{HiCDOCDataSet} object.
 #' @export
 HiCDOC <- function(object) {
+    object <- filterSmallChromosomes(object)
+    object <- filterWeakPositions(object)
     object <- normalizeTechnicalBiases(object)
     object <- normalizeBiologicalBiases(object)
     object <- normalizeDistanceEffect(object)
