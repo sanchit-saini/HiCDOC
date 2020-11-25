@@ -404,7 +404,7 @@ HiCDOCDataSet <- function(object = NULL,
     }
     if( !is.null(object@conditions) ) {
         object@totalReplicatesPerCondition <-
-            vapply(c(1, 2), function(x) {
+            vapply(unique(object@conditions), function(x) {
                 length(which(object@conditions == x))
             }, FUN.VALUE = 0)
     }
