@@ -27,7 +27,6 @@ Imports:
     multiHiCcompare,
     ggplot2,
     ggExtra,
-    hexbin,
     gtools,
     BiocParallel,
     BiocManager,
@@ -38,7 +37,8 @@ Imports:
     purrr,
     ggpubr,
     plyr,
-    gtable
+    gtable,
+    parallel
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 biocViews:
