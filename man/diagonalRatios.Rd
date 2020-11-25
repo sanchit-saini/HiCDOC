@@ -2,7 +2,8 @@
 % Please edit documentation in R/detectCompartments.R
 \name{diagonalRatios}
 \alias{diagonalRatios}
-\title{Compute diagonalRatios}
+\title{Compute the ratio of the reads which are on the diagonal vs those off-
+  diagonal, for each bin, and each matrix.}
 \usage{
 diagonalRatios(object, chromosomeId, conditionId, replicateId)
 }
@@ -19,8 +20,9 @@ Name or number of the condition}
 Name or number of the replicate}
 }
 \value{
-a tibble
+a \code{tibble}.
 }
 \description{
-Compute diagonalRatios
+Compute the ratio of the reads which are on the diagonal vs those off-
+  diagonal, for each bin, and each matrix.
 }

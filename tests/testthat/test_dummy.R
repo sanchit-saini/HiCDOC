@@ -5,5 +5,5 @@ context("Dummy check")
 
 test_that("Dummy check", {
     object <- HiCDOCExample()
-    expect_is(object, "HiCDOCExp")
+    expect_is(object, "HiCDOCDataSet")
 })
