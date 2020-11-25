@@ -62,7 +62,8 @@
 #' @importFrom gridExtra arrangeGrob
 #' @importFrom ggpubr as_ggplot text_grob
 #' @importFrom magrittr %<>%
-#' @importFrom purrr map map2 flatten_int flatten_chr map_dfr
+#' @importFrom furrr future_map_dfr
+#' @importFrom purrr map map2 flatten_int flatten_chr map_dfr pmap_dfr
 #' @importFrom plyr compact
 #' @importFrom stats D ecdf loess loess.control median optimize p.adjust prcomp predict quantile setNames update
 #' @importFrom utils modifyList read.table
