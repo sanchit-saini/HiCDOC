@@ -32,8 +32,7 @@ KR <- function(A,
                 Z <- rk / v
                 p <- Z
                 rho_km1 <- drop(t(rk) %*% Z)
-            }
-            else {
+            } else {
                 beta <- rho_km1 / rho_km2
                 p <- Z + beta * p
             }
@@ -146,17 +145,13 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
     }
 
     normalizedMatrices <- lapply(rawMatrices, KR)
-    sparseIntMatrices <-
-        mapply(
-            function(x, y, z)
-                matrixToSparseInteractions(x, object, chr, y, z),
-            normalizedMatrices,
-            object@conditions,
-            object@replicates,
-            SIMPLIFY = FALSE
-        )
-
-    interactionsChr <- dplyr::bind_rows(sparseIntMatrices)
+    interactionsChr <- purrr::pmap_dfr(
+        list(normalizedMatrices,
+             object@conditions,
+             object@replicates),
+        .f = function(x, y, z)
+            matrixToSparseInteractions(x, object, chr, y, z)
+    )
     return(interactionsChr)
 }
 
