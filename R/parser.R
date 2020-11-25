@@ -106,7 +106,7 @@ h5readCatch <- function(file, name) {
 
 ##- parseCoolMatrix ----------------------------------------------------------#
 ##----------------------------------------------------------------------------#
-#' Parse a single interaction matrix in .cool format.
+#' Parse a single interaction matrix in .(m)cool format.
 #'
 #' @name parseCoolMatrix
 #' @rdname parseCoolMatrix
@@ -184,6 +184,23 @@ parseCoolMatrix <- function(fileName) {
     return(data)
 }
 
+##- parseMCoolMatrix ---------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Parse a single interaction matrix in .mcool format.
+#'
+#' @name parseMCoolMatrix
+#' @rdname parseMCoolMatrix
+#'
+#' @aliases parseMCoolMatrix
+#'
+#' @param fileName The name of the matrix file in HDF5 format.
+#' @param resolution The chosen resolution (in bp)
+#' @return object An \code{tibble} storing the (sparse) interaction matrix.
+parseMCoolMatrix <- function(fileName, resolution = resolution) {
+    return(parseCoolMatrix(paste0(fileName, "::resolutions/", resolution)))
+}
+
+
 ##- mergeMatrices ------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
 #' Merge the matrices which have been parsed separately.
@@ -232,6 +249,30 @@ mergeMatrices <- function(object, matrices) {
 #' @export
 parseInteractionMatrixCool <- function(object) {
     matrices <- lapply(object@inputPath, parseCoolMatrix)
+    return(mergeMatrices(object, matrices))
+}
+
+##- parseInteractionMatrixMCool ----------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Read interaction matrices in .mcool format.
+#'
+#' This function parses the .mcool files provided in
+#' \code{object@inputMatrixPath} at a given resolution.
+#'
+#' @name parseInteractionMatrixMCool
+#' @rdname parseInteractionMatrixMCool
+#'
+#' @aliases parseInteractionMatrixMCool
+#'
+#' @param object     An \code{HiCDOCDataSet} object.
+#' @param resolution The chosen resolution, in base pairs.
+#' @return object    An \code{HiCDOCDataSet} object.
+#'
+#' @export
+parseInteractionMatrixMCool <- function(object, resolution) {
+    matrices <- lapply(object@inputPath,
+                       parseMCoolMatrix,
+                       resolution = resolution)
     return(mergeMatrices(object, matrices))
 }
 
