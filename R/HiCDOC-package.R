@@ -69,6 +69,7 @@
 #' @importFrom utils modifyList read.table
 #' @importFrom gtable gtable_filter
 #' @importFrom ggExtra ggMarginal
+#' @importFrom parallel mcmapply detectCores
 #' @useDynLib HiCDOC
 #'
 #' @keywords package

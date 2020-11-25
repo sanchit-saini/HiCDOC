@@ -224,8 +224,7 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
 #' Segregate genomic positions into 2 clusters using constrained k-means.
 #'
 #' @param object  A \code{HiCDOCDataSet} object.
-#' @param parallel Bolean, default to FALSE. Should parallel computation
-#' be used ? 
+#' @param parallel Logical. Should parallel processing be used?
 #' @param nbCores Integer, the number of cores to use for parallelization.
 #'
 #' @return A \code{HiCDOCDataSet} object, with:
@@ -342,8 +341,7 @@ diagonalRatios <-
 #' clusters correspond to compartments A and B.
 #'
 #' @param object A \code{HiCDOCDataSet} object.
-#' @param parallel Bolean, default to FALSE. Should parallel computation
-#' be used ? 
+#' @param parallel Logical. Should parallel processing be used?
 #' @param nbCores Integer, the number of cores to use for parallelization.
 #'
 #' @return A \code{HiCDOCDataSet} object, with diagonalRatios, and with A and B
@@ -538,8 +536,7 @@ computePValues <- function(object) {
 #' p-values for compartment differences between conditions.
 #'
 #' @param object  A \code{HiCDOCDataSet} object.
-#' @param parallel Bolean, default to FALSE. Should parallel computation
-#' be used ? 
+#' @param parallel ogical. Should parallel processing be used? Default to FALSE.
 #' @param nbCores Integer, the number of cores to use for parallelization.
 #'
 #' @return A \code{HiCDOCDataSet} object, with centroids, compartments, distances,
