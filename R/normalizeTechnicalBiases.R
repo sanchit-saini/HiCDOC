@@ -19,7 +19,6 @@
 normalizeTechnicalBiases <- function(object, parallel=FALSE) {
 
     object@weakBins <- object@weakBins[mixedsort(names(object@weakBins))]
-    object@chromosomes <- mixedsort(object@chromosomes)
 
     # One matrix by condition and replicate
     matrices <- object@interactions %>%
@@ -47,8 +46,8 @@ normalizeTechnicalBiases <- function(object, parallel=FALSE) {
     } else {
         remove.regions <- NULL
     }
-
-    hicexp <- make_hicexp(
+    
+    hicexp <- multiHiCcompare::make_hicexp(
         data_list = matrices,
         groups = object@conditions,
         remove.regions = remove.regions,
@@ -57,10 +56,10 @@ normalizeTechnicalBiases <- function(object, parallel=FALSE) {
         zero.p = 1,
         A.min = 0
     )
-
-    normalized <- cyclic_loess(hicexp, parallel = parallel)
-    output <- hic_table(normalized) %>% as_tibble() %>% dplyr::select(-D)
-
+    
+    normalized <- multiHiCcompare::cyclic_loess(hicexp, parallel = parallel)
+    output <- multiHiCcompare::hic_table(normalized) %>% as_tibble() %>% dplyr::select(-D)
+    
     colnames(output) <- c(
         "chromosome", "position.1", "position.2", seq_along(object@replicates)
     )
