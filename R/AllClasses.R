@@ -61,8 +61,8 @@ makeHiCDOCDataSet <- function(
         }
       }
     } else {
-      if (!is.list(inputPath) && length(inputPath)!=2) {
-        stop("'inputPath' must be a list of length 2", call. = FALSE)
+      if (!is.list(inputPath)) {
+        stop("'inputPath' must be a list", call. = FALSE)
       }
       
       for (fileName in unlist(inputPath)) {
@@ -228,11 +228,8 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
     if (is.factor(hicFileNames)) {
         hicFileNames <- as.vector(hicFileNames)
     }
-    if (!is.vector(hicFileNames)) {
-        stop("'hicFileNames' must be a vector.", call. = FALSE)
-    }
-    if (!is.character(hicFileNames)) {
-        stop("'hicFileNames' must be a vector of characters.", call. = FALSE)
+    if (!is.vector(hicFileNames) || !is.character(hicFileNames)) {
+        stop("'hicFileNames' must be a character vector.", call. = FALSE)
     }
 
     ##- conditions
@@ -247,14 +244,8 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
     if (is.null(resolution)) {
         stop("'resolution' should not be null.", call. = FALSE)
     }
-    if (is.factor(resolution)) {
-        resolution <- as.vector(resolution)
-    }
-    if (!is.numeric(resolution)) {
+    if (!is.numeric(resolution) || length(resolution) != 1) {
         stop("'resolution' should be an integer.", call. = FALSE)
-    }
-    if (length(resolution) != 1) {
-        stop("'resolution' should not be a vector.", call. = FALSE)
     }
 
     ##- end checking ---------------------------------------------------------#
@@ -290,63 +281,47 @@ HiCDOCDataSetFromHicPro <- function(matrixFileNames,
                                     bedFileNames,
                                     replicates,
                                     conditions) {
-  ##- checking general input arguments -------------------------------------#
-  ##------------------------------------------------------------------------#
-  
-  ##- Matrix files
-  if (is.null(matrixFileNames)) {
-    stop("'matrixFileNames' must be paths to .matrix files", call. = FALSE)
-  }
-  if (is.factor(matrixFileNames)) {
-    matrixFileNames <- as.vector(matrixFileNames)
-  }
-  if (!is.vector(matrixFileNames)) {
-    stop("'matrixFileNames' must be a vector.", call. = FALSE)
-  }
-  if (!is.character(matrixFileNames)) {
-    stop("'matrixFileNames' must be a vector of characters.", call. = FALSE)
-  }
-
-  # bedFiles
-  if (is.null(bedFileNames)) {
-    stop("'bedFileNames' must be paths to .bed files", call. = FALSE)
-  }
-  if (is.factor(bedFileNames)) {
-    bedFileNames <- as.vector(bedFileNames)
-  }
-  if (!is.vector(bedFileNames)) {
-    stop("'bedFileNames' must be a vector.", call. = FALSE)
-  }
-  if (!is.character(bedFileNames)) {
-    stop("'bedFileNames' must be a vector of characters.", call. = FALSE)
-  }
-
-  if(length(matrixFileNames) != length(bedFileNames))
-    stop(paste("'matrixFileNames' and 'bedFileNames' should be the same size."),
-         call. = FALSE)
-  
-  ##- conditions
-  if (is.null(conditions)) {
-    stop("'conditions' should not be null.", call. = FALSE)
-  }
-  if (is.factor(conditions)) {
-    conditions <- as.vector(conditions)
-  }
-  
-  ##- end checking ---------------------------------------------------------#
-  hicProFiles <- split(cbind(matrixFileNames, bedFileNames), 
-                       seq(length(matrixFileNames)))
-  data   <- makeHiCDOCDataSet(
-    inputPath  = hicProFiles,
-    replicates = replicates,
-    conditions = conditions,
-    binSize    = resolution,
-    hicPro     = TRUE
-  )
-  object <- parseInteractionMatrixHicPro(data)
-  object <- HiCDOCDataSet(object)
-  
-  return(invisible(object))
+    ##- checking general input arguments -------------------------------------#
+    ##------------------------------------------------------------------------#
+    
+    ##- Matrix files
+    if (!is.vector(matrixFileNames) || !is.character(matrixFileNames)) {
+      stop("'matrixFileNames' must be a character vector, giving the links to
+           .matrix files.", call. = FALSE)
+    }
+    
+    # bedFiles
+    if (!is.vector(bedFileNames) || !is.character(bedFileNames)) {
+      stop("'bedFileNames' must be a character vector, giving the links to
+           .bed files.", call. = FALSE)
+    }
+    
+    if(length(matrixFileNames) != length(bedFileNames))
+      stop("'matrixFileNames' and 'bedFileNames' should have the same length.",
+           call. = FALSE)
+    
+    ##- conditions
+    if (is.null(conditions)) {
+      stop("'conditions' should not be null.", call. = FALSE)
+    }
+    if (is.factor(conditions)) {
+      conditions <- as.vector(conditions)
+    }
+    
+    ##- end checking ---------------------------------------------------------#
+    hicProFiles <- split(cbind(matrixFileNames, bedFileNames), 
+                         seq(length(matrixFileNames)))
+    data   <- makeHiCDOCDataSet(
+      inputPath  = hicProFiles,
+      replicates = replicates,
+      conditions = conditions,
+      binSize    = resolution,
+      hicPro     = TRUE
+    )
+    object <- parseInteractionMatrixHicPro(data)
+    object <- HiCDOCDataSet(object)
+    
+    return(invisible(object))
 }
 
 ##- Example constructor ------------------------------------------------------#

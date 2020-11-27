@@ -7,7 +7,7 @@
 parseHicPro(vectFiles)
 }
 \arguments{
-\item{fileName}{The name of the matrix file in HDF5 format.}
+\item{vectFiles}{2 length vector, of the links to .matrix and .bed files.}
 }
 \value{
 object An \code{tibble} storing the (sparse) interaction matrix.

@@ -337,14 +337,14 @@ parseInteractionMatrixHic <- function(object) {
 #'
 #' @aliases parseHicPro
 #'
-#' @param fileName The name of the matrix file in HDF5 format.
+#' @param vectFiles 2 length vector, of the links to .matrix and .bed files.
 #' @return object An \code{tibble} storing the (sparse) interaction matrix.
 parseHicPro <- function(vectFiles) {
-  if (length(vectFiles)!=2) {
-    stop("vectFiles must be of length 2")
-  }
-  matrixFile <- vectFiles[1]
-  bedFile <- vectFiles[2]
+    if (length(vectFiles)!=2) {
+      stop("vectFiles must be of length 2")
+    }
+    matrixFile <- vectFiles[1]
+    bedFile <- vectFiles[2]
     matrixDf <- utils::read.table(
         matrixFile, 
         header = FALSE, 
@@ -358,25 +358,36 @@ parseHicPro <- function(vectFiles) {
         col.names = c("chromosome", "position.1", "position.2", "index")
     )
     
-    # Verifications
-    if(nrow(unique(bedDf[,c("chromosome", "index")])) != nrow(bedDf))
-        stop("Incorrect bed file, not unique positions par chromosome.")
-    
     matrixDf <- dplyr::as_tibble(matrixDf)
     bedDf <- dplyr::as_tibble(bedDf)
     
+    tabDif <- sort(table(abs(bedDf$position.1-bedDf$position.2)), decreasing = T)
+    resolution <- as.numeric(names(tabDif[1]))
+    if(length(tabDif) > 1){
+        message("The end positions will be completed, to fill the resolution")
+        bedDf %<>% 
+            group_by(chromosome) %>%
+            arrange(index) %>%
+            mutate(position.2 = ifelse(row_number() == n(), 
+                                       position.1 + resolution, 
+                                       position.2)) %>%
+            ungroup()
+    }
+    
     # Merge data
-    bedDfstart <- bedDf %>% select(chromosome, startIndex = index, position.1)
     matrixDf <- dplyr::left_join(
-      matrixDf, 
-      bedDf %>% dplyr::select(chromosome, startIndex = index, position.1),
-      by="startIndex")
+        matrixDf, 
+        bedDf %>% dplyr::select(chr1 = chromosome, startIndex = index, position.1),
+        by="startIndex"
+    )
     matrixDf %<>% dplyr::select(-startIndex)
     matrixDf <- dplyr::left_join(
-      matrixDf, 
-      bedDf %>% dplyr::select(stopIndex = index, position.2),
-      by="stopIndex")
-    matrixDf %<>% dplyr::select(chromosome, position.1, position.2, value)
+        matrixDf, 
+        bedDf %>% dplyr::select(chr2 = chromosome, stopIndex = index, position.2),
+        by="stopIndex")
+    message("Removing the inter-chromosomes interactions")
+    matrixDf %<>% filter(chr1 == chr2) %>%
+       dplyr::select(chromosome = chr1, position.1, position.2, value)
     
     return(matrixDf)
 }
@@ -400,7 +411,8 @@ parseHicPro <- function(vectFiles) {
 #'
 #' @export
 parseInteractionMatrixHicPro <- function(object) {
-  matrices <-BiocParallel::bplapply(object@inputPath, parseHicPro)
+  matrices <-BiocParallel::bplapply(object@inputPath, 
+                                    function(x) parseHicPro(x))
   matrices <-
     purrr::map2(matrices, object@replicates, ~ dplyr::mutate(.x, replicate = .y))
   matrices <-
