@@ -49,11 +49,10 @@
 #' @import dplyr
 #' @import tidyr
 #' @import readr
-#' @import reshape2
+# @import reshape2
 #' @import HiCcompare
-#' @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
+# @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
 #' @import ggplot2
-#' @import hexbin
 #' @import gtools
 #' @import BiocParallel
 #' @importFrom BiocManager version
