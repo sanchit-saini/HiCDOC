@@ -12,17 +12,17 @@ sparsityChromosome <- function(object, chromosomeId = 1, pctFill = 0.05){
         dplyr::ungroup()
     
     pctFill %<>%
-        dplyr::summarise(maxPctSparsity = max(pctSparse, na.rm=T)) %>%
+        dplyr::summarise(maxSparsity = max(pctSparse, na.rm=T)) %>%
         dplyr::mutate(totalBins = object@totalBins[chr],
                       totalCells = totalCells, 
                       chromosome = factor(chr, levels = object@chromosomes)) %>%
-        mutate(quality = ifelse(maxPctSparsity<0.001, "***", 
-                                ifelse(maxPctSparsity<0.01, "**",
-                                       ifelse(maxPctSparsity<0.05, "*",
-                                              ifelse(maxPctSparsity<0.1, ".", ""))))) 
+        mutate(quality = ifelse(maxSparsity<0.001, "***", 
+                                ifelse(maxSparsity<0.01, "**",
+                                       ifelse(maxSparsity<0.05, "*",
+                                              ifelse(maxSparsity<0.1, ".", ""))))) 
     
     # reordering columns
-    pctFill %<>% select(chromosome, totalCells, maxPctSparsity, quality)
+    pctFill %<>% select(chromosome, totalCells, maxSparsity, quality)
     return(pctFill)
 }
 
@@ -48,7 +48,7 @@ filterSparseChromosomes <- function(object, thresholdSparseMatrix = 0.95, remove
                                  function(x) sparsityChromosome(object, x, pctFill = thresholdSparseMatrix))
     if(removeChromosomes == TRUE){
         sparseChromosomes <- chrQuality %>% 
-            filter(maxPctSparsity>=thresholdSparseMatrix) %>%
+            filter(maxSparsity>=thresholdSparseMatrix) %>%
             pull(chromosome) %>% as.character()
         if(length(sparseChromosomes) == 0){
             message("No chromosome removed (threshold: ", 
@@ -64,8 +64,8 @@ filterSparseChromosomes <- function(object, thresholdSparseMatrix = 0.95, remove
             object <- reduceHiCDOCDataSet(object, chromosomes = nonSparseChr)
         }
     }
-    chrQuality %<>% mutate(maxPctSparsity = round(100*maxPctSparsity, 2))
-    print(chrQuality)
+    chrQuality %<>% mutate(maxSparsity = paste0(round(100*maxSparsity, 2),"%"))
+    print(data.frame(chrQuality)) # In data.frame for correct alignement
     cat("\n")
     return(object)
 }
