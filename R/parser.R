@@ -414,9 +414,13 @@ parseInteractionMatrixHicPro <- function(object) {
   matrices <-BiocParallel::bplapply(object@inputPath, 
                                     function(x) parseHicPro(x))
   matrices <-
-    purrr::map2(matrices, object@replicates, ~ dplyr::mutate(.x, replicate = .y))
+    purrr::map2(matrices, 
+                object@replicates, 
+                ~ dplyr::mutate(.x, replicate = .y, .after = position.2))
   matrices <-
-    purrr::map2(matrices, object@conditions, ~ dplyr::mutate(.x, condition = .y))
+    purrr::map2(matrices, 
+                object@conditions, 
+                ~ dplyr::mutate(.x, condition = .y, .after = position.2))
   object@interactions <- dplyr::bind_rows(matrices) %>% as_tibble()
   object@interactions %<>%
     dplyr::mutate(chromosome = factor(chromosome)) %>%
