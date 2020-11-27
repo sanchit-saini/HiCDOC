@@ -9,7 +9,8 @@ makeHiCDOCDataSet(
   interactions = NULL,
   replicates = NULL,
   conditions = NULL,
-  binSize = NULL
+  binSize = NULL,
+  hicPro = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,9 @@ makeHiCDOCDataSet(
 \item{conditions}{The names of the two conditions.}
 
 \item{binSize}{The resolution.}
+
+\item{hicPro}{Logical. Default to FALSE. Does the data sent are in 
+HiC-Pro format ?}
 }
 \value{
 A \code{HiCDOCDataSet} object.

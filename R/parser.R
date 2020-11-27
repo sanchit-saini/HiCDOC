@@ -300,7 +300,7 @@ parseHicMatrix <- function(fileName, resolution = resolution) {
 #' Read interaction matrices in .hic format.
 #'
 #' This function parses the .hic files provided in
-#' \code{object@inputMatrixPath}.
+#' \code{object@inputPath}.
 #'
 #' @name parseInteractionMatrixHic
 #' @rdname parseInteractionMatrixHic
@@ -320,16 +320,96 @@ parseInteractionMatrixHic <- function(object) {
     matrices <-
         purrr::map2(matrices, object@conditions, ~ dplyr::mutate(.x, condition = .y))
     object@interactions <- dplyr::bind_rows(matrices) %>% as_tibble()
-    #object@interactions <- tibble()
-    # for (i in seq_along(object@inputPath)) {
-    #         object@interactions <- bind_rows(object@interactions,
-    #                 parseHicMatrix(object@inputPath[[i]], object@binSize) %>%
-    #                 mutate(replicate = object@replicates[[i]]) %>%
-    #                 mutate(condition = object@conditions[[i]]))
-    # }
     object@interactions %<>%
         dplyr::mutate(chromosome = factor(chromosome)) %>%
         dplyr::mutate(replicate = factor(replicate)) %>%
         dplyr::mutate(condition = factor(condition))
     return(object)
 }
+
+
+##- parseHicPro --------------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Parse a single interaction matrix in HiC-Pro format
+#'
+#' @name parseHicPro
+#' @rdname parseHicPro
+#'
+#' @aliases parseHicPro
+#'
+#' @param fileName The name of the matrix file in HDF5 format.
+#' @return object An \code{tibble} storing the (sparse) interaction matrix.
+parseHicPro <- function(vectFiles) {
+  if (length(vectFiles)!=2) {
+    stop("vectFiles must be of length 2")
+  }
+  matrixFile <- vectFiles[1]
+  bedFile <- vectFiles[2]
+    matrixDf <- utils::read.table(
+        matrixFile, 
+        header = FALSE, 
+        stringsAsFactors = FALSE,
+        col.names = c("startIndex", "stopIndex", "value")
+    )
+    bedDf <- utils::read.table(
+        bedFile, 
+        header = FALSE, 
+        stringsAsFactors = FALSE,
+        col.names = c("chromosome", "position.1", "position.2", "index")
+    )
+    
+    # Verifications
+    if(nrow(unique(bedDf[,c("chromosome", "index")])) != nrow(bedDf))
+        stop("Incorrect bed file, not unique positions par chromosome.")
+    
+    matrixDf <- dplyr::as_tibble(matrixDf)
+    bedDf <- dplyr::as_tibble(bedDf)
+    
+    # Merge data
+    bedDfstart <- bedDf %>% select(chromosome, startIndex = index, position.1)
+    matrixDf <- dplyr::left_join(
+      matrixDf, 
+      bedDf %>% dplyr::select(chromosome, startIndex = index, position.1),
+      by="startIndex")
+    matrixDf %<>% dplyr::select(-startIndex)
+    matrixDf <- dplyr::left_join(
+      matrixDf, 
+      bedDf %>% dplyr::select(stopIndex = index, position.2),
+      by="stopIndex")
+    matrixDf %<>% dplyr::select(chromosome, position.1, position.2, value)
+    
+    return(matrixDf)
+}
+
+
+##- parseInteractionMatrixHicPro ---------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Read interaction matrices in Hic-Pro format.
+#'
+#' This function parses the HiC-Pro files provided in
+#' \code{object@inputPath}.
+#'
+#' @name parseInteractionMatrixHicPro
+#' @rdname parseInteractionMatrixHicPro
+#'
+#' @aliases parseInteractionMatrixHicPro
+#'
+#' @param object An \code{HiCDOCDataSet} object.
+#'
+#' @return object An \code{HiCDOCDataSet} object.
+#'
+#' @export
+parseInteractionMatrixHicPro <- function(object) {
+  matrices <-BiocParallel::bplapply(object@inputPath, parseHicPro)
+  matrices <-
+    purrr::map2(matrices, object@replicates, ~ dplyr::mutate(.x, replicate = .y))
+  matrices <-
+    purrr::map2(matrices, object@conditions, ~ dplyr::mutate(.x, condition = .y))
+  object@interactions <- dplyr::bind_rows(matrices) %>% as_tibble()
+  object@interactions %<>%
+    dplyr::mutate(chromosome = factor(chromosome)) %>%
+    dplyr::mutate(replicate = factor(replicate)) %>%
+    dplyr::mutate(condition = factor(condition))
+  return(object)
+}
+

@@ -27,6 +27,8 @@ HiCDOCDefaultParameters <- list(
 #' @param replicates   The list of the replicate names.
 #' @param conditions   The names of the two conditions.
 #' @param binSize      The resolution.
+#' @param hicPro       Logical. Default to FALSE. Does the data sent are in 
+#' HiC-Pro format ?
 #' @return A \code{HiCDOCDataSet} object.
 #' @examples
 #' basedir <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
@@ -37,7 +39,8 @@ makeHiCDOCDataSet <- function(
     interactions = NULL,
     replicates   = NULL,
     conditions   = NULL,
-    binSize      = NULL) {
+    binSize      = NULL,
+    hicPro       = FALSE) {
     ##- checking general input arguments -------------------------------------#
     ##------------------------------------------------------------------------#
 
@@ -46,17 +49,30 @@ makeHiCDOCDataSet <- function(
         stop("'inputPath' must be the path(es) to a matrix(ces)",
                  call. = FALSE)
     }
-
-    if (!is.character(inputPath)) {
+    if(!hicPro){
+      if (!is.character(inputPath)) {
         stop("'inputPath' must be a character.", call. = FALSE)
-    }
-
-    for (fileName in inputPath) {
+      }
+      
+      for (fileName in inputPath) {
         if (!file.exists(fileName)) {
-            stop(paste("File name", fileName, "is not a valid file."),
-                    call. = FALSE)
+          stop(paste("File name", fileName, "is not a valid file."),
+               call. = FALSE)
         }
+      }
+    } else {
+      if (!is.list(inputPath) && length(inputPath)!=2) {
+        stop("'inputPath' must be a list of length 2", call. = FALSE)
+      }
+      
+      for (fileName in unlist(inputPath)) {
+        if (!file.exists(fileName)) {
+          stop(paste("File name", fileName, "is not a valid file."),
+               call. = FALSE)
+        }
+      }
     }
+    
 
     ##- end checking ---------------------------------------------------------#
 
@@ -218,12 +234,6 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
     if (!is.character(hicFileNames)) {
         stop("'hicFileNames' must be a vector of characters.", call. = FALSE)
     }
-    for (hicFileName in hicFileNames) {
-        if (!file.exists(hicFileName)) {
-            stop(paste("hic file name", hicFileName, "is not a valid file."),
-                 call. = FALSE)
-        }
-    }
 
     ##- conditions
     if (is.null(conditions)) {
@@ -259,6 +269,84 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
     object <- HiCDOCDataSet(object)
 
     return(invisible(object))
+}
+
+##- HiCDOCDataSet S4 class constructor from HiC-Pro files --------------------#
+##----------------------------------------------------------------------------#
+#' Construct a \code{HiCDOCDataSet} from hHiC-Pro files
+#' @rdname HiCDOCDataSetFromHicPro
+#' @docType class
+#'
+#' @param matrixFileNames A vector of file names, each one being a .matrix file.
+#' @param bedFileNames A vector of file names, each one being a .bed file.
+#' @param replicates   The list of the replicate names.
+#' @param conditions   The names of the two conditions.
+#'
+#' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
+#'         object of class S4.
+#'
+#' @export
+HiCDOCDataSetFromHicPro <- function(matrixFileNames, 
+                                    bedFileNames,
+                                    replicates,
+                                    conditions) {
+  ##- checking general input arguments -------------------------------------#
+  ##------------------------------------------------------------------------#
+  
+  ##- Matrix files
+  if (is.null(matrixFileNames)) {
+    stop("'matrixFileNames' must be paths to .matrix files", call. = FALSE)
+  }
+  if (is.factor(matrixFileNames)) {
+    matrixFileNames <- as.vector(matrixFileNames)
+  }
+  if (!is.vector(matrixFileNames)) {
+    stop("'matrixFileNames' must be a vector.", call. = FALSE)
+  }
+  if (!is.character(matrixFileNames)) {
+    stop("'matrixFileNames' must be a vector of characters.", call. = FALSE)
+  }
+
+  # bedFiles
+  if (is.null(bedFileNames)) {
+    stop("'bedFileNames' must be paths to .bed files", call. = FALSE)
+  }
+  if (is.factor(bedFileNames)) {
+    bedFileNames <- as.vector(bedFileNames)
+  }
+  if (!is.vector(bedFileNames)) {
+    stop("'bedFileNames' must be a vector.", call. = FALSE)
+  }
+  if (!is.character(bedFileNames)) {
+    stop("'bedFileNames' must be a vector of characters.", call. = FALSE)
+  }
+
+  if(length(matrixFileNames) != length(bedFileNames))
+    stop(paste("'matrixFileNames' and 'bedFileNames' should be the same size."),
+         call. = FALSE)
+  
+  ##- conditions
+  if (is.null(conditions)) {
+    stop("'conditions' should not be null.", call. = FALSE)
+  }
+  if (is.factor(conditions)) {
+    conditions <- as.vector(conditions)
+  }
+  
+  ##- end checking ---------------------------------------------------------#
+  hicProFiles <- split(cbind(matrixFileNames, bedFileNames), 
+                       seq(length(matrixFileNames)))
+  data   <- makeHiCDOCDataSet(
+    inputPath  = hicProFiles,
+    replicates = replicates,
+    conditions = conditions,
+    binSize    = resolution,
+    hicPro     = TRUE
+  )
+  object <- parseInteractionMatrixHicPro(data)
+  object <- HiCDOCDataSet(object)
+  
+  return(invisible(object))
 }
 
 ##- Example constructor ------------------------------------------------------#
