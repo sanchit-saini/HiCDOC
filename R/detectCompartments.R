@@ -246,9 +246,9 @@ clusterize <- function(object,
         rep(unique(object@conditions), length(object@chromosomes))
     
     if ( parallel == FALSE ) {
-        clusterRes <- purrr::map2(vectChr, vectCond,
-                                  function(.x, .y)
-                                      clusterizeChrCond(object, .x, .y))
+        clusterRes <- pbapply::pbmapply(FUN = function(.x, .y)
+            clusterizeChrCond(object, .x, .y), vectChr, vectCond,
+            SIMPLIFY = FALSE)
     } else {
         redobjects <- purrr::map2(vectChr, vectCond,
                                   function(.x, .y)
@@ -364,9 +364,10 @@ predictAB <- function(object,
     replicateIds = rep(object@replicates, length(object@chromosomes))
     
     if (parallel == FALSE) {
-        object@diagonalRatios <- purrr::pmap_dfr(list(chromosomeIds, conditionIds, replicateIds),
-                                                 function(x, y, z)
-                                                     diagonalRatios(object, x, y, z))
+        diagratios <- pbapply::pbmapply(function(x, y, z)
+            diagonalRatios(object, x, y, z), chromosomeIds, conditionIds, replicateIds,
+        SIMPLIFY = FALSE)
+        object@diagonalRatios <- do.call("rbind", diagratios)
     } else {
         redobjects <-
             purrr::pmap(list(chromosomeIds, conditionIds, replicateIds),

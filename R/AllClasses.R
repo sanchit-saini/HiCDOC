@@ -280,7 +280,8 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
 HiCDOCDataSetFromHicPro <- function(matrixFileNames, 
                                     bedFileNames,
                                     replicates,
-                                    conditions) {
+                                    conditions,
+                                    cl=NULL) {
     ##- checking general input arguments -------------------------------------#
     ##------------------------------------------------------------------------#
     
@@ -318,7 +319,7 @@ HiCDOCDataSetFromHicPro <- function(matrixFileNames,
       binSize    = resolution,
       hicPro     = TRUE
     )
-    object <- parseInteractionMatrixHicPro(data)
+    object <- parseInteractionMatrixHicPro(data, cl)
     object <- HiCDOCDataSet(object)
     
     return(invisible(object))

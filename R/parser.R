@@ -248,7 +248,7 @@ mergeMatrices <- function(object, matrices) {
 #'
 #' @export
 parseInteractionMatrixCool <- function(object) {
-    matrices <- lapply(object@inputPath, parseCoolMatrix)
+    matrices <- pbapply::pblapply(object@inputPath, parseCoolMatrix)
     return(mergeMatrices(object, matrices))
 }
 
@@ -270,7 +270,7 @@ parseInteractionMatrixCool <- function(object) {
 #'
 #' @export
 parseInteractionMatrixMCool <- function(object, resolution) {
-    matrices <- lapply(object@inputPath,
+    matrices <- pbapply::pblapply(object@inputPath,
                        parseMCoolMatrix,
                        resolution = resolution)
     return(mergeMatrices(object, matrices))
@@ -314,14 +314,19 @@ parseHicMatrix <- function(fileName, resolution = resolution) {
 #' @export
 parseInteractionMatrixHic <- function(object) {
     matrices <-
-        bplapply(object@inputPath, parseHicMatrix, resolution = object@binSize)
+      pbapply::pblapply(object@inputPath, 
+                               parseHicMatrix, 
+                               resolution = object@binSize)
     matrices <-
-        purrr::map2(matrices, object@replicates, ~ dplyr::mutate(.x, replicate = .y))
+        purrr::map2(matrices, object@replicates, 
+                    ~ dplyr::mutate(.x, replicate = .y))
     matrices <-
-        purrr::map2(matrices, object@conditions, ~ dplyr::mutate(.x, condition = .y))
+        purrr::map2(matrices, object@conditions, 
+                    ~ dplyr::mutate(.x, condition = .y))
     object@interactions <- dplyr::bind_rows(matrices) %>% as_tibble()
     object@interactions %<>%
-        dplyr::mutate(chromosome = factor(chromosome)) %>%
+        dplyr::mutate(chromosome = factor(chromosome, 
+            levels=mixedsort(unique(object@interactions$chromosome)))) %>%
         dplyr::mutate(replicate = factor(replicate)) %>%
         dplyr::mutate(condition = factor(condition))
     return(object)
@@ -410,9 +415,9 @@ parseHicPro <- function(vectFiles) {
 #' @return object An \code{HiCDOCDataSet} object.
 #'
 #' @export
-parseInteractionMatrixHicPro <- function(object) {
-  matrices <-BiocParallel::bplapply(object@inputPath, 
-                                    function(x) parseHicPro(x))
+parseInteractionMatrixHicPro <- function(object, cl=NULL) {
+  matrices <-pbapply::pblapply(object@inputPath, 
+                                    function(x) parseHicPro(x),cl=cl)
   matrices <-
     purrr::map2(matrices, 
                 object@replicates, 
@@ -423,7 +428,8 @@ parseInteractionMatrixHicPro <- function(object) {
                 ~ dplyr::mutate(.x, condition = .y, .after = position.2))
   object@interactions <- dplyr::bind_rows(matrices) %>% as_tibble()
   object@interactions %<>%
-    dplyr::mutate(chromosome = factor(chromosome)) %>%
+    dplyr::mutate(chromosome = factor(chromosome, 
+        levels=mixedsort(unique(object@interactions$chromosome)))) %>%
     dplyr::mutate(replicate = factor(replicate)) %>%
     dplyr::mutate(condition = factor(condition))
   return(object)
