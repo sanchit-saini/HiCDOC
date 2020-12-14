@@ -388,7 +388,7 @@ parseHicPro <- function(vectFiles) {
     matrixDf %<>% dplyr::select(-startIndex)
     matrixDf <- dplyr::left_join(
         matrixDf, 
-        bedDf %>% dplyr::select(chr2 = chromosome, stopIndex = index, position.2),
+        bedDf %>% dplyr::select(chr2 = chromosome, startIndex = index, position.2),
         by="stopIndex")
     message("Removing the inter-chromosomes interactions")
     matrixDf %<>% filter(chr1 == chr2) %>%
