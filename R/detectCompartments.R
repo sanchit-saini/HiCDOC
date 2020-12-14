@@ -324,11 +324,13 @@ diagonalRatios <-
             ungroup()
         
         diagonalRatios <- diagonal %>%
-            left_join(offDiagonal,
+            full_join(offDiagonal,
                       by = c("chromosome",
                              "condition",
                              "replicate",
                              "position")) %>%
+            mutate(diagonal = ifelse(is.na(diagonal)==T,0,diagonal),
+                   offDiagonal = ifelse(is.na(offDiagonal)==T,0,offDiagonal)) %>%
             mutate(value = diagonal - offDiagonal) %>%
             select(-c(diagonal, offDiagonal))
         
@@ -380,7 +382,7 @@ predictAB <- function(object,
                                 replicates = .z
                             ))
         
-        object@diagonalRatios <- parallel::mcmapply(
+        diagratios <- parallel::mcmapply(
             FUN = function(o, x, y, z)
                 diagonalRatios(o, x, y, z),
             redobjects,
@@ -391,7 +393,7 @@ predictAB <- function(object,
             SIMPLIFY = FALSE
         )
         object@diagonalRatios <-
-            do.call("rbind", object@diagonalRatios)
+            do.call("rbind", diagratios)
     }
     
     compartments <- object@compartments %>%
