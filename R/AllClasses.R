@@ -316,7 +316,6 @@ HiCDOCDataSetFromHicPro <- function(matrixFileNames,
       inputPath  = hicProFiles,
       replicates = replicates,
       conditions = conditions,
-      binSize    = resolution,
       hicPro     = TRUE
     )
     object <- parseInteractionMatrixHicPro(data, cl)
