@@ -5,7 +5,13 @@
 \alias{HiCDOCDataSetFromHicPro}
 \title{Construct a \code{HiCDOCDataSet} from hHiC-Pro files}
 \usage{
-HiCDOCDataSetFromHicPro(matrixFileNames, bedFileNames, replicates, conditions)
+HiCDOCDataSetFromHicPro(
+  matrixFileNames,
+  bedFileNames,
+  replicates,
+  conditions,
+  cl = NULL
+)
 }
 \arguments{
 \item{matrixFileNames}{A vector of file names, each one being a .matrix file.}

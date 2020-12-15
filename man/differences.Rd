@@ -6,14 +6,10 @@
 \alias{differences,HiCDOCDataSet-method}
 \title{Extracts differentially interacting regions of an HiCDOCDataSet object}
 \usage{
-\S4method{differences}{HiCDOCDataSet}(object, pvalue = 1)
+\S4method{differences}{HiCDOCDataSet}(object)
 }
 \arguments{
 \item{object}{An \code{HiCDOCDataSet} object.}
-
-\item{pvalue}{Numeric cutoff value for adjusted p-values. Only regions with
-adjusted p-values equal or lower than specified are returned.
-Default to 1, all regions are returned.}
 }
 \value{
 A \code{GenomicRanges} object of the selected differentially
@@ -26,6 +22,6 @@ This function extracts the differentially interacting regions from
 \examples{
 exp <- HiCDOCExample()
 exp <- HiCDOC(exp)
-differences(exp, pvalue = 0.05)
+differences(exp)
 
 }

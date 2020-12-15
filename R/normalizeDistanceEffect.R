@@ -23,13 +23,9 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
 
     interactionsChr <- object@interactions %>%
         dplyr::filter(chromosome == chr & value > 0) %>%
-        dplyr::mutate(distance = position.2 - position.1) %>%
-        dplyr::mutate(bin.1 = position.1 / object@binSize + 1,
-                     bin.2 = position.2 / object@binSize + 1)
+        dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize)
 
     sample <- interactionsChr %>%
-        dplyr::filter(!(bin.1 %in% object@weakBins[[chromosomeId]])) %>%
-        dplyr::filter(!(bin.2 %in% object@weakBins[[chromosomeId]])) %>%
         dplyr::sample_n(size = min(object@parameters$sampleSize,
                                    nrow(interactionsChr))) %>%
         dplyr::select(distance, value) %>%
@@ -98,8 +94,7 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
     interactionsChr %<>%
         dplyr::left_join(valueMap, by = "distance") %>%
         dplyr::mutate(value = value / (loess + 0.00001)) %>%
-        dplyr::select(-distance,-loess) %>%
-        dplyr::select(-c(bin.1, bin.2))
+        dplyr::select(-distance,-loess)
 
     return(interactionsChr)
 }

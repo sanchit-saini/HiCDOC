@@ -75,19 +75,29 @@ plotConcordance <- function(object,
                             points = FALSE) {
     testSlotsHiCDOC(object, slots = c("concordances", "differences"))
     chr <- testChromosome(object, chromosomeId)
-    xlim <- testxlim(xlim,
-                     seq_len(object@totalBins[[chr]] - 1) * object@binSize)
+    
+    poschr <- object@positions %>% 
+        filter(chromosome == chr) %>% 
+        select(start) %>% 
+        pull()
+    xlim <- testxlim(xlim, poschr)
 
     concordance <- object@concordances %>%
         dplyr::filter(chromosome == chr) %>%
-        dplyr::filter(position >= xlim[1] & position <= xlim[2]) %>%
+        dplyr::left_join(object@positions %>% 
+                             filter(chromosome == chr), 
+                         by=c("chromosome", "bin")) %>%
+        dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
         dplyr::mutate(condition = paste0("confidence, cond. ", condition)) %>%
-        dplyr::mutate(position = position + 0.5 * object@binSize)
+        dplyr::mutate(position = start + 0.5 * object@binSize)
 
     # Significant differences
     differences <- object@differences %>%
         dplyr::filter(chromosome == chr) %>%
-        dplyr::filter(start >= xlim[1] & start <= xlim[2]) %>%
+        dplyr::left_join(object@positions %>% 
+                             filter(chromosome == chr), 
+                         by=c("chromosome", "bin")) %>%
+        dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
         dplyr::filter(padj < padjThreshold) %>%
         tidyr::pivot_longer(cols = starts_with("condition"),
                      values_to = "condition") %>%
@@ -165,14 +175,21 @@ plotCompartments <- function(object,
                              xlim = NULL) {
     testSlotsHiCDOC(object, slots = c("compartments"))
     chr <- testChromosome(object, chromosomeId)
-    xlim <- testxlim(xlim,
-                     seq_len(object@totalBins[[chr]] - 1) * object@binSize)
-
+    
+    poschr <- object@positions %>% 
+        filter(chromosome == chr) %>% 
+        select(start) %>% 
+        pull()
+    xlim <- testxlim(xlim, poschr)
+    
     compartments <- object@compartments %>%
         dplyr::filter(chromosome == chr) %>%
-        dplyr::filter(position >= xlim[1] & position <= xlim[2]) %>%
+        dplyr::left_join(object@positions %>% 
+                             filter(chromosome == chr), 
+                         by=c("chromosome", "bin")) %>%
+        dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
         dplyr::mutate(compartment = factor(compartment)) %>%
-        dplyr::mutate(position = position + 0.5 * object@binSize)
+        dplyr::mutate(position = start + 0.5 * object@binSize)
 
     ggplot(data = compartments, aes(x = position, fill = compartment)) +
         geom_histogram(binwidth = object@binSize,

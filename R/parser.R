@@ -360,41 +360,49 @@ parseHicPro <- function(vectFiles) {
         bedFile, 
         header = FALSE, 
         stringsAsFactors = FALSE,
-        col.names = c("chromosome", "position.1", "position.2", "index")
+        col.names = c("chromosome", "start", "end", "index")
     )
     
     matrixDf <- dplyr::as_tibble(matrixDf)
     bedDf <- dplyr::as_tibble(bedDf)
     
-    tabDif <- sort(table(abs(bedDf$position.1-bedDf$position.2)), decreasing = T)
+    # Resolution
+    tabDif <- sort(table(abs(bedDf$end-bedDf$start)), decreasing = T)
     resolution <- as.numeric(names(tabDif[1]))
-    if(length(tabDif) > 1){
-        message("The end positions will be completed, to fill the resolution")
-        bedDf %<>% 
-            group_by(chromosome) %>%
-            arrange(index) %>%
-            mutate(position.2 = ifelse(row_number() == n(), 
-                                       position.1 + resolution, 
-                                       position.2)) %>%
-            ungroup()
-    }
+    
+    positions <- bedDf %>%
+        arrange(chromosome, index) %>%
+        group_by(chromosome) %>%
+        mutate(bin = index - min(index) + 1) %>%
+        mutate(end = ifelse(end == lead(start), end - 1, end)) %>%
+        ungroup() %>%
+        select(chromosome, start, end, bin)
     
     # Merge data
     matrixDf <- dplyr::left_join(
         matrixDf, 
-        bedDf %>% dplyr::select(chr1 = chromosome, startIndex = index, position.1),
+        bedDf %>% dplyr::select(chr1 = chromosome, 
+                                startIndex = index, 
+                                position.1 = start),
         by="startIndex"
     )
     matrixDf %<>% dplyr::select(-startIndex)
     matrixDf <- dplyr::left_join(
         matrixDf, 
-        bedDf %>% dplyr::select(chr2 = chromosome, startIndex = index, position.2),
+        bedDf %>% dplyr::select(chr2 = chromosome, 
+                                stopIndex = index, 
+                                position.2 = start),
         by="stopIndex")
     message("Removing the inter-chromosomes interactions")
     matrixDf %<>% filter(chr1 == chr2) %>%
-       dplyr::select(chromosome = chr1, position.1, position.2, value)
+       dplyr::select(chromosome = chr1,
+                     position.1, 
+                     position.2, 
+                     value)
     
-    return(matrixDf)
+    return(list("matrix" = matrixDf, 
+                "resolution" = resolution, 
+                "positions" = positions))
 }
 
 

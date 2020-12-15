@@ -124,7 +124,7 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
     if (totalBinsChr == -Inf)
         return(NULL)
     
-    positions <- (seq.int(totalBinsChr) - 1) * object@binSize
+    positions <- seq.int(totalBinsChr)
     
     # Correct for filtered bins
     if (!is.null(object@weakBins[[chromosomeId]])) {
@@ -175,7 +175,7 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
     
     dfCompartments <- tibble(
         chromosome = factor(chr, levels = object@chromosomes),
-        position = positions,
+        bin = positions,
         condition = factor(cond, levels = unique(object@conditions)),
         compartment = factor(clusters, levels = c(1, 2))
     )
@@ -184,11 +184,11 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
         purrr::map_dfr(seq_len(length(replicates)), ~ dfCompartments) %>%
         dplyr::mutate(replicate = rep(factor(
             replicates, levels = unique(object@replicates)
-        ),
-        each = ncol(interactions)),
+                ),
+            each = ncol(interactions)),
         concordance = concordances) %>%
         dplyr::select(chromosome,
-                      position,
+                      bin,
                       condition,
                       replicate,
                       compartment,
@@ -306,20 +306,20 @@ diagonalRatios <-
             dplyr::filter(replicate == replicateId)
         
         diagonal <- interactions %>%
-            filter(position.1 == position.2) %>%
-            select(-position.2) %>%
-            rename(position = position.1) %>%
+            filter(bin.1 == bin.2) %>%
+            select(-bin.2) %>%
+            rename(bin = bin.1) %>%
             rename(diagonal = value)
         
         offDiagonal <- interactions %>%
-            filter(position.1 != position.2) %>%
+            filter(bin.1 != bin.2) %>%
             pivot_longer(
-                cols = starts_with("position"),
+                cols = starts_with("bin"),
                 names_to = "namepos",
-                values_to = "position"
+                values_to = "bin"
             ) %>%
             select(-namepos) %>%
-            group_by(chromosome, condition, replicate, position) %>%
+            group_by(chromosome, condition, replicate, bin) %>%
             summarise(offDiagonal = median(value)) %>%
             ungroup()
         
@@ -328,9 +328,9 @@ diagonalRatios <-
                       by = c("chromosome",
                              "condition",
                              "replicate",
-                             "position")) %>%
+                             "bin"))  %>%
             mutate(diagonal = ifelse(is.na(diagonal)==T,0,diagonal),
-                   offDiagonal = ifelse(is.na(offDiagonal)==T,0,offDiagonal)) %>%
+                offDiagonal = ifelse(is.na(offDiagonal)==T,0,offDiagonal)) %>%
             mutate(value = diagonal - offDiagonal) %>%
             select(-c(diagonal, offDiagonal))
         
@@ -382,7 +382,7 @@ predictAB <- function(object,
                                 replicates = .z
                             ))
         
-        diagratios <- parallel::mcmapply(
+        object@diagonalRatios <- parallel::mcmapply(
             FUN = function(o, x, y, z)
                 diagonalRatios(o, x, y, z),
             redobjects,
@@ -393,12 +393,12 @@ predictAB <- function(object,
             SIMPLIFY = FALSE
         )
         object@diagonalRatios <-
-            do.call("rbind", diagratios)
+            do.call("rbind", object@diagonalRatios)
     }
     
     compartments <- object@compartments %>%
         dplyr::left_join(object@diagonalRatios,
-                         by = c("chromosome", "condition", "position")) %>%
+                         by = c("chromosome", "condition", "bin")) %>%
         dplyr::group_by(chromosome, compartment) %>%
         dplyr::summarize(value = median(value)) %>%
         dplyr::ungroup() %>%
@@ -457,7 +457,7 @@ computePValues <- function(object) {
     totalReplicates = length(object@replicates)
     
     concordanceDifferences <- object@concordances %>%
-        dplyr::arrange(chromosome, position, condition, replicate)
+        dplyr::arrange(chromosome, bin, condition, replicate)
     
     concordanceDifferences %<>%
         # Duplicate each row "totalReplicates" times
@@ -467,14 +467,14 @@ computePValues <- function(object) {
             concordanceDifferences[rep(seq_len(nrow(concordanceDifferences)),
                                        totalReplicates),] %>%
                 # Arrange by chromosome and position to join with the duplicated rows
-                dplyr::arrange(chromosome, position) %>%
+                dplyr::arrange(chromosome, bin) %>%
                 dplyr::rename_with(function(old_colnames)
                     paste(old_colnames, 2, sep = "."))
         ) %>%
-        dplyr::select(-chromosome.2, -position.2) %>%
+        dplyr::select(-chromosome.2, -bin.2) %>%
         dplyr::rename(condition.1 = condition, concordance.1 = concordance) %>%
         dplyr::filter(as.numeric(condition.1) < as.numeric(condition.2)) %>%
-        dplyr::group_by(chromosome, position, condition.1, condition.2) %>%
+        dplyr::group_by(chromosome, bin, condition.1, condition.2) %>%
         dplyr::summarise(value = median(abs(concordance.1 - concordance.2))) %>%
         dplyr::ungroup()
     
@@ -482,7 +482,7 @@ computePValues <- function(object) {
     totalConditions = length(unique(object@conditions))
     
     compartmentComparisons <- object@compartments %>%
-        dplyr::arrange(chromosome, position, condition)
+        dplyr::arrange(chromosome, bin, condition)
     
     compartmentComparisons %<>%
         # Duplicate each row "totalConditions" times
@@ -492,11 +492,11 @@ computePValues <- function(object) {
             compartmentComparisons[rep(seq_len(nrow(compartmentComparisons)),
                                        totalConditions),] %>%
                 # Arrange by chromosome and position to join with the duplicated rows
-                dplyr::arrange(chromosome, position) %>%
+                dplyr::arrange(chromosome, bin) %>%
                 dplyr::rename_with(function(old_colnames)
                     paste(old_colnames, 2, sep = "."))
         ) %>%
-        dplyr::select(-chromosome.2, -position.2) %>%
+        dplyr::select(-chromosome.2, -bin.2) %>%
         dplyr::rename(condition.1 = condition,
                       compartment.1 = compartment) %>%
         dplyr::filter(as.numeric(condition.1) < as.numeric(condition.2))
@@ -506,7 +506,7 @@ computePValues <- function(object) {
     object@differences <- compartmentComparisons %>%
         dplyr::left_join(
             concordanceDifferences,
-            by = c("chromosome", "position", "condition.1", "condition.2")
+            by = c("chromosome", "bin", "condition.1", "condition.2")
         ) %>%
         dplyr::mutate(H0_value = dplyr::if_else(compartment.1 == compartment.2, value, NA_real_)) %>%
         dplyr::group_by(condition.1, condition.2) %>%
@@ -517,18 +517,15 @@ computePValues <- function(object) {
         dplyr::mutate(pvalue = dplyr::if_else(pvalue > 1, 1, pvalue)) %>%
         dplyr::mutate(padj = p.adjust(pvalue, method = "BH")) %>%
         dplyr::ungroup() %>%
-        dplyr::rename(start = position) %>%
-        dplyr::mutate(end = start + object@binSize) %>%
         dplyr::mutate(direction = factor(dplyr::if_else(compartment.1 == "A", "A->B", "B->A"))) %>%
         dplyr::select(chromosome,
-                      start,
-                      end,
+                      bin,
                       condition.1,
                       condition.2,
                       pvalue,
                       padj,
                       direction) %>%
-        dplyr::arrange(order(mixedsort(chromosome)), start, end, condition.1, condition.2)
+        dplyr::arrange(order(mixedsort(chromosome)), bin, condition.1, condition.2)
     
     return (object)
 }

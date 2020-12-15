@@ -34,10 +34,10 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
         dplyr::filter(value > 0)
 
     totalBinsChr <- object@totalBins[[chr]]
-    fullPos <- (seq_len(totalBinsChr) - 1) * object@binSize
+    fullPos <- seq_len(totalBinsChr)
     removedBins <-
         fullPos[!(fullPos %in%
-                      unique(c(interChr$position.1, interChr$position.2))
+                      unique(c(interChr$bin.1, interChr$bin.2))
                )]
 
     nbNewEmptyBins <- 1
@@ -46,31 +46,31 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
     # Recursive removal of bins - deleting a bin can create a new weak bin.
     while (nbNewEmptyBins > 0 & nbRemovedBins <= totalBinsChr) {
         interChrDiag <- interChr %>%
-          dplyr::filter(position.1 == position.2) %>%
-          dplyr::rename(position = position.1) %>%
-          dplyr::select(-chromosome, -position.2)
+          dplyr::filter(bin.1 == bin.2) %>%
+          dplyr::rename(bin = bin.1) %>%
+          dplyr::select(-chromosome, -bin.2)
 
         existing <- interChr %>%
-            dplyr::filter(position.1 != position.2) %>%
+            dplyr::filter(bin.1 != bin.2) %>%
             tidyr::pivot_longer(
-                cols = c(`position.1`, `position.2`),
+                cols = c(`bin.1`, `bin.2`),
                 names_to = "pos_1or2",
-                names_prefix = "position.",
-                values_to = "position"
+                names_prefix = "bin.",
+                values_to = "bin"
             ) %>%
             dplyr::select(-pos_1or2, -chromosome) %>%
           bind_rows(interChrDiag) %>%
-            tidyr::complete(position,
+            tidyr::complete(bin,
                      nesting(condition, replicate),
                      fill = list(value = 0)
             )
         weakdataset <- existing %>%
-            dplyr::group_by(replicate, condition, position) %>%
+            dplyr::group_by(replicate, condition, bin) %>%
             dplyr::mutate(mean = sum(value) / totalBinsChr) %>%
             dplyr::filter(mean <= threshold)
 
         weakposChr <- weakdataset %>%
-            dplyr::pull(position) %>%
+            dplyr::pull(bin) %>%
             unique() %>%
             sort()
 
@@ -79,8 +79,8 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 
         # Remove the positions in rows and columns in empty bins
         if (nbNewEmptyBins > 0) {
-          interChr <- interChr[!(interChr$position.1 %in% weakposChr),]
-          interChr <- interChr[!(interChr$position.2 %in% weakposChr),]
+          interChr <- interChr[!(interChr$bin.1 %in% weakposChr),]
+          interChr <- interChr[!(interChr$bin.2 %in% weakposChr),]
           nbRemovedBins <- nbRemovedBins + nbNewEmptyBins
         }
     }
@@ -128,8 +128,6 @@ filterWeakPositions <- function(object, threshold = NULL) {
     names(weakPositions) <- object@chromosomes
 
     weakBins <- weakPositions %>% purrr::map("pos")
-    weakBins <- lapply(weakBins, function(x)
-        x / object@binSize + 1)
     nullweak <-
         vapply(weakBins, function(x)
             length(x) == 0, FUN.VALUE = TRUE)

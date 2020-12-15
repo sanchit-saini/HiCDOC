@@ -18,30 +18,33 @@
 #' @export
 normalizeTechnicalBiases <- function(object, parallel=FALSE) {
 
-    object@weakBins <- object@weakBins[mixedsort(names(object@weakBins))]
-
     # One matrix by condition and replicate
-    matrices <- object@interactions %>%
-        arrange(order(mixedsort(chromosome))) %>%
-        dplyr::mutate(chromosome = factor(chromosome, levels=object@chromosomes)) %>%
-        dplyr::mutate(chromosome = as.integer(chromosome)) %>%
+    matrices <- object@interactions %>% 
+        dplyr::mutate(chromosome = as.integer(factor(chromosome, 
+                                                     levels=object@chromosomes)),
+                      bin.1 = (bin.1-1) * object@binSize,
+                      bin.2 = (bin.2-1) * object@binSize) %>%
         dplyr::group_split(condition, replicate) %>%
-        purrr::map(function(x) dplyr::select(x, -c(condition, replicate)))
+        purrr::map(function(x) dplyr::select(x, -c(condition, replicate))) 
 
     # Regions to remove
-    remove.regions <- data.frame(cbind(
-        unlist(mapply(
+    remove.regions <- data.frame(
+        "chromosome" = unlist(mapply(
             function(bins, name) rep(name, length(bins)),
             object@weakBins,
-            as.integer(mixedsort(factor(names(object@weakBins))))
+            names(object@weakBins)
         )),
-        (unlist(object@weakBins) - 1) * object@binSize,
-        unlist(object@weakBins) * object@binSize - 1
-    ))
-
+        "bin" = unlist(object@weakBins)
+    ) 
+        
     # Regions to remove in Granges format
     if (nrow(remove.regions) > 0) {
-        colnames(remove.regions) <- c("chromosome", "start", "end")
+        remove.regions %<>% 
+            dplyr::mutate(start = (bin -1) * object@binSize,
+                          end = (bin * object@binSize) - 1) %>%
+            dplyr::select(-bin) %>%
+            dplyr::mutate(chromosome = as.integer(factor(chromosome, 
+                                                         levels=object@chromosomes)))
         remove.regions <- GenomicRanges::makeGRangesFromDataFrame(remove.regions)
     } else {
         remove.regions <- NULL
@@ -61,8 +64,10 @@ normalizeTechnicalBiases <- function(object, parallel=FALSE) {
     output <- multiHiCcompare::hic_table(normalized) %>% as_tibble() %>% dplyr::select(-D)
     
     colnames(output) <- c(
-        "chromosome", "position.1", "position.2", seq_along(object@replicates)
+        "chromosome", "bin.1", "bin.2", seq_along(object@replicates)
     )
+    output %<>% mutate(bin.1 = bin.1 / object@binSize + 1,
+                       bin.2 = bin.2 / object@binSize + 1)
 
     object@interactions <- output %>%
         gather(
@@ -74,7 +79,7 @@ normalizeTechnicalBiases <- function(object, parallel=FALSE) {
         dplyr::mutate(condition = factor(object@conditions[i])) %>%
         dplyr::mutate(replicate = factor(object@replicates[i])) %>%
         dplyr::mutate(chromosome = factor(object@chromosomes[chromosome])) %>%
-        dplyr::select(chromosome, position.1, position.2, condition, replicate, value)
+        dplyr::select(chromosome, bin.1, bin.2, condition, replicate, value)
 
     return(object)
 }

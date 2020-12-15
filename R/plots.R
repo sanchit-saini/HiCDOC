@@ -28,15 +28,23 @@ plotInteractionMatrix <-
         chr <- testChromosome(object, chromosomeId)
         if (is.null(trans))
             trans <- "Identity"
-
+    
+        posChr <- object@positions %>% 
+            filter(chromosome == chr)
         # Prepare data
         interactionsChr <- object@interactions %>%
-            dplyr::filter(chromosome == chr & value > 0)
+            dplyr::filter(chromosome == chr & value > 0) %>%
+            dplyr::left_join(posChr %>%
+                                  select(bin.1 = bin, position.1 = start),
+                             by="bin.1") %>%
+            dplyr::left_join(posChr %>%
+                                 select(bin.2 = bin, position.2 = start),
+                             by="bin.2")
         nblevels <- table(object@conditions)
         nbrows <- 1
         if (max(nblevels) == min(nblevels))
             nbrows <- length(unique(object@conditions))
-        xylim <- c(0, (object@totalBins[[chr]] - 1) * object@binSize)
+        xylim <- c(min(posChr$start), max(posChr$start))
 
         if (nrow(interactionsChr) > 0) {
             p <-
@@ -44,8 +52,8 @@ plotInteractionMatrix <-
                        aes(x = position.1, y = position.2, z = value)) +
                 geom_raster(aes(fill = value), na.rm = TRUE) +
                 geom_raster(
-                    data = interactionsChr[interactionsChr$position.1 !=
-                                               interactionsChr$position.2,],
+                    data = interactionsChr[interactionsChr$bin.1 !=
+                                               interactionsChr$bin.2,],
                     aes(x = position.2, y = position.1, fill = value),
                     na.rm = TRUE
                 ) +
@@ -83,7 +91,7 @@ plotDistanceEffect <- function(object) {
     testSlotsHiCDOC(object, slots = c("interactions"))
 
     p <- object@interactions %>%
-        dplyr::mutate(distance = position.2 - position.1) %>%
+        dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize) %>%
         ggplot(aes(x = distance, y = value)) +
         geom_bin2d() +
         scale_fill_gradient(low = "white",
@@ -117,18 +125,17 @@ plotDiffConcordances <- function(object) {
                        slots = c("interactions", "differences", "concordances"))
 
     changed <- object@differences %>%
-        dplyr::select(-c(`end`, `padj`)) %>%
-        dplyr::rename(position = start) %>%
+        dplyr::select(-c(`padj`)) %>%
         dplyr::mutate(changed = "T")
 
     differences <- object@concordances %>%
-        dplyr::group_by(.dots = c("chromosome", "position", "condition")) %>%
+        dplyr::group_by(.dots = c("chromosome", "bin", "condition")) %>%
         dplyr::summarise(median = median(concordance)) %>%
         dplyr::ungroup() %>%
         tidyr::spread(condition, median) %>%
         dplyr::mutate(difference = `2` - `1`) %>%
         dplyr::select(-c(`1`, `2`)) %>%
-        dplyr::left_join(changed, by = c("chromosome", "position")) %>%
+        dplyr::left_join(changed, by = c("chromosome", "bin")) %>%
         dplyr::mutate(changed = replace_na(changed, "F"))
 
     p <- ggplot(differences, aes(x = difference, fill = changed)) +
@@ -160,7 +167,7 @@ plotAB <- function(object, chromosomeId) {
     data <- object@diagonalRatios %>%
         dplyr::left_join(
             object@compartments,
-            by = c("chromosome", "condition", "position")
+            by = c("chromosome", "condition", "bin")
         ) %>%
         dplyr::filter(chromosome == chromosomeId)
 
@@ -184,6 +191,7 @@ plotAB <- function(object, chromosomeId) {
 #' @param object an \code{HiCDOCDataSet} object
 #' @param chromosomeId Character or numeric value. Name or number of
 #' the chromosome, like in chromosomes(object)
+#' @param size Numeric. Size of the points in geom_point.
 #'
 #' @return A \code{ggplot} object
 #' @examples
@@ -196,7 +204,7 @@ plotAB <- function(object, chromosomeId) {
 #' object <- detectCompartments(object)
 #' plotCentroids(object, 1)
 #' @export
-plotCentroids <- function(object, chromosomeId) {
+plotCentroids <- function(object, chromosomeId, size = 2) {
     testSlotsHiCDOC(object, slots = c("centroids"))
     chr <- testChromosome(object, chromosomeId)
 
@@ -222,7 +230,7 @@ plotCentroids <- function(object, chromosomeId) {
             y = PC2,
             color = group,
             shape = group
-        )) + geom_point(size = 2) +
+        )) + geom_point(size = size) +
         labs(
             title = paste0("Centroids of chromosome ", chr),
             x = paste("PC1 ", propvar[1]),

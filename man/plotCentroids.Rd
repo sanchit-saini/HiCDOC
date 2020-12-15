@@ -5,13 +5,15 @@
 \title{Plot the centroid distributions along the genomic positions
 for a given chromosome.}
 \usage{
-plotCentroids(object, chromosomeId)
+plotCentroids(object, chromosomeId, size = 2)
 }
 \arguments{
 \item{object}{an \code{HiCDOCDataSet} object}
 
 \item{chromosomeId}{Character or numeric value. Name or number of
 the chromosome, like in chromosomes(object)}
+
+\item{size}{Numeric. Size of the points in geom_point.}
 }
 \value{
 A \code{ggplot} object

@@ -6,7 +6,7 @@ sparsityChromosome <- function(object, chromosomeId = 1, pctFill = 0.05){
     totalCells <- object@totalBins[chr]^2
     
     pctFill <- interactionsChr %>%
-        dplyr::mutate(value = ifelse(position.1==position.2, 1,2)) %>%
+        dplyr::mutate(value = ifelse(bin.1==bin.2, 1,2)) %>%
         group_by(replicate, condition) %>%
         summarise(pctSparse = 1-sum(value)/totalCells, .groups = "keep") %>%
         dplyr::ungroup()

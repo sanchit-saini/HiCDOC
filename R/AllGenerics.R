@@ -38,6 +38,14 @@ setGeneric(
     }
 )
 
+##- centroids
+setGeneric(
+    name = "centroids",
+    def = function(object) {
+        standardGeneric("centroids")
+    }
+)
+
 ##- parameters
 setGeneric(
     name = "parameters",

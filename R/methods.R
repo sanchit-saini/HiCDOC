@@ -1,4 +1,4 @@
-##- chromosomes -------------------------------------------------------------#
+##- chromosomes -------------------------------------------------------------##
 ##----------------------------------------------------------------------------#
 #' Accessors for the 'chromosomes' slot of an HiCDOCDataSet object
 #'
@@ -20,7 +20,8 @@ setMethod(
     f = "chromosomes",
     signature = "HiCDOCDataSet",
     definition = function(object) {
-        object@chromosomes
+        testSlotsHiCDOC(object, "chromosomes")
+        return(object@chromosomes)
     }
 )
 
@@ -46,7 +47,24 @@ setMethod(
     f = "interactions",
     signature = "HiCDOCDataSet",
     definition = function(object) {
-    object@interactions
+        testSlotsHiCDOC(object, "interactions")
+        interactions <- object@interactions %>%
+                dplyr::left_join(object@positions %>%
+                                     select(chromosome, 
+                                            bin.1 = bin, 
+                                            start.1 = start), 
+                                 by=c("chromosome", "bin.1")) %>%
+                dplyr::left_join(object@positions %>%
+                                     select(chromosome, 
+                                            bin.2 = bin, 
+                                            start.2 = start), 
+                                 by=c("chromosome", "bin.2")) %>%
+                dplyr::select(chromosome, 
+                              start.1, start.2,
+                              condition, 
+                              replicate,
+                              value)
+        return(interactions)
     }
 )
 
@@ -65,9 +83,6 @@ setMethod(
 #' @aliases differences differences,HiCDOCDataSet-method
 #'
 #' @param object An \code{HiCDOCDataSet} object.
-#' @param pvalue Numeric cutoff value for adjusted p-values. Only regions with
-#' adjusted p-values equal or lower than specified are returned.
-#' Default to 1, all regions are returned.
 #'
 #' @return A \code{GenomicRanges} object of the selected differentially
 #' interacting regions.
@@ -75,57 +90,27 @@ setMethod(
 #' @examples
 #' exp <- HiCDOCExample()
 #' exp <- HiCDOC(exp)
-#' differences(exp, pvalue = 0.05)
+#' differences(exp)
 #'
 #' @export
 setMethod(
     f = "differences",
     signature = "HiCDOCDataSet",
-    definition = function(object, pvalue=1) {
-        if (is.null(object@differences)) {
-            message(
-                "No 'differences' slot found in the ",
-                "HiCDOCDataSet object. Run HiCDOC first."
-            )
-        }
-        else if (length(object@differences) == 0) {
+    definition = function(object) {
+        testSlotsHiCDOC(object, "differences")
+        if (nrow(object@differences) == 0) {
             message("No 'differences' found.")
-            return(GRanges())
-        }
-        else {
-            ##- checking input value ---------------------------------#
-            ##--------------------------------------------------------#
-            if (length(pvalue) != 1) {
-                stop("'pvalue' must be a single value.", call. = FALSE)
-            }
-
-            if (is.null(pvalue) || !is.numeric(pvalue) ||
-                !is.finite(pvalue)) {
-                stop("'pvalue' value must be numeric.", call. = FALSE)
-            }
-
-            if ((pvalue > 1) || (pvalue < 0)) {
-                stop(
-                    "'pvalue' value ", pvalue, ", outside the interval [0,1].",
-                    call. = FALSE
-                )
-            }
-            ##- end check -------------------------------------------#
-
+            return(GenomicRanges::GRanges())
+        } else {
             gr <- object@differences %>%
-                dplyr::filter(abs(padj) <= pvalue) %>%
-                dplyr::mutate(start = start + 1)
-            if (nrow(gr) == 0) {
-                message(paste0(
-                    "No 'differences' found at p-value ",
-                    pvalue,
-                    ": best is: ",
-                    min(abs(object@differences$padj)),
-                    "."
-                ))
-                return(GRanges())
-            }
-            return (makeGRangesFromDataFrame(
+                dplyr::left_join(object@positions, by=c("chromosome", "bin")) %>%
+                dplyr::select(chromosome, 
+                              start, 
+                              end, 
+                              condition.1,
+                              condition.2,
+                              pvalue, padj, direction) 
+            return (GenomicRanges::makeGRangesFromDataFrame(
                 gr,
                 keep.extra.columns = TRUE,
                 ignore.strand = TRUE
@@ -161,14 +146,17 @@ setMethod(
     f = "concordances",
     signature = "HiCDOCDataSet",
     definition = function(object) {
-        if (is.null(object@concordances)) {
-            message(
-                "No 'concordances' slot found in the ",
-                "HiCDOCDataSet object. Run HiCDOC first."
-            )
-        } else {
-            return(object@concordances)
-        }
+        testSlotsHiCDOC(object, "concordances")
+        concordances <- object@concordances %>% 
+            left_join(object@positions, by=c("chromosome", "bin")) %>%
+            select(chromosome, 
+                   start, 
+                   end, 
+                   condition, 
+                   replicate, 
+                   compartment, 
+                   concordance)
+        return(concordances)
     }
 )
 
@@ -206,9 +194,13 @@ setMethod(
             )
         } else {
             grl <- object@compartments %>%
-                    dplyr::mutate(start = position + 1) %>%
-                    dplyr::mutate(end = start + object@binSize - 1) %>%
-                    dplyr::select(-position)
+                    dplyr::left_join(object@positions, by=c("chromosome", "bin")) %>%
+                    dplyr::select(chromosome, 
+                                  bin, 
+                                  start, 
+                                  end, 
+                                  condition, 
+                                  compartment)
             return(grl)
             # grl <- object@compartments %>%
             #     mutate(start = position + 1) %>%
@@ -233,6 +225,38 @@ setMethod(
         }
     }
 )
+
+##- centroids -------------------------------------------------------------#
+##----------------------------------------------------------------------------#
+#' Extracts centroids
+#'
+#' This function extracts the centroids from \code{\link{HiCDOCDataSet}}.
+#'
+#' @docType methods
+#' @name centroids
+#' @rdname centroids
+#'
+#' @aliases centroids centroids,HiCDOCDataSet-method
+#'
+#' @param object An \code{HiCDOCDataSet} object.
+#'
+#' @return A \code{tibble} object of the centroids
+#'
+#' @examples
+#' exp <- HiCDOCExample()
+#' exp <- HiCDOC(exp)
+#' centroids(exp)
+#'
+#' @export
+setMethod(
+    f = "centroids",
+    signature = "HiCDOCDataSet",
+    definition = function(object) {
+        testSlotsHiCDOC(object, "centroids")
+        return(object@centroids)
+    }
+)
+
 
 
 ##- parameters ---------------------------------------------------------------#
@@ -273,7 +297,7 @@ setMethod(
 #'                1 condition and 1 replicate.}
 #'    }
 #' }
-#'
+
 #' @docType methods
 #' @name parameters
 #' @rdname parameters
@@ -294,18 +318,10 @@ setMethod(
     f = "parameters",
     signature = "HiCDOCDataSet",
     definition = function(object) {
-        if (is.null(object@parameters)) {
-            message(
-                "No 'parameters' slot found in the HiCDOCDataSet ",
-                "object. Run HiCDOC first or assign a named ",
-                "list of valid parameters. See help(parameters) ",
-                "for details."
-            )
-        } else {
-            object@parameters
-            class(object@parameters) <- "HiCDOCParameters"
-            return(invisible(object@parameters))
-        }
+        testSlotsHiCDOC(object, "parameters")
+        # object@parameters
+        # class(object@parameters) <- "HiCDOCParameters"
+        return(object@parameters)
     }
 )
 
@@ -406,13 +422,14 @@ setMethod(
 #' print(parameters(exp))
 #'
 #' @export
-printHiCDOCParameters <- function(x, ...) {
-
+printHiCDOCParameters <- function(object) {
+    parameters  <- unlist(object@parameters)
+    kmparam <- which(grepl("kMeans", names(parameters)))
     cat("\n Global parameters: \n", "------------------ \n")
-    df <- data.frame(value = unlist(x[seq_len(6)]))
+    df <- data.frame(value = parameters[-kmparam])
     print(df)
 
     cat("\n Constrained K-means parameters: \n", "---------------------- \n")
-    df <- data.frame(value = unlist(x[7:10]))
+    df <- data.frame(value = parameters[kmparam])
     print(df)
 }

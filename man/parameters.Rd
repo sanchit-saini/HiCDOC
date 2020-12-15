@@ -13,7 +13,7 @@
 
 \S4method{parameters}{HiCDOCDataSet}(object) <- value
 
-printHiCDOCParameters(x, ...)
+printHiCDOCParameters(object)
 }
 \arguments{
 \item{object}{An \code{HiCDOCDataSet} object.}

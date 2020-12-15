@@ -318,7 +318,10 @@ HiCDOCDataSetFromHicPro <- function(matrixFileNames,
       conditions = conditions,
       hicPro     = TRUE
     )
-    object <- parseInteractionMatrixHicPro(data, cl)
+    temp <- parseInteractionMatrixHicPro(data, cl)
+    object <- temp[["matrix"]]
+    object@binSize <- temp[["resolution"]]
+    object@positions <- temp[["positions"]]
     object <- HiCDOCDataSet(object)
     
     return(invisible(object))
@@ -344,8 +347,7 @@ HiCDOCExample <- function() {
     basedir <-
         system.file("extdata", package = "HiCDOC", mustWork = TRUE)
     matrix  <- file.path(basedir, "sampleMatrix.tsv")
-    dataSet <- HiCDOCDataSetFromSparseMatrix(matrix)
-    object  <- HiCDOCDataSet(dataSet)
+    object <- HiCDOCDataSetFromSparseMatrix(matrix)
     return(invisible(object))
 }
 
@@ -406,26 +408,10 @@ setClass(
         concordances                = "ANY",
         differences                 = "ANY",
         centroids                   = "ANY",
-        parameters                  = "ANY"
+        parameters                  = "ANY",
+        positions                   = "ANY"
     )
 )
-
-
-#' Number of bins of a chromosome, from the interactions matrix
-#'
-#' @param chromosomeId Name of the chromosome
-#' @param interactions Interactions matrix
-#' @param binSize Numeric value, resolution
-#'
-#' @return a numeric value
-nbBinsChromosome <- function(chromosomeId, interactions, binSize){
-  chromosomeInteractions <- interactions %>%
-    dplyr::filter(chromosome == chromosomeId)
-  nbBins = max(chromosomeInteractions$position.1,
-               chromosomeInteractions$position.2) / binSize + 1
-  return(nbBins)
-}
-
 
 
 ##- HiCDOCDataSet S4 class constructor -------------------------------------#
@@ -450,37 +436,96 @@ HiCDOCDataSet <- function(object = NULL,
                       parameters = NULL,
                       binSize = NULL) {
 
-      if ( is.null(object) ) {
+    if ( is.null(object) ) {
         # stop("'dataSet' must be specified", call. = FALSE)
         object <- new("HiCDOCDataSet")
     }
+  
+    if ( is.null(object@binSize) ) {
+      if ( !is.null(binSize) ) {
+        object@binSize <- binSize
+      } else {
+        if( !is.null(object@interactions) ) {
+          object@binSize <- min(abs(
+            object@interactions$position.2[object@interactions$position.1
+                                           != object@interactions$position.2]
+            - object@interactions$position.1[object@interactions$position.1
+                                             != object@interactions$position.2]
+          ))
+        }
+      }
+    }
     
     if( !is.null(object@interactions) ) {
+        # Determine positions
+        if( is.null(object@positions) ) {
+            chromosomes <- mixedsort(as.character(unique(object@interactions$chromosome)))
+            minMaxPos <- object@interactions %>%
+                dplyr::group_by(chromosome) %>%
+                dplyr::summarize(minpos.1 = min(position.1), 
+                          minpos.2 = min(position.2),
+                          maxpos.1 = max(position.1),
+                          maxpos.2 = max(position.2)) %>%
+                dplyr::ungroup() %>%
+                dplyr::rowwise() %>%
+                dplyr::mutate(minpos = min(minpos.1, minpos.2),
+                       maxpos = max(maxpos.1, maxpos.2), .keep = "unused")
+            
+            positions <- lapply(chromosomes, function(x)
+              return(data.frame("chromosome" = x,
+                                "start" = seq(minMaxPos[minMaxPos$chromosome == x,]$minpos,
+                                              minMaxPos[minMaxPos$chromosome == x,]$maxpos,
+                                              by=object@binSize)
+                                ))
+              ) %>% bind_rows() %>%
+              mutate(chromosome = factor(chromosome, levels= chromosomes)) %>% 
+              group_by(chromosome) %>% 
+              arrange(chromosome, start, .by_group=TRUE) %>%
+              mutate(end = lead(start) -1) %>%
+              mutate(bin = row_number()) %>%
+              ungroup()
+            
+            positions %<>% 
+                mutate(end = ifelse(is.na(end), start + object@binSize - 1, end)) %>%
+                select(chromosome, bin, start, end)
+            object@positions <- positions
+        }
+      
+        # Replace positions by bins in interactions
+        object@interactions %<>% 
+            left_join(object@positions %>% 
+                        select(chromosome, position.1 = start, bin.1 = bin),
+                      by = c("chromosome", "position.1")) %>%
+            left_join(object@positions %>% 
+                        select(chromosome, position.2 = start, bin.2 = bin),
+                      by = c("chromosome", "position.2")) %>%
+            select(chromosome, bin.1, bin.2, condition, replicate, value)
+      
         object@chromosomes <-
-            mixedsort(as.vector(unique(object@interactions$chromosome)))
+            mixedsort(as.vector(unique(object@positions$chromosome)))
     
         object@weakBins <- vector("list", length(object@chromosomes))
         names(object@weakBins) <- object@chromosomes
         
         # Put matrix in upper only 
-        low <- which(object@interactions$position.1 > object@interactions$position.2)
+        low <- which(object@interactions$bin.1 > object@interactions$bin.2)
         if(length(low) > 0){
-            lowpos1 <- object@interactions[low,"position.1"] %>% pull()
-            lowpos2 <- object@interactions[low,"position.2"] %>% pull()
-            object@interactions[low,]$position.1 <- lowpos2 
-            object@interactions[low,]$position.2 <- lowpos1 
+            lowpos1 <- object@interactions[low,"bin.1"] %>% pull()
+            lowpos2 <- object@interactions[low,"bin.2"] %>% pull()
+            object@interactions[low,]$bin.1 <- lowpos2 
+            object@interactions[low,]$bin.2 <- lowpos1 
         }
         
         # Check if unique combination of positions, if not mean(value)
         if(nrow(unique(object@interactions[, c("chromosome",
-                                               "position.1",
-                                               "position.2",
+                                               "bin.1",
+                                               "bin.2",
                                                "condition",
                                                "replicate")])) != 
            nrow(object@interactions)) {
             message("Not unique positions, replacing value by mean(value)")
             object@interactions %<>%
-                group_by(chromosome, position.1, position.2, condition, replicate) %>%
+                group_by(chromosome, bin.1, bin.2, condition, replicate) %>%
                 mutate(value = mean(value)) %>%
                 ungroup()
         }
@@ -495,24 +540,10 @@ HiCDOCDataSet <- function(object = NULL,
             }, FUN.VALUE = 0)
     }
     
-    if ( !is.null(binSize) ) {
-        object@binSize <- binSize
-    } else {
-      if( !is.null(object@interactions) ) {
-          object@binSize <- min(abs(
-            object@interactions$position.2[object@interactions$position.1
-                                           != object@interactions$position.2]
-            - object@interactions$position.1[object@interactions$position.1
-                                             != object@interactions$position.2]
-          ))
-      }
-    }
-    
     if( !is.null(object@binSize) & !is.null(object@interactions) ){
         object@totalBins <- vapply(object@chromosomes,
-            function(x) nbBinsChromosome(x,
-                                         object@interactions,
-                                         object@binSize),
+            function(x) 
+                nrow(object@positions[object@positions$chromosome == x,]),
             FUN.VALUE = 0
             )
     }

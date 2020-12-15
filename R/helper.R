@@ -34,8 +34,6 @@ sparseInteractionsToMatrix <- function(object,
         dplyr::filter(chromosome == chromosomeId) %>%
         dplyr::filter(condition == conditionId) %>%
         dplyr::filter(replicate == replicateId) %>%
-        dplyr::mutate(bin.1 = position.1 / object@binSize + 1,
-                   bin.2 = position.2 / object@binSize + 1) %>%
         dplyr::select(bin.1, bin.2, value) %>%
         dplyr::filter(value != 0) %>%
         as.matrix()
@@ -87,14 +85,12 @@ matrixToSparseInteractions <- function(m,
     return (
         tibble(
             chromosome = chromosomeId,
-            position.1 = (rep(seq(totalBins), each = totalBins) - 1) *
-                object@binSize,
-            position.2 = (rep(seq(totalBins), times = totalBins) - 1) *
-                object@binSize,
+            bin.1 = rep(seq(totalBins), each = totalBins),
+            bin.2 = rep(seq(totalBins), times = totalBins),
             condition = conditionId,
             replicate = replicateId,
             value = as.vector(t(m))
-        ) %>% dplyr::filter(position.1 <= position.2 & value != 0)
+        ) %>% dplyr::filter(bin.1 <= bin.2 & value > 0)
     )
 
 }
@@ -127,20 +123,16 @@ reduceHiCDOCDataSet <- function(object,
             object@chromosomes[numchr]
         object@weakBins <- object@weakBins[numchr]
         object@totalBins <- object@totalBins[numchr]
-        object@interactions <- 
-            object@interactions[object@interactions$chromosome %in% chromosomes,]
-        object@distances <- 
-            object@distances[object@distances$chromosome %in% chromosomes,]
-        object@diagonalRatios <- 
-            object@diagonalRatios[object@diagonalRatios$chromosome %in% chromosomes,]
-        object@compartments <- 
-            object@compartments[object@compartments$chromosome %in% chromosomes,]
-        object@concordances <- 
-            object@concordances[object@concordances$chromosome %in% chromosomes,]
-        object@differences <- 
-            object@differences[object@differences$chromosome %in% chromosomes,]
-        object@centroids <- 
-            object@centroids[object@centroids$chromosome %in% chromosomes,]
+        for(slotName in c("interactions", 
+                          "distances", 
+                          "diagonalRatios", 
+                          "compartments", 
+                          "concordances", 
+                          "differences", 
+                          "centroids", 
+                          "positions")){
+            slot(object, slotName) %<>% filter(chromosome %in% chromosomes)
+        }
     }
     
     if(!is.null(conditions)){
@@ -149,20 +141,16 @@ reduceHiCDOCDataSet <- function(object,
             object@conditions[numcond]
         object@replicates <- 
             object@replicates[numcond]
-        object@interactions <- 
-            object@interactions[object@interactions$condition %in% conditions,]
-        object@distances <- 
-            object@distances[object@distances$condition %in% conditions,]
-        object@diagonalRatios <- 
-            object@diagonalRatios[object@diagonalRatios$condition %in% conditions,]
-        object@compartments <- 
-            object@compartments[object@compartments$condition %in% conditions,]
-        object@concordances <- 
-            object@concordances[object@concordances$condition %in% conditions,]
-        object@differences <- 
-            object@differences[object@differences$condition %in% conditions,]
-        object@centroids <- 
-            object@centroids[object@centroids$condition %in% conditions,]
+        for(slotName in c("interactions", 
+                          "distances", 
+                          "diagonalRatios", 
+                          "compartments", 
+                          "concordances", 
+                          "differences", 
+                          "centroids", 
+                          "positions")){
+            slot(object, slotName) %<>% filter(condition %in% conditions)
+        }
     }
     
     if(!is.null(replicates)){
@@ -171,20 +159,16 @@ reduceHiCDOCDataSet <- function(object,
             object@conditions[numrep]
         object@replicates <- 
             object@replicates[numrep]
-        object@interactions <- 
-            object@interactions[object@interactions$replicate %in% replicates,]
-        object@distances <- 
-            object@distances[object@distances$replicate %in% replicates,]
-        object@diagonalRatios <- 
-            object@diagonalRatios[object@diagonalRatios$chromosome %in% chromosomes,]
-        object@compartments <- 
-            object@compartments[object@compartments$chromosome %in% chromosomes,]
-        object@concordances <- 
-            object@concordances[object@concordances$chromosome %in% chromosomes,]
-        object@differences <- 
-            object@differences[object@differences$chromosome %in% chromosomes,]
-        object@centroids <- 
-            object@centroids[object@centroids$chromosome %in% chromosomes,]
+        for(slotName in c("interactions", 
+                          "distances", 
+                          "diagonalRatios", 
+                          "compartments", 
+                          "concordances", 
+                          "differences", 
+                          "centroids", 
+                          "positions")){
+            slot(object, slotName) %<>% filter(condition %in% conditions)
+        }
     }
     
     object@totalReplicates <- length(object@replicates)
