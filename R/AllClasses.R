@@ -435,12 +435,14 @@ setClass(
 HiCDOCDataSet <- function(object = NULL,
                       parameters = NULL,
                       binSize = NULL) {
-
+  
+    # Create new empty object
     if ( is.null(object) ) {
         # stop("'dataSet' must be specified", call. = FALSE)
         object <- new("HiCDOCDataSet")
     }
   
+    # Fill binSize slot
     if ( is.null(object@binSize) ) {
       if ( !is.null(binSize) ) {
         object@binSize <- binSize
@@ -457,23 +459,23 @@ HiCDOCDataSet <- function(object = NULL,
     }
     
     if( !is.null(object@interactions) ) {
+      
         # Determine positions
         if( is.null(object@positions) ) {
-            chromosomes <- mixedsort(as.character(unique(object@interactions$chromosome)))
+            chromosomes <- mixedsort(
+                as.character(unique(object@interactions$chromosome)))
             minMaxPos <- object@interactions %>%
                 dplyr::group_by(chromosome) %>%
-                dplyr::summarize(minpos.1 = min(position.1), 
-                          minpos.2 = min(position.2),
-                          maxpos.1 = max(position.1),
-                          maxpos.2 = max(position.2)) %>%
+                dplyr::summarize(maxpos.1 = max(position.1),
+                                 maxpos.2 = max(position.2)) %>%
                 dplyr::ungroup() %>%
                 dplyr::rowwise() %>%
-                dplyr::mutate(minpos = min(minpos.1, minpos.2),
-                       maxpos = max(maxpos.1, maxpos.2), .keep = "unused")
+                dplyr::mutate(maxpos = max(maxpos.1, maxpos.2), 
+                              .keep = "unused")
             
             positions <- lapply(chromosomes, function(x)
               return(data.frame("chromosome" = x,
-                                "start" = seq(minMaxPos[minMaxPos$chromosome == x,]$minpos,
+                                "start" = seq(0,
                                               minMaxPos[minMaxPos$chromosome == x,]$maxpos,
                                               by=object@binSize)
                                 ))
@@ -530,16 +532,18 @@ HiCDOCDataSet <- function(object = NULL,
                 ungroup()
         }
     }
+    # Fill totalReplicates slot
     if( !is.null(object@replicates) ) {
         object@totalReplicates <- length(object@replicates)
     }
+    # Fill totalReplicatesPerCondition slot 
     if( !is.null(object@conditions) ) {
         object@totalReplicatesPerCondition <-
             vapply(unique(object@conditions), function(x) {
                 length(which(object@conditions == x))
             }, FUN.VALUE = 0)
     }
-    
+    # Fill totalBins slot
     if( !is.null(object@binSize) & !is.null(object@interactions) ){
         object@totalBins <- vapply(object@chromosomes,
             function(x) 
