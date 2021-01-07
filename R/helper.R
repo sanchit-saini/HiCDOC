@@ -131,7 +131,9 @@ reduceHiCDOCDataSet <- function(object,
                           "differences", 
                           "centroids", 
                           "positions")){
-            slot(object, slotName) %<>% filter(chromosome %in% chromosomes)
+            if(!is.null(slot(object, slotName))){
+                slot(object, slotName) %<>% filter(chromosome %in% chromosomes)
+            }
         }
     }
     
@@ -149,7 +151,9 @@ reduceHiCDOCDataSet <- function(object,
                           "differences", 
                           "centroids", 
                           "positions")){
-            slot(object, slotName) %<>% filter(condition %in% conditions)
+            if(!is.null(slot(object, slotName))){
+                slot(object, slotName) %<>% filter(condition %in% conditions)
+            }
         }
     }
     
@@ -167,7 +171,9 @@ reduceHiCDOCDataSet <- function(object,
                           "differences", 
                           "centroids", 
                           "positions")){
-            slot(object, slotName) %<>% filter(condition %in% conditions)
+            if(!is.null(slot(object, slotName))){
+                slot(object, slotName) %<>% filter(replicate %in% replicates)
+            }
         }
     }
     
