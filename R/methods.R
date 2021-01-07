@@ -148,8 +148,8 @@ setMethod(
     definition = function(object) {
         testSlotsHiCDOC(object, "concordances")
         concordances <- object@concordances %>% 
-            left_join(object@positions, by=c("chromosome", "bin")) %>%
-            select(chromosome, 
+            dplyr::left_join(object@positions, by=c("chromosome", "bin")) %>%
+            dplyr::select(chromosome, 
                    start, 
                    end, 
                    condition, 

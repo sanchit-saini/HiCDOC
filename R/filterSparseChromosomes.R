@@ -16,13 +16,13 @@ sparsityChromosome <- function(object, chromosomeId = 1, pctFill = 0.05){
         dplyr::mutate(totalBins = object@totalBins[chr],
                       totalCells = totalCells, 
                       chromosome = factor(chr, levels = object@chromosomes)) %>%
-        mutate(quality = ifelse(maxSparsity<0.001, "***", 
+        dplyr::mutate(quality = ifelse(maxSparsity<0.001, "***", 
                                 ifelse(maxSparsity<0.01, "**",
                                        ifelse(maxSparsity<0.05, "*",
                                               ifelse(maxSparsity<0.1, ".", ""))))) 
     
     # reordering columns
-    pctFill %<>% select(chromosome, totalCells, maxSparsity, quality)
+    pctFill %<>% dplyr::select(chromosome, totalCells, maxSparsity, quality)
     return(pctFill)
 }
 

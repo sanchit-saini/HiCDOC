@@ -37,7 +37,7 @@ sparseInteractionsToMatrix <- function(object,
         dplyr::select(bin.1, bin.2, value) %>%
         dplyr::filter(value != 0) %>%
         as.matrix()
-
+    
     if (nrow(interactions) == 0) {
         return(matrix(0, nrow = 0, ncol = 0))
     }
@@ -50,12 +50,12 @@ sparseInteractionsToMatrix <- function(object,
     if (!isSymmetric(result)) {
         stop("Matrix is not symmetric.")
     }
-
+    
     if (filter && length(object@weakBins[[chromosomeId]]) > 0) {
         result <- result[-object@weakBins[[chromosomeId]],
                          -object@weakBins[[chromosomeId]]]
     }
-
+    
     return (result)
 }
 

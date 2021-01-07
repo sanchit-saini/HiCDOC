@@ -306,33 +306,33 @@ diagonalRatios <-
             dplyr::filter(replicate == replicateId)
         
         diagonal <- interactions %>%
-            filter(bin.1 == bin.2) %>%
-            select(-bin.2) %>%
-            rename(bin = bin.1) %>%
-            rename(diagonal = value)
+            dplyr::filter(bin.1 == bin.2) %>%
+            dplyr::select(-bin.2) %>%
+            dplyr::rename(bin = bin.1) %>%
+            dplyr::rename(diagonal = value)
         
         offDiagonal <- interactions %>%
-            filter(bin.1 != bin.2) %>%
-            pivot_longer(
+            dplyr::filter(bin.1 != bin.2) %>%
+            tidyr::pivot_longer(
                 cols = starts_with("bin"),
                 names_to = "namepos",
                 values_to = "bin"
             ) %>%
-            select(-namepos) %>%
-            group_by(chromosome, condition, replicate, bin) %>%
-            summarise(offDiagonal = median(value)) %>%
-            ungroup()
+            dplyr::select(-namepos) %>%
+            dplyr::group_by(chromosome, condition, replicate, bin) %>%
+            dplyr::summarise(offDiagonal = median(value)) %>%
+            dplyr::ungroup()
         
         diagonalRatios <- diagonal %>%
-            full_join(offDiagonal,
+            dplyr::full_join(offDiagonal,
                       by = c("chromosome",
                              "condition",
                              "replicate",
                              "bin"))  %>%
-            mutate(diagonal = ifelse(is.na(diagonal)==T,0,diagonal),
-                offDiagonal = ifelse(is.na(offDiagonal)==T,0,offDiagonal)) %>%
-            mutate(value = diagonal - offDiagonal) %>%
-            select(-c(diagonal, offDiagonal))
+            tidyr::replace_na(list(diagonal = 0,
+                offDiagonal = 0)) %>%
+            dplyr::mutate(value = diagonal - offDiagonal) %>%
+            dplyr::select(-c(diagonal, offDiagonal))
         
         return (diagonalRatios)
     }
@@ -479,7 +479,7 @@ computePValues <- function(object) {
         dplyr::ungroup()
     
     # Format compartments per pair of conditions
-    totalConditions = length(unique(object@conditions))
+    totalConditions <- length(unique(object@conditions))
     
     compartmentComparisons <- object@compartments %>%
         dplyr::arrange(chromosome, bin, condition)

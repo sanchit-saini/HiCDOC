@@ -190,7 +190,7 @@ plotCompartments <- function(object,
         dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
         dplyr::mutate(compartment = factor(compartment)) %>%
         dplyr::mutate(position = start + 0.5 * object@binSize)
-
+    
     ggplot(data = compartments, aes(x = position, fill = compartment)) +
         geom_histogram(binwidth = object@binSize,
                        colour = "gray90",
