@@ -231,7 +231,6 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
 #' - compartment (cluster number) for each genomic position
 #' - distances to centroids (float) for each genomic position in each replicate
 #' - concordance (float in [-1, 1]) for each genomic position in each replicate
-#' @examples
 clusterize <- function(object,
                        parallel = FALSE) {
     object@parameters <- checkParameters(object@parameters,
@@ -344,15 +343,6 @@ diagonalRatios <-
 #' @return A \code{HiCDOCDataSet} object, with diagonalRatios, and with A and B
 #' labels replacing cluster numbers in centroids, compartments, distances and
 #' concordances.
-#' @examples
-#' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- clusterize(object)
-#' object <- predictAB(object)
 predictAB <- function(object,
                       parallel = FALSE) {
     chromosomeIds = rep(object@chromosomes, each = length(object@replicates))
@@ -370,8 +360,7 @@ predictAB <- function(object,
                         function(.x, .y, .z)
                             reduceHiCDOCDataSet(
                                 object,
-                                chromosomes =
-                                    .x,
+                                chromosomes =.x,
                                 conditions = .y,
                                 replicates = .z
                             ))
@@ -536,8 +525,6 @@ computePValues <- function(object) {
 #'
 #' @examples
 #' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
 #' object <- normalizeTechnicalBiases(object)
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
