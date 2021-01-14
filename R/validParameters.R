@@ -91,27 +91,3 @@ testSlotsHiCDOC <- function(object, slots = NULL) {
   }
 }
 
-#' testNbCores
-#' Test if the nbCores parameter is correct, for parallel computations.
-#'
-#' @param nbCores integer. The number of cores to use in parallel::mcmapply.
-#'
-#' @return integer
-testNbCores <- function(nbCores) {
-  nbAvail <- parallel::detectCores()
-  if (is.null(nbCores)) {
-    stop(paste0(
-      "Please give a nbCores parameters, suggested: ",
-      nbAvail - 1, "."
-    ),
-    call. = FALSE
-    )
-  } else {
-    nbAvail <- parallel::detectCores()
-    if (nbCores > nbAvail) {
-      message(paste0("nbCores is too big, used = ", nbAvail - 1, "."))
-      nbCores <- nbAvail - 1
-    }
-  }
-  return(nbCores)
-}

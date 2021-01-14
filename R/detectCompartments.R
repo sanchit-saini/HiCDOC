@@ -225,7 +225,6 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
 #'
 #' @param object  A \code{HiCDOCDataSet} object.
 #' @param parallel Logical. Should parallel processing be used?
-#' @param nbCores Integer, the number of cores to use for parallelization.
 #'
 #' @return A \code{HiCDOCDataSet} object, with:
 #' - centroid (vector) for each cluster
@@ -234,8 +233,7 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
 #' - concordance (float in [-1, 1]) for each genomic position in each replicate
 #' @examples
 clusterize <- function(object,
-                       parallel = FALSE,
-                       nbCores = NULL) {
+                       parallel = FALSE) {
     object@parameters <- checkParameters(object@parameters,
                                          c("kMeansDelta",
                                            "kMeansIterations",
@@ -257,15 +255,13 @@ clusterize <- function(object,
                                           chromosomes = .x,
                                           conditions = .y
                                       ))
-        
         clusterRes <-
-            parallel::mcmapply(
+            BiocParallel::bpmapply(
                 FUN = function(x, y, z)
                     clusterizeChrCond(x, y, z),
                 redobjects,
                 vectChr,
                 vectCond,
-                mc.cores = 6,
                 SIMPLIFY = FALSE
             )
     }
@@ -344,7 +340,6 @@ diagonalRatios <-
 #'
 #' @param object A \code{HiCDOCDataSet} object.
 #' @param parallel Logical. Should parallel processing be used?
-#' @param nbCores Integer, the number of cores to use for parallelization.
 #'
 #' @return A \code{HiCDOCDataSet} object, with diagonalRatios, and with A and B
 #' labels replacing cluster numbers in centroids, compartments, distances and
@@ -359,8 +354,7 @@ diagonalRatios <-
 #' object <- clusterize(object)
 #' object <- predictAB(object)
 predictAB <- function(object,
-                      parallel = FALSE,
-                      nbCores = NULL) {
+                      parallel = FALSE) {
     chromosomeIds = rep(object@chromosomes, each = length(object@replicates))
     conditionIds = rep(object@conditions, length(object@chromosomes))
     replicateIds = rep(object@replicates, length(object@chromosomes))
@@ -382,14 +376,13 @@ predictAB <- function(object,
                                 replicates = .z
                             ))
         
-        object@diagonalRatios <- parallel::mcmapply(
+        object@diagonalRatios <- BiocParallel::bpmapply(
             FUN = function(o, x, y, z)
                 diagonalRatios(o, x, y, z),
             redobjects,
             chromosomeIds,
             conditionIds,
             replicateIds,
-            mc.cores = nbCores,
             SIMPLIFY = FALSE
         )
         object@diagonalRatios <-
@@ -536,9 +529,8 @@ computePValues <- function(object) {
 #' p-values for compartment differences between conditions.
 #'
 #' @param object  A \code{HiCDOCDataSet} object.
-#' @param parallel ogical. Should parallel processing be used? Default to FALSE.
-#' @param nbCores Integer, the number of cores to use for parallelization.
-#'
+#' @param parallel logical. Should parallel processing be used? Default to FALSE.
+#' 
 #' @return A \code{HiCDOCDataSet} object, with centroids, compartments, distances,
 #' concordances and differences.
 #'
@@ -553,8 +545,7 @@ computePValues <- function(object) {
 #' @export
 detectCompartments <-
     function(object,
-             parallel = FALSE,
-             nbCores = NULL) {
+             parallel = FALSE) {
         testSlotsHiCDOC(
             object,
             slots = c(
@@ -566,13 +557,11 @@ detectCompartments <-
                 "interactions"
             )
         )
-        if (parallel == TRUE)
-            nbCores <- testNbCores(nbCores)
         
         message("Clustering...")
-        object <- clusterize(object, parallel, nbCores)
+        object <- clusterize(object, parallel)
         message("Predicting compartments...")
-        object <- predictAB(object, parallel, nbCores)
+        object <- predictAB(object, parallel)
         message("Computing p-values...")
         object <- computePValues(object)
         message("Done.")
