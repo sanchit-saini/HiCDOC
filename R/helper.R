@@ -148,9 +148,7 @@ reduceHiCDOCDataSet <- function(object,
                           "diagonalRatios", 
                           "compartments", 
                           "concordances", 
-                          "differences", 
-                          "centroids", 
-                          "positions")){
+                          "centroids")){
             if(!is.null(slot(object, slotName))){
                 slot(object, slotName) %<>% filter(condition %in% conditions)
             }
@@ -165,12 +163,8 @@ reduceHiCDOCDataSet <- function(object,
             object@replicates[numrep]
         for(slotName in c("interactions", 
                           "distances", 
-                          "diagonalRatios", 
-                          "compartments", 
-                          "concordances", 
-                          "differences", 
-                          "centroids", 
-                          "positions")){
+                          "diagonalRatios",
+                          "concordances")){
             if(!is.null(slot(object, slotName))){
                 slot(object, slotName) %<>% filter(replicate %in% replicates)
             }

@@ -583,6 +583,7 @@ HiCDOCDataSet <- function(object = NULL,
 #' @export
 HiCDOC <- function(object) {
     object <- filterSmallChromosomes(object)
+    object <- filterSparseChromosomes(object)
     object <- filterWeakPositions(object)
     object <- normalizeTechnicalBiases(object)
     object <- normalizeBiologicalBiases(object)
