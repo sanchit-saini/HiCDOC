@@ -12,7 +12,7 @@ sparsityChromosome <- function(object, chromosomeId = 1, pctFill = 0.05){
         dplyr::ungroup()
     
     pctFill %<>%
-        dplyr::summarise(maxSparsity = max(pctSparse, na.rm=T)) %>%
+        dplyr::summarise(maxSparsity = max(pctSparse, na.rm=TRUE)) %>%
         dplyr::mutate(totalBins = object@totalBins[chr],
                       totalCells = totalCells, 
                       chromosome = factor(chr, levels = object@chromosomes)) %>%

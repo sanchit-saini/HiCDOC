@@ -346,7 +346,7 @@ parseInteractionMatrixHic <- function(object) {
 #' @param vectFiles 2 length vector, of the links to .matrix and .bed files.
 #' @return object An \code{tibble} storing the (sparse) interaction matrix.
 parseHicPro <- function(vectFiles) {
-    if (length(vectFiles)!=2) {
+    if (length(vectFiles) != 2) {
       stop("vectFiles must be of length 2")
     }
     matrixFile <- vectFiles[1]
@@ -368,7 +368,7 @@ parseHicPro <- function(vectFiles) {
     bedDf <- dplyr::as_tibble(bedDf)
     
     # Resolution
-    tabDif <- sort(table(abs(bedDf$end-bedDf$start)), decreasing = T)
+    tabDif <- sort(table(abs(bedDf$end-bedDf$start)), decreasing = TRUE)
     resolution <- as.numeric(names(tabDif[1]))
     
     positions <- bedDf %>%
