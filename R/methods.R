@@ -417,9 +417,7 @@ setMethod(
 #' @name parameters
 #' @rdname parameters
 #' @aliases parameters parameters,HiCDOCDataSet-method
-#' @param x The first element of the parameters used by an \code{HiCDOCDataSet}
-#' object
-#' @param ... The other elements of the parameters
+#' @param object a HiCDOCDataSet object
 #' @examples
 #' exp <- HiCDOCExample()
 #' exp <- HiCDOC(exp)

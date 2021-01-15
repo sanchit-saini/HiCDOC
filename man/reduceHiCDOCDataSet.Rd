@@ -14,11 +14,11 @@ reduceHiCDOCDataSet(
 \arguments{
 \item{object}{and HiCDOCDataSet object}
 
-\item{chromosome}{default to NULL, chromohomes ID to keep}
+\item{chromosomes}{default to NULL, chromosomes ID to keep}
 
-\item{condition}{default to NULL, conditions ID to keep}
+\item{conditions}{default to NULL, conditions ID to keep}
 
-\item{replicate}{default to NULL, replicate ID to keep}
+\item{replicates}{default to NULL, replicates ID to keep}
 }
 \value{
 a HiCDOCDataSET object, reduced by keeping only the chromosomes, 

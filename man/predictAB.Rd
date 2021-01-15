@@ -5,14 +5,12 @@
 \title{Use ratio between diagonal and off-diagonal interactions to determine which
 clusters correspond to compartments A and B.}
 \usage{
-predictAB(object, parallel = FALSE, nbCores = NULL)
+predictAB(object, parallel = FALSE)
 }
 \arguments{
 \item{object}{A \code{HiCDOCDataSet} object.}
 
 \item{parallel}{Logical. Should parallel processing be used?}
-
-\item{nbCores}{Integer, the number of cores to use for parallelization.}
 }
 \value{
 A \code{HiCDOCDataSet} object, with diagonalRatios, and with A and B
@@ -22,14 +20,4 @@ concordances.
 \description{
 Use ratio between diagonal and off-diagonal interactions to determine which
 clusters correspond to compartments A and B.
-}
-\examples{
-object <- HiCDOCExample()
-object <- filterSmallChromosomes(object)
-object <- filterWeakPositions(object)
-object <- normalizeTechnicalBiases(object)
-object <- normalizeBiologicalBiases(object)
-object <- normalizeDistanceEffect(object)
-object <- clusterize(object)
-object <- predictAB(object)
 }

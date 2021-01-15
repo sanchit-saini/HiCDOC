@@ -14,7 +14,7 @@ HiCDOCDataSet(object = NULL, parameters = NULL, binSize = NULL)
 \item{parameters}{A named \code{list}. The parameters for the
 segmentation methods. See \code{\link{parameters}}.}
 
-\item{binSize}{The resolution.}
+\item{binSize}{integer. The resolution.}
 }
 \value{
 \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
@@ -67,10 +67,11 @@ where the union is the names of the replicates.}
 
 \item{\code{parameters}}{An named \code{list}. The parameters for the
 segmentation methods. See \code{\link{parameters}}.}
+
+\item{\code{positions}}{The position of the bins.}
 }}
 
 \examples{
 linkToMatrix <- system.file("extdata", "sampleMatrix.tsv", package="HiCDOC")
 srnaDataSet <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
-srnaExp <- HiCDOCDataSet(srnaDataSet)
 }

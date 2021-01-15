@@ -82,7 +82,7 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
 
     sampleDistances <- unique(sort(sample$sampleDistance))
     uniqueDistances <- unique(sort(interactionsChr$distance))
-    valueMap <- tibble(
+    valueMap <- dplyr::tibble(
         distance = uniqueDistances,
         sampleDistance = vapply(uniqueDistances, function(x) {
             sampleDistances[which.min(abs(x - sampleDistances))]

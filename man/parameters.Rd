@@ -16,14 +16,9 @@
 printHiCDOCParameters(object)
 }
 \arguments{
-\item{object}{An \code{HiCDOCDataSet} object.}
+\item{object}{a HiCDOCDataSet object}
 
 \item{value}{A named \code{list} containing valid parameters. See details.}
-
-\item{x}{The first element of the parameters used by an \code{HiCDOCDataSet}
-object}
-
-\item{...}{The other elements of the parameters}
 }
 \value{
 The named list of the parameters used in the analysis.

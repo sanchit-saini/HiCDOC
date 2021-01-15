@@ -45,29 +45,24 @@
 #' @import methods
 #' @import rhdf5
 #' @import devtools
-#' @import tibble
 #' @import dplyr
 #' @import tidyr
-#' @import readr
-# @import reshape2
 #' @import HiCcompare
-# @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
+#' @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
 #' @import ggplot2
-#' @import gtools
-#' @import BiocParallel
-#' @importFrom BiocManager version
+#' @importFrom gtools mixedsort
+#' @importFrom BiocParallel bpmapply
+# @importFrom BiocManager version 
 #' @importFrom Rcpp evalCpp sourceCpp
 #' @importFrom GenomicRanges makeGRangesFromDataFrame makeGRangesListFromDataFrame start end distance
 #' @importFrom gridExtra arrangeGrob
 #' @importFrom ggpubr as_ggplot text_grob
 #' @importFrom magrittr %<>%
 #' @importFrom purrr map map2 flatten_int flatten_chr map_dfr pmap_dfr
-#' @importFrom plyr compact
 #' @importFrom stats D ecdf loess loess.control median optimize p.adjust prcomp predict quantile setNames update
 #' @importFrom utils modifyList read.table
-#' @importFrom gtable gtable_filter
 #' @importFrom ggExtra ggMarginal
-#' @importFrom parallel mcmapply detectCores
+#' @importFrom pbapply pblapply pbmapply 
 #' @useDynLib HiCDOC
 #'
 #' @keywords package

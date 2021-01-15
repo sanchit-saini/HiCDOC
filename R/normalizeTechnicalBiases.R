@@ -61,7 +61,9 @@ normalizeTechnicalBiases <- function(object, parallel=FALSE) {
     )
     
     normalized <- multiHiCcompare::cyclic_loess(hicexp, parallel = parallel)
-    output <- multiHiCcompare::hic_table(normalized) %>% as_tibble() %>% dplyr::select(-D)
+    output <- multiHiCcompare::hic_table(normalized) %>% 
+        dplyr::as_tibble() %>% 
+        dplyr::select(-D)
     
     colnames(output) <- c(
         "chromosome", "bin.1", "bin.2", seq_along(object@replicates)

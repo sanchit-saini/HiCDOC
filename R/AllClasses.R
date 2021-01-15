@@ -30,6 +30,7 @@ HiCDOCDefaultParameters <- list(
 #' @param hicPro       Logical. Default to FALSE. Does the data sent are in 
 #' HiC-Pro format ?
 #' @return A \code{HiCDOCDataSet} object.
+#' @export
 #' @examples
 #' basedir <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
 #' matrix  <- file.path(basedir, "sampleMatrix.tsv")
@@ -72,10 +73,8 @@ makeHiCDOCDataSet <- function(
         }
       }
     }
-    
-
     ##- end checking ---------------------------------------------------------#
-
+    
     object <- new("HiCDOCDataSet")
     object@inputPath <- inputPath
     if (!is.null(interactions)) {
@@ -386,6 +385,7 @@ HiCDOCExample <- function() {
 #' @slot centroids The position of the centroids.
 #' @slot parameters An named \code{list}. The parameters for the
 #' segmentation methods. See \code{\link{parameters}}.
+#' @slot positions The position of the bins.
 #'
 #' @export
 setClass(
@@ -421,7 +421,7 @@ setClass(
 #' @param object     A \code{HiCDOCDataSet} object.
 #' @param parameters A named \code{list}. The parameters for the
 #'                    segmentation methods. See \code{\link{parameters}}.
-#' @param binSize    The resolution.
+#' @param binSize    integer. The resolution.
 #'
 #' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
 #'         object of class S4.
@@ -529,7 +529,8 @@ HiCDOCDataSet <- function(object = NULL,
                 mutate(value = mean(value)) %>%
                 ungroup()
         }
-    }
+    } 
+    
     # Fill totalReplicates slot
     if( !is.null(object@replicates) ) {
         object@totalReplicates <- length(object@replicates)

@@ -83,7 +83,7 @@ matrixToSparseInteractions <- function(m,
         m <- refilled
     }
     return (
-        tibble(
+        dplyr::tibble(
             chromosome = chromosomeId,
             bin.1 = rep(seq(totalBins), each = totalBins),
             bin.2 = rep(seq(totalBins), times = totalBins),

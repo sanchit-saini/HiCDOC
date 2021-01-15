@@ -26,7 +26,7 @@ parseInteractionMatrix3Columns <- function(object) {
         header = TRUE,
         comment.char = '#',
         check.names = FALSE
-    ) %>% as_tibble()
+    ) %>% dplyr::as_tibble()
     if (colnames(object@interactions)[[1]] != "chromosome") {
         stop("First column of the input matrix should be named 'chromosome'.")
     }
@@ -121,7 +121,7 @@ parseCoolMatrix <- function(fileName) {
   filePath <- splitName[1]
   fileUri <- ifelse(length(splitName) > 1, splitName[2], '')
   uri <- function(path) { return(paste(fileUri, path, sep='/')) }
-  bins <- tibble(
+  bins <- dplyr::tibble(
     chromosome = factor(h5readCatch(
       file = filePath,
       name = uri("bins/chrom")
@@ -147,10 +147,11 @@ parseCoolMatrix <- function(fileName) {
   bins %<>%
       dplyr::select(-(end)) %>%
       dplyr::rename(position = start) %>%
-      tibble::rowid_to_column("id") %>%
-      dplyr::mutate(id = id - 1)
+      dplyr::mutate(id = seq_len(nrow(bins)) - 1) %>%
+      dplyr::select(id, chromosome, position)
+  rownames(bins) <- NULL
 
-  data <- tibble(
+  data <- dplyr::tibble(
     id1 = h5readCatch(
       file = filePath,
       name = uri("pixels/bin1_id")
@@ -323,7 +324,7 @@ parseInteractionMatrixHic <- function(object) {
     matrices <-
         purrr::map2(matrices, object@conditions, 
                     ~ dplyr::mutate(.x, condition = .y))
-    object@interactions <- dplyr::bind_rows(matrices) %>% as_tibble()
+    object@interactions <- dplyr::bind_rows(matrices) %>% dplyr::as_tibble()
     object@interactions %<>%
         dplyr::mutate(chromosome = factor(chromosome, 
             levels=mixedsort(unique(object@interactions$chromosome)))) %>%
@@ -434,7 +435,7 @@ parseInteractionMatrixHicPro <- function(object) {
     purrr::map2(matrices, 
                 object@conditions, 
                 ~ dplyr::mutate(.x, condition = .y, .after = position.2))
-  object@interactions <- dplyr::bind_rows(matrices) %>% as_tibble()
+  object@interactions <- dplyr::bind_rows(matrices) %>% dplyr::as_tibble()
   object@interactions %<>%
     dplyr::mutate(chromosome = factor(chromosome, 
         levels=mixedsort(unique(object@interactions$chromosome)))) %>%

@@ -5,14 +5,12 @@
 \title{Detect compartments for each genomic position in each condition, and compute
 p-values for compartment differences between conditions.}
 \usage{
-detectCompartments(object, parallel = FALSE, nbCores = NULL)
+detectCompartments(object, parallel = FALSE)
 }
 \arguments{
 \item{object}{A \code{HiCDOCDataSet} object.}
 
-\item{parallel}{ogical. Should parallel processing be used? Default to FALSE.}
-
-\item{nbCores}{Integer, the number of cores to use for parallelization.}
+\item{parallel}{logical. Should parallel processing be used? Default to FALSE.}
 }
 \value{
 A \code{HiCDOCDataSet} object, with centroids, compartments, distances,
@@ -24,8 +22,6 @@ p-values for compartment differences between conditions.
 }
 \examples{
 object <- HiCDOCExample()
-object <- filterSmallChromosomes(object)
-object <- filterWeakPositions(object)
 object <- normalizeTechnicalBiases(object)
 object <- normalizeBiologicalBiases(object)
 object <- normalizeDistanceEffect(object)

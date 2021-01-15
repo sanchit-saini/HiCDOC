@@ -4,7 +4,7 @@
 \alias{parseInteractionMatrixHicPro}
 \title{Read interaction matrices in Hic-Pro format.}
 \usage{
-parseInteractionMatrixHicPro(object, cl = NULL)
+parseInteractionMatrixHicPro(object)
 }
 \arguments{
 \item{object}{An \code{HiCDOCDataSet} object.}
