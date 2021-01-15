@@ -423,9 +423,9 @@ parseHicPro <- function(vectFiles) {
 #' @return object An \code{HiCDOCDataSet} object.
 #'
 #' @export
-parseInteractionMatrixHicPro <- function(object, cl=NULL) {
+parseInteractionMatrixHicPro <- function(object) {
   matrices <-pbapply::pblapply(object@inputPath, 
-                                    function(x) parseHicPro(x),cl=cl)
+                                    function(x) parseHicPro(x))
   matrices <-
     purrr::map2(matrices, 
                 object@replicates, 

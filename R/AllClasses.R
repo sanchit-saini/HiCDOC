@@ -280,8 +280,7 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
 HiCDOCDataSetFromHicPro <- function(matrixFileNames, 
                                     bedFileNames,
                                     replicates,
-                                    conditions,
-                                    cl=NULL) {
+                                    conditions) {
     ##- checking general input arguments -------------------------------------#
     ##------------------------------------------------------------------------#
     
@@ -318,7 +317,7 @@ HiCDOCDataSetFromHicPro <- function(matrixFileNames,
       conditions = conditions,
       hicPro     = TRUE
     )
-    temp <- parseInteractionMatrixHicPro(data, cl)
+    temp <- parseInteractionMatrixHicPro(data)
     object <- temp[["matrix"]]
     object@binSize <- temp[["resolution"]]
     object@positions <- temp[["positions"]]
@@ -430,7 +429,6 @@ setClass(
 #' @examples
 #' linkToMatrix <- system.file("extdata", "sampleMatrix.tsv", package="HiCDOC")
 #' srnaDataSet <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
-#' srnaExp <- HiCDOCDataSet(srnaDataSet)
 #' @export
 HiCDOCDataSet <- function(object = NULL,
                       parameters = NULL,

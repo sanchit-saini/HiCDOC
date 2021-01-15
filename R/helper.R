@@ -102,9 +102,9 @@ matrixToSparseInteractions <- function(m,
 #' reduce an HiCDOCDataSet
 #'
 #' @param object and HiCDOCDataSet object
-#' @param chromosome default to NULL, chromohomes ID to keep
-#' @param condition default to NULL, conditions ID to keep
-#' @param replicate default to NULL, replicate ID to keep
+#' @param chromosomes default to NULL, chromosomes ID to keep
+#' @param conditions default to NULL, conditions ID to keep
+#' @param replicates default to NULL, replicates ID to keep
 #'
 #' @return a HiCDOCDataSET object, reduced by keeping only the chromosomes, 
 #' conditions or replicates given in parameters
