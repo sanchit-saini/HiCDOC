@@ -4,8 +4,7 @@
 #' @docType data
 #' @keywords data
 #' @examples
-#' exp <- HiCDOCExample()
-#' exp <- HiCDOC(exp)
+#' HiCDOCDefaultParameters
 #'
 #' @export
 HiCDOCDefaultParameters <- list(
@@ -99,12 +98,9 @@ makeHiCDOCDataSet <- function(
 #'
 #' @rdname HiCDOCDataSetFromSparseMatrix
 #' @docType class
-#'
 #' @param matrix A matrix with the data.
-#'
 #' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
 #'         object of class S4.
-#'
 #' @examples
 #' linkToMatrix <- system.file("extdata", "sampleMatrix.tsv",  package="HiCDOC")
 #' dataSet <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
@@ -131,8 +127,12 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
 #' @docType class
 #'
 #' @param coolFileNames A vector of file names, each one being a .cool file.
-#' @param replicates   The list of the replicate names.
-#' @param conditions   The names of the two conditions.
+#' @param replicates   character vector. The list of the replicate names.
+#' This vector can have repeated values if the replicates are repeated 
+#' over the conditions.
+#' @param conditions   character vector. The names of the two conditions. 
+#' This should be repeated values of the names, the vector should have the 
+#' same size as \code{replicates}.
 #'
 #' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
 #'         object of class S4.
@@ -205,9 +205,13 @@ HiCDOCDataSetFromCool <- function(
 #' @docType class
 #'
 #' @param hicFileNames A vector of file names, each one being a .hic file.
-#' @param replicates   The list of the replicate names.
-#' @param conditions   The names of the two conditions.
-#' @param resolution   The resolution.
+#' @param replicates   character vector. The list of the replicate names.
+#' This vector can have repeated values if the replicates are repeated 
+#' over the conditions.
+#' @param conditions   character vector. The names of the two conditions. 
+#' This should be repeated values of the names, the vector should have the 
+#' same size as \code{replicates}.
+#' @param resolution   integer. The resolution of the matrices.
 #'
 #' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
 #'         object of class S4.
@@ -269,8 +273,12 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
 #'
 #' @param matrixFileNames A vector of file names, each one being a .matrix file.
 #' @param bedFileNames A vector of file names, each one being a .bed file.
-#' @param replicates   The list of the replicate names.
-#' @param conditions   The names of the two conditions.
+#' @param replicates   character vector. The list of the replicate names.
+#' This vector can have repeated values if the replicates are repeated 
+#' over the conditions.
+#' @param conditions   character vector. The names of the two conditions. 
+#' This should be repeated values of the names, the vector should have the 
+#' same size as \code{replicates}.
 #'
 #' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
 #'         object of class S4.
@@ -301,20 +309,20 @@ HiCDOCDataSetFromHicPro <- function(matrixFileNames,
     
     ##- conditions
     if (is.null(conditions)) {
-      stop("'conditions' should not be null.", call. = FALSE)
+        stop("'conditions' should not be null.", call. = FALSE)
     }
     if (is.factor(conditions)) {
-      conditions <- as.vector(conditions)
+        conditions <- as.vector(conditions)
     }
     
     ##- end checking ---------------------------------------------------------#
     hicProFiles <- split(cbind(matrixFileNames, bedFileNames), 
                          seq(length(matrixFileNames)))
-    data   <- makeHiCDOCDataSet(
-      inputPath  = hicProFiles,
-      replicates = replicates,
-      conditions = conditions,
-      hicPro     = TRUE
+    data <- makeHiCDOCDataSet(
+        inputPath  = hicProFiles,
+        replicates = replicates,
+        conditions = conditions,
+        hicPro     = TRUE
     )
     temp <- parseInteractionMatrixHicPro(data)
     object <- temp[["matrix"]]
@@ -472,10 +480,12 @@ HiCDOCDataSet <- function(object = NULL,
                               .keep = "unused")
             
             positions <- lapply(chromosomes, function(x)
-              return(data.frame("chromosome" = x,
-                                "start" = seq(0,
-                                              minMaxPos[minMaxPos$chromosome == x,]$maxpos,
-                                              by=object@binSize)
+              return(
+                  data.frame(
+                      "chromosome" = x,
+                      "start" = seq(0,
+                      minMaxPos[minMaxPos$chromosome == x,]$maxpos,
+                      by=object@binSize)
                                 ))
               ) %>% bind_rows() %>%
               mutate(chromosome = factor(chromosome, levels= chromosomes)) %>% 
@@ -486,7 +496,8 @@ HiCDOCDataSet <- function(object = NULL,
               ungroup()
             
             positions %<>% 
-                mutate(end = ifelse(is.na(end), start + object@binSize - 1, end)) %>%
+                mutate(end = ifelse(is.na(end), 
+                                    start + object@binSize - 1, end)) %>%
                 select(chromosome, bin, start, end)
             object@positions <- positions
         }
@@ -579,6 +590,9 @@ HiCDOCDataSet <- function(object = NULL,
 #'
 #' @param object A \code{HiCDOCDataSet} object.
 #' @return Returns an \code{HiCDOCDataSet} object.
+#' @examples 
+#' object <- HiCDOCExample()
+#' object <- HiCDOC(object)
 #' @export
 HiCDOC <- function(object) {
     object <- filterSmallChromosomes(object)

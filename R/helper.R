@@ -112,7 +112,7 @@ matrixToSparseInteractions <- function(m,
 #'
 #' @examples
 #' object <- HiCDOCExample()
-#' objectReduced <-reduceHiCDOCDataSet(object, chromosome = "17", replicate = "1")
+#' objectSmall <-reduceHiCDOCDataSet(object, chromosome = "17", replicate = "1")
 reduceHiCDOCDataSet <- function(object, 
                                 chromosomes = NULL, 
                                 conditions = NULL, 

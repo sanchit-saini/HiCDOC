@@ -12,9 +12,13 @@ HiCDOCDataSetFromHicPro(matrixFileNames, bedFileNames, replicates, conditions)
 
 \item{bedFileNames}{A vector of file names, each one being a .bed file.}
 
-\item{replicates}{The list of the replicate names.}
+\item{replicates}{character vector. The list of the replicate names.
+This vector can have repeated values if the replicates are repeated 
+over the conditions.}
 
-\item{conditions}{The names of the two conditions.}
+\item{conditions}{character vector. The names of the two conditions. 
+This should be repeated values of the names, the vector should have the 
+same size as \code{replicates}.}
 }
 \value{
 \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}

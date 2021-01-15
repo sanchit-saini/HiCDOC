@@ -74,7 +74,8 @@ tieCentroids <- function(object) {
     
     object@compartments %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
-        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, cl1, cl2)) %>%
+        dplyr::mutate(compartment = 
+                          dplyr::if_else(compartment == 1, cl1, cl2)) %>%
         dplyr::select(-c(cl1, cl2))
     
     object@concordances %<>%
@@ -85,7 +86,8 @@ tieCentroids <- function(object) {
             dplyr::if_else(compartment == cl2, 1,-1)
         )) %>%
         dplyr::mutate(concordance = change * concordance) %>%
-        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, cl1, cl2)) %>%
+        dplyr::mutate(compartment = 
+                          dplyr::if_else(compartment == 1, cl1, cl2)) %>%
         dplyr::select(-c(cl1, cl2, change))
     
     object@distances %<>%
@@ -95,7 +97,8 @@ tieCentroids <- function(object) {
     
     object@centroids %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
-        dplyr::mutate(compartment = dplyr::if_else(compartment == "1", cl1, cl2)) %>%
+        dplyr::mutate(compartment = 
+                          dplyr::if_else(compartment == "1", cl1, cl2)) %>%
         dplyr::select(-c(cl1, cl2))
     
     return (object)
@@ -198,7 +201,7 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
         purrr::map_dfr(seq_len(2), ~ dfConcordances) %>%
         dplyr::select(-concordance) %>%
         dplyr::mutate(compartment = rep(factor(c(1, 2)),
-                                        each = length(replicates) * ncol(interactions)),
+                each = length(replicates) * ncol(interactions)),
                       distance = c(t(distances)))
     
     dfCentroids <- dplyr::tibble(
@@ -351,7 +354,10 @@ predictAB <- function(object,
     
     if (parallel == FALSE) {
         diagratios <- pbapply::pbmapply(function(x, y, z)
-            diagonalRatios(object, x, y, z), chromosomeIds, conditionIds, replicateIds,
+            diagonalRatios(object, x, y, z), 
+            chromosomeIds, 
+            conditionIds, 
+            replicateIds,
         SIMPLIFY = FALSE)
         object@diagonalRatios <- do.call("rbind", diagratios)
     } else {
@@ -395,7 +401,8 @@ predictAB <- function(object,
     
     object@compartments %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
-        dplyr::mutate(compartment = factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
+        dplyr::mutate(compartment = 
+            factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
         dplyr::select(-c(A))
     
     object@concordances %<>%
@@ -406,12 +413,14 @@ predictAB <- function(object,
     
     object@distances %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
-        dplyr::mutate(compartment = factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
+        dplyr::mutate(compartment = 
+            factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
         dplyr::select(-c(A))
     
     object@centroids %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
-        dplyr::mutate(compartment = factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
+        dplyr::mutate(compartment = 
+            factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
         dplyr::select(-c(A))
     
     return (object)
@@ -448,7 +457,7 @@ computePValues <- function(object) {
             # Duplicate the table "totalReplicates" times
             concordanceDifferences[rep(seq_len(nrow(concordanceDifferences)),
                                        totalReplicates),] %>%
-                # Arrange by chromosome and position to join with the duplicated rows
+                # Arrange by chrom and pos to join with the duplicated rows
                 dplyr::arrange(chromosome, bin) %>%
                 dplyr::rename_with(function(old_colnames)
                     paste(old_colnames, 2, sep = "."))
@@ -473,7 +482,7 @@ computePValues <- function(object) {
             # Duplicate the table "totalConditions" times
             compartmentComparisons[rep(seq_len(nrow(compartmentComparisons)),
                                        totalConditions),] %>%
-                # Arrange by chromosome and position to join with the duplicated rows
+                # Arrange by chrom and pos to join with the duplicated rows
                 dplyr::arrange(chromosome, bin) %>%
                 dplyr::rename_with(function(old_colnames)
                     paste(old_colnames, 2, sep = "."))
@@ -490,7 +499,8 @@ computePValues <- function(object) {
             concordanceDifferences,
             by = c("chromosome", "bin", "condition.1", "condition.2")
         ) %>%
-        dplyr::mutate(H0_value = dplyr::if_else(compartment.1 == compartment.2, value, NA_real_)) %>%
+        dplyr::mutate(H0_value = 
+            dplyr::if_else(compartment.1 == compartment.2, value, NA_real_)) %>%
         dplyr::group_by(condition.1, condition.2) %>%
         dplyr::mutate(quantile = ecdf(H0_value)(value)) %>%
         dplyr::filter(compartment.1 != compartment.2) %>%
@@ -499,7 +509,8 @@ computePValues <- function(object) {
         dplyr::mutate(pvalue = dplyr::if_else(pvalue > 1, 1, pvalue)) %>%
         dplyr::mutate(padj = p.adjust(pvalue, method = "BH")) %>%
         dplyr::ungroup() %>%
-        dplyr::mutate(direction = factor(dplyr::if_else(compartment.1 == "A", "A->B", "B->A"))) %>%
+        dplyr::mutate(direction = 
+            factor(dplyr::if_else(compartment.1 == "A", "A->B", "B->A"))) %>%
         dplyr::select(chromosome,
                       bin,
                       condition.1,
@@ -507,7 +518,11 @@ computePValues <- function(object) {
                       pvalue,
                       padj,
                       direction) %>%
-        dplyr::arrange(order(mixedsort(chromosome)), bin, condition.1, condition.2)
+        dplyr::arrange(
+            order(mixedsort(chromosome)), 
+            bin, 
+            condition.1, 
+            condition.2)
     
     return (object)
 }

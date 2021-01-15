@@ -19,6 +19,8 @@ Returns an \code{HiCDOCDataSet} object.
 TODO
 }
 \examples{
+object <- HiCDOCExample()
+object <- HiCDOC(object)
 #TODO
 
 }
