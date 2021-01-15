@@ -173,7 +173,7 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
           euclideanDistance(row, centroids[[2]]))
     })
     
-    dfCompartments <- tibble(
+    dfCompartments <- dplyr::tibble(
         chromosome = factor(chr, levels = object@chromosomes),
         bin = positions,
         condition = factor(cond, levels = unique(object@conditions)),
@@ -201,7 +201,7 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
                                         each = length(replicates) * ncol(interactions)),
                       distance = c(t(distances)))
     
-    dfCentroids <- tibble(
+    dfCentroids <- dplyr::tibble(
         chromosome = factor(chr, levels = object@chromosomes),
         condition = factor(cond, levels = unique(object@conditions)),
         compartment = factor(c(1, 2)),

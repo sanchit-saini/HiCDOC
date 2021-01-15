@@ -43,6 +43,21 @@ testxlim <- function(xlim, positions) {
 }
 
 
+#' Function to extract legends from ggplot2 objects
+#' 
+#' Inspired from gtable::gtable_filter (not used to avoid dependency)
+#'
+#' @param x a grob
+#'
+#' @return the legend as a grob
+extract_legends <- function (x) 
+{
+    matches <- grepl("guide-box", .subset2(x$layout, "name"), fixed = FALSE)
+    x$layout <- x$layout[matches, , drop = FALSE]
+    x$grobs <- x$grobs[matches]
+    return(x)
+}
+
 #' Plot the concordance
 #'
 #' Plot the concordance of all the replicates for one chromosome.
@@ -270,8 +285,8 @@ plotCompartmentChanges <-
                 ),
                 # Extract legends
                 gridExtra::arrangeGrob(
-                    gtable::gtable_filter(ggplotGrob(pCompartment), "guide-box"),
-                    gtable::gtable_filter(ggplotGrob(pConcordance), "guide-box"),
+                    extract_legends(ggplotGrob(pCompartment)),
+                    extract_legends(ggplotGrob(pConcordance)),
                     ncol     = 2
                 ),
                 heights = c(10, 1),
