@@ -519,7 +519,7 @@ computePValues <- function(object) {
                       padj,
                       direction) %>%
         dplyr::arrange(
-            order(mixedsort(chromosome)), 
+            order(gtools::mixedsort(chromosome)),
             bin, 
             condition.1, 
             condition.2)
