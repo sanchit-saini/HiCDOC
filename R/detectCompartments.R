@@ -393,7 +393,7 @@ predictAB <- function(object,
         tidyr::pivot_wider(
             names_from = compartment,
             values_from = value,
-            values_fill = 0,
+            values_fill = list(value = 0),
             names_prefix = "val"
         ) %>%
         dplyr::mutate(A = dplyr::if_else(val1 >= val2, 2, 1)) %>%
