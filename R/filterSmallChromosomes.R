@@ -30,7 +30,7 @@ filterSmallChromosomes <- function(object, minLength = NULL) {
                                  x >= object@parameters$minLengthChr,
                              FUN.VALUE = TRUE)
     bigChromosomes <- names(bigChromosomes)[bigChromosomes == TRUE]
-    bigChromosomes <- mixedsort(bigChromosomes)
+    bigChromosomes <- gtools::mixedsort(bigChromosomes)
     smallChr <- object@chromosomes[!(object@chromosomes %in% bigChromosomes)]
 
     object@interactions %<>%

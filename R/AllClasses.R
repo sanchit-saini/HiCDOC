@@ -468,7 +468,7 @@ HiCDOCDataSet <- function(object = NULL,
       
         # Determine positions
         if( is.null(object@positions) ) {
-            chromosomes <- mixedsort(
+            chromosomes <- gtools::mixedsort(
                 as.character(unique(object@interactions$chromosome)))
             minMaxPos <- object@interactions %>%
                 dplyr::group_by(chromosome) %>%
@@ -513,7 +513,7 @@ HiCDOCDataSet <- function(object = NULL,
             select(chromosome, bin.1, bin.2, condition, replicate, value)
       
         object@chromosomes <-
-            mixedsort(as.vector(unique(object@positions$chromosome)))
+            gtools::mixedsort(as.vector(unique(object@positions$chromosome)))
     
         object@weakBins <- vector("list", length(object@chromosomes))
         names(object@weakBins) <- object@chromosomes
