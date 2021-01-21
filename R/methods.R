@@ -16,14 +16,7 @@
 #' chromosomes(exp)
 #'
 #' @export
-setMethod(
-    f = "chromosomes",
-    signature = "HiCDOCDataSet",
-    definition = function(object) {
-        testSlotsHiCDOC(object, "chromosomes")
-        return(object@chromosomes)
-    }
-)
+setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes )
 
 ####- interactions --------------------------------------------------------####
 ##----------------------------------------------------------------------------#
@@ -46,8 +39,8 @@ setMethod(
 setMethod(
     f = "interactions",
     signature = "HiCDOCDataSet",
-    definition = function(object) {
-        testSlotsHiCDOC(object, "interactions")
+    function(object) {
+        if(is.null(object@interactions)) return( NULL )
         interactions <- object@interactions %>%
                 dplyr::left_join(object@positions %>%
                                      select(chromosome, 
@@ -96,14 +89,15 @@ setMethod(
 setMethod(
     f = "differences",
     signature = "HiCDOCDataSet",
-    definition = function(object) {
-        testSlotsHiCDOC(object, "differences")
+    function(object) {
+        if(is.null(object@differences)) return( NULL )
         if (nrow(object@differences) == 0) {
             message("No 'differences' found.")
             return(GenomicRanges::GRanges())
         } else {
             gr <- object@differences %>%
-                dplyr::left_join(object@positions, by=c("chromosome", "bin")) %>%
+                dplyr::left_join(object@positions, 
+                                 by=c("chromosome", "bin")) %>%
                 dplyr::select(chromosome, 
                               start, 
                               end, 
@@ -145,8 +139,8 @@ setMethod(
 setMethod(
     f = "concordances",
     signature = "HiCDOCDataSet",
-    definition = function(object) {
-        testSlotsHiCDOC(object, "concordances")
+    function(object) {
+        if(is.null(object@concordances)) return( NULL )
         concordances <- object@concordances %>% 
             dplyr::left_join(object@positions, by=c("chromosome", "bin")) %>%
             dplyr::select(chromosome, 
@@ -186,22 +180,18 @@ setMethod(
 setMethod(
     f = "compartments",
     signature = "HiCDOCDataSet",
-    definition = function(object) {
-        if (is.null(object@compartments)) {
-            message(
-                "No 'compartments' slot found in the ",
-                "HiCDOCDataSet object. Run HiCDOC first."
-            )
-        } else {
-            grl <- object@compartments %>%
-                    dplyr::left_join(object@positions, by=c("chromosome", "bin")) %>%
-                    dplyr::select(chromosome, 
-                                  bin, 
-                                  start, 
-                                  end, 
-                                  condition, 
-                                  compartment)
-            return(grl)
+    function(object) {
+        if(is.null(object@compartments)) return( NULL )
+        grl <- object@compartments %>%
+                dplyr::left_join(object@positions, 
+                                 by=c("chromosome", "bin")) %>%
+                dplyr::select(chromosome, 
+                              bin, 
+                              start, 
+                              end, 
+                              condition, 
+                              compartment)
+        return(grl)
             # grl <- object@compartments %>%
             #     mutate(start = position + 1) %>%
             #     mutate(end = start + object@binSize - 1) %>%
@@ -222,7 +212,6 @@ setMethod(
             #     }), "GRangesList"))
             # }), "GRangesList")
             # return(grl3)
-        }
     }
 )
 
@@ -246,18 +235,8 @@ setMethod(
 #' exp <- HiCDOCExample()
 #' exp <- HiCDOC(exp)
 #' centroids(exp)
-#'
 #' @export
-setMethod(
-    f = "centroids",
-    signature = "HiCDOCDataSet",
-    definition = function(object) {
-        testSlotsHiCDOC(object, "centroids")
-        return(object@centroids)
-    }
-)
-
-
+setMethod("centroids", "HiCDOCDataSet", function(object)  object@centroids )
 
 ####- parameters ---------------------------------------------------------####
 ##----------------------------------------------------------------------------#
@@ -318,9 +297,9 @@ setMethod(
     signature = "HiCDOCDataSet",
     definition = function(object) {
         testSlotsHiCDOC(object, "parameters")
+        return(object@parameters)
         # object@parameters
         # class(object@parameters) <- "HiCDOCParameters"
-        return(object@parameters)
     }
 )
 
@@ -337,9 +316,9 @@ setReplaceMethod(
         ##--------------------------------------------------------#
         defaultParNames <- names(HiCDOCDefaultParameters)
 
-        if (!is.null(object@parameters)) {
-            HiCDOCDefaultParameters <- object@parameters
-        }
+        # if (!is.null(object@parameters)) {
+        #     object@parameters <- HiCDOCDefaultParameters
+        # }
 
         if (!is(value, "list")) {
             print(value)
@@ -377,7 +356,7 @@ setReplaceMethod(
         ##- end check -------------------------------------------#
 
         object@parameters <- HiCDOCDefaultParameters
-        object
+        return(object)
     }
 )
 
@@ -397,7 +376,7 @@ setReplaceMethod(
 setMethod(
     f = "show",
     signature = "HiCDOCDataSet",
-    definition = function(object) {
+    function(object) {
         nbCond <- length(unique(object@conditions))
         nbRep <- length(unique(object@replicates))
         cat("Object of class HiCDOCDataSet.\n", "HiCDOC Experiment with:\n")
