@@ -255,7 +255,8 @@ clusterize <- function(object,
                                       reduceHiCDOCDataSet(
                                           object,
                                           chromosomes = .x,
-                                          conditions = .y
+                                          conditions = .y,
+                                          dropLevels = FALSE
                                       ))
         clusterRes <-
             BiocParallel::bpmapply(
@@ -368,7 +369,8 @@ predictAB <- function(object,
                                 object,
                                 chromosomes =.x,
                                 conditions = .y,
-                                replicates = .z
+                                replicates = .z,
+                                dropLevels = FALSE
                             ))
         
         object@diagonalRatios <- BiocParallel::bpmapply(

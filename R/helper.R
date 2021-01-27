@@ -116,11 +116,17 @@ matrixToSparseInteractions <- function(m,
 reduceHiCDOCDataSet <- function(object, 
                                 chromosomes = NULL, 
                                 conditions = NULL, 
-                                replicates=NULL){
+                                replicates=NULL,
+                                dropLevels = TRUE){
     if(!is.null(chromosomes)){
         numchr <- which(object@chromosomes %in% chromosomes)
         object@chromosomes <- 
             object@chromosomes[numchr]
+        if(dropLevels == TRUE){
+            object@chromosomes <- 
+                 gtools::mixedsort(as.character(object@chromosomes))
+        }
+        
         object@weakBins <- object@weakBins[numchr]
         object@totalBins <- object@totalBins[numchr]
         for(slotName in c("interactions", 
@@ -132,7 +138,12 @@ reduceHiCDOCDataSet <- function(object,
                           "centroids", 
                           "positions")){
             if(!is.null(slot(object, slotName))){
-                slot(object, slotName) %<>% filter(chromosome %in% chromosomes)
+                slot(object, slotName) %<>% 
+                    filter(chromosome %in% chromosomes) 
+                if(dropLevels == TRUE){
+                    slot(object, slotName) %<>% 
+                        mutate(chromosome = droplevels(chromosome)) 
+                }
             }
         }
     }
@@ -151,6 +162,10 @@ reduceHiCDOCDataSet <- function(object,
                           "centroids")){
             if(!is.null(slot(object, slotName))){
                 slot(object, slotName) %<>% filter(condition %in% conditions)
+                if(dropLevels == TRUE){
+                    slot(object, slotName) %<>% 
+                        mutate(condition = droplevels(condition)) 
+                }
             }
         }
     }
@@ -167,6 +182,10 @@ reduceHiCDOCDataSet <- function(object,
                           "concordances")){
             if(!is.null(slot(object, slotName))){
                 slot(object, slotName) %<>% filter(replicate %in% replicates)
+                if(dropLevels == TRUE){
+                    slot(object, slotName) %<>% 
+                        mutate(replicate = droplevels(replicate)) 
+                }
             }
         }
     }
@@ -178,5 +197,4 @@ reduceHiCDOCDataSet <- function(object,
         }, FUN.VALUE = 0)
     
     return(object)
-    
 }

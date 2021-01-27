@@ -469,7 +469,7 @@ HiCDOCDataSet <- function(object = NULL,
         # Determine positions
         if( is.null(object@positions) ) {
             chromosomes <- gtools::mixedsort(
-                as.character(unique(object@interactions$chromosome)))
+                unique(object@interactions$chromosome))
             minMaxPos <- object@interactions %>%
                 dplyr::group_by(chromosome) %>%
                 dplyr::summarize(maxpos.1 = max(position.1),
@@ -480,20 +480,21 @@ HiCDOCDataSet <- function(object = NULL,
                               .keep = "unused")
             
             positions <- lapply(chromosomes, function(x)
-              return(
-                  data.frame(
-                      "chromosome" = x,
-                      "start" = seq(0,
-                      minMaxPos[minMaxPos$chromosome == x,]$maxpos,
-                      by=object@binSize)
-                                ))
-              ) %>% bind_rows() %>%
-              mutate(chromosome = factor(chromosome, levels= chromosomes)) %>% 
-              group_by(chromosome) %>% 
-              arrange(chromosome, start, .by_group=TRUE) %>%
-              mutate(end = lead(start) -1) %>%
-              mutate(bin = row_number()) %>%
-              ungroup()
+                return(
+                    data.frame(
+                        "chromosome" = x,
+                        "start" = seq(0,
+                        minMaxPos[minMaxPos$chromosome == x,]$maxpos,
+                        by=object@binSize)
+                    )
+                )
+            ) %>% bind_rows() %>%
+                mutate(chromosome = factor(chromosome, levels= chromosomes)) %>% 
+                group_by(chromosome) %>% 
+                arrange(chromosome, start, .by_group=TRUE) %>%
+                mutate(end = lead(start) -1) %>%
+                mutate(bin = row_number()) %>%
+                ungroup()
             
             positions %<>% 
                 mutate(end = ifelse(is.na(end), 
@@ -513,7 +514,7 @@ HiCDOCDataSet <- function(object = NULL,
             select(chromosome, bin.1, bin.2, condition, replicate, value)
       
         object@chromosomes <-
-            gtools::mixedsort(as.vector(unique(object@positions$chromosome)))
+          gtools::mixedsort(as.vector(unique(object@positions$chromosome)))
     
         object@weakBins <- vector("list", length(object@chromosomes))
         names(object@weakBins) <- object@chromosomes
@@ -555,7 +556,7 @@ HiCDOCDataSet <- function(object = NULL,
     }
     # Fill totalBins slot
     if( !is.null(object@binSize) & !is.null(object@interactions) ){
-        object@totalBins <- vapply(object@chromosomes,
+        object@totalBins <- vapply(as.character(object@chromosomes),
             function(x) 
                 nrow(object@positions[object@positions$chromosome == x,]),
             FUN.VALUE = 0
@@ -589,18 +590,19 @@ HiCDOCDataSet <- function(object = NULL,
 #' Main method.  Start the pipeline with default parameters.
 #'
 #' @param object A \code{HiCDOCDataSet} object.
+#' @param parallel Logical, default to FALSE. Should parallel computation should be used ?
 #' @return Returns an \code{HiCDOCDataSet} object.
 #' @examples 
 #' object <- HiCDOCExample()
 #' object <- HiCDOC(object)
 #' @export
-HiCDOC <- function(object) {
+HiCDOC <- function(object, parallel = FALSE) {
     object <- filterSmallChromosomes(object)
     object <- filterSparseChromosomes(object)
     object <- filterWeakPositions(object)
-    object <- normalizeTechnicalBiases(object)
+    object <- normalizeTechnicalBiases(object, parallel = parallel)
     object <- normalizeBiologicalBiases(object)
     object <- normalizeDistanceEffect(object)
-    object <- detectCompartments(object)
+    object <- detectCompartments(object, parallel = parallel)
     return(invisible(object))
 }

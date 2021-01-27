@@ -53,13 +53,32 @@ setMethod(
                                             start.2 = start), 
                                  by=c("chromosome", "bin.2")) %>%
                 dplyr::select(chromosome, 
-                              start.1, start.2,
+                              bin.1, bin.2, start.1, start.2,
                               condition, 
                               replicate,
                               value)
         return(interactions)
     }
 )
+
+####- positions ---------------------------------------------------------####
+##----------------------------------------------------------------------------#
+#' Accessors for the 'positions' slot of an HiCDOCDataSet object
+#'
+#' The \code{positions} slot contains the positions of the bins, by chromosome
+#'
+#' @docType methods
+#' @name positions
+#' @rdname positions
+#' @aliases positions,HiCDOCDataSet-method
+#' @param object An \code{HiCDOCDataSet} object.
+#' @return A tibble
+#' @examples
+#' exp <- HiCDOCExample()
+#' positions(exp)
+#'
+#' @export
+setMethod("positions", "HiCDOCDataSet", function(object) object@positions )
 
 
 ####- differences ---------------------------------------------------------####

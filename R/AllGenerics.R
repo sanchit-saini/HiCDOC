@@ -14,6 +14,14 @@ setGeneric(
     }
 )
 
+##- positions
+setGeneric(
+    name = "positions",
+    def = function(object) {
+        standardGeneric("positions")
+    }
+)
+
 ##- differences
 setGeneric(
     name = "differences",

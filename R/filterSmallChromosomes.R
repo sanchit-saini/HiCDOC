@@ -32,15 +32,9 @@ filterSmallChromosomes <- function(object, minLength = NULL) {
     bigChromosomes <- names(bigChromosomes)[bigChromosomes == TRUE]
     bigChromosomes <- gtools::mixedsort(bigChromosomes)
     smallChr <- object@chromosomes[!(object@chromosomes %in% bigChromosomes)]
-
-    object@interactions %<>%
-        dplyr::filter(chromosome %in% bigChromosomes) %>%
-        dplyr::mutate(chromosome = factor(chromosome))
-
-    object@chromosomes <- bigChromosomes
-    object@totalBins <- object@totalBins[object@chromosomes]
-    object@weakBins  <- object@weakBins[object@chromosomes]
-
+    
+    object <- reduceHiCDOCDataSet(object, chromosomes = bigChromosomes)
+    
     message("Kept ",
             length(bigChromosomes),
             " chromosome",
@@ -52,6 +46,6 @@ filterSmallChromosomes <- function(object, minLength = NULL) {
             if (length(smallChr) > 1) "s :",
             paste(smallChr, collapse = ", ")
     )
-
+    
     return (object)
 }
