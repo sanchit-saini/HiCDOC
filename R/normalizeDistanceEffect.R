@@ -16,9 +16,7 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
                                  "binSize",
                                  "weakBins"))
     chr <- testChromosome(object, chromosomeId)
-
-    object@parameters <- checkParameters(object@parameters,
-                                         c("sampleSize"))
+    
     message("Chromosome: ", chr)
 
     interactionsChr <- object@interactions %>%
@@ -109,6 +107,9 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
 #' @rdname normalizeDistanceEffect
 #'
 #' @param object A \code{HiCDOCDataSet} object.
+#' @param sampleSize A numerical value. The number of bins used when sampling
+#' all the bins. If NULL, default to the first not NULL of 
+#' \code{object$sampleSize} and \code{HiCDOCDefaultParameters$sampleSize}.
 #'
 #' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
 #'
@@ -120,7 +121,13 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
 #' @export
-normalizeDistanceEffect <- function(object) {
+normalizeDistanceEffect <- function(object, sampleSize = NULL) {
+    # Parameters
+    if (!is.null(sampleSize)) {
+        object@parameters$sampleSize <- sampleSize
+    }
+    object@parameters <- checkParameters(object@parameters)
+    # Normalization by chromosome
     interactionsNorm <-
         purrr::map_dfr(object@chromosomes,
                        function(x) normalizeDistanceEffectChr(object, x)) %>%

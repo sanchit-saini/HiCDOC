@@ -257,129 +257,8 @@ setMethod(
 #' @export
 setMethod("centroids", "HiCDOCDataSet", function(object)  object@centroids )
 
-####- parameters ---------------------------------------------------------####
-##----------------------------------------------------------------------------#
-#' Accessors for the 'parameters' slot of an HiCDOCDataSet object
-#'
-#' The \code{parameters} slot holds the parameter values
-#' used in an experiment as a named \code{list}. Default values
-#' exist for parameters, but these can also be supplied as input
-#' values in the \code{useParameters} argument of the \code{\link{HiCDOC}}
-#' function or using the assignment function \code{\link{parameters<-}}.
-#'
-#' Parameters in a HiCDOC experiment.
-#'
-#' \subsection{Global parameters}{
-#'    \describe{
-#'        \item{\code{minDepth}}{The cutoff to filter the base-level
-#'                coverage. Bases where at least one sample has (normalized)
-#'                coverage greater than \code{minDepth} be been retained.
-#'                Default to \code{10}.}
-#'       \item{\code{sampleSize}}{The number of bins used when sampling
-#'                all the bins.}
-#'       \item{\code{loessSpan}}{The optimal span value used for the
-#'                diagonal normalization.}
-#'       \item{\code{kMeansIterations}}{The maximum number of 2-means
-#'                iterations.}
-#'       \item{\code{kMeansDelta}}{The stop criterion of convergence of
-#'                the 2-means method.}
-#'       \item{\code{kMeansRestarts}}{The maximum number of restarts
-#'                for the 2-means.}
-#'       \item{\code{minLengthChr}}{The minimum chromosome
-#'                size (in number of bins), to be kept.}
-#'       \item{\code{weakPosThreshold}}{To be kept, the bins (positions)
-#'                of a chromosome must have a mean value greater than
-#'                \code{weakPosThreshold}, on all replicates and all
-#'                conditions. The mean is computed on the row of the
-#'                reconstructed full interaction matrix for 1 chromosome,
-#'                1 condition and 1 replicate.}
-#'    }
-#' }
-#' @docType methods
-#' @name parameters
-#' @rdname parameters
-#' @aliases parameters parameters,HiCDOCDataSet-method
-#' parameters<- parameters<-,HiCDOCDataSet-method
-#' @param object An \code{HiCDOCDataSet} object.
-#' @param value A named \code{list} containing valid parameters. See details.
-#' @return The named list of the parameters used in the analysis.
-#' @seealso
-#' \code{useParameters} argument in \code{\link{HiCDOC}} function.
-#' @examples
-#' exp <- HiCDOCExample()
-#' exp <- HiCDOC(exp)
-#' print(parameters(exp))
-#'
-#' @export
-setMethod(
-    f = "parameters",
-    signature = "HiCDOCDataSet",
-    definition = function(object) {
-        testSlotsHiCDOC(object, "parameters")
-        return(object@parameters)
-        # object@parameters
-        # class(object@parameters) <- "HiCDOCParameters"
-    }
-)
 
-
-#' @name parameters
-#' @rdname parameters
-#' @exportMethod "parameters<-"
-setReplaceMethod(
-    "parameters",
-    signature(object = "HiCDOCDataSet", value = "ANY"),
-    function(object, value) {
-
-        ##- checking input value ---------------------------------#
-        ##--------------------------------------------------------#
-        defaultParNames <- names(HiCDOCDefaultParameters)
-
-        # if (!is.null(object@parameters)) {
-        #     object@parameters <- HiCDOCDefaultParameters
-        # }
-
-        if (!is(value, "list")) {
-            print(value)
-            print(typeof(value))
-            print(class(value))
-            stop(
-                "'value' must be a named list. See ",
-                "help(parameters) for details.",
-                call. = FALSE
-            )
-        }
-
-        valueNames <- names(value)
-
-        if (any(duplicated(valueNames))) {
-            stop(
-                "duplicate name parameters in 'value'. See ",
-                "help(parameters) for details.",
-                call. = FALSE
-            )
-        }
-
-        if (!all(valueNames %in% defaultParNames)) {
-            stop(
-                "'value' must be a named list of valid ",
-                "parameters. See help(parameters) for details.",
-                call. = FALSE
-            )
-        }
-
-        ##- individual parameters
-        HiCDOCDefaultParameters[valueNames] <- value
-        checkParameters(HiCDOCDefaultParameters)
-
-        ##- end check -------------------------------------------#
-
-        object@parameters <- HiCDOCDefaultParameters
-        return(object)
-    }
-)
-
-##- show ---------------------------------------------------------------------#
+####- show ----------------------------------------------------------------####
 ##----------------------------------------------------------------------------#
 #' Show the components of a HiCDOC objects
 #'
@@ -406,30 +285,134 @@ setMethod(
 )
 
 
-##- print method for parameters ----------------------------------------------#
+
+####- parameters ---------------------------------------------------------####
 ##----------------------------------------------------------------------------#
-#' Dispatch print method for the parameters used by an \code{HiCDOCDataSet}
-#' object.
+#' Accessors for the 'parameters' slot of an HiCDOCDataSet object
 #'
+#' The \code{parameters} slot holds the parameter values
+#' used in an experiment as a named \code{list}. Default values
+#' exist for parameters, but these can also be supplied as input
+#' values in the \code{useParameters} argument of the \code{\link{HiCDOC}}
+#' function or using the assignment function \code{\link{parameters<-}}.
+#'
+#' Parameters in a HiCDOC experiment.
+#'
+#' \subsection{Global parameters}{
+#'    \describe{
+#'        \item{\code{minLengthChr}}{The minimum chromosome
+#'                size (in number of bins), to be kept by the function
+#'                \code{filterSmallChromosomes()}. Default to 100.}
+#'        \item{\code{weakPosThreshold}}{To be kept by the function
+#'                \code{filterWeakPositions()}, the bins (positions)
+#'                of a chromosome must have a mean value greater than
+#'                \code{weakPosThreshold}, on all replicates and all
+#'                conditions. The mean is computed on the row of the
+#'                reconstructed full interaction matrix for 1 chromosome,
+#'                1 condition and 1 replicate. Default to 0.}
+#'        \item{\code{sparseThreshold}}{To be kept by the function
+#'                \code{filterSparseChromosomes()}, the sparsity (percentage 
+#'                of empty cells) of the interactions matrix must be lower 
+#'                than the threshold, on all replicates and all conditions. 
+#'                Default to 0.95.}
+#'       \item{\code{sampleSize}}{The number of bins used when sampling
+#'                all the bins in \code{normalizeDistanceEffect()}. 
+#'                Default to 20000.}
+#'       \item{\code{kMeansIterations}}{The maximum number of 2-means
+#'                iterations.}
+#'       \item{\code{kMeansDelta}}{The stop criterion of convergence of
+#'                the 2-means method.}
+#'       \item{\code{kMeansRestarts}}{The maximum number of restarts
+#'                for the 2-means.}
+#'    }
+#' }
 #' @docType methods
 #' @name parameters
 #' @rdname parameters
 #' @aliases parameters parameters,HiCDOCDataSet-method
-#' @param object a HiCDOCDataSet object
+#' parameters<- parameters<-,HiCDOCDataSet-method
+#' @param object An \code{HiCDOCDataSet} object.
+#' @param value A named \code{list} containing valid parameters. See details.
+#' @return The named list of the parameters used in the analysis.
+#' @seealso
+#' \code{useParameters} argument in \code{\link{HiCDOC}} function.
 #' @examples
 #' exp <- HiCDOCExample()
-#' exp <- HiCDOC(exp)
-#' print(parameters(exp))
+#' parameters(exp)
+#' parameters(exp) <- list("weakPosThreshold" = 100)
 #'
 #' @export
-printHiCDOCParameters <- function(object) {
-    parameters  <- unlist(object@parameters)
-    kmparam <- which(grepl("kMeans", names(parameters)))
-    cat("\n Global parameters: \n", "------------------ \n")
-    df <- data.frame(value = parameters[-kmparam])
-    print(df)
+setMethod(
+    f = "parameters",
+    signature = "HiCDOCDataSet",
+    definition = function(object) {
+        testSlotsHiCDOC(object, "parameters")
+        
+        parameters  <- object@parameters
+        kmparam <- which(grepl("kMeans", names(parameters)))
+        
+        cat("------------ Global parameters ------------\n")
+        matparam <- as.matrix(parameters[-kmparam])
+        colnames(matparam)[1] <- "Value"
+        print(matparam)
+        
+        cat("\n----- Constrained K-means parameters ----- \n")
+        matparam <- as.matrix(parameters[kmparam])
+        cat("\n")
+        colnames(matparam)[1] <- "Value"
+        print(matparam)
+        return(invisible(parameters))
+    }
+)
 
-    cat("\n Constrained K-means parameters: \n", "---------------------- \n")
-    df <- data.frame(value = parameters[kmparam])
-    print(df)
-}
+
+#' @name parameters
+#' @rdname parameters
+#' @exportMethod "parameters<-"
+setReplaceMethod(
+    "parameters",
+    signature(object = "HiCDOCDataSet", value = "ANY"),
+    function(object, value) {
+        ##- checking input value ---------------------------------#
+        ##--------------------------------------------------------#
+        defaultParNames <- names(HiCDOCDefaultParameters)
+        currentPar <- object@parameters
+        if (!is(value, "list")) {
+            stop(
+                "'value' must be a named list. See ",
+                "help(parameters) for details.",
+                call. = FALSE
+            )
+        }
+
+        valueNames <- names(value)
+
+        if (any(duplicated(valueNames))) {
+            stop(
+                "duplicate name parameters in 'value'. See ",
+                "help(parameters) for details.",
+                call. = FALSE
+            )
+        }
+
+        if (!all(valueNames %in% defaultParNames)) {
+            stop(
+                "'value' must be a named list of valid ",
+                "parameters. See help(parameters) for details.",
+                call. = FALSE
+            )
+        }
+
+        ##- replacing individual parameters
+        currentPar[valueNames] <- value
+
+        ##- end check -------------------------------------------#
+
+        object@parameters <- currentPar
+        return(object)
+    }
+)
+
+
+
+

@@ -21,5 +21,4 @@ This function extracts the centroids from \code{\link{HiCDOCDataSet}}.
 exp <- HiCDOCExample()
 exp <- HiCDOC(exp)
 centroids(exp)
-
 }

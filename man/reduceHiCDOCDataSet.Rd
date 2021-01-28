@@ -8,7 +8,8 @@ reduceHiCDOCDataSet(
   object,
   chromosomes = NULL,
   conditions = NULL,
-  replicates = NULL
+  replicates = NULL,
+  dropLevels = TRUE
 )
 }
 \arguments{
@@ -19,6 +20,11 @@ reduceHiCDOCDataSet(
 \item{conditions}{default to NULL, conditions ID to keep}
 
 \item{replicates}{default to NULL, replicates ID to keep}
+
+\item{dropLevels}{Logical, default to TRUE. Chromosomes, conditions and 
+replicates are in factor format, should the unused levels be removed ? 
+It should be set to FALSE if reduced objects are meant to be re-combined 
+later.}
 }
 \value{
 a HiCDOCDataSET object, reduced by keeping only the chromosomes, 

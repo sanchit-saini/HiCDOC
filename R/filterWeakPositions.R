@@ -107,7 +107,9 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 #' be discarded, and added in object@weakBins.
 #'
 #' @param object A HiCDOCDataSet object
-#' @param threshold Numeric, default to HiCDOCDefaultParameters$weakPosThreshold
+#' @param threshold Numeric. Threshold to consider bins as 'weaks'. If NULL, 
+#' default to the first not NULL of \code{object$weakPosThreshold} and 
+#' \code{HiCDOCDefaultParameters$weakPosThreshold}.
 #'
 #' @return A \code{HiCDOCDataSet} object with a reduced \code{interactions} slot,
 #' and the weak bins identified by chromosomes in \code{object@weakBins}.
@@ -117,9 +119,10 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 #' exp <- HiCDOCExample()
 #' exp <- filterWeakPositions(exp)
 filterWeakPositions <- function(object, threshold = NULL) {
-    if(! is.null(threshold) ) object@parameters$weakPosThreshold <- threshold
-    object@parameters <- checkParameters(object@parameters,
-                                       c("weakPosThreshold"))
+    if(! is.null(threshold)){
+      object@parameters$weakPosThreshold <- threshold
+    } 
+    object@parameters <- checkParameters(object@parameters)
     weakPositions <- lapply(object@chromosomes,
         function(chr) filterWeakChr(object,
                                     chr,

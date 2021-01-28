@@ -1,17 +1,3 @@
-#' Check object@parameters, return default if NULL
-#'
-#' @param parameters list of parameters
-#' @param paramnames character vector, names of parameters to check
-#'
-#' @return list of updated parameters, default from HiCDOCDefaultParameters()
-#' if null.
-checkParameters <- function(parameters, paramnames) {
-    nullparam <- paramnames[ vapply(parameters[paramnames], is.null, TRUE) ]
-    parameters[nullparam] <- HiCDOCDefaultParameters[nullparam]
-    return(parameters)
-}
-
-
 ##- sparseInteractionsToMatrix -----------------------------------------------#
 ##----------------------------------------------------------------------------#
 #' Build the interaction matrix for a chromosome in a condition and replicate.
@@ -95,16 +81,16 @@ matrixToSparseInteractions <- function(m,
 
 }
 
-
-
-
-
 #' reduce an HiCDOCDataSet
 #'
 #' @param object and HiCDOCDataSet object
 #' @param chromosomes default to NULL, chromosomes ID to keep
 #' @param conditions default to NULL, conditions ID to keep
 #' @param replicates default to NULL, replicates ID to keep
+#' @param dropLevels Logical, default to TRUE. Chromosomes, conditions and 
+#' replicates are in factor format, should the unused levels be removed ? 
+#' It should be set to FALSE if reduced objects are meant to be re-combined 
+#' later.
 #'
 #' @return a HiCDOCDataSET object, reduced by keeping only the chromosomes, 
 #' conditions or replicates given in parameters

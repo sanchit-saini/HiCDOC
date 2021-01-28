@@ -236,10 +236,6 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
 #' - concordance (float in [-1, 1]) for each genomic position in each replicate
 clusterize <- function(object,
                        parallel = FALSE) {
-    object@parameters <- checkParameters(object@parameters,
-                                         c("kMeansDelta",
-                                           "kMeansIterations",
-                                           "kMeansRestarts"))
     vectChr <-
         rep(object@chromosomes, each = length(unique(object@conditions)))
     vectCond <-
@@ -535,8 +531,20 @@ computePValues <- function(object) {
 #' p-values for compartment differences between conditions.
 #'
 #' @param object  A \code{HiCDOCDataSet} object.
-#' @param parallel logical. Should parallel processing be used? Default to FALSE.
-#' 
+#' @param parallel Logical. Should parallel processing be used? 
+#' Default to FALSE.
+#' @param kMeansDelta A numerical value. The maximum number of 2-means
+#' iterations. If NULL, default to the first not NULL of 
+#' \code{object$kMeansDelta} and \code{HiCDOCDefaultParameters$kMeansDelta}.
+#' @param kMeansIterations A numerical value. The stop criterion of 
+#' convergence of the 2-means method. If NULL, default to the first not 
+#' NULL of \code{object$kMeansIterations} and
+#' \code{HiCDOCDefaultParameters$kMeansIterations}.
+#' @param kMeansRestarts A numerical value. The maximum number of restarts
+#' for the 2-means. If NULL, default to the first not NULL of 
+#' \code{object$kMeansRestarts} and 
+#' \code{HiCDOCDefaultParameters$kMeansRestarts}.
+#'
 #' @return A \code{HiCDOCDataSet} object, with centroids, compartments, distances,
 #' concordances and differences.
 #'
@@ -549,7 +557,10 @@ computePValues <- function(object) {
 #' @export
 detectCompartments <-
     function(object,
-             parallel = FALSE) {
+             parallel = FALSE,
+             kMeansDelta = NULL,
+             kMeansIterations = NULL,
+             kMeansRestarts = NULL) {
         testSlotsHiCDOC(
             object,
             slots = c(
@@ -558,9 +569,21 @@ detectCompartments <-
                 "totalBins",
                 "binSize",
                 "weakBins",
-                "interactions"
+                "interactions",
+                "parameters"
             )
         )
+        # Parameters
+        if (!is.null(kMeansDelta)) {
+            object@parameters$kMeansDelta <- kMeansDelta
+        }
+        if (!is.null(kMeansIterations)) {
+            object@parameters$kMeansIterations <- kMeansIterations
+        }
+        if (!is.null(kMeansRestarts)) {
+            object@parameters$kMeansRestarts <- kMeansRestarts
+        }
+        object@parameters <- checkParameters(object@parameters)
         
         message("Clustering...")
         object <- clusterize(object, parallel)

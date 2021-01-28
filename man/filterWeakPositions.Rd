@@ -9,7 +9,9 @@ filterWeakPositions(object, threshold = NULL)
 \arguments{
 \item{object}{A HiCDOCDataSet object}
 
-\item{threshold}{Numeric, default to HiCDOCDefaultParameters$weakPosThreshold}
+\item{threshold}{Numeric. Threshold to consider bins as 'weaks'. If NULL, 
+default to the first not NULL of \code{object$weakPosThreshold} and 
+\code{HiCDOCDefaultParameters$weakPosThreshold}.}
 }
 \value{
 A \code{HiCDOCDataSet} object with a reduced \code{interactions} slot,

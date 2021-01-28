@@ -6,9 +6,10 @@
 #' to the remaining chromosomes.
 #'
 #' @param object A HiCDOCDataSet object
-#' @param minLength Numeric value, default to
-#' HiCDOCDefaultParameters$minLengthChr. The minimum chromosome
-#' size (in number of bins), to be kept.
+#' @param minLength Numeric value. The minimum chromosome
+#' size (in number of bins), to be kept. If NULL, default to the first not 
+#' NULL of \code{object$minLengthChr} and 
+#' \code{HiCDOCDefaultParameters$minLengthChr}.
 #'
 #' @return A HiCDOCDataSet object
 #' @export
@@ -21,8 +22,8 @@
 
 filterSmallChromosomes <- function(object, minLength = NULL) {
     if(! is.null(minLength) ) object@parameters$minLengthChr <- minLength
-    object@parameters <- checkParameters(object@parameters,
-                                         c("minLengthChr"))
+    object@parameters <- checkParameters(object@parameters)
+    
     message("Keeping only the chromosomes with ",
             object@parameters$minLengthChr, " bins or more")
     bigChromosomes <- vapply(object@totalBins,

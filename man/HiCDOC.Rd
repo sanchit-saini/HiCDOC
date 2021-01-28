@@ -6,10 +6,12 @@
 \alias{HiCDOC-package}
 \title{Main method.  Start the pipeline with default parameters.}
 \usage{
-HiCDOC(object)
+HiCDOC(object, parallel = FALSE)
 }
 \arguments{
 \item{object}{A \code{HiCDOCDataSet} object.}
+
+\item{parallel}{Logical, default to FALSE. Should parallel computation should be used ?}
 }
 \value{
 Returns an \code{HiCDOCDataSet} object.

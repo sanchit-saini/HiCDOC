@@ -1,3 +1,49 @@
+## - checkParameters ----------------------------------------------------------#
+## ----------------------------------------------------------------------------#
+#' Check object@parameters, return default if NULL
+#'
+#' @param parameters list of parameters
+#'
+#' @return list of updated parameters, default from HiCDOCDefaultParameters()
+#' if null.
+checkParameters <- function(parameters) {
+    defaultParNames <- names(HiCDOCDefaultParameters)
+    currentParNames <- names(parameters)
+    # Test for numerical values only
+    testNum <- vapply(parameters, 
+                      function(x) is.numeric(x) && length(x) == 1, FALSE)
+    if(!all(testNum)){
+        warning(paste0("non numeric values found in parameters,",
+                "replaced by HiCDOCDefaultParameters corresponding values"),
+                call. = FALSE)
+        notNum <- currentParNames[which(!testNum)]
+        parameters[notNum] <- HiCDOCDefaultParameters[notNum]
+    }
+    
+    # Test for correct names
+    includePar <- currentParNames %in% defaultParNames
+    if(!(all(includePar))){
+        unknownPAr <- currentParNames[!includePar]
+        warning(paste0("unknown parameters: ", paste(unknownPAr, collapse=", "),
+                       " they will be removed."),
+                       call. = FALSE)
+        parameters[unknownPAr] <- NULL
+    }
+    
+    includePar <- defaultParNames %in% currentParNames
+    if(!(all(includePar))){
+        knownPAr <- defaultParNames[includePar]
+        warning(paste0("Unfixed parameters: ", paste(unknownPAr, collapse=", "),
+                       " they will be removed."),
+                       call. = FALSE)
+        tempPar <- HiCDOCDefaultParameters
+        tempPar[knownPar] <- parameters[knownPAr]
+        parameters <- tempPar
+    }
+    
+    return(parameters)
+}
+
 ## - testChromosome -----------------------------------------------------------#
 ## ----------------------------------------------------------------------------#
 #' Test the existence of a given chromosome.

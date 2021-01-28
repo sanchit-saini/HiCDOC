@@ -6,17 +6,14 @@
 \alias{parameters,HiCDOCDataSet-method}
 \alias{parameters<-}
 \alias{parameters<-,HiCDOCDataSet-method}
-\alias{printHiCDOCParameters}
 \title{Accessors for the 'parameters' slot of an HiCDOCDataSet object}
 \usage{
 \S4method{parameters}{HiCDOCDataSet}(object)
 
 \S4method{parameters}{HiCDOCDataSet}(object) <- value
-
-printHiCDOCParameters(object)
 }
 \arguments{
-\item{object}{a HiCDOCDataSet object}
+\item{object}{An \code{HiCDOCDataSet} object.}
 
 \item{value}{A named \code{list} containing valid parameters. See details.}
 }
@@ -35,39 +32,37 @@ Parameters in a HiCDOC experiment.
 
 \subsection{Global parameters}{
    \describe{
-       \item{\code{minDepth}}{The cutoff to filter the base-level
-               coverage. Bases where at least one sample has (normalized)
-               coverage greater than \code{minDepth} be been retained.
-               Default to \code{10}.}
+       \item{\code{minLengthChr}}{The minimum chromosome
+               size (in number of bins), to be kept by the function
+               \code{filterSmallChromosomes()}. Default to 100.}
+       \item{\code{weakPosThreshold}}{To be kept by the function
+               \code{filterWeakPositions()}, the bins (positions)
+               of a chromosome must have a mean value greater than
+               \code{weakPosThreshold}, on all replicates and all
+               conditions. The mean is computed on the row of the
+               reconstructed full interaction matrix for 1 chromosome,
+               1 condition and 1 replicate. Default to 0.}
+       \item{\code{sparseThreshold}}{To be kept by the function
+               \code{filterSparseChromosomes()}, the sparsity (percentage 
+               of empty cells) of the interactions matrix must be lower 
+               than the threshold, on all replicates and all conditions. 
+               Default to 0.95.}
       \item{\code{sampleSize}}{The number of bins used when sampling
-               all the bins.}
-      \item{\code{loessSpan}}{The optimal span value used for the
-               diagonal normalization.}
+               all the bins in \code{normalizeDistanceEffect()}. 
+               Default to 20000.}
       \item{\code{kMeansIterations}}{The maximum number of 2-means
                iterations.}
       \item{\code{kMeansDelta}}{The stop criterion of convergence of
                the 2-means method.}
       \item{\code{kMeansRestarts}}{The maximum number of restarts
                for the 2-means.}
-      \item{\code{minLengthChr}}{The minimum chromosome
-               size (in number of bins), to be kept.}
-      \item{\code{weakPosThreshold}}{To be kept, the bins (positions)
-               of a chromosome must have a mean value greater than
-               \code{weakPosThreshold}, on all replicates and all
-               conditions. The mean is computed on the row of the
-               reconstructed full interaction matrix for 1 chromosome,
-               1 condition and 1 replicate.}
    }
 }
 }
 \examples{
 exp <- HiCDOCExample()
-exp <- HiCDOC(exp)
-print(parameters(exp))
-
-exp <- HiCDOCExample()
-exp <- HiCDOC(exp)
-print(parameters(exp))
+parameters(exp)
+parameters(exp) <- list("weakPosThreshold" = 100)
 
 }
 \seealso{

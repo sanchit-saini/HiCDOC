@@ -1,3 +1,7 @@
+####- HiCDOCDefaultParameters ---------------------------------------------####
+
+##--- HiCDOCDefaultParameters ------------------------------------------------#
+##----------------------------------------------------------------------------#
 #' List of HiCDOC default parameters.
 #'
 #' @name HiCDOCDefaultParameters
@@ -8,14 +12,16 @@
 #'
 #' @export
 HiCDOCDefaultParameters <- list(
+    minLengthChr     = 100,
+    weakPosThreshold = 0,
+    sparseThreshold = 0.95,
+    sampleSize       = 20000,
     kMeansIterations = 50,
     kMeansDelta      = 0.0001,
-    kMeansRestarts   = 20,
-    sampleSize       = 20000,
-    loessSpan        = 0.75,
-    minLengthChr     = 100,
-    weakPosThreshold = 0
+    kMeansRestarts   = 20
 )
+
+####- HiCDOCDataSet parsers ---------------------------------------------####
 
 ##- makeHiCDOCDataSet --------------------------------------------------------#
 ##----------------------------------------------------------------------------#
@@ -333,6 +339,8 @@ HiCDOCDataSetFromHicPro <- function(matrixFileNames,
     return(invisible(object))
 }
 
+####- HiCDOCDataSet constructors---------------------------------------------####
+
 ##- Example constructor ------------------------------------------------------#
 ##----------------------------------------------------------------------------#
 #' Example constructor
@@ -357,7 +365,7 @@ HiCDOCExample <- function() {
     return(invisible(object))
 }
 
-
+####- class definition ####
 ## HiCDOCDataSet S4 class definition ----------------------------------------#
 ##---------------------------------------------------------------------------#
 #' Infrastructure for HiCDOC experiment and differential interaction
@@ -564,8 +572,7 @@ HiCDOCDataSet <- function(object = NULL,
     }
     
     acceptedParam <- names(HiCDOCDefaultParameters)
-    object@parameters <- vector("list", length(acceptedParam))
-    names(object@parameters) <- acceptedParam
+    object@parameters <- HiCDOCDefaultParameters
 
     if( !is.null(parameters) ){
       paramnames <- names(parameters)
@@ -584,7 +591,7 @@ HiCDOCDataSet <- function(object = NULL,
     return(invisible(object))
 }
 
-
+####- Pipeline method ####
 ##- Main method --------------------------------------------------------------#
 ##----------------------------------------------------------------------------#
 #' Main method.  Start the pipeline with default parameters.

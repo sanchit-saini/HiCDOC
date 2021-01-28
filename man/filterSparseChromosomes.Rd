@@ -3,35 +3,37 @@
 \name{filterSparseChromosomes}
 \alias{filterSparseChromosomes}
 \title{#filterSparseChromosomes
-The function compute the sparsity of the matrix, by condition and replicate, 
-for each chromosome. Then it remove (if \code{removeChromosomes} is TRUE) 
-the chromosomes with a sparcity >= \code{thresholdSparseMatrix} on at least 
-one condition and one replicate.}
+The function compute the sparsity of the matrix, by condition and
+replicate, for each chromosome. Then it remove (if \code{removeChromosomes}
+is TRUE) the chromosomes with a sparcity >= \code{thresholdSparseMatrix}
+on at least one condition and one replicate.}
 \usage{
 filterSparseChromosomes(
   object,
-  thresholdSparseMatrix = 0.95,
+  thresholdSparseMatrix = NULL,
   removeChromosomes = TRUE
 )
 }
 \arguments{
 \item{object}{A HiCDOCDataSet object}
 
-\item{thresholdSparseMatrix}{A numerical value. The sparsity threshold 
-from which a chromosome will be removed, if \code{removeChromosomes} is TRUE.}
+\item{thresholdSparseMatrix}{A numerical value. The sparsity threshold
+from which a chromosome will be removed, if \code{removeChromosomes} is TRUE.
+If NULL, default to the first not NULL of \code{object$sparseThreshold.} and 
+\code{HiCDOCDefaultParameters$sparseThreshold.}.}
 
-\item{removeChromosomes}{Logical, defautl to TRUE. Should the function remove
-sparse chromosomes ?}
+\item{removeChromosomes}{Logical, default to TRUE. Should the function
+remove sparse chromosomes ?}
 }
 \value{
 A HiCDOCDataSet object
 }
 \description{
 #filterSparseChromosomes
-The function compute the sparsity of the matrix, by condition and replicate, 
-for each chromosome. Then it remove (if \code{removeChromosomes} is TRUE) 
-the chromosomes with a sparcity >= \code{thresholdSparseMatrix} on at least 
-one condition and one replicate.
+The function compute the sparsity of the matrix, by condition and
+replicate, for each chromosome. Then it remove (if \code{removeChromosomes}
+is TRUE) the chromosomes with a sparcity >= \code{thresholdSparseMatrix}
+on at least one condition and one replicate.
 }
 \examples{
 object <- HiCDOCExample()

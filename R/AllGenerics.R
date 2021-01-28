@@ -69,10 +69,3 @@ setGeneric(
     }
 )
 
-##- parameters
-setGeneric(
-    name = "printHiCDOCParameters",
-    def = function(object) {
-        standardGeneric("printHiCDOCParameters")
-    }
-)

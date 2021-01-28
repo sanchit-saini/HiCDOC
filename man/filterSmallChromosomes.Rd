@@ -9,9 +9,10 @@ filterSmallChromosomes(object, minLength = NULL)
 \arguments{
 \item{object}{A HiCDOCDataSet object}
 
-\item{minLength}{Numeric value, default to
-HiCDOCDefaultParameters$minLengthChr. The minimum chromosome
-size (in number of bins), to be kept.}
+\item{minLength}{Numeric value. The minimum chromosome
+size (in number of bins), to be kept. If NULL, default to the first not 
+NULL of \code{object$minLengthChr} and 
+\code{HiCDOCDefaultParameters$minLengthChr}.}
 }
 \value{
 A HiCDOCDataSet object
