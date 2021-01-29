@@ -39,7 +39,7 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
                              spans = c(0.01, 0.9)) {
         criterion <- match.arg(criterion)
         f <- function(span) {
-            m <- update(model, span = span)
+            m <- stats::update(model, span = span)
             span <- m$pars$span
             traceL <- m$trace.hat
             sigma2 <- sum(m$residuals ^ 2) / (m$n - 1)
@@ -51,7 +51,7 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
             }
             return (quality)
         }
-        result <- optimize(f, spans)
+        result <- stats::optimize(f, spans)
         return (result$minimum)
     }
 
@@ -59,20 +59,20 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
     if (object@parameters$sampleSize <= 1000)
         methodtrace <- "exact"
 
-    l <- loess(value ~ distance,
+    l <- stats::loess(value ~ distance,
                data = sample,
-               control = loess.control(trace.hat = methodtrace))
+               control = stats::loess.control(trace.hat = methodtrace))
     span <- optimizeSpan(l, criterion = "gcv")
 
-    l <- loess(
+    l <- stats::loess(
         value ~ distance,
         span = span,
         data = sample,
-        control = loess.control(trace.hat = methodtrace)
+        control = stats::loess.control(trace.hat = methodtrace)
     )
 
     sample %<>%
-        dplyr::mutate(loess = predict(l)) %>%
+        dplyr::mutate(loess = stats::predict(l)) %>%
         dplyr::mutate(loess = pmax(loess, 0)) %>%
         dplyr::rename(sampleDistance = distance) %>%
         dplyr::select(-value) %>%

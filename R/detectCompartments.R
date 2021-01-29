@@ -315,7 +315,7 @@ diagonalRatios <-
             ) %>%
             dplyr::select(-namepos) %>%
             dplyr::group_by(chromosome, condition, replicate, bin) %>%
-            dplyr::summarise(offDiagonal = median(value)) %>%
+            dplyr::summarise(offDiagonal = stats::median(value)) %>%
             dplyr::ungroup()
         
         diagonalRatios <- diagonal %>%
@@ -386,7 +386,7 @@ predictAB <- function(object,
         dplyr::left_join(object@diagonalRatios,
                          by = c("chromosome", "condition", "bin")) %>%
         dplyr::group_by(chromosome, compartment) %>%
-        dplyr::summarize(value = median(value)) %>%
+        dplyr::summarize(value = stats::median(value)) %>%
         dplyr::ungroup() %>%
         tidyr::pivot_wider(
             names_from = compartment,
@@ -464,7 +464,7 @@ computePValues <- function(object) {
         dplyr::rename(condition.1 = condition, concordance.1 = concordance) %>%
         dplyr::filter(as.numeric(condition.1) < as.numeric(condition.2)) %>%
         dplyr::group_by(chromosome, bin, condition.1, condition.2) %>%
-        dplyr::summarise(value = median(abs(concordance.1 - concordance.2))) %>%
+        dplyr::summarise(value = stats::median(abs(concordance.1 - concordance.2))) %>%
         dplyr::ungroup()
     
     # Format compartments per pair of conditions
@@ -500,12 +500,12 @@ computePValues <- function(object) {
         dplyr::mutate(H0_value = 
             dplyr::if_else(compartment.1 == compartment.2, value, NA_real_)) %>%
         dplyr::group_by(condition.1, condition.2) %>%
-        dplyr::mutate(quantile = ecdf(H0_value)(value)) %>%
+        dplyr::mutate(quantile = stats::ecdf(H0_value)(value)) %>%
         dplyr::filter(compartment.1 != compartment.2) %>%
         dplyr::mutate(pvalue = 1 - quantile) %>%
         dplyr::mutate(pvalue = dplyr::if_else(pvalue < 0, 0, pvalue)) %>%
         dplyr::mutate(pvalue = dplyr::if_else(pvalue > 1, 1, pvalue)) %>%
-        dplyr::mutate(padj = p.adjust(pvalue, method = "BH")) %>%
+        dplyr::mutate(padj = stats::p.adjust(pvalue, method = "BH")) %>%
         dplyr::ungroup() %>%
         dplyr::mutate(direction = 
             factor(dplyr::if_else(compartment.1 == "A", "A->B", "B->A"))) %>%

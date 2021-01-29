@@ -10,8 +10,8 @@ sparsityChromosome <-
         
         pctFill <- interactionsChr %>%
             dplyr::mutate(value = ifelse(bin.1 == bin.2, 1, 2)) %>%
-            group_by(replicate, condition) %>%
-            summarise(pctSparse = 1 - sum(value) / totalCells,
+            dplyr::group_by(replicate, condition) %>%
+            dplyr::summarise(pctSparse = 1 - sum(value) / totalCells,
                       .groups = "keep") %>%
             dplyr::ungroup()
         
@@ -77,8 +77,8 @@ filterSparseChromosomes <-
         # Remove chromosomes
         if (removeChromosomes == TRUE) {
             sparseChromosomes <- chrQuality %>%
-                filter(maxSparsity >= thresh) %>%
-                pull(chromosome) %>% as.character()
+                dplyr::filter(maxSparsity >= thresh) %>%
+                dplyr::pull(chromosome) %>% as.character()
             if (length(sparseChromosomes) == 0) {
                 message(
                     "No chromosome removed (threshold: ",
@@ -101,7 +101,7 @@ filterSparseChromosomes <-
                     reduceHiCDOCDataSet(object, chromosomes = nonSparseChr)
             }
         }
-        chrQuality %<>% mutate(maxSparsity = 
+        chrQuality %<>% dplyr::mutate(maxSparsity = 
                                    paste0(round(100 * maxSparsity, 2), "%"))
         print(data.frame(chrQuality)) # In data.frame for correct alignement
         cat("\n")

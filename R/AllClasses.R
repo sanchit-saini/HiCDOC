@@ -147,9 +147,11 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
 #' basedir <- system.file("extdata", package="HiCDOC")
 #' data    <- read.csv(file.path(basedir, "coolData.csv"))
 #' data
+#' \dontrun{
 #' dataSet <- HiCDOCDataSetFromCool(file.path(basedir, data$FileName),
 #'                                  data$Replicate,
 #'                                  data$Condition)
+#' }
 #'
 #' @export
 HiCDOCDataSetFromCool <- function(
@@ -496,30 +498,35 @@ HiCDOCDataSet <- function(object = NULL,
                         by=object@binSize)
                     )
                 )
-            ) %>% bind_rows() %>%
-                mutate(chromosome = factor(chromosome, levels= chromosomes)) %>% 
-                group_by(chromosome) %>% 
-                arrange(chromosome, start, .by_group=TRUE) %>%
-                mutate(end = lead(start) -1) %>%
-                mutate(bin = row_number()) %>%
-                ungroup()
+            ) %>% dplyr::bind_rows() %>%
+                dplyr::mutate(chromosome = 
+                                factor(chromosome, levels= chromosomes)) %>% 
+                dplyr::group_by(chromosome) %>% 
+                dplyr::arrange(chromosome, start, .by_group=TRUE) %>%
+                dplyr::mutate(end = dplyr::lead(start) -1) %>%
+                dplyr::mutate(bin = dplyr::row_number()) %>%
+                dplyr::ungroup()
             
             positions %<>% 
-                mutate(end = ifelse(is.na(end), 
+                dplyr::mutate(end = ifelse(is.na(end), 
                                     start + object@binSize - 1, end)) %>%
-                select(chromosome, bin, start, end)
+                dplyr::select(chromosome, bin, start, end)
             object@positions <- positions
         }
       
         # Replace positions by bins in interactions
         object@interactions %<>% 
-            left_join(object@positions %>% 
-                        select(chromosome, position.1 = start, bin.1 = bin),
+            dplyr::left_join(object@positions %>% 
+                        dplyr::select(chromosome, 
+                                      position.1 = start, 
+                                      bin.1 = bin),
                       by = c("chromosome", "position.1")) %>%
-            left_join(object@positions %>% 
-                        select(chromosome, position.2 = start, bin.2 = bin),
+            dplyr::left_join(object@positions %>% 
+                        dplyr::select(chromosome, 
+                                      position.2 = start, 
+                                      bin.2 = bin),
                       by = c("chromosome", "position.2")) %>%
-            select(chromosome, bin.1, bin.2, condition, replicate, value)
+            dplyr::select(chromosome, bin.1, bin.2, condition, replicate, value)
       
         object@chromosomes <-
           gtools::mixedsort(as.vector(unique(object@positions$chromosome)))
@@ -545,9 +552,9 @@ HiCDOCDataSet <- function(object = NULL,
            nrow(object@interactions)) {
             message("Not unique positions, replacing value by mean(value)")
             object@interactions %<>%
-                group_by(chromosome, bin.1, bin.2, condition, replicate) %>%
-                mutate(value = mean(value)) %>%
-                ungroup()
+                dplyr::group_by(chromosome, bin.1, bin.2, condition, replicate) %>%
+                dplyr::mutate(value = mean(value)) %>%
+                dplyr::ungroup()
         }
     } 
     

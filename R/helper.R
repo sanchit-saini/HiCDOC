@@ -98,7 +98,7 @@ matrixToSparseInteractions <- function(m,
 #'
 #' @examples
 #' object <- HiCDOCExample()
-#' objectSmall <-reduceHiCDOCDataSet(object, chromosome = "17", replicate = "1")
+#' objSmall <-reduceHiCDOCDataSet(object, chromosomes = "17", replicates = "1")
 reduceHiCDOCDataSet <- function(object, 
                                 chromosomes = NULL, 
                                 conditions = NULL, 
@@ -125,10 +125,10 @@ reduceHiCDOCDataSet <- function(object,
                           "positions")){
             if(!is.null(slot(object, slotName))){
                 slot(object, slotName) %<>% 
-                    filter(chromosome %in% chromosomes) 
+                    dplyr::filter(chromosome %in% chromosomes) 
                 if(dropLevels == TRUE){
                     slot(object, slotName) %<>% 
-                        mutate(chromosome = droplevels(chromosome)) 
+                        dplyr::mutate(chromosome = droplevels(chromosome)) 
                 }
             }
         }
@@ -147,10 +147,11 @@ reduceHiCDOCDataSet <- function(object,
                           "concordances", 
                           "centroids")){
             if(!is.null(slot(object, slotName))){
-                slot(object, slotName) %<>% filter(condition %in% conditions)
+                slot(object, slotName) %<>% 
+                    dplyr::filter(condition %in% conditions)
                 if(dropLevels == TRUE){
                     slot(object, slotName) %<>% 
-                        mutate(condition = droplevels(condition)) 
+                        dplyr::mutate(condition = droplevels(condition)) 
                 }
             }
         }
@@ -167,10 +168,11 @@ reduceHiCDOCDataSet <- function(object,
                           "diagonalRatios",
                           "concordances")){
             if(!is.null(slot(object, slotName))){
-                slot(object, slotName) %<>% filter(replicate %in% replicates)
+                slot(object, slotName) %<>% 
+                    dplyr::filter(replicate %in% replicates)
                 if(dropLevels == TRUE){
                     slot(object, slotName) %<>% 
-                        mutate(replicate = droplevels(replicate)) 
+                        dplyr::mutate(replicate = droplevels(replicate)) 
                 }
             }
         }

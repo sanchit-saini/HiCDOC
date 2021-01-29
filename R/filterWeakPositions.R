@@ -59,9 +59,9 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
                 values_to = "bin"
             ) %>%
             dplyr::select(-pos_1or2, -chromosome) %>%
-          bind_rows(interChrDiag) %>%
+            dplyr::bind_rows(interChrDiag) %>%
             tidyr::complete(bin,
-                     nesting(condition, replicate),
+                     tidyr::nesting(condition, replicate),
                      fill = list(value = 0)
             )
         weakdataset <- existing %>%

@@ -35,5 +35,5 @@ reduce an HiCDOCDataSet
 }
 \examples{
 object <- HiCDOCExample()
-objectSmall <-reduceHiCDOCDataSet(object, chromosome = "17", replicate = "1")
+objSmall <-reduceHiCDOCDataSet(object, chromosomes = "17", replicates = "1")
 }

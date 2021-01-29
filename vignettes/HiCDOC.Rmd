@@ -1,9 +1,10 @@
 ---
 title: "HiCDOC analysis"
 output: 
-    rmarkdown::html_vignette:
+    BiocStyle::html_document:
        fig_width: 7
        fig_height: 5
+       toc_float: true
 vignette: >
   %\VignetteIndexEntry{HiCDOC analysis}
   %\VignetteEngine{knitr::rmarkdown}
@@ -20,8 +21,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-#library(HiCDOC)
-devtools::load_all(".")
+library(HiCDOC)
+library(BiocManager)
 ```
 
 HiCDOC normalizes intrachromosomal Hi-C matrices and detects A/B compartments

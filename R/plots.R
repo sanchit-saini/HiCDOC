@@ -30,15 +30,15 @@ plotInteractionMatrix <-
             trans <- "Identity"
     
         posChr <- object@positions %>% 
-            filter(chromosome == chr)
+            dplyr::filter(chromosome == chr)
         # Prepare data
         interactionsChr <- object@interactions %>%
             dplyr::filter(chromosome == chr & value > 0) %>%
             dplyr::left_join(posChr %>%
-                                  select(bin.1 = bin, position.1 = start),
+                                  dplyr::select(bin.1 = bin, position.1 = start),
                              by="bin.1") %>%
             dplyr::left_join(posChr %>%
-                                 select(bin.2 = bin, position.2 = start),
+                                 dplyr::select(bin.2 = bin, position.2 = start),
                              by="bin.2")
         nblevels <- table(object@conditions)
         nbrows <- 1
@@ -101,7 +101,7 @@ plotDistanceEffect <- function(object) {
         geom_smooth(col = "red") +
         labs(title = "Distance effect")
     p <-
-        ggMarginal(p, margins = "x", type = "histogram", fill = "transparent")
+        ggExtra::ggMarginal(p, margins = "x", type = "histogram", fill = "transparent")
     return(p)
 }
 
@@ -130,13 +130,13 @@ plotDiffConcordances <- function(object) {
 
     differences <- object@concordances %>%
         dplyr::group_by(.dots = c("chromosome", "bin", "condition")) %>%
-        dplyr::summarise(median = median(concordance)) %>%
+        dplyr::summarise(median = stats::median(concordance)) %>%
         dplyr::ungroup() %>%
         tidyr::spread(condition, median) %>%
         dplyr::mutate(difference = `2` - `1`) %>%
         dplyr::select(-c(`1`, `2`)) %>%
         dplyr::left_join(changed, by = c("chromosome", "bin")) %>%
-        dplyr::mutate(changed = replace_na(changed, "F"))
+        dplyr::mutate(changed = tidyr::replace_na(changed, "F"))
 
     p <- ggplot(differences, aes(x = difference, fill = changed)) +
         geom_histogram() +
@@ -217,7 +217,7 @@ plotCentroids <- function(object, chromosomeId, size = 2) {
         tidyr::spread(name, centroid) %>%
         tidyr::unnest(cols = names) %>% t()
 
-    pca <- prcomp(df)
+    pca <- stats::prcomp(df)
     varpca <- pca$sdev ^ 2
     propvar <- varpca / sum(varpca)
     propvar <- paste(round(100 * propvar, 2), "%")

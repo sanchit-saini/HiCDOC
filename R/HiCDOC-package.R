@@ -43,26 +43,15 @@
 #' Élise Maigné
 #'
 #' @import methods
-#' @import rhdf5
-#' @import devtools
-#' @import dplyr
-#' @import tidyr
-#' @import HiCcompare
-#' @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
+# @import dplyr
+# @import tidyr
+# @import HiCcompare
 #' @import ggplot2
-#' @importFrom gtools mixedsort
-#' @importFrom BiocParallel bpmapply
-# @importFrom BiocManager version 
-#' @importFrom Rcpp evalCpp sourceCpp
-#' @importFrom GenomicRanges makeGRangesFromDataFrame makeGRangesListFromDataFrame start end distance
-#' @importFrom gridExtra arrangeGrob
-#' @importFrom ggpubr as_ggplot text_grob
+# @importFrom Rcpp evalCpp sourceCpp
+#' @importFrom GenomicRanges start end distance
 #' @importFrom magrittr %<>%
-#' @importFrom purrr map map2 flatten_int flatten_chr map_dfr pmap_dfr
-#' @importFrom stats D ecdf loess loess.control median optimize p.adjust prcomp predict quantile setNames update
-#' @importFrom utils modifyList read.table
-#' @importFrom ggExtra ggMarginal
-#' @importFrom pbapply pblapply pbmapply 
+#' @importFrom magrittr %>%
+#' @importFrom Rcpp evalCpp sourceCpp
 #' @useDynLib HiCDOC
 #'
 #' @keywords package

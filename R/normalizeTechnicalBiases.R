@@ -68,11 +68,11 @@ normalizeTechnicalBiases <- function(object, parallel=FALSE) {
     colnames(output) <- c(
         "chromosome", "bin.1", "bin.2", seq_along(object@replicates)
     )
-    output %<>% mutate(bin.1 = bin.1 / object@binSize + 1,
-                       bin.2 = bin.2 / object@binSize + 1)
+    output %<>% dplyr::mutate(bin.1 = bin.1 / object@binSize + 1,
+                              bin.2 = bin.2 / object@binSize + 1)
 
     object@interactions <- output %>%
-        gather(
+        tidyr::gather(
             as.character(seq_along(object@replicates)),
             key = "i",
             value = "value"

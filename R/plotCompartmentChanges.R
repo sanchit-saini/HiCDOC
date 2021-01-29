@@ -92,15 +92,15 @@ plotConcordance <- function(object,
     chr <- testChromosome(object, chromosomeId)
     
     poschr <- object@positions %>% 
-        filter(chromosome == chr) %>% 
-        select(start) %>% 
-        pull()
+        dplyr::filter(chromosome == chr) %>% 
+        dplyr::select(start) %>% 
+        dplyr::pull()
     xlim <- testxlim(xlim, poschr)
 
     concordance <- object@concordances %>%
         dplyr::filter(chromosome == chr) %>%
         dplyr::left_join(object@positions %>% 
-                             filter(chromosome == chr), 
+                             dplyr::filter(chromosome == chr), 
                          by=c("chromosome", "bin")) %>%
         dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
         dplyr::mutate(condition = paste0("confidence, cond. ", condition)) %>%
@@ -110,7 +110,7 @@ plotConcordance <- function(object,
     differences <- object@differences %>%
         dplyr::filter(chromosome == chr) %>%
         dplyr::left_join(object@positions %>% 
-                             filter(chromosome == chr), 
+                             dplyr::filter(chromosome == chr), 
                          by=c("chromosome", "bin")) %>%
         dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
         dplyr::filter(padj < padjThreshold) %>%
@@ -192,15 +192,15 @@ plotCompartments <- function(object,
     chr <- testChromosome(object, chromosomeId)
     
     poschr <- object@positions %>% 
-        filter(chromosome == chr) %>% 
-        select(start) %>% 
-        pull()
+        dplyr::filter(chromosome == chr) %>% 
+        dplyr::select(start) %>% 
+        dplyr::pull()
     xlim <- testxlim(xlim, poschr)
     
     compartments <- object@compartments %>%
         dplyr::filter(chromosome == chr) %>%
         dplyr::left_join(object@positions %>% 
-                             filter(chromosome == chr), 
+                             dplyr::filter(chromosome == chr), 
                          by=c("chromosome", "bin")) %>%
         dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
         dplyr::mutate(compartment = factor(compartment)) %>%

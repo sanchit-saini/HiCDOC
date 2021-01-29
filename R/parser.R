@@ -20,7 +20,7 @@
 #' object <- parseInteractionMatrix3Columns(data)
 #' }
 parseInteractionMatrix3Columns <- function(object) {
-    object@interactions <- read.table(
+    object@interactions <- utils::read.table(
         file = object@inputPath,
         sep = '\t',
         header = TRUE,
@@ -366,12 +366,12 @@ parseHicPro <- function(vectFiles) {
     resolution <- as.numeric(names(tabDif[1]))
     
     positions <- bedDf %>%
-        arrange(chromosome, index) %>%
-        group_by(chromosome) %>%
-        mutate(bin = index - min(index) + 1) %>%
-        mutate(end = ifelse(end == lead(start), end - 1, end)) %>%
-        ungroup() %>%
-        select(chromosome, start, end, bin)
+        dplyr::arrange(chromosome, index) %>%
+        dplyr::group_by(chromosome) %>%
+        dplyr::mutate(bin = index - min(index) + 1) %>%
+        dplyr::mutate(end = ifelse(end == lead(start), end - 1, end)) %>%
+        dplyr::ungroup() %>%
+        dplyr::select(chromosome, start, end, bin)
     
     # Merge data
     matrixDf <- dplyr::left_join(
@@ -389,7 +389,7 @@ parseHicPro <- function(vectFiles) {
                                 position.2 = start),
         by="stopIndex")
     message("Removing the inter-chromosomes interactions")
-    matrixDf %<>% filter(chr1 == chr2) %>%
+    matrixDf %<>% dplyr::filter(chr1 == chr2) %>%
        dplyr::select(chromosome = chr1,
                      position.1, 
                      position.2, 

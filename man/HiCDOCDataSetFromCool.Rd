@@ -29,8 +29,10 @@ Construct a \code{HiCDOCDataSet} from a cool file.
 basedir <- system.file("extdata", package="HiCDOC")
 data    <- read.csv(file.path(basedir, "coolData.csv"))
 data
+\dontrun{
 dataSet <- HiCDOCDataSetFromCool(file.path(basedir, data$FileName),
                                  data$Replicate,
                                  data$Condition)
+}
 
 }

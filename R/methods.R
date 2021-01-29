@@ -43,12 +43,12 @@ setMethod(
         if(is.null(object@interactions)) return( NULL )
         interactions <- object@interactions %>%
                 dplyr::left_join(object@positions %>%
-                                     select(chromosome, 
+                                     dplyr::select(chromosome, 
                                             bin.1 = bin, 
                                             start.1 = start), 
                                  by=c("chromosome", "bin.1")) %>%
                 dplyr::left_join(object@positions %>%
-                                     select(chromosome, 
+                                     dplyr::select(chromosome, 
                                             bin.2 = bin, 
                                             start.2 = start), 
                                  by=c("chromosome", "bin.2")) %>%

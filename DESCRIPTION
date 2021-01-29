@@ -20,7 +20,6 @@ Imports:
     devtools,
     dplyr,
     tidyr,
-    HiCcompare,
     multiHiCcompare,
     magrittr,
     ggplot2,
@@ -39,5 +38,7 @@ biocViews:
     TODO
 Suggests: knitr,
     rmarkdown,
-    testthat
+    testthat,
+    BiocStyle,
+    BiocManager
 VignetteBuilder: knitr
