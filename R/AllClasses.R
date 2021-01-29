@@ -147,11 +147,9 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
 #' basedir <- system.file("extdata", package="HiCDOC")
 #' data    <- read.csv(file.path(basedir, "coolData.csv"))
 #' data
-#' \dontrun{
 #' dataSet <- HiCDOCDataSetFromCool(file.path(basedir, data$FileName),
 #'                                  data$Replicate,
 #'                                  data$Condition)
-#' }
 #'
 #' @export
 HiCDOCDataSetFromCool <- function(
