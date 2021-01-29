@@ -87,7 +87,7 @@ parseInteractionMatrix3Columns <- function(object) {
 #' @return The value associated with the field.
 h5readCatch <- function(file, name) {
     return(tryCatch(
-        h5read(file = file, name = name),
+        rhdf5::h5read(file = file, name = name),
         error = function(e) {
             stop(
                 paste0(
