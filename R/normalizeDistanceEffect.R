@@ -14,7 +14,8 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
     testSlotsHiCDOC(object,
                        slots = c("interactions",
                                  "binSize",
-                                 "weakBins"))
+                                 "weakBins",
+                                 "parameters"))
     
     message("Chromosome: ", chromosomeId)
 

@@ -16,17 +16,6 @@
 #' \code{"interactions"} the interactions matrix for the chromosome,
 #' whithout the weak bins.
 filterWeakChr <- function(object, chromosomeId, threshold = 0) {
-    testSlotsHiCDOC(
-        object,
-        slots = c(
-            "interactions",
-            "binSize",
-            "replicates",
-            "conditions",
-            "totalBins"
-        )
-    )
-
     # Initialization
     interChr <- object@interactions %>%
         dplyr::filter(chromosome == chromosomeId) %>%
@@ -118,6 +107,18 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 #' exp <- HiCDOCExample()
 #' exp <- filterWeakPositions(exp)
 filterWeakPositions <- function(object, threshold = NULL) {
+    testSlotsHiCDOC(
+        object,
+        slots = c(
+            "interactions",
+            "binSize",
+            "chromosomes",
+            "replicates",
+            "conditions",
+            "totalBins",
+            "parameters"
+        )
+    )
     if(! is.null(threshold)){
       object@parameters$weakPosThreshold <- threshold
     } 
@@ -134,21 +135,17 @@ filterWeakPositions <- function(object, threshold = NULL) {
         vapply(weakBins, function(x)
             length(x) == 0, FUN.VALUE = TRUE)
     weakBins[nullweak] <- list(NULL)
-
     interactions <- weakPositions %>% purrr::map_dfr("interactions")
 
     # Save new values
     object@weakBins <- weakBins
     object@interactions <- interactions
-
     nbweak <- sum(vapply(weakBins, length, c(0)))
-
     message("Removed ",
             nbweak,
             " position",
             if (nbweak != 1) "s"
     )
-
     if (nbweak >= sum(unlist(object@totalBins))) {
         message('No data left!')
     }

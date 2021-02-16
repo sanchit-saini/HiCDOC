@@ -188,7 +188,7 @@ plotConcordance <- function(object,
 plotCompartments <- function(object,
                              chromosomeId,
                              xlim = NULL) {
-    testSlotsHiCDOC(object, slots = c("compartments"))
+    testSlotsHiCDOC(object, slots = c("compartments", "positions"))
     chr <- testChromosome(object, chromosomeId)
     
     poschr <- object@positions %>% 

@@ -24,7 +24,8 @@ plotInteractionMatrix <-
                            slots = c("interactions",
                                      "conditions",
                                      "totalBins",
-                                     "binSize"))
+                                     "binSize",
+                                     "positions"))
         chr <- testChromosome(object, chromosomeId)
         if (is.null(trans))
             trans <- "Identity"
@@ -88,7 +89,7 @@ plotInteractionMatrix <-
 #' plotDistanceEffect(object)
 #' @export
 plotDistanceEffect <- function(object) {
-    testSlotsHiCDOC(object, slots = c("interactions"))
+    testSlotsHiCDOC(object, slots = c("interactions", "binSize"))
 
     p <- object@interactions %>%
         dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize) %>%
