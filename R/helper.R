@@ -104,6 +104,11 @@ reduceHiCDOCDataSet <- function(object,
                                 conditions = NULL, 
                                 replicates=NULL,
                                 dropLevels = TRUE){
+    if(!is.null(object@differences))
+        warning(paste("You should not reduce an HiCDOCDataSet object after",
+                      "a call to detectCompartments(). All the chromosomes,",
+                      "conditons and replicates have been used in the",
+                      "computations", sep=" "))
     if(!is.null(chromosomes)){
         numchr <- which(object@chromosomes %in% chromosomes)
         object@chromosomes <- 
