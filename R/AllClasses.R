@@ -473,11 +473,12 @@ HiCDOCDataSet <- function(object = NULL,
     }
     
     if( !is.null(object@interactions) ) {
-      
+        chromosomes <- gtools::mixedsort(
+            unique(as.character(object@interactions$chromosome)))
+        object@chromosomes <- chromosomes
+        
         # Determine positions
         if( is.null(object@positions) ) {
-            chromosomes <- gtools::mixedsort(
-                unique(object@interactions$chromosome))
             minMaxPos <- object@interactions %>%
                 dplyr::group_by(chromosome) %>%
                 dplyr::summarize(maxpos.1 = max(position.1),
@@ -514,6 +515,8 @@ HiCDOCDataSet <- function(object = NULL,
       
         # Replace positions by bins in interactions
         object@interactions %<>% 
+            dplyr::mutate(chromosome = 
+                            factor(chromosome, levels=chromosomes)) %>%
             dplyr::left_join(object@positions %>% 
                         dplyr::select(chromosome, 
                                       position.1 = start, 
@@ -525,9 +528,6 @@ HiCDOCDataSet <- function(object = NULL,
                                       bin.2 = bin),
                       by = c("chromosome", "position.2")) %>%
             dplyr::select(chromosome, bin.1, bin.2, condition, replicate, value)
-      
-        object@chromosomes <-
-          gtools::mixedsort(as.vector(unique(object@positions$chromosome)))
     
         object@weakBins <- vector("list", length(object@chromosomes))
         names(object@weakBins) <- object@chromosomes
@@ -554,7 +554,7 @@ HiCDOCDataSet <- function(object = NULL,
                 dplyr::mutate(value = mean(value)) %>%
                 dplyr::ungroup()
         }
-    } 
+    }
     
     # Fill totalReplicates slot
     if( !is.null(object@replicates) ) {
