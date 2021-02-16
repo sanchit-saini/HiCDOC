@@ -17,8 +17,6 @@ Remove biological biases by normalizing with Knight-Ruiz matrix balancing.
 }
 \examples{
 object <- HiCDOCExample()
-object <- filterSmallChromosomes(object)
-object <- filterWeakPositions(object)
 object <- normalizeTechnicalBiases(object)
 object <- normalizeBiologicalBiases(object)
 }

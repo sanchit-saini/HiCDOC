@@ -27,8 +27,8 @@ textsignif <- function(differences, padjThreshold) {
 testxlim <- function(xlim, positions) {
     if (is.null(xlim) == FALSE) {
         if (length(xlim) != 2) {
-            message("Incorrect values for xlim (numerical of length 2 expected),
-                         Set to NULL")
+            message(paste("Incorrect values for xlim (numerical of length",
+                          "2 expected), xlim set to NULL"))
             xlim <- NULL
         } else {
             xlim <- sort(xlim)
@@ -62,13 +62,16 @@ extract_legends <- function (x)
 #'
 #' Plot the concordance of all the replicates for one chromosome.
 #'
-#' @param object A \code{HiCDOCDataSet} object on which \code{detectCompartments()} has run.
+#' @param object A \code{HiCDOCDataSet} object on which 
+#' \code{detectCompartments()} has run.
 #' @param chromosomeId The name or number of the chromosome to plot.
 #' If number, will be taken in \code{object@chromosomes[chromosomeId]}
-#' @param xlim A numeric-value pair, indicating the interval of positions to represent.
+#' @param xlim A numeric-value pair, indicating the interval of positions 
+#' to represent.
 #' Default to NULL = all positions.
 #' @param padjThreshold Significance threshold for the changes. Default to 0.05.
-#' @param points Logical (default to FALSE). If TRUE, points will be added on the concordance lines.
+#' @param points Logical (default to FALSE). If TRUE, points will be added 
+#' on the concordance lines.
 #'
 #' @return A ggplot.
 #' @export
@@ -143,13 +146,15 @@ plotConcordance <- function(object,
                   aes(x = position, y = concordance, color = replicate))
     if (points == TRUE) {
         gp <- gp + geom_point(data = concordance,
-                              aes(x = position, y = concordance, color = replicate))
+                              aes(x = position, 
+                                  y = concordance, 
+                                  color = replicate))
     }
     gp <- gp + labs(caption = textdifference) +
         xlim(xlim[1] , xlim[2] + object@binSize) +
         ylim(ylim) +
         geom_hline(yintercept = 0.0, size = 0.1) +
-        facet_grid(rows = vars(condition),  margins = FALSE, switch = "y")    +
+        facet_grid(rows = vars(condition),  margins = FALSE, switch = "y") +
         theme_minimal() +
         theme(
             axis.title.y = element_blank(),
@@ -166,10 +171,12 @@ plotConcordance <- function(object,
 #' Plot the A and B compartments after \code{detectCompartments()} on
 #' a HiCDOCDataSet object, for a chromosome.
 #'
-#' @param object A \code{HiCDOCDataSet} object on which \code{detectCompartments()} has run.
+#' @param object A \code{HiCDOCDataSet} object on which 
+#' \code{detectCompartments()} has run.
 #' @param chromosomeId The name or number of the chromosome to plot.
 #' If number, will be taken in \code{object@chromosomes[chromosomeId]}
-#' @param xlim A numeric-value pair, indicating the interval of positions to represent.
+#' @param xlim A numeric-value pair, indicating the interval of positions 
+#' to represent.
 #' Default to NULL = all positions.
 #'
 #' @return A ggplot.
@@ -224,14 +231,18 @@ plotCompartments <- function(object,
         )
 }
 
-#' Run plotCompartments() and plotConcordance() and assemble them on the same plot
+#' Run plotCompartments() and plotConcordance() and assemble them on the 
+#' same plot
 #'
 #' @param object An HiCDOCDataSet object, after a detectCompartments() run
-#' @param chromosomeId Name or number of the chromosome, like in object@chromosome
+#' @param chromosomeId Name or number of the chromosome, like in 
+#' object@chromosome
 #' @param padjThreshold Significance threshold for the changes. Default to 0.05.
-#' @param xlim A numeric-value pair, indicating the interval of positions to represent.
+#' @param xlim A numeric-value pair, indicating the interval of positions 
+#' to represent.
 #' Default to NULL = all positions.
-#' @param points Logical (default to FALSE). If TRUE, points will be added on the concordance lines.
+#' @param points Logical (default to FALSE). If TRUE, points will be added 
+#' on the concordance lines.
 #'
 #' @return A ggplot object.
 #'
@@ -253,12 +264,20 @@ plotCompartmentChanges <-
                      points = FALSE) {
         # Test parameters format
         testSlotsHiCDOC(object,
-                           slots = c("concordances", "compartments", "differences"))
+                           slots = c("concordances", 
+                                     "compartments", 
+                                     "differences"))
         chr <- testChromosome(object, chromosomeId)
 
-        pConcordance <- plotConcordance(object, chr, xlim, padjThreshold, points)
+        pConcordance <- plotConcordance(object, 
+                                        chr, 
+                                        xlim, 
+                                        padjThreshold, 
+                                        points)
 
-        pCompartment <- plotCompartments(object, chr, xlim)
+        pCompartment <- plotCompartments(object, 
+                                         chr, 
+                                         xlim)
 
         # Horizontal alignment of the sub-graphs (change width of the plots)
         plotsgrobs <-

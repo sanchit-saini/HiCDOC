@@ -74,7 +74,7 @@ tieCentroids <- function(object) {
     
     object@compartments %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
-        dplyr::mutate(compartment = 
+        dplyr::mutate(compartment =
                           dplyr::if_else(compartment == 1, cl1, cl2)) %>%
         dplyr::select(-c(cl1, cl2))
     
@@ -82,11 +82,11 @@ tieCentroids <- function(object) {
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
         dplyr::mutate(change = dplyr::if_else(
             compartment == 1,
-            dplyr::if_else(compartment == cl1, 1,-1),
-            dplyr::if_else(compartment == cl2, 1,-1)
+            dplyr::if_else(compartment == cl1, 1, -1),
+            dplyr::if_else(compartment == cl2, 1, -1)
         )) %>%
         dplyr::mutate(concordance = change * concordance) %>%
-        dplyr::mutate(compartment = 
+        dplyr::mutate(compartment =
                           dplyr::if_else(compartment == 1, cl1, cl2)) %>%
         dplyr::select(-c(cl1, cl2, change))
     
@@ -97,7 +97,7 @@ tieCentroids <- function(object) {
     
     object@centroids %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
-        dplyr::mutate(compartment = 
+        dplyr::mutate(compartment =
                           dplyr::if_else(compartment == "1", cl1, cl2)) %>%
         dplyr::select(-c(cl1, cl2))
     
@@ -184,8 +184,8 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
         purrr::map_dfr(seq_len(length(replicates)), ~ dfCompartments) %>%
         dplyr::mutate(replicate = rep(factor(
             replicates, levels = unique(object@replicates)
-                ),
-            each = ncol(interactions)),
+        ),
+        each = ncol(interactions)),
         concordance = concordances) %>%
         dplyr::select(chromosome,
                       bin,
@@ -198,7 +198,8 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
         purrr::map_dfr(seq_len(2), ~ dfConcordances) %>%
         dplyr::select(-concordance) %>%
         dplyr::mutate(compartment = rep(factor(c(1, 2)),
-                each = length(replicates) * ncol(interactions)),
+                                        each = length(replicates) * 
+                                            ncol(interactions)),
                       distance = c(t(distances)))
     
     dfCentroids <- dplyr::tibble(
@@ -238,10 +239,14 @@ clusterize <- function(object,
     vectCond <-
         rep(unique(object@conditions), length(object@chromosomes))
     
-    if ( parallel == FALSE ) {
-        clusterRes <- pbapply::pbmapply(FUN = function(.x, .y)
-            clusterizeChrCond(object, .x, .y), vectChr, vectCond,
-            SIMPLIFY = FALSE)
+    if (parallel == FALSE) {
+        clusterRes <- pbapply::pbmapply(
+            FUN = function(.x, .y)
+                clusterizeChrCond(object, .x, .y),
+            vectChr,
+            vectCond,
+            SIMPLIFY = FALSE
+        )
     } else {
         redobjects <- purrr::map2(vectChr, vectCond,
                                   function(.x, .y)
@@ -258,7 +263,7 @@ clusterize <- function(object,
                 redobjects,
                 vectChr,
                 vectCond,
-                SIMPLIFY = FALSE, 
+                SIMPLIFY = FALSE,
                 BPPARAM = BiocParallel::bpparam()
             )
     }
@@ -306,11 +311,9 @@ diagonalRatios <-
         
         offDiagonal <- interactions %>%
             dplyr::filter(bin.1 != bin.2) %>%
-            tidyr::pivot_longer(
-                cols = starts_with("bin"),
-                names_to = "namepos",
-                values_to = "bin"
-            ) %>%
+            tidyr::pivot_longer(cols = starts_with("bin"),
+                                names_to = "namepos",
+                                values_to = "bin") %>%
             dplyr::select(-namepos) %>%
             dplyr::group_by(chromosome, condition, replicate, bin) %>%
             dplyr::summarise(offDiagonal = stats::median(value)) %>%
@@ -318,12 +321,12 @@ diagonalRatios <-
         
         diagonalRatios <- diagonal %>%
             dplyr::full_join(offDiagonal,
-                      by = c("chromosome",
-                             "condition",
-                             "replicate",
-                             "bin"))  %>%
+                             by = c("chromosome",
+                                    "condition",
+                                    "replicate",
+                                    "bin"))  %>%
             tidyr::replace_na(list(diagonal = 0,
-                offDiagonal = 0)) %>%
+                                   offDiagonal = 0)) %>%
             dplyr::mutate(value = diagonal - offDiagonal) %>%
             dplyr::select(-c(diagonal, offDiagonal))
         
@@ -348,12 +351,14 @@ predictAB <- function(object,
     replicateIds = rep(object@replicates, length(object@chromosomes))
     
     if (parallel == FALSE) {
-        diagratios <- pbapply::pbmapply(function(x, y, z)
-            diagonalRatios(object, x, y, z), 
-            chromosomeIds, 
-            conditionIds, 
+        diagratios <- pbapply::pbmapply(
+            function(x, y, z)
+                diagonalRatios(object, x, y, z),
+            chromosomeIds,
+            conditionIds,
             replicateIds,
-        SIMPLIFY = FALSE)
+            SIMPLIFY = FALSE
+        )
         object@diagonalRatios <- do.call("rbind", diagratios)
     } else {
         redobjects <-
@@ -361,7 +366,7 @@ predictAB <- function(object,
                         function(.x, .y, .z)
                             reduceHiCDOCDataSet(
                                 object,
-                                chromosomes =.x,
+                                chromosomes = .x,
                                 conditions = .y,
                                 replicates = .z,
                                 dropLevels = FALSE
@@ -374,7 +379,7 @@ predictAB <- function(object,
             chromosomeIds,
             conditionIds,
             replicateIds,
-            SIMPLIFY = FALSE, 
+            SIMPLIFY = FALSE,
             BPPARAM = BiocParallel::bpparam()
         )
         object@diagonalRatios <-
@@ -398,25 +403,25 @@ predictAB <- function(object,
     
     object@compartments %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
-        dplyr::mutate(compartment = 
-            factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
+        dplyr::mutate(compartment =
+             factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
         dplyr::select(-c(A))
     
     object@concordances %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
-        dplyr::mutate(change = dplyr::if_else(A == 1, 1,-1)) %>%
+        dplyr::mutate(change = dplyr::if_else(A == 1, 1, -1)) %>%
         dplyr::mutate(concordance = change * concordance) %>%
         dplyr::select(-c(A, change))
     
     object@distances %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
-        dplyr::mutate(compartment = 
+        dplyr::mutate(compartment =
             factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
         dplyr::select(-c(A))
     
     object@centroids %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
-        dplyr::mutate(compartment = 
+        dplyr::mutate(compartment =
             factor(dplyr::if_else(compartment == A, "A", "B"))) %>%
         dplyr::select(-c(A))
     
@@ -453,17 +458,18 @@ computePValues <- function(object) {
         cbind(
             # Duplicate the table "totalReplicates" times
             concordanceDifferences[rep(seq_len(nrow(concordanceDifferences)),
-                                       totalReplicates),] %>%
+                                       totalReplicates), ] %>%
                 # Arrange by chrom and pos to join with the duplicated rows
                 dplyr::arrange(chromosome, bin) %>%
                 dplyr::rename_with(function(old_colnames)
                     paste(old_colnames, 2, sep = "."))
         ) %>%
-        dplyr::select(-chromosome.2, -bin.2) %>%
+        dplyr::select(-chromosome.2,-bin.2) %>%
         dplyr::rename(condition.1 = condition, concordance.1 = concordance) %>%
         dplyr::filter(as.numeric(condition.1) < as.numeric(condition.2)) %>%
         dplyr::group_by(chromosome, bin, condition.1, condition.2) %>%
-        dplyr::summarise(value = stats::median(abs(concordance.1 - concordance.2))) %>%
+        dplyr::summarise(value = 
+            stats::median(abs(concordance.1 - concordance.2))) %>%
         dplyr::ungroup()
     
     # Format compartments per pair of conditions
@@ -478,13 +484,13 @@ computePValues <- function(object) {
         cbind(
             # Duplicate the table "totalConditions" times
             compartmentComparisons[rep(seq_len(nrow(compartmentComparisons)),
-                                       totalConditions),] %>%
+                                       totalConditions), ] %>%
                 # Arrange by chrom and pos to join with the duplicated rows
                 dplyr::arrange(chromosome, bin) %>%
                 dplyr::rename_with(function(old_colnames)
                     paste(old_colnames, 2, sep = "."))
         ) %>%
-        dplyr::select(-chromosome.2, -bin.2) %>%
+        dplyr::select(-chromosome.2,-bin.2) %>%
         dplyr::rename(condition.1 = condition,
                       compartment.1 = compartment) %>%
         dplyr::filter(as.numeric(condition.1) < as.numeric(condition.2))
@@ -492,11 +498,9 @@ computePValues <- function(object) {
     # Compute p-values for switching positions
     # P-values for a condition pair computed from the whole genome distribution
     object@differences <- compartmentComparisons %>%
-        dplyr::left_join(
-            concordanceDifferences,
-            by = c("chromosome", "bin", "condition.1", "condition.2")
-        ) %>%
-        dplyr::mutate(H0_value = 
+        dplyr::left_join(concordanceDifferences,
+            by = c("chromosome", "bin", "condition.1", "condition.2")) %>%
+        dplyr::mutate(H0_value =
             dplyr::if_else(compartment.1 == compartment.2, value, NA_real_)) %>%
         dplyr::group_by(condition.1, condition.2) %>%
         dplyr::mutate(quantile = stats::ecdf(H0_value)(value)) %>%
@@ -506,7 +510,7 @@ computePValues <- function(object) {
         dplyr::mutate(pvalue = dplyr::if_else(pvalue > 1, 1, pvalue)) %>%
         dplyr::mutate(padj = stats::p.adjust(pvalue, method = "BH")) %>%
         dplyr::ungroup() %>%
-        dplyr::mutate(direction = 
+        dplyr::mutate(direction =
             factor(dplyr::if_else(compartment.1 == "A", "A->B", "B->A"))) %>%
         dplyr::select(chromosome,
                       bin,
@@ -515,11 +519,10 @@ computePValues <- function(object) {
                       pvalue,
                       padj,
                       direction) %>%
-        dplyr::arrange(
-            order(gtools::mixedsort(chromosome)),
-            bin, 
-            condition.1, 
-            condition.2)
+        dplyr::arrange(order(gtools::mixedsort(chromosome)),
+                       bin,
+                       condition.1,
+                       condition.2)
     
     return (object)
 }
@@ -530,22 +533,22 @@ computePValues <- function(object) {
 #' p-values for compartment differences between conditions.
 #'
 #' @param object  A \code{HiCDOCDataSet} object.
-#' @param parallel Logical. Should parallel processing be used? 
+#' @param parallel Logical. Should parallel processing be used?
 #' Default to FALSE.
 #' @param kMeansDelta A numerical value. The maximum number of 2-means
-#' iterations. If NULL, default to the first not NULL of 
+#' iterations. If NULL, default to the first not NULL of
 #' \code{object$kMeansDelta} and \code{HiCDOCDefaultParameters$kMeansDelta}.
-#' @param kMeansIterations A numerical value. The stop criterion of 
-#' convergence of the 2-means method. If NULL, default to the first not 
+#' @param kMeansIterations A numerical value. The stop criterion of
+#' convergence of the 2-means method. If NULL, default to the first not
 #' NULL of \code{object$kMeansIterations} and
 #' \code{HiCDOCDefaultParameters$kMeansIterations}.
 #' @param kMeansRestarts A numerical value. The maximum number of restarts
-#' for the 2-means. If NULL, default to the first not NULL of 
-#' \code{object$kMeansRestarts} and 
+#' for the 2-means. If NULL, default to the first not NULL of
+#' \code{object$kMeansRestarts} and
 #' \code{HiCDOCDefaultParameters$kMeansRestarts}.
 #'
-#' @return A \code{HiCDOCDataSet} object, with centroids, compartments, distances,
-#' concordances and differences.
+#' @return A \code{HiCDOCDataSet} object, with centroids, compartments, 
+#' distances,concordances and differences.
 #'
 #' @examples
 #' object <- HiCDOCExample()

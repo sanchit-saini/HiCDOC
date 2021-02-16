@@ -15,8 +15,7 @@
 A character vector
 }
 \description{
-The \code{chromosomes} slot contains the names of the chromosomes, eventually
-filtred after \code{filterSmallChromosomes()}
+The \code{chromosomes} slot contains the names of the chromosomes.
 }
 \examples{
 exp <- HiCDOCExample()

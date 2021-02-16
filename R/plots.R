@@ -6,7 +6,8 @@
 #' @param trans character: transformation of the color scale. Default to "log2".
 #' See \code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.
 #' Set to NULL for no transformation.
-#' @param colours character vector, vector of colours to use for n-colour gradient.
+#' @param colours character vector, vector of colours to use for n-colour 
+#' gradient.
 #' Default to \code{c("#000066", "#ffffbf", "#990000")}.
 #'
 #' @return A \code{ggplot} object.
@@ -36,10 +37,12 @@ plotInteractionMatrix <-
         interactionsChr <- object@interactions %>%
             dplyr::filter(chromosome == chr & value > 0) %>%
             dplyr::left_join(posChr %>%
-                                  dplyr::select(bin.1 = bin, position.1 = start),
+                                  dplyr::select(bin.1 = bin, 
+                                                position.1 = start),
                              by="bin.1") %>%
             dplyr::left_join(posChr %>%
-                                 dplyr::select(bin.2 = bin, position.2 = start),
+                                 dplyr::select(bin.2 = bin, 
+                                               position.2 = start),
                              by="bin.2")
         nblevels <- table(object@conditions)
         nbrows <- 1
@@ -102,7 +105,9 @@ plotDistanceEffect <- function(object) {
         geom_smooth(col = "red") +
         labs(title = "Distance effect")
     p <-
-        ggExtra::ggMarginal(p, margins = "x", type = "histogram", fill = "transparent")
+        ggExtra::ggMarginal(p, margins = "x", 
+                            type = "histogram", 
+                            fill = "transparent")
     return(p)
 }
 
@@ -123,7 +128,9 @@ plotDistanceEffect <- function(object) {
 #' @export
 plotDiffConcordances <- function(object) {
     testSlotsHiCDOC(object,
-                       slots = c("interactions", "differences", "concordances"))
+                       slots = c("interactions", 
+                                 "differences", 
+                                 "concordances"))
 
     changed <- object@differences %>%
         dplyr::select(-c(`padj`)) %>%

@@ -5,10 +5,6 @@
 #' @param chromosomeId the name of the chromosome
 #'
 #' @return a one line tibble
-#'
-#' @examples
-#' object <- HiCDOCExample()
-#' sparsityChromosome(object, "17")
 sparsityChromosome <-
     function(object,
              chromosomeId) {

@@ -293,7 +293,8 @@ parseInteractionMatrixHic <- function(object) {
     object@interactions <- dplyr::bind_rows(matrices) %>% dplyr::as_tibble()
     object@interactions %<>%
         dplyr::mutate(chromosome = factor(chromosome, 
-            levels=gtools::mixedsort(unique(object@interactions$chromosome)))) %>%
+            levels = 
+              gtools::mixedsort(unique(object@interactions$chromosome)))) %>%
         dplyr::mutate(replicate = factor(replicate)) %>%
         dplyr::mutate(condition = factor(condition))
     if(is.integer(object@interactions$value))
@@ -405,7 +406,8 @@ parseInteractionMatrixHicPro <- function(object) {
     object@interactions <- dplyr::bind_rows(matrices) %>% dplyr::as_tibble()
     object@interactions %<>%
       dplyr::mutate(chromosome = factor(chromosome, 
-          levels=gtools::mixedsort(unique(object@interactions$chromosome)))) %>%
+          levels = 
+            gtools::mixedsort(unique(object@interactions$chromosome)))) %>%
       dplyr::mutate(replicate = factor(replicate)) %>%
       dplyr::mutate(condition = factor(condition))
     return(object)

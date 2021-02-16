@@ -2,8 +2,7 @@
 ##----------------------------------------------------------------------------#
 #' Accessors for the 'chromosomes' slot of an HiCDOCDataSet object
 #'
-#' The \code{chromosomes} slot contains the names of the chromosomes, eventually
-#' filtred after \code{filterSmallChromosomes()}
+#' The \code{chromosomes} slot contains the names of the chromosomes.
 #'
 #' @docType methods
 #' @name chromosomes
@@ -278,7 +277,9 @@ setMethod(
         nbCond <- length(unique(object@conditions))
         nbRep <- length(unique(object@replicates))
         cat("Object of class HiCDOCDataSet.\n", "HiCDOC Experiment with:\n")
-        cat(length(object@chromosomes), "chromosomes:", object@chromosomes, "\n")
+        cat(length(object@chromosomes), 
+            "chromosomes:", 
+            object@chromosomes, "\n")
         cat(object@totalReplicates, "replications in",
             length(unique(object@conditions)), "conditions\n")
     }

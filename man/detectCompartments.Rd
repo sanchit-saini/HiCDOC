@@ -16,26 +16,26 @@ detectCompartments(
 \arguments{
 \item{object}{A \code{HiCDOCDataSet} object.}
 
-\item{parallel}{Logical. Should parallel processing be used? 
+\item{parallel}{Logical. Should parallel processing be used?
 Default to FALSE.}
 
 \item{kMeansDelta}{A numerical value. The maximum number of 2-means
-iterations. If NULL, default to the first not NULL of 
+iterations. If NULL, default to the first not NULL of
 \code{object$kMeansDelta} and \code{HiCDOCDefaultParameters$kMeansDelta}.}
 
-\item{kMeansIterations}{A numerical value. The stop criterion of 
-convergence of the 2-means method. If NULL, default to the first not 
+\item{kMeansIterations}{A numerical value. The stop criterion of
+convergence of the 2-means method. If NULL, default to the first not
 NULL of \code{object$kMeansIterations} and
 \code{HiCDOCDefaultParameters$kMeansIterations}.}
 
 \item{kMeansRestarts}{A numerical value. The maximum number of restarts
-for the 2-means. If NULL, default to the first not NULL of 
-\code{object$kMeansRestarts} and 
+for the 2-means. If NULL, default to the first not NULL of
+\code{object$kMeansRestarts} and
 \code{HiCDOCDefaultParameters$kMeansRestarts}.}
 }
 \value{
-A \code{HiCDOCDataSet} object, with centroids, compartments, distances,
-concordances and differences.
+A \code{HiCDOCDataSet} object, with centroids, compartments, 
+distances,concordances and differences.
 }
 \description{
 Detect compartments for each genomic position in each condition, and compute

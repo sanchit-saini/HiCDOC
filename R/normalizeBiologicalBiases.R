@@ -177,7 +177,8 @@ normalizeBiologicalBiases <- function(object) {
     interactionsNorm <-
         purrr::map_dfr(object@chromosomes,
                        function(x) normalizeBiologicalBiasesChr(object, x)) %>%
-        dplyr::mutate(chromosome = factor(chromosome, levels = object@chromosomes)) %>%
+        dplyr::mutate(chromosome = factor(chromosome, 
+                                          levels = object@chromosomes)) %>%
         dplyr::mutate(condition = factor(condition)) %>%
         dplyr::mutate(replicate = factor(replicate))
     object@interactions <- interactionsNorm

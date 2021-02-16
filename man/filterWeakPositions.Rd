@@ -14,8 +14,8 @@ default to the first not NULL of \code{object$weakPosThreshold} and
 \code{HiCDOCDefaultParameters$weakPosThreshold}.}
 }
 \value{
-A \code{HiCDOCDataSet} object with a reduced \code{interactions} slot,
-and the weak bins identified by chromosomes in \code{object@weakBins}.
+A \code{HiCDOCDataSet} object with a reduced \code{interactions} 
+slot, and the weak bins identified by chromosomes in \code{object@weakBins}.
 }
 \description{
 The function indentifies and remove the weak bins of an HiCDOCDataSet object,

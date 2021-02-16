@@ -21,7 +21,8 @@ If number, will be taken in \code{object@chromosomes[chromosomeId]}}
 See \code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.
 Set to NULL for no transformation.}
 
-\item{colours}{character vector, vector of colours to use for n-colour gradient.
+\item{colours}{character vector, vector of colours to use for n-colour 
+gradient.
 Default to \code{c("#000066", "#ffffbf", "#990000")}.}
 }
 \value{

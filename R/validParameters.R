@@ -24,7 +24,8 @@ checkParameters <- function(parameters) {
     includePar <- currentParNames %in% defaultParNames
     if(!(all(includePar))){
         unknownPAr <- currentParNames[!includePar]
-        warning(paste0("unknown parameters: ", paste(unknownPAr, collapse=", "),
+        warning(paste0("unknown parameters: ", 
+                       paste(unknownPAr, collapse=", "),
                        " they will be removed."),
                        call. = FALSE)
         parameters[unknownPAr] <- NULL
@@ -33,7 +34,8 @@ checkParameters <- function(parameters) {
     includePar <- defaultParNames %in% currentParNames
     if(!(all(includePar))){
         knownPAr <- defaultParNames[includePar]
-        warning(paste0("Unfixed parameters: ", paste(unknownPAr, collapse=", "),
+        warning(paste0("Unfixed parameters: ", 
+                       paste(unknownPAr, collapse=", "),
                        " they will be removed."),
                        call. = FALSE)
         tempPar <- HiCDOCDefaultParameters
@@ -63,7 +65,7 @@ testChromosome <- function(object, chromosomeId) {
   stop(paste("Unknown chromosome:", chromosomeId), call. = FALSE)
 }
 
-## - testSlotsHiCDOC -------------------------------------------------------#
+## - testSlotsHiCDOC ----------------------------------------------------------#
 ## ----------------------------------------------------------------------------#
 #' Test the existence of slots in HiCDOCDataSet object
 #'

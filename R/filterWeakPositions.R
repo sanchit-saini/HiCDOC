@@ -99,8 +99,8 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 #' default to the first not NULL of \code{object$weakPosThreshold} and 
 #' \code{HiCDOCDefaultParameters$weakPosThreshold}.
 #'
-#' @return A \code{HiCDOCDataSet} object with a reduced \code{interactions} slot,
-#' and the weak bins identified by chromosomes in \code{object@weakBins}.
+#' @return A \code{HiCDOCDataSet} object with a reduced \code{interactions} 
+#' slot, and the weak bins identified by chromosomes in \code{object@weakBins}.
 #' @export
 #'
 #' @examples

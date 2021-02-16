@@ -1,4 +1,4 @@
-##- normalizeDistanceEffectChr --------------------------------------------------#
+##- normalizeDistanceEffectChr -----------------------------------------------#
 ##----------------------------------------------------------------------------#
 #' Normalize the distance effect using a loess on the intensity vs distance
 #' to diagonal.
@@ -44,8 +44,8 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
             traceL <- m$trace.hat
             sigma2 <- sum(m$residuals ^ 2) / (m$n - 1)
             if (criterion == "aicc") {
-                quality <-
-                    log(sigma2) + 1 + 2 * (2 * (traceL + 1)) / (m$n - traceL - 2)
+                quality <- log(sigma2) + 1 + 
+                    2 * (2 * (traceL + 1)) / (m$n - traceL - 2)
             } else if (criterion == "gcv") {
                 quality <- m$n * sigma2 / (m$n - traceL) ^ 2
             }
@@ -131,7 +131,8 @@ normalizeDistanceEffect <- function(object, sampleSize = NULL) {
     interactionsNorm <-
         purrr::map_dfr(object@chromosomes,
                        function(x) normalizeDistanceEffectChr(object, x)) %>%
-        dplyr::mutate(chromosome = factor(chromosome, levels = object@chromosomes))
+        dplyr::mutate(chromosome = 
+                          factor(chromosome, levels = object@chromosomes))
     object@interactions <- interactionsNorm
 
     return(object)

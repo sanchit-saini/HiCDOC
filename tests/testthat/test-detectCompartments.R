@@ -20,7 +20,7 @@ test_that("detectCompartments behaves as expected", {
     
     # Differences
     expect_equal(nrow(object@differences), 12)
-    expect_equal(nrow(object@differences %>% filter(padj<=0.05)), 6)
+    expect_equal(nrow(object@differences %>% dplyr::filter(padj<=0.05)), 6)
     expect_is(object@differences$chromosome, "factor")
     expect_is(object@differences$condition.1, "factor")
     expect_is(object@differences$condition.2, "factor")
@@ -40,7 +40,8 @@ test_that("detectCompartments behaves as expected", {
     
     # Compartments
     expect_equal(nrow(object@compartments), 478)
-    expect_equal(nrow(object@compartments %>% filter(compartment=="B")), 162)
+    expect_equal(nrow(object@compartments %>% 
+                          dplyr::filter(compartment=="B")), 162)
     expect_is(object@compartments$chromosome, "factor")
     expect_is(object@compartments$condition, "factor")
     expect_is(object@compartments$compartment, "factor")
@@ -48,7 +49,8 @@ test_that("detectCompartments behaves as expected", {
     
     # Concordance
     expect_equal(nrow(object@concordances), 1434)
-    expect_equal(nrow(object@concordances %>% filter(compartment==1)), 798)
+    expect_equal(nrow(object@concordances %>% 
+                          dplyr::filter(compartment==1)), 798)
     expect_equal(mean(object@concordances$concordance), 
                  -0.004183894, tolerance = 1e-05)
     expect_is(object@concordances$chromosome, "factor")
@@ -81,9 +83,10 @@ test_that("detectCompartments behaves as expected", {
 test_that("detectCompartments behaves as expected in parallel", {
     object <- HiCDOCExample()
     # Detect Compartments
-    multiParam <- BiocParallel::MulticoreParam(workers = 3, RNGseed=seed, progressbar = TRUE)
+    multiParam <- BiocParallel::MulticoreParam(workers = 3, progressbar = TRUE)
     BiocParallel::register(multiParam, default = TRUE)
-    expect_message(object <- detectCompartments(object, parallel = TRUE), "Done.")
+    expect_message(object <- detectCompartments(object, parallel = TRUE), 
+                   "Done.")
     # Keep object format
     expect_is(object@interactions$chromosome, "factor")
     expect_is(object@interactions$bin.1, "integer")

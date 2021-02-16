@@ -20,8 +20,9 @@ normalizeTechnicalBiases <- function(object, parallel=FALSE) {
 
     # One matrix by condition and replicate
     matrices <- object@interactions %>% 
-        dplyr::mutate(chromosome = as.integer(factor(chromosome, 
-                                                     levels=object@chromosomes)),
+        dplyr::mutate(chromosome = 
+                          as.integer(factor(chromosome, 
+                                            levels=object@chromosomes)),
                       bin.1 = (bin.1-1) * object@binSize,
                       bin.2 = (bin.2-1) * object@binSize) %>%
         dplyr::group_split(condition, replicate) %>%
@@ -43,9 +44,10 @@ normalizeTechnicalBiases <- function(object, parallel=FALSE) {
             dplyr::mutate(start = (bin -1) * object@binSize,
                           end = (bin * object@binSize) - 1) %>%
             dplyr::select(-bin) %>%
-            dplyr::mutate(chromosome = as.integer(factor(chromosome, 
-                                                         levels=object@chromosomes)))
-        remove.regions <- GenomicRanges::makeGRangesFromDataFrame(remove.regions)
+            dplyr::mutate(chromosome = 
+                as.integer(factor(chromosome, levels=object@chromosomes)))
+        remove.regions <- 
+            GenomicRanges::makeGRangesFromDataFrame(remove.regions)
     } else {
         remove.regions <- NULL
     }

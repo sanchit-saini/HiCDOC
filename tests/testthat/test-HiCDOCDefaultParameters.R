@@ -1,8 +1,9 @@
 test_that("HiCDOCDefaultParameters have the expected format and values", {
     expect_is(HiCDOCDefaultParameters, "list")
     expect_identical(names(HiCDOCDefaultParameters), 
-                     c("minLengthChr", "weakPosThreshold", "sparseThreshold", "sampleSize", 
-                       "kMeansIterations", "kMeansDelta", "kMeansRestarts"))
+                     c("minLengthChr", "weakPosThreshold", "sparseThreshold", 
+                       "sampleSize", "kMeansIterations", "kMeansDelta", 
+                       "kMeansRestarts"))
     expect_equal(HiCDOCDefaultParameters$minLengthChr, 100)
     expect_equal(HiCDOCDefaultParameters$weakPosThreshold, 0)
     expect_equal(HiCDOCDefaultParameters$sparseThreshold, 0.95)

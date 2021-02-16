@@ -1,7 +1,8 @@
 test_that("normalizeBiologicalBiases behaves as expected", {
     object <- HiCDOCExample()
     # Apply normalization
-    expect_message(object <- normalizeBiologicalBiases(object), "Chromosome: 17")
+    expect_message(object <- normalizeBiologicalBiases(object), 
+                   "Chromosome: 18")
     # Keep object format
     expect_is(object@interactions$chromosome, "factor")
     expect_is(object@interactions$bin.1, "integer")
