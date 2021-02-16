@@ -65,8 +65,11 @@ parseInteractionMatrix3Columns <- function(object) {
         dplyr::mutate(
             chromosome = factor(chromosome),
             condition = factor(condition),
-            replicate = factor(replicate)
+            replicate = factor(replicate),
+            value = as.numeric(value)
         )
+    if(!is.numeric(object@interactions$value)) 
+        object@interactions$value <- as.numeric(object@interactions$value)
     return(object)
 }
 
@@ -147,6 +150,9 @@ parseCoolMatrix <- function(fileName) {
     dplyr::select(-chromosome.2) %>%
     dplyr::rename(chromosome = chromosome.1) %>%
     dplyr::select(chromosome, position.1, position.2, value)
+  
+    if(!is.numeric(value)) data <- data %>%
+        dplyr::mutate(value=as.numeric(value))
 
     return(data)
 }
@@ -290,6 +296,8 @@ parseInteractionMatrixHic <- function(object) {
             levels=gtools::mixedsort(unique(object@interactions$chromosome)))) %>%
         dplyr::mutate(replicate = factor(replicate)) %>%
         dplyr::mutate(condition = factor(condition))
+    if(!is.numeric(object@interactions$value))
+        object@interactions$value <- as.numeric(object@interactions$value)
     return(object)
 }
 
@@ -360,7 +368,8 @@ parseHicPro <- function(vectFiles) {
                      position.1, 
                      position.2, 
                      value)
-    
+    if(!is.numeric(matrixDf$value))
+        matrixDf$value <- as.numeric(matrixDf$value)
     return(list("matrix" = matrixDf, 
                 "resolution" = resolution, 
                 "positions" = positions))
