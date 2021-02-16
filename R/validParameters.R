@@ -63,25 +63,6 @@ testChromosome <- function(object, chromosomeId) {
   stop(paste("Unknown chromosome:", chromosomeId), call. = FALSE)
 }
 
-## - testCondition -----------------------------------------------------------#
-## ---------------------------------------------------------------------------#
-#' Test the existence of a given condition in a HiCDOC object
-#'
-#' @param object A \code{HiCDOCDataSet} object.
-#' @param conditionId    A character or numeric value
-#'
-#' @return The condition name, or an error.
-testCondition <- function(object, conditionId) {
-  if (conditionId %in% object@conditions) {
-    return(conditionId)
-  }
-  uniquecond <- unique(object@conditions)
-  if (is.numeric(conditionId) && conditionId %in% seq_len(length(uniquecond))) {
-    return(uniquecond[conditionId])
-  }
-  stop(paste("Unknown condition:", conditionId), call. = FALSE)
-}
-
 ## - testSlotsHiCDOC -------------------------------------------------------#
 ## ----------------------------------------------------------------------------#
 #' Test the existence of slots in HiCDOCDataSet object
