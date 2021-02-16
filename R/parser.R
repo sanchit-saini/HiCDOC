@@ -68,7 +68,7 @@ parseInteractionMatrix3Columns <- function(object) {
             replicate = factor(replicate),
             value = as.numeric(value)
         )
-    if(!is.numeric(object@interactions$value)) 
+    if(is.integer(object@interactions$value)) 
         object@interactions$value <- as.numeric(object@interactions$value)
     return(object)
 }
@@ -151,8 +151,8 @@ parseCoolMatrix <- function(fileName) {
     dplyr::rename(chromosome = chromosome.1) %>%
     dplyr::select(chromosome, position.1, position.2, value)
   
-    if(!is.numeric(value)) data <- data %>%
-        dplyr::mutate(value=as.numeric(value))
+    if(is.integer(data$value)) 
+      data <- data %>% dplyr::mutate(value=as.numeric(value))
 
     return(data)
 }
@@ -296,7 +296,7 @@ parseInteractionMatrixHic <- function(object) {
             levels=gtools::mixedsort(unique(object@interactions$chromosome)))) %>%
         dplyr::mutate(replicate = factor(replicate)) %>%
         dplyr::mutate(condition = factor(condition))
-    if(!is.numeric(object@interactions$value))
+    if(is.integer(object@interactions$value))
         object@interactions$value <- as.numeric(object@interactions$value)
     return(object)
 }
@@ -368,7 +368,7 @@ parseHicPro <- function(vectFiles) {
                      position.1, 
                      position.2, 
                      value)
-    if(!is.numeric(matrixDf$value))
+    if(is.integer(matrixDf$value))
         matrixDf$value <- as.numeric(matrixDf$value)
     return(list("matrix" = matrixDf, 
                 "resolution" = resolution, 
