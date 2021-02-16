@@ -70,40 +70,6 @@ parseInteractionMatrix3Columns <- function(object) {
     return(object)
 }
 
-
-##- h5readCatch --------------------------------------------------------------#
-##----------------------------------------------------------------------------#
-#' Read an HDF5 file, and extract a field.
-#' It raises an exception if the field is not present.
-#'
-#' @name h5readCatch
-#' @rdname h5readCatch
-#'
-#' @aliases h5readCatch
-#'
-#' @param file The name of a file in HDF5 format.
-#' @param name The name a field name.
-#'
-#' @return The value associated with the field.
-h5readCatch <- function(file, name) {
-    return(tryCatch(
-        rhdf5::h5read(file = file, name = name),
-        error = function(e) {
-            stop(
-                paste0(
-                    "The file '",
-                    file,
-                    "' does not seem to have the .cool format: ",
-                    "path '",
-                    name,
-                    "' is missing."
-                ),
-                call. = FALSE
-            )
-        }
-    ))
-}
-
 ##- parseCoolMatrix ----------------------------------------------------------#
 ##----------------------------------------------------------------------------#
 #' Parse a single interaction matrix in .(m)cool format.
@@ -122,15 +88,15 @@ parseCoolMatrix <- function(fileName) {
   fileUri <- ifelse(length(splitName) > 1, splitName[2], '')
   uri <- function(path) { return(paste(fileUri, path, sep='/')) }
   bins <- dplyr::tibble(
-    chromosome = factor(h5readCatch(
+    chromosome = factor(rhdf5::h5read(
       file = filePath,
       name = uri("bins/chrom")
     )),
-    start = h5readCatch(
+    start = rhdf5::h5read(
       file = filePath,
       name = uri("bins/start")
     ),
-    end = h5readCatch(
+    end = rhdf5::h5read(
       file = filePath,
       name = uri("bins/end")
     )
@@ -152,15 +118,15 @@ parseCoolMatrix <- function(fileName) {
   rownames(bins) <- NULL
 
   data <- dplyr::tibble(
-    id1 = h5readCatch(
+    id1 = rhdf5::h5read(
       file = filePath,
       name = uri("pixels/bin1_id")
     ),
-    id2 = h5readCatch(
+    id2 = rhdf5::h5read(
       file = filePath,
       name = uri("pixels/bin2_id")
     ),
-    value = h5readCatch(
+    value = rhdf5::h5read(
       file = filePath,
       name = uri("pixels/count")
     )
