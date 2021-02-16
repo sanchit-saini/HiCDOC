@@ -1,12 +1,21 @@
+#' sparsityChromosome
+#' Compute the maximum of sparsity of a given chromosome
+#'
+#' @param object a HiCDOCDataSet object
+#' @param chromosomeId the name of the chromosome
+#'
+#' @return a one line tibble
+#'
+#' @examples
+#' object <- HiCDOCExample()
+#' sparsityChromosome(object, "17")
 sparsityChromosome <-
     function(object,
-             chromosomeId = 1,
-             pctFill = 0.05) {
-        chr <- testChromosome(object, chromosomeId)
+             chromosomeId) {
         interactionsChr <- object@interactions %>%
-            dplyr::filter(chromosome == chr) %>%
+            dplyr::filter(chromosome == chromosomeId) %>%
             dplyr::filter(value > 0)
-        totalCells <- object@totalBins[chr] ^ 2
+        totalCells <- object@totalBins[chromosomeId] ^ 2
         
         pctFill <- interactionsChr %>%
             dplyr::mutate(value = ifelse(bin.1 == bin.2, 1, 2)) %>%
@@ -18,9 +27,9 @@ sparsityChromosome <-
         pctFill %<>%
             dplyr::summarise(maxSparsity = max(pctSparse, na.rm = TRUE)) %>%
             dplyr::mutate(
-                totalBins = object@totalBins[chr],
+                totalBins = object@totalBins[chromosomeId],
                 totalCells = totalCells,
-                chromosome = factor(chr, levels = object@chromosomes)
+                chromosome = factor(chromosomeId, levels = object@chromosomes)
             ) %>%
             dplyr::mutate(quality = ifelse(
                 maxSparsity < 0.001,
@@ -72,8 +81,7 @@ filterSparseChromosomes <-
             purrr::map_dfr(object@chromosomes,
                            function(x)
                                sparsityChromosome(object, 
-                                                  x, 
-                                                  pctFill = thresh))
+                                                  x))
         # Remove chromosomes
         if (removeChromosomes == TRUE) {
             sparseChromosomes <- chrQuality %>%
