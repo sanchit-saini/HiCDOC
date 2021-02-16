@@ -113,16 +113,19 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
             "totalBins"
         )
     )
-    chr <- testChromosome(object, chromosomeId)
-    message("Chromosome: ", chr)
+    message("Chromosome: ", chromosomeId)
 
-    if (object@totalBins[[chr]] == -Inf)
+    if (object@totalBins[[chromosomeId]] == -Inf)
         return(NULL)
 
     rawMatrices    <-
         mapply(
             function(x, y)
-                sparseInteractionsToMatrix(object, chr, x, y, filter = TRUE),
+                sparseInteractionsToMatrix(object, 
+                                           chromosomeId, 
+                                           x, 
+                                           y, 
+                                           filter = TRUE),
             object@conditions,
             object@replicates,
             SIMPLIFY = FALSE
@@ -150,7 +153,7 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
              object@conditions,
              object@replicates),
         .f = function(x, y, z)
-            matrixToSparseInteractions(x, object, chr, y, z)
+            matrixToSparseInteractions(x, object, chromosomeId, y, z)
     )
     return(interactionsChr)
 }
@@ -167,8 +170,6 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
 #'
 #' @examples
 #' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
 #' object <- normalizeTechnicalBiases(object)
 #' object <- normalizeBiologicalBiases(object)
 #' @export

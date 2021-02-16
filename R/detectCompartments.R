@@ -120,10 +120,7 @@ tieCentroids <- function(object) {
 #' - distances to centroids (float) for each genomic position in each replicate
 #' - concordance (float in [-1, 1]) for each genomic position in each replicate
 clusterizeChrCond <- function(object, chromosomeId, conditionId) {
-    chr <- testChromosome(object, chromosomeId)
-    cond <- testCondition(object, conditionId)
-    
-    totalBinsChr <- object@totalBins[[chr]]
+    totalBinsChr <- object@totalBins[[chromosomeId]]
     if (totalBinsChr == -Inf)
         return(NULL)
     
@@ -137,12 +134,12 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
     }
     
     replicates <-
-        object@replicates[which(object@conditions == cond)]
+        object@replicates[which(object@conditions == conditionId)]
     
     replicateInteractions <- purrr::map(replicates, function(x)
         sparseInteractionsToMatrix(object,
-                                   chr,
-                                   cond,
+                                   chromosomeId,
+                                   conditionId,
                                    x, filter = TRUE))
     interactions <- do.call("rbind", replicateInteractions)
     
@@ -177,9 +174,9 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
     })
     
     dfCompartments <- dplyr::tibble(
-        chromosome = factor(chr, levels = object@chromosomes),
+        chromosome = factor(chromosomeId, levels = object@chromosomes),
         bin = positions,
-        condition = factor(cond, levels = unique(object@conditions)),
+        condition = factor(conditionId, levels = unique(object@conditions)),
         compartment = factor(clusters, levels = c(1, 2))
     )
     
@@ -205,8 +202,8 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
                       distance = c(t(distances)))
     
     dfCentroids <- dplyr::tibble(
-        chromosome = factor(chr, levels = object@chromosomes),
-        condition = factor(cond, levels = unique(object@conditions)),
+        chromosome = factor(chromosomeId, levels = object@chromosomes),
+        condition = factor(conditionId, levels = unique(object@conditions)),
         compartment = factor(c(1, 2)),
         centroid = centroids
     )

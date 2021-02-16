@@ -15,12 +15,11 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
                        slots = c("interactions",
                                  "binSize",
                                  "weakBins"))
-    chr <- testChromosome(object, chromosomeId)
     
-    message("Chromosome: ", chr)
+    message("Chromosome: ", chromosomeId)
 
     interactionsChr <- object@interactions %>%
-        dplyr::filter(chromosome == chr & value > 0) %>%
+        dplyr::filter(chromosome == chromosomeId & value > 0) %>%
         dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize)
 
     sample <- interactionsChr %>%

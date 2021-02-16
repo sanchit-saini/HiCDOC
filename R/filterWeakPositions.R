@@ -26,14 +26,13 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
             "totalBins"
         )
     )
-    chr <- testChromosome(object, chromosomeId)
 
     # Initialization
     interChr <- object@interactions %>%
-        dplyr::filter(chromosome == chr) %>%
+        dplyr::filter(chromosome == chromosomeId) %>%
         dplyr::filter(value > 0)
 
-    totalBinsChr <- object@totalBins[[chr]]
+    totalBinsChr <- object@totalBins[[chromosomeId]]
     fullPos <- seq_len(totalBinsChr)
     removedBins <-
         fullPos[!(fullPos %in%
@@ -87,7 +86,7 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 
     message(paste0(
         "Chromosome ",
-        chr,
+        chromosomeId,
         ": ",
         length(removedBins),
         " position(s) removed"
