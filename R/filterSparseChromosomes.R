@@ -72,7 +72,7 @@ filterSparseChromosomes <-
              removeChromosomes = TRUE) {
         # Parameters
         if (!is.null(thresholdSparseMatrix)) {
-            object@parameters$sparseThreshold. <- thresholdSparseMatrix
+            object@parameters$sparseThreshold <- thresholdSparseMatrix
         }
         object@parameters <- checkParameters(object@parameters)
         thresh <- object@parameters$sparseThreshold
