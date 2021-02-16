@@ -258,7 +258,8 @@ clusterize <- function(object,
                 redobjects,
                 vectChr,
                 vectCond,
-                SIMPLIFY = FALSE
+                SIMPLIFY = FALSE, 
+                BPPARAM = BiocParallel::bpparam()
             )
     }
     
@@ -373,7 +374,8 @@ predictAB <- function(object,
             chromosomeIds,
             conditionIds,
             replicateIds,
-            SIMPLIFY = FALSE
+            SIMPLIFY = FALSE, 
+            BPPARAM = BiocParallel::bpparam()
         )
         object@diagonalRatios <-
             do.call("rbind", object@diagonalRatios)
