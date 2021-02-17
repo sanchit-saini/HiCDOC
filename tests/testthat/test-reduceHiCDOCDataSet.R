@@ -1,29 +1,30 @@
-ostart <- HiCDOCExample()
-# Run a detectCompartments
-obj <- detectCompartments(ostart)
-
 test_that("reduceHiCDOCDataSet return correct errors", {
+    object <- HiCDOCExample()
     # On chromosomes
-    expect_error(reduceHiCDOCDataSet(ostart, chromosomes = c(3, 4)), 
+    expect_error(reduceHiCDOCDataSet(object, chromosomes = c(3, 4)), 
                  "Unknown chromosomes")
-    expect_error(reduceHiCDOCDataSet(ostart, chromosomes = "chr1"), 
+    expect_error(reduceHiCDOCDataSet(object, chromosomes = "chr1"), 
                  "Unknown chromosome")
     # On conditions
-    expect_error(reduceHiCDOCDataSet(ostart, conditions = c(2, 3)),
+    expect_error(reduceHiCDOCDataSet(object, conditions = c(2, 3)),
                  "Unknown conditions")
-    expect_error(reduceHiCDOCDataSet(ostart, conditions = "cond1"),
+    expect_error(reduceHiCDOCDataSet(object, conditions = "cond1"),
                  "Unknown condition")
     # On replicates
-    expect_error(reduceHiCDOCDataSet(ostart, replicates = c(3, 4)),
+    expect_error(reduceHiCDOCDataSet(object, replicates = c(3, 4)),
                  "Unknown replicates")
-    expect_error(reduceHiCDOCDataSet(ostart, replicates = "rep1"),
+    expect_error(reduceHiCDOCDataSet(object, replicates = "rep1"),
                  "Unknown replicate")
 })
 
 test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
-    expect_warning(obj <- reduceHiCDOCDataSet(object2, 
-                                                    chromosomes=c("17")), 
-                   "You should not reduce an HiCDOCDataSet ostart after")
+    obj <- HiCDOCExample()
+    # Run a detectCompartments
+    obj <- detectCompartments(obj)
+    expect_warning(obj <- reduceHiCDOCDataSet(obj, 
+                                              
+                                              chromosomes=c("17")), 
+                   "You should not reduce an HiCDOCDataSet object after")
     # Chromosomes
     expect_identical(obj@chromosomes, "17")
     expect_identical(obj@totalBins, c("17" = 127))
@@ -57,11 +58,14 @@ test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
 })
 
 test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
+    obj <- HiCDOCExample()
+    # Run a detectCompartments
+    obj <- detectCompartments(obj)
     expect_warning(
-        obj <- reduceHiCDOCDataSet(object2, 
+        obj <- reduceHiCDOCDataSet(obj, 
                                          chromosomes=c("17"), 
                                          dropLevels = FALSE), 
-        "You should not reduce an HiCDOCDataSet ostart after")
+        "You should not reduce an HiCDOCDataSet object after")
     # Chromosomes
     expect_identical(obj@chromosomes, "17")
     expect_identical(obj@totalBins, c("17" = 127))
@@ -97,9 +101,12 @@ test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
 })
 
 test_that("reduceHiCDOCDataSet works if select conditions, dropLevels", {
+    obj <- HiCDOCExample()
+    # Run a detectCompartments
+    obj <- detectCompartments(obj)
     expect_warning(
-        obj <- reduceHiCDOCDataSet(object2, conditions =c("1")), 
-        "You should not reduce an HiCDOCDataSet ostart after")
+        obj <- reduceHiCDOCDataSet(obj, conditions =c("1")), 
+        "You should not reduce an HiCDOCDataSet object after")
     # Chromosomes
     expect_identical(obj@chromosomes, c("17", "18"))
     expect_identical(obj@totalBins, c("17" = 127, "18" = 112))
@@ -134,9 +141,12 @@ test_that("reduceHiCDOCDataSet works if select conditions, dropLevels", {
 
 
 test_that("reduceHiCDOCDataSet works if select replicate, dropLevels", {
+    obj <- HiCDOCExample()
+    # Run a detectCompartments
+    obj <- detectCompartments(obj)
     expect_warning(
-        obj <- reduceHiCDOCDataSet(object2, replicate =c("1")), 
-        "You should not reduce an HiCDOCDataSet ostart after")
+        obj <- reduceHiCDOCDataSet(obj, replicate =c("1")), 
+        "You should not reduce an HiCDOCDataSet object after")
     # Chromosomes
     expect_identical(obj@chromosomes, c("17", "18"))
     expect_identical(obj@totalBins, c("17" = 127, "18" = 112))
@@ -170,14 +180,17 @@ test_that("reduceHiCDOCDataSet works if select replicate, dropLevels", {
 })
 
 test_that("reduceHiCDOCDataSet works if select chr, cond & rep, keep levels", {
+    obj <- HiCDOCExample()
+    # Run a detectCompartments
+    obj <- detectCompartments(obj)
     # This case is used in detectCompartments, in parallel mode
     expect_warning(
-        obj <- reduceHiCDOCDataSet(object2, 
+        obj <- reduceHiCDOCDataSet(obj, 
                                       chromosomes = "18",
                                       replicate = "3",
                                       condition = "2",
                                       dropLevels = FALSE), 
-        "You should not reduce an HiCDOCDataSet ostart after")
+        "You should not reduce an HiCDOCDataSet object after")
     # Chromosomes
     expect_identical(obj@chromosomes, "18")
     expect_identical(obj@totalBins, c("18" = 112))

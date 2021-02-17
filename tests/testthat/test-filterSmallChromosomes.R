@@ -1,6 +1,5 @@
-object <- HiCDOCExample()
-
 test_that("filterSmallChromosomes behave as expected if no filter", {
+    object <- HiCDOCExample()
     # No filter on the example dataset
     expect_message(object <- filterSmallChromosomes(object), 
                    "Keeping only the chromosomes with 100 bins or more")
@@ -9,6 +8,7 @@ test_that("filterSmallChromosomes behave as expected if no filter", {
 })
 
 test_that("filterSmallChromosomes behave as expected with filter", {
+    object <- HiCDOCExample()
     # Filter on 1 chromosome
     expect_message(object <- filterSmallChromosomes(object, 115), 
                    "Keeping only the chromosomes with 115 bins or more")

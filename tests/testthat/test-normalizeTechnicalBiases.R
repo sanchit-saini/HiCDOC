@@ -1,8 +1,7 @@
-object <- HiCDOCExample()
-
 test_that("normalizeTechnicalBiases behaves as expected", {
+    obj <- HiCDOCExample()
     # Apply normalization
-    expect_warning(obj <- normalizeTechnicalBiases(object))
+    expect_warning(obj <- normalizeTechnicalBiases(obj))
     # Keep obj format
     expect_is(obj@interactions$chromosome, "factor")
     expect_is(obj@interactions$bin.1, "integer")
@@ -19,10 +18,11 @@ test_that("normalizeTechnicalBiases behaves as expected", {
 
 
 test_that("normalizeTechnicalBiases behaves as expected in parallel", {
+    obj <- HiCDOCExample()
     multiParam <- BiocParallel::MulticoreParam(workers = 3)
     BiocParallel::register(multiParam, default = TRUE)
     # Apply normalization
-    obj <- normalizeTechnicalBiases(object, parallel = TRUE)
+    obj <- normalizeTechnicalBiases(obj, parallel = TRUE)
     # Keep obj format
     expect_is(obj@interactions$chromosome, "factor")
     expect_is(obj@interactions$bin.1, "integer")

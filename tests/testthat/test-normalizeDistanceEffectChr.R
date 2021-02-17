@@ -1,6 +1,5 @@
-obj <- HiCDOCExample()
-
 test_that("normalizeDistanceEffect behaves as expected", {
+    obj <- HiCDOCExample()
     # Apply normalization
     set.seed(123)
     expect_warning(obj <- normalizeDistanceEffect(obj))

@@ -1,14 +1,34 @@
-test_that("HiCDOCExample produce object with correct format", {
-    expect_error(object <- HiCDOCExample(), NA)
+test_that("HiCDOCDataSetFromSparseMatrix produce correct format", {
+    linkToMatrix <- system.file("extdata",
+                                "sampleMatrix.tsv",
+                                package = "HiCDOC")
+    expect_error(object <-
+                     HiCDOCDataSetFromSparseMatrix(linkToMatrix), NA)
     # Class and slots
     expect_is(object, "HiCDOCDataSet")
-    expect_identical(slotNames(object), 
-                     c("inputPath", "interactions", "weakBins", 
-                     "chromosomes", "replicates", "totalReplicates", 
-                     "totalReplicatesPerCondition", "conditions", "totalBins", 
-                     "binSize", "distances", "diagonalRatios", 
-                     "compartments", "concordances", "differences", 
-                     "centroids", "parameters", "positions"))
+    expect_identical(
+        slotNames(object),
+        c(
+            "inputPath",
+            "interactions",
+            "weakBins",
+            "chromosomes",
+            "replicates",
+            "totalReplicates",
+            "totalReplicatesPerCondition",
+            "conditions",
+            "totalBins",
+            "binSize",
+            "distances",
+            "diagonalRatios",
+            "compartments",
+            "concordances",
+            "differences",
+            "centroids",
+            "parameters",
+            "positions"
+        )
+    )
     # Class of slots
     expect_is(object@inputPath, "character")
     expect_is(object@interactions, "tbl_df")
@@ -42,8 +62,13 @@ test_that("HiCDOCExample produce object with correct format", {
     expect_is(object@positions$end, "numeric")
 })
 
-test_that("HiCDOCExample produce object with correct values", {
-    object <- HiCDOCExample()
+test_that("HiCDOCDataSetFromSparseMatrix produce correct values", {
+    linkToMatrix <- system.file("extdata",
+                                "sampleMatrix.tsv",
+                                package = "HiCDOC")
+    expect_error(object <-
+                     HiCDOCDataSetFromSparseMatrix(linkToMatrix), NA)
+    
     # Interactions
     expect_equal(nrow(object@interactions), 86736)
     expect_equal(mean(object@interactions$bin.1), 40.81129, tolerance = 1e-5)
@@ -68,4 +93,3 @@ test_that("HiCDOCExample produce object with correct values", {
     expect_equal(mean(object@positions$start), 29742678)
     expect_equal(mean(object@positions$end), 30242677)
 })
-
