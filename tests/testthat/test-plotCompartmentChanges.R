@@ -1,12 +1,14 @@
 test_that("plotCompartmentChanges behaves as expected", {
     object <- HiCDOCExample()
-    expect_error(pp <- plotCompartmentChanges(object), 
-                 "Please run 'detectCompartments' first.")
+    expect_error(
+        pp <- plotCompartmentChanges(object),
+        "Please run 'detectCompartments' first."
+    )
     set.seed(3215)
     object <- detectCompartments(object)
     expect_error(plotCompartmentChanges(object), 'chromosomeId" est manquant')
-    expect_error(plotCompartmentChanges(object, 3), 'Unknown')
-    
+    expect_error(plotCompartmentChanges(object, 3), "Unknown")
+
     pp <- plotCompartmentChanges(object, 1)
     expect_is(pp, "ggplot")
     expect_is(pp$labels, "list")

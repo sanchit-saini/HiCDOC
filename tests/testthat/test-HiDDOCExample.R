@@ -2,13 +2,17 @@ test_that("HiCDOCExample produce object with correct format", {
     expect_error(object <- HiCDOCExample(), NA)
     # Class and slots
     expect_is(object, "HiCDOCDataSet")
-    expect_identical(slotNames(object), 
-                     c("inputPath", "interactions", "weakBins", 
-                     "chromosomes", "replicates", "totalReplicates", 
-                     "totalReplicatesPerCondition", "conditions", "totalBins", 
-                     "binSize", "distances", "diagonalRatios", 
-                     "compartments", "concordances", "differences", 
-                     "centroids", "parameters", "positions"))
+    expect_identical(
+        slotNames(object),
+        c(
+            "inputPath", "interactions", "weakBins",
+            "chromosomes", "replicates", "totalReplicates",
+            "totalReplicatesPerCondition", "conditions", "totalBins",
+            "binSize", "distances", "diagonalRatios",
+            "compartments", "concordances", "differences",
+            "centroids", "parameters", "positions"
+        )
+    )
     # Class of slots
     expect_is(object@inputPath, "character")
     expect_is(object@interactions, "tbl_df")
@@ -34,12 +38,12 @@ test_that("HiCDOCExample produce object with correct format", {
     expect_is(object@interactions$bin.2, "integer")
     expect_is(object@interactions$condition, "factor")
     expect_is(object@interactions$replicate, "factor")
-    expect_is(object@interactions$value, "numeric")
+    expect_true(is.numeric(object@interactions$value))
     # Positions
     expect_is(object@positions$chromosome, "factor")
     expect_is(object@positions$bin, "integer")
-    expect_is(object@positions$start, "numeric")
-    expect_is(object@positions$end, "numeric")
+    expect_true(is.numeric(object@positions$start))
+    expect_true(is.numeric(object@positions$end))
 })
 
 test_that("HiCDOCExample produce object with correct values", {
@@ -68,4 +72,3 @@ test_that("HiCDOCExample produce object with correct values", {
     expect_equal(mean(object@positions$start), 29742678)
     expect_equal(mean(object@positions$end), 30242677)
 })
-

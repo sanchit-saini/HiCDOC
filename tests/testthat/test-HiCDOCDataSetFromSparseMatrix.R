@@ -1,9 +1,10 @@
 test_that("HiCDOCDataSetFromSparseMatrix produce correct format", {
     linkToMatrix <- system.file("extdata",
-                                "sampleMatrix.tsv",
-                                package = "HiCDOC")
+        "sampleMatrix.tsv",
+        package = "HiCDOC"
+    )
     expect_error(object <-
-                     HiCDOCDataSetFromSparseMatrix(linkToMatrix), NA)
+        HiCDOCDataSetFromSparseMatrix(linkToMatrix), NA)
     # Class and slots
     expect_is(object, "HiCDOCDataSet")
     expect_identical(
@@ -54,21 +55,22 @@ test_that("HiCDOCDataSetFromSparseMatrix produce correct format", {
     expect_is(object@interactions$bin.2, "integer")
     expect_is(object@interactions$condition, "factor")
     expect_is(object@interactions$replicate, "factor")
-    expect_is(object@interactions$value, "numeric")
+    expect_true(is.numeric(object@interactions$value))
     # Positions
     expect_is(object@positions$chromosome, "factor")
     expect_is(object@positions$bin, "integer")
-    expect_is(object@positions$start, "numeric")
-    expect_is(object@positions$end, "numeric")
+    expect_true(is.numeric(object@positions$start))
+    expect_true(is.numeric(object@positions$end))
 })
 
 test_that("HiCDOCDataSetFromSparseMatrix produce correct values", {
     linkToMatrix <- system.file("extdata",
-                                "sampleMatrix.tsv",
-                                package = "HiCDOC")
+        "sampleMatrix.tsv",
+        package = "HiCDOC"
+    )
     expect_error(object <-
-                     HiCDOCDataSetFromSparseMatrix(linkToMatrix), NA)
-    
+        HiCDOCDataSetFromSparseMatrix(linkToMatrix), NA)
+
     # Interactions
     expect_equal(nrow(object@interactions), 86736)
     expect_equal(mean(object@interactions$bin.1), 40.81129, tolerance = 1e-5)

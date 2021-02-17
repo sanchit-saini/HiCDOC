@@ -1,11 +1,14 @@
 test_that("HiCDOCDataSetFromCool produce correct format", {
-    basedir <- system.file("extdata", package="HiCDOC")
+    basedir <- system.file("extdata", package = "HiCDOC")
     data <- read.csv(file.path(basedir, "coolData.csv"))
     expect_error(
-        object <- HiCDOCDataSetFromCool(file.path(basedir, data$FileName),
-                                         data$Replicate,
-                                         data$Condition),
-        NA)
+        object <- HiCDOCDataSetFromCool(
+            file.path(basedir, data$FileName),
+            data$Replicate,
+            data$Condition
+        ),
+        NA
+    )
     # Class and slots
     expect_is(object, "HiCDOCDataSet")
     expect_identical(
@@ -56,10 +59,10 @@ test_that("HiCDOCDataSetFromCool produce correct format", {
     expect_is(object@interactions$bin.2, "integer")
     expect_is(object@interactions$condition, "factor")
     expect_is(object@interactions$replicate, "factor")
-    expect_is(object@interactions$value, "numeric")
+    expect_true(is.numeric(object@interactions$value))
     # Positions
     expect_is(object@positions$chromosome, "factor")
     expect_is(object@positions$bin, "integer")
-    expect_is(object@positions$start, "numeric")
-    expect_is(object@positions$end, "numeric")
+    expect_true(is.numeric(object@positions$start))
+    expect_true(is.numeric(object@positions$end))
 })
