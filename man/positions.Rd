@@ -20,5 +20,4 @@ The \code{positions} slot contains the positions of the bins, by chromosome
 \examples{
 exp <- HiCDOCExample()
 positions(exp)
-
 }

@@ -21,13 +21,13 @@ reduceHiCDOCDataSet(
 
 \item{replicates}{default to NULL, replicates ID to keep}
 
-\item{dropLevels}{Logical, default to TRUE. Chromosomes, conditions and 
-replicates are in factor format, should the unused levels be removed ? 
-It should be set to FALSE if reduced objects are meant to be re-combined 
+\item{dropLevels}{Logical, default to TRUE. Chromosomes, conditions and
+replicates are in factor format, should the unused levels be removed ?
+It should be set to FALSE if reduced objects are meant to be re-combined
 later.}
 }
 \value{
-a HiCDOCDataSET object, reduced by keeping only the chromosomes, 
+a HiCDOCDataSET object, reduced by keeping only the chromosomes,
 conditions or replicates given in parameters
 }
 \description{
@@ -35,5 +35,5 @@ reduce an HiCDOCDataSet
 }
 \examples{
 object <- HiCDOCExample()
-objSmall <-reduceHiCDOCDataSet(object, chromosomes = "17", replicates = "1")
+objSmall <- reduceHiCDOCDataSet(object, chromosomes = "17", replicates = "1")
 }

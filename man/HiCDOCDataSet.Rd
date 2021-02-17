@@ -72,6 +72,6 @@ segmentation methods. See \code{\link{parameters}}.}
 }}
 
 \examples{
-linkToMatrix <- system.file("extdata", "sampleMatrix.tsv", package="HiCDOC")
+linkToMatrix <- system.file("extdata", "sampleMatrix.tsv", package = "HiCDOC")
 srnaDataSet <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
 }

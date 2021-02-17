@@ -19,7 +19,7 @@ filterSparseChromosomes(
 
 \item{thresholdSparseMatrix}{A numerical value. The sparsity threshold
 from which a chromosome will be removed, if \code{removeChromosomes} is TRUE.
-If NULL, default to the first not NULL of \code{object$sparseThreshold.} and 
+If NULL, default to the first not NULL of \code{object$sparseThreshold.} and
 \code{HiCDOCDefaultParameters$sparseThreshold.}.}
 
 \item{removeChromosomes}{Logical, default to TRUE. Should the function

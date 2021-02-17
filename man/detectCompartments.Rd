@@ -34,7 +34,7 @@ for the 2-means. If NULL, default to the first not NULL of
 \code{HiCDOCDefaultParameters$kMeansRestarts}.}
 }
 \value{
-A \code{HiCDOCDataSet} object, with centroids, compartments, 
+A \code{HiCDOCDataSet} object, with centroids, compartments,
 distances,concordances and differences.
 }
 \description{

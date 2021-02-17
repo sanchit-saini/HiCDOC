@@ -13,19 +13,19 @@ plotConcordance(
 )
 }
 \arguments{
-\item{object}{A \code{HiCDOCDataSet} object on which 
+\item{object}{A \code{HiCDOCDataSet} object on which
 \code{detectCompartments()} has run.}
 
 \item{chromosomeId}{The name or number of the chromosome to plot.
 If number, will be taken in \code{object@chromosomes[chromosomeId]}}
 
-\item{xlim}{A numeric-value pair, indicating the interval of positions 
+\item{xlim}{A numeric-value pair, indicating the interval of positions
 to represent.
 Default to NULL = all positions.}
 
 \item{padjThreshold}{Significance threshold for the changes. Default to 0.05.}
 
-\item{points}{Logical (default to FALSE). If TRUE, points will be added 
+\item{points}{Logical (default to FALSE). If TRUE, points will be added
 on the concordance lines.}
 }
 \value{

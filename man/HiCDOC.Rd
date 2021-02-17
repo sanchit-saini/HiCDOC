@@ -23,8 +23,7 @@ TODO
 \examples{
 object <- HiCDOCExample()
 object <- HiCDOC(object)
-#TODO
-
+# TODO
 }
 \author{
 Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac and

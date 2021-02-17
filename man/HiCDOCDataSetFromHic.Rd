@@ -11,11 +11,11 @@ HiCDOCDataSetFromHic(hicFileNames, replicates, conditions, resolution)
 \item{hicFileNames}{A vector of file names, each one being a .hic file.}
 
 \item{replicates}{character vector. The list of the replicate names.
-This vector can have repeated values if the replicates are repeated 
+This vector can have repeated values if the replicates are repeated
 over the conditions.}
 
-\item{conditions}{character vector. The names of the two conditions. 
-This should be repeated values of the names, the vector should have the 
+\item{conditions}{character vector. The names of the two conditions.
+This should be repeated values of the names, the vector should have the
 same size as \code{replicates}.}
 
 \item{resolution}{integer. The resolution of the matrices.}

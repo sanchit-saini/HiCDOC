@@ -23,5 +23,4 @@ This function extracts the differentially interacting regions from
 exp <- HiCDOCExample()
 exp <- HiCDOC(exp)
 differences(exp)
-
 }

@@ -21,5 +21,4 @@ This function extracts the compartments from \code{\link{HiCDOCDataSet}}.
 exp <- HiCDOCExample()
 exp <- HiCDOC(exp)
 compartments(exp)
-
 }

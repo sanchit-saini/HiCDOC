@@ -16,10 +16,3 @@ object An \code{HiCDOCDataSet} object.
 This function parses the tsv files provided in
 \code{object@inputMatrixPath}.
 }
-\examples{
-\dontrun{
-linkToMatrix <-system.file("extdata", "sampleMatrix.tsv", package = "HiCDOC")
-data   <- makeHiCDOCDataSet(inputPath = linkToMatrix)
-object <- parseInteractionMatrix3Columns(data)
-}
-}

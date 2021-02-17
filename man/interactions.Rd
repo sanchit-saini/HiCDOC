@@ -21,5 +21,4 @@ profiles.
 \examples{
 exp <- HiCDOCExample()
 interactions(exp)
-
 }

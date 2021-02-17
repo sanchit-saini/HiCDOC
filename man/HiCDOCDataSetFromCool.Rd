@@ -11,11 +11,11 @@ HiCDOCDataSetFromCool(coolFileNames, replicates, conditions)
 \item{coolFileNames}{A vector of file names, each one being a .cool file.}
 
 \item{replicates}{character vector. The list of the replicate names.
-This vector can have repeated values if the replicates are repeated 
+This vector can have repeated values if the replicates are repeated
 over the conditions.}
 
-\item{conditions}{character vector. The names of the two conditions. 
-This should be repeated values of the names, the vector should have the 
+\item{conditions}{character vector. The names of the two conditions.
+This should be repeated values of the names, the vector should have the
 same size as \code{replicates}.}
 }
 \value{
@@ -26,11 +26,12 @@ same size as \code{replicates}.}
 Construct a \code{HiCDOCDataSet} from a cool file.
 }
 \examples{
-basedir <- system.file("extdata", package="HiCDOC")
-data    <- read.csv(file.path(basedir, "coolData.csv"))
+basedir <- system.file("extdata", package = "HiCDOC")
+data <- read.csv(file.path(basedir, "coolData.csv"))
 data
-dataSet <- HiCDOCDataSetFromCool(file.path(basedir, data$FileName),
-                                 data$Replicate,
-                                 data$Condition)
-
+dataSet <- HiCDOCDataSetFromCool(
+    file.path(basedir, data$FileName),
+    data$Replicate,
+    data$Condition
+)
 }

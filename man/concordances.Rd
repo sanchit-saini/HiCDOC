@@ -21,5 +21,4 @@ This function extracts the concordances from \code{\link{HiCDOCDataSet}}.
 exp <- HiCDOCExample()
 exp <- HiCDOC(exp)
 concordances(exp)
-
 }

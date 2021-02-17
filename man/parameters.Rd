@@ -43,12 +43,12 @@ Parameters in a HiCDOC experiment.
                reconstructed full interaction matrix for 1 chromosome,
                1 condition and 1 replicate. Default to 0.}
        \item{\code{sparseThreshold}}{To be kept by the function
-               \code{filterSparseChromosomes()}, the sparsity (percentage 
-               of empty cells) of the interactions matrix must be lower 
-               than the threshold, on all replicates and all conditions. 
+               \code{filterSparseChromosomes()}, the sparsity (percentage
+               of empty cells) of the interactions matrix must be lower
+               than the threshold, on all replicates and all conditions.
                Default to 0.95.}
       \item{\code{sampleSize}}{The number of bins used when sampling
-               all the bins in \code{normalizeDistanceEffect()}. 
+               all the bins in \code{normalizeDistanceEffect()}.
                Default to 20000.}
       \item{\code{kMeansIterations}}{The maximum number of 2-means
                iterations.}
@@ -63,7 +63,6 @@ Parameters in a HiCDOC experiment.
 exp <- HiCDOCExample()
 parameters(exp)
 parameters(exp) <- list("weakPosThreshold" = 100)
-
 }
 \seealso{
 \code{useParameters} argument in \code{\link{HiCDOC}} function.

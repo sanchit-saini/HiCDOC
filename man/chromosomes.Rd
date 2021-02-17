@@ -20,5 +20,4 @@ The \code{chromosomes} slot contains the names of the chromosomes.
 \examples{
 exp <- HiCDOCExample()
 chromosomes(exp)
-
 }

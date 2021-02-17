@@ -15,6 +15,5 @@ List of HiCDOC default parameters.
 }
 \examples{
 HiCDOCDefaultParameters
-
 }
 \keyword{data}

@@ -24,7 +24,7 @@ makeHiCDOCDataSet(
 
 \item{binSize}{The resolution.}
 
-\item{hicPro}{Logical. Default to FALSE. Does the data sent are in 
+\item{hicPro}{Logical. Default to FALSE. Does the data sent are in
 HiC-Pro format ?}
 }
 \value{
@@ -34,7 +34,7 @@ A \code{HiCDOCDataSet} object.
 Constructor function for the \code{HiCDOCDataSet} class.
 }
 \examples{
-basedir <- system.file("extdata", package="HiCDOC", mustWork = TRUE)
-matrix  <- file.path(basedir, "sampleMatrix.tsv")
-data    <- makeHiCDOCDataSet(inputPath = matrix)
+basedir <- system.file("extdata", package = "HiCDOC", mustWork = TRUE)
+matrix <- file.path(basedir, "sampleMatrix.tsv")
+data <- makeHiCDOCDataSet(inputPath = matrix)
 }

@@ -11,7 +11,7 @@ normalizeDistanceEffect(object, sampleSize = NULL)
 \item{object}{A \code{HiCDOCDataSet} object.}
 
 \item{sampleSize}{A numerical value. The number of bins used when sampling
-all the bins. If NULL, default to the first not NULL of 
+all the bins. If NULL, default to the first not NULL of
 \code{object$sampleSize} and \code{HiCDOCDefaultParameters$sampleSize}.}
 }
 \value{

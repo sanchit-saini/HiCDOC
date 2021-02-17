@@ -11,7 +11,7 @@ testValidId(object, id, what = "chromosomes")
 
 \item{id}{The identifiers to test (string or integer)}
 
-\item{what}{In what slot should we test the presence of the identifiers ? 
+\item{what}{In what slot should we test the presence of the identifiers ?
 One of "chromosome", "condition", "replicate"}
 }
 \value{

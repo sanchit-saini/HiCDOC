@@ -7,13 +7,13 @@
 plotCompartments(object, chromosomeId, xlim = NULL)
 }
 \arguments{
-\item{object}{A \code{HiCDOCDataSet} object on which 
+\item{object}{A \code{HiCDOCDataSet} object on which
 \code{detectCompartments()} has run.}
 
 \item{chromosomeId}{The name or number of the chromosome to plot.
 If number, will be taken in \code{object@chromosomes[chromosomeId]}}
 
-\item{xlim}{A numeric-value pair, indicating the interval of positions 
+\item{xlim}{A numeric-value pair, indicating the interval of positions
 to represent.
 Default to NULL = all positions.}
 }

@@ -17,5 +17,4 @@ Marti-Marimon et al.
 ## The 'HiCDOCDataSet' object in this example was constructed by:
 exp <- HiCDOCExample()
 exp
-
 }

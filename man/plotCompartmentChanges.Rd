@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotCompartmentChanges.R
 \name{plotCompartmentChanges}
 \alias{plotCompartmentChanges}
-\title{Run plotCompartments() and plotConcordance() and assemble them on the 
+\title{Run plotCompartments() and plotConcordance() and assemble them on the
 same plot}
 \usage{
 plotCompartmentChanges(
@@ -16,23 +16,23 @@ plotCompartmentChanges(
 \arguments{
 \item{object}{An HiCDOCDataSet object, after a detectCompartments() run}
 
-\item{chromosomeId}{Name or number of the chromosome, like in 
+\item{chromosomeId}{Name or number of the chromosome, like in
 object@chromosome}
 
 \item{padjThreshold}{Significance threshold for the changes. Default to 0.05.}
 
-\item{xlim}{A numeric-value pair, indicating the interval of positions 
+\item{xlim}{A numeric-value pair, indicating the interval of positions
 to represent.
 Default to NULL = all positions.}
 
-\item{points}{Logical (default to FALSE). If TRUE, points will be added 
+\item{points}{Logical (default to FALSE). If TRUE, points will be added
 on the concordance lines.}
 }
 \value{
 A ggplot object.
 }
 \description{
-Run plotCompartments() and plotConcordance() and assemble them on the 
+Run plotCompartments() and plotConcordance() and assemble them on the
 same plot
 }
 \examples{

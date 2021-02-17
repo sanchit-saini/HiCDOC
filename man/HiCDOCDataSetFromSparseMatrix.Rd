@@ -18,8 +18,7 @@ HiCDOCDataSetFromSparseMatrix(matrix = NULL)
 Reads a sparse matrix and fill a \code{HiCDOCDataSet} with its content.
 }
 \examples{
-linkToMatrix <- system.file("extdata", "sampleMatrix.tsv",  package="HiCDOC")
+linkToMatrix <- system.file("extdata", "sampleMatrix.tsv", package = "HiCDOC")
 dataSet <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
 dataSet
-
 }
