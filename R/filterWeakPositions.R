@@ -25,8 +25,8 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
     fullPos <- seq_len(totalBinsChr)
     removedBins <-
         fullPos[!(fullPos %in%
-                      unique(c(interChr$bin.1, interChr$bin.2))
-               )]
+            unique(c(interChr$bin.1, interChr$bin.2))
+        )]
 
     nbNewEmptyBins <- 1
     nbRemovedBins <- 0
@@ -34,9 +34,9 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
     # Recursive removal of bins - deleting a bin can create a new weak bin.
     while (nbNewEmptyBins > 0 & nbRemovedBins <= totalBinsChr) {
         interChrDiag <- interChr %>%
-          dplyr::filter(bin.1 == bin.2) %>%
-          dplyr::rename(bin = bin.1) %>%
-          dplyr::select(-chromosome, -bin.2)
+            dplyr::filter(bin.1 == bin.2) %>%
+            dplyr::rename(bin = bin.1) %>%
+            dplyr::select(-chromosome, -bin.2)
 
         existing <- interChr %>%
             dplyr::filter(bin.1 != bin.2) %>%
@@ -49,8 +49,8 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
             dplyr::select(-pos_1or2, -chromosome) %>%
             dplyr::bind_rows(interChrDiag) %>%
             tidyr::complete(bin,
-                     tidyr::nesting(condition, replicate),
-                     fill = list(value = 0)
+                tidyr::nesting(condition, replicate),
+                fill = list(value = 0)
             )
         weakdataset <- existing %>%
             dplyr::group_by(replicate, condition, bin) %>%
@@ -67,9 +67,9 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 
         # Remove the positions in rows and columns in empty bins
         if (nbNewEmptyBins > 0) {
-          interChr <- interChr[!(interChr$bin.1 %in% weakposChr),]
-          interChr <- interChr[!(interChr$bin.2 %in% weakposChr),]
-          nbRemovedBins <- nbRemovedBins + nbNewEmptyBins
+            interChr <- interChr[!(interChr$bin.1 %in% weakposChr), ]
+            interChr <- interChr[!(interChr$bin.2 %in% weakposChr), ]
+            nbRemovedBins <- nbRemovedBins + nbNewEmptyBins
         }
     }
 
@@ -95,11 +95,11 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 #' be discarded, and added in object@weakBins.
 #'
 #' @param object A HiCDOCDataSet object
-#' @param threshold Numeric. Threshold to consider bins as 'weaks'. If NULL, 
-#' default to the first not NULL of \code{object$weakPosThreshold} and 
+#' @param threshold Numeric. Threshold to consider bins as 'weaks'. If NULL,
+#' default to the first not NULL of \code{object$weakPosThreshold} and
 #' \code{HiCDOCDefaultParameters$weakPosThreshold}.
 #'
-#' @return A \code{HiCDOCDataSet} object with a reduced \code{interactions} 
+#' @return A \code{HiCDOCDataSet} object with a reduced \code{interactions}
 #' slot, and the weak bins identified by chromosomes in \code{object@weakBins}.
 #' @export
 #'
@@ -119,21 +119,27 @@ filterWeakPositions <- function(object, threshold = NULL) {
             "parameters"
         )
     )
-    if(! is.null(threshold)){
-      object@parameters$weakPosThreshold <- threshold
-    } 
+    if (!is.null(threshold)) {
+        object@parameters$weakPosThreshold <- threshold
+    }
     object@parameters <- checkParameters(object@parameters)
-    weakPositions <- lapply(object@chromosomes,
-        function(chr) filterWeakChr(object,
-                                    chr,
-                                    object@parameters$weakPosThreshold)
-        )
+    weakPositions <- lapply(
+        object@chromosomes,
+        function(chr) {
+            filterWeakChr(
+                object,
+                chr,
+                object@parameters$weakPosThreshold
+            )
+        }
+    )
     names(weakPositions) <- object@chromosomes
 
     weakBins <- weakPositions %>% purrr::map("pos")
     nullweak <-
-        vapply(weakBins, function(x)
-            length(x) == 0, FUN.VALUE = TRUE)
+        vapply(weakBins, function(x) {
+              length(x) == 0
+          }, FUN.VALUE = TRUE)
     weakBins[nullweak] <- list(NULL)
     interactions <- weakPositions %>% purrr::map_dfr("interactions")
 
@@ -141,14 +147,15 @@ filterWeakPositions <- function(object, threshold = NULL) {
     object@weakBins <- weakBins
     object@interactions <- interactions
     nbweak <- sum(vapply(weakBins, length, c(0)))
-    message("Removed ",
-            nbweak,
-            " position",
-            if (nbweak != 1) "s"
+    message(
+        "Removed ",
+        nbweak,
+        " position",
+        if (nbweak != 1) "s"
     )
     if (nbweak >= sum(unlist(object@totalBins))) {
-        message('No data left!')
+        message("No data left!")
     }
 
-  return (object)
+    return(object)
 }

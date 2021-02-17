@@ -1,5 +1,5 @@
-####- chromosomes ---------------------------------------------------------####
-##----------------------------------------------------------------------------#
+#### - chromosomes ---------------------------------------------------------####
+## ----------------------------------------------------------------------------#
 #' Accessors for the 'chromosomes' slot of an HiCDOCDataSet object
 #'
 #' The \code{chromosomes} slot contains the names of the chromosomes.
@@ -13,12 +13,11 @@
 #' @examples
 #' exp <- HiCDOCExample()
 #' chromosomes(exp)
-#'
 #' @export
-setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes )
+setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 
-####- interactions --------------------------------------------------------####
-##----------------------------------------------------------------------------#
+#### - interactions --------------------------------------------------------####
+## ----------------------------------------------------------------------------#
 #' Accessors for the 'interactions' slot of an HiCDOCDataSet object
 #'
 #' The \code{interactions} slot contains the (transformed) interaction
@@ -33,35 +32,42 @@ setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes )
 #' @examples
 #' exp <- HiCDOCExample()
 #' interactions(exp)
-#'
 #' @export
 setMethod(
     f = "interactions",
     signature = "HiCDOCDataSet",
     function(object) {
-        if(is.null(object@interactions)) return( NULL )
+        if (is.null(object@interactions)) {
+            return(NULL)
+        }
         interactions <- object@interactions %>%
-                dplyr::left_join(object@positions %>%
-                                     dplyr::select(chromosome, 
-                                            bin.1 = bin, 
-                                            start.1 = start), 
-                                 by=c("chromosome", "bin.1")) %>%
-                dplyr::left_join(object@positions %>%
-                                     dplyr::select(chromosome, 
-                                            bin.2 = bin, 
-                                            start.2 = start), 
-                                 by=c("chromosome", "bin.2")) %>%
-                dplyr::select(chromosome, 
-                              bin.1, bin.2, start.1, start.2,
-                              condition, 
-                              replicate,
-                              value)
+            dplyr::left_join(object@positions %>%
+                dplyr::select(chromosome,
+                    bin.1 = bin,
+                    start.1 = start
+                ),
+            by = c("chromosome", "bin.1")
+            ) %>%
+            dplyr::left_join(object@positions %>%
+                dplyr::select(chromosome,
+                    bin.2 = bin,
+                    start.2 = start
+                ),
+            by = c("chromosome", "bin.2")
+            ) %>%
+            dplyr::select(
+                chromosome,
+                bin.1, bin.2, start.1, start.2,
+                condition,
+                replicate,
+                value
+            )
         return(interactions)
     }
 )
 
-####- positions ---------------------------------------------------------####
-##----------------------------------------------------------------------------#
+#### - positions ---------------------------------------------------------####
+## ----------------------------------------------------------------------------#
 #' Accessors for the 'positions' slot of an HiCDOCDataSet object
 #'
 #' The \code{positions} slot contains the positions of the bins, by chromosome
@@ -75,13 +81,12 @@ setMethod(
 #' @examples
 #' exp <- HiCDOCExample()
 #' positions(exp)
-#'
 #' @export
-setMethod("positions", "HiCDOCDataSet", function(object) object@positions )
+setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
 
 
-####- differences ---------------------------------------------------------####
-##----------------------------------------------------------------------------#
+#### - differences ---------------------------------------------------------####
+## ----------------------------------------------------------------------------#
 #' Extracts differentially interacting regions of an HiCDOCDataSet object
 #'
 #' This function extracts the differentially interacting regions from
@@ -102,27 +107,31 @@ setMethod("positions", "HiCDOCDataSet", function(object) object@positions )
 #' exp <- HiCDOCExample()
 #' exp <- HiCDOC(exp)
 #' differences(exp)
-#'
 #' @export
 setMethod(
     f = "differences",
     signature = "HiCDOCDataSet",
     function(object) {
-        if(is.null(object@differences)) return( NULL )
+        if (is.null(object@differences)) {
+            return(NULL)
+        }
         if (nrow(object@differences) == 0) {
             message("No 'differences' found.")
             return(GenomicRanges::GRanges())
         } else {
             gr <- object@differences %>%
-                dplyr::left_join(object@positions, 
-                                 by=c("chromosome", "bin")) %>%
-                dplyr::select(chromosome, 
-                              start, 
-                              end, 
-                              condition.1,
-                              condition.2,
-                              pvalue, padj, direction) 
-            return (GenomicRanges::makeGRangesFromDataFrame(
+                dplyr::left_join(object@positions,
+                    by = c("chromosome", "bin")
+                ) %>%
+                dplyr::select(
+                    chromosome,
+                    start,
+                    end,
+                    condition.1,
+                    condition.2,
+                    pvalue, padj, direction
+                )
+            return(GenomicRanges::makeGRangesFromDataFrame(
                 gr,
                 keep.extra.columns = TRUE,
                 ignore.strand = TRUE
@@ -132,8 +141,8 @@ setMethod(
 )
 
 
-####- concordances --------------------------------------------------------####
-##----------------------------------------------------------------------------#
+#### - concordances --------------------------------------------------------####
+## ----------------------------------------------------------------------------#
 #' Extracts concordances
 #'
 #' This function extracts the concordances from \code{\link{HiCDOCDataSet}}.
@@ -152,29 +161,32 @@ setMethod(
 #' exp <- HiCDOCExample()
 #' exp <- HiCDOC(exp)
 #' concordances(exp)
-#'
 #' @export
 setMethod(
     f = "concordances",
     signature = "HiCDOCDataSet",
     function(object) {
-        if(is.null(object@concordances)) return( NULL )
-        concordances <- object@concordances %>% 
-            dplyr::left_join(object@positions, by=c("chromosome", "bin")) %>%
-            dplyr::select(chromosome, 
-                   start, 
-                   end, 
-                   condition, 
-                   replicate, 
-                   compartment, 
-                   concordance)
+        if (is.null(object@concordances)) {
+            return(NULL)
+        }
+        concordances <- object@concordances %>%
+            dplyr::left_join(object@positions, by = c("chromosome", "bin")) %>%
+            dplyr::select(
+                chromosome,
+                start,
+                end,
+                condition,
+                replicate,
+                compartment,
+                concordance
+            )
         return(concordances)
     }
 )
 
 
-####- compartments --------------------------------------------------------####
-##----------------------------------------------------------------------------#
+#### - compartments --------------------------------------------------------####
+## ----------------------------------------------------------------------------#
 #' Extracts compartments
 #'
 #' This function extracts the compartments from \code{\link{HiCDOCDataSet}}.
@@ -193,48 +205,52 @@ setMethod(
 #' exp <- HiCDOCExample()
 #' exp <- HiCDOC(exp)
 #' compartments(exp)
-#'
 #' @export
 setMethod(
     f = "compartments",
     signature = "HiCDOCDataSet",
     function(object) {
-        if(is.null(object@compartments)) return( NULL )
+        if (is.null(object@compartments)) {
+            return(NULL)
+        }
         grl <- object@compartments %>%
-                dplyr::left_join(object@positions, 
-                                 by=c("chromosome", "bin")) %>%
-                dplyr::select(chromosome, 
-                              bin, 
-                              start, 
-                              end, 
-                              condition, 
-                              compartment)
+            dplyr::left_join(object@positions,
+                by = c("chromosome", "bin")
+            ) %>%
+            dplyr::select(
+                chromosome,
+                bin,
+                start,
+                end,
+                condition,
+                compartment
+            )
         return(grl)
-            # grl <- object@compartments %>%
-            #     mutate(start = position + 1) %>%
-            #     mutate(end = start + object@binSize - 1) %>%
-            #     select(-position) %>%
-            #     mutate(condition = factor(condition)) %>%
-            #     rename(compartment = value) %>%
-            #     GenomicRanges::makeGRangesListFromDataFrame(
-            #         keep.extra.columns = TRUE,
-            #         ignore.strand = TRUE,
-            #         split.field = "condition"
-            #     )
-            # grl2 <- lapply(grl, function(x) { split(x, ~ compartment) })
-            # grl3 <- as(lapply(grl2, function(x) {
-            #     unlist(as(lapply(names(x), function(y) {
-            #         z <- GenomicRanges::reduce(x[[y]])
-            #         z$compartment <- factor(y)
-            #         return(z)
-            #     }), "GRangesList"))
-            # }), "GRangesList")
-            # return(grl3)
+        # grl <- object@compartments %>%
+        #     mutate(start = position + 1) %>%
+        #     mutate(end = start + object@binSize - 1) %>%
+        #     select(-position) %>%
+        #     mutate(condition = factor(condition)) %>%
+        #     rename(compartment = value) %>%
+        #     GenomicRanges::makeGRangesListFromDataFrame(
+        #         keep.extra.columns = TRUE,
+        #         ignore.strand = TRUE,
+        #         split.field = "condition"
+        #     )
+        # grl2 <- lapply(grl, function(x) { split(x, ~ compartment) })
+        # grl3 <- as(lapply(grl2, function(x) {
+        #     unlist(as(lapply(names(x), function(y) {
+        #         z <- GenomicRanges::reduce(x[[y]])
+        #         z$compartment <- factor(y)
+        #         return(z)
+        #     }), "GRangesList"))
+        # }), "GRangesList")
+        # return(grl3)
     }
 )
 
-####- centroids ----------------------------------------------------------#####
-##----------------------------------------------------------------------------#
+#### - centroids ----------------------------------------------------------#####
+## ----------------------------------------------------------------------------#
 #' Extracts centroids
 #'
 #' This function extracts the centroids from \code{\link{HiCDOCDataSet}}.
@@ -254,11 +270,11 @@ setMethod(
 #' exp <- HiCDOC(exp)
 #' centroids(exp)
 #' @export
-setMethod("centroids", "HiCDOCDataSet", function(object)  object@centroids )
+setMethod("centroids", "HiCDOCDataSet", function(object) object@centroids)
 
 
-####- show ----------------------------------------------------------------####
-##----------------------------------------------------------------------------#
+#### - show ----------------------------------------------------------------####
+## ----------------------------------------------------------------------------#
 #' Show the components of a HiCDOC objects
 #'
 #' This function informatively display object contents.
@@ -277,18 +293,21 @@ setMethod(
         nbCond <- length(unique(object@conditions))
         nbRep <- length(unique(object@replicates))
         cat("Object of class HiCDOCDataSet.\n", "HiCDOC Experiment with:\n")
-        cat(length(object@chromosomes), 
-            "chromosomes:", 
-            object@chromosomes, "\n")
-        cat(object@totalReplicates, "replications in",
-            length(unique(object@conditions)), "conditions\n")
+        cat(
+            length(object@chromosomes),
+            "chromosomes:",
+            object@chromosomes, "\n"
+        )
+        cat(
+            object@totalReplicates, "replications in",
+            length(unique(object@conditions)), "conditions\n"
+        )
     }
 )
 
 
-
-####- parameters ---------------------------------------------------------####
-##----------------------------------------------------------------------------#
+#### - parameters ---------------------------------------------------------####
+## ----------------------------------------------------------------------------#
 #' Accessors for the 'parameters' slot of an HiCDOCDataSet object
 #'
 #' The \code{parameters} slot holds the parameter values
@@ -312,12 +331,12 @@ setMethod(
 #'                reconstructed full interaction matrix for 1 chromosome,
 #'                1 condition and 1 replicate. Default to 0.}
 #'        \item{\code{sparseThreshold}}{To be kept by the function
-#'                \code{filterSparseChromosomes()}, the sparsity (percentage 
-#'                of empty cells) of the interactions matrix must be lower 
-#'                than the threshold, on all replicates and all conditions. 
+#'                \code{filterSparseChromosomes()}, the sparsity (percentage
+#'                of empty cells) of the interactions matrix must be lower
+#'                than the threshold, on all replicates and all conditions.
 #'                Default to 0.95.}
 #'       \item{\code{sampleSize}}{The number of bins used when sampling
-#'                all the bins in \code{normalizeDistanceEffect()}. 
+#'                all the bins in \code{normalizeDistanceEffect()}.
 #'                Default to 20000.}
 #'       \item{\code{kMeansIterations}}{The maximum number of 2-means
 #'                iterations.}
@@ -341,22 +360,21 @@ setMethod(
 #' exp <- HiCDOCExample()
 #' parameters(exp)
 #' parameters(exp) <- list("weakPosThreshold" = 100)
-#'
 #' @export
 setMethod(
     f = "parameters",
     signature = "HiCDOCDataSet",
     definition = function(object) {
         testSlotsHiCDOC(object, "parameters")
-        
-        parameters  <- object@parameters
+
+        parameters <- object@parameters
         kmparam <- which(grepl("kMeans", names(parameters)))
-        
+
         cat("------------ Global parameters ------------\n")
         matparam <- as.matrix(parameters[-kmparam])
         colnames(matparam)[1] <- "Value"
         print(matparam)
-        
+
         cat("\n----- Constrained K-means parameters ----- \n")
         matparam <- as.matrix(parameters[kmparam])
         cat("\n")
@@ -374,8 +392,8 @@ setReplaceMethod(
     "parameters",
     signature(object = "HiCDOCDataSet", value = "ANY"),
     function(object, value) {
-        ##- checking input value ---------------------------------#
-        ##--------------------------------------------------------#
+        ## - checking input value ---------------------------------#
+        ## --------------------------------------------------------#
         defaultParNames <- names(HiCDOCDefaultParameters)
         currentPar <- object@parameters
         if (!is(value, "list")) {
@@ -404,16 +422,12 @@ setReplaceMethod(
             )
         }
 
-        ##- replacing individual parameters
+        ## - replacing individual parameters
         currentPar[valueNames] <- value
 
-        ##- end check -------------------------------------------#
+        ## - end check -------------------------------------------#
 
         object@parameters <- currentPar
         return(object)
     }
 )
-
-
-
-

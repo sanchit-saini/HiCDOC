@@ -1,7 +1,7 @@
 KR <- function(A,
-               tol = 1e-6,
-               delta = 0.1,
-               Delta = 3) {
+    tol = 1e-6,
+    delta = 0.1,
+    Delta = 3) {
     n <- nrow(A)
     e <- matrix(1, nrow = n, ncol = 1)
     x0 <- e
@@ -11,7 +11,7 @@ KR <- function(A,
     eta <- etamax
     stop_tol <- tol * .5
     x <- x0
-    rt <- tol ^ 2
+    rt <- tol^2
     v <- x * (A %*% x)
     rk <- 1 - v
     rho_km1 <- drop(t(rk) %*% rk)
@@ -24,7 +24,7 @@ KR <- function(A,
         i <- i + 1
         k <- 0
         y <- e
-        innertol <- max(c(eta ^ 2 * rout, rt))
+        innertol <- max(c(eta^2 * rout, rt))
         while (rho_km1 > innertol) {
             # Inner iteration by CG
             k <- k + 1
@@ -48,8 +48,9 @@ KR <- function(A,
             # Test distance to boundary of cone
             ynew <- y + ap
             if (min(ynew) <= delta) {
-                if (delta == 0)
-                    break()
+                if (delta == 0) {
+                      break()
+                  }
                 ind <- which(ap < 0)
                 gamma <- min((delta - y[ind]) / ap[ind])
                 y <- y + gamma * ap
@@ -79,8 +80,8 @@ KR <- function(A,
         res_norm <- sqrt(rout)
         eta_o <- eta
         eta <- g * rat
-        if (g * eta_o ^ 2 > 0.1) {
-            eta <- max(c(eta, g * eta_o ^ 2))
+        if (g * eta_o^2 > 0.1) {
+            eta <- max(c(eta, g * eta_o^2))
         }
         eta <- max(c(min(c(eta, etamax)), stop_tol / res_norm))
     }
@@ -91,8 +92,8 @@ KR <- function(A,
 }
 
 
-##- normalizeBiologicalBiasesChr ---------------------------------------------#
-##----------------------------------------------------------------------------#
+## - normalizeBiologicalBiasesChr --------------------------------------------#
+## ---------------------------------------------------------------------------#
 #' Remove biological biases by normalizing with Knight-Ruiz matrix balancing.
 #'
 #' @rdname normalizeBiologicalBiasesChr
@@ -115,25 +116,29 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
     )
     message("Chromosome: ", chromosomeId)
 
-    if (object@totalBins[[chromosomeId]] == -Inf)
-        return(NULL)
+    if (object@totalBins[[chromosomeId]] == -Inf) {
+          return(NULL)
+      }
 
-    rawMatrices    <-
+    rawMatrices <-
         mapply(
-            function(x, y)
-                sparseInteractionsToMatrix(object, 
-                                           chromosomeId, 
-                                           x, 
-                                           y, 
-                                           filter = TRUE),
+            function(x, y) {
+                  sparseInteractionsToMatrix(object,
+                      chromosomeId,
+                      x,
+                      y,
+                      filter = TRUE
+                  )
+              },
             object@conditions,
             object@replicates,
             SIMPLIFY = FALSE
         )
 
     testEmptyRow <-
-        vapply(rawMatrices, function(x)
-            min(rowSums(x)), FUN.VALUE = c(0))
+        vapply(rawMatrices, function(x) {
+              min(rowSums(x))
+          }, FUN.VALUE = c(0))
     if (length(testEmptyRow[testEmptyRow == 0]) > 0) {
         id <- which(testEmptyRow == 0)
         stop(
@@ -149,17 +154,20 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
 
     normalizedMatrices <- lapply(rawMatrices, KR)
     interactionsChr <- purrr::pmap_dfr(
-        list(normalizedMatrices,
-             object@conditions,
-             object@replicates),
-        .f = function(x, y, z)
-            matrixToSparseInteractions(x, object, chromosomeId, y, z)
+        list(
+            normalizedMatrices,
+            object@conditions,
+            object@replicates
+        ),
+        .f = function(x, y, z) {
+              matrixToSparseInteractions(x, object, chromosomeId, y, z)
+          }
     )
     return(interactionsChr)
 }
 
-##- normalizeBiologicalBiases ------------------------------------------------#
-##----------------------------------------------------------------------------#
+## - normalizeBiologicalBiases ------------------------------------------------#
+## ----------------------------------------------------------------------------#
 #' Remove biological biases by normalizing with Knight-Ruiz matrix balancing.
 #'
 #' @rdname normalizeBiologicalBiases
@@ -175,10 +183,13 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
 #' @export
 normalizeBiologicalBiases <- function(object) {
     interactionsNorm <-
-        purrr::map_dfr(object@chromosomes,
-                       function(x) normalizeBiologicalBiasesChr(object, x)) %>%
-        dplyr::mutate(chromosome = factor(chromosome, 
-                                          levels = object@chromosomes)) %>%
+        purrr::map_dfr(
+            object@chromosomes,
+            function(x) normalizeBiologicalBiasesChr(object, x)
+        ) %>%
+        dplyr::mutate(chromosome = factor(chromosome,
+            levels = object@chromosomes
+        )) %>%
         dplyr::mutate(condition = factor(condition)) %>%
         dplyr::mutate(replicate = factor(replicate))
     object@interactions <- interactionsNorm

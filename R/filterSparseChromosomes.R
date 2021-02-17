@@ -7,19 +7,21 @@
 #' @return a one line tibble
 sparsityChromosome <-
     function(object,
-             chromosomeId) {
+    chromosomeId) {
         interactionsChr <- object@interactions %>%
             dplyr::filter(chromosome == chromosomeId) %>%
             dplyr::filter(value > 0)
-        totalCells <- object@totalBins[chromosomeId] ^ 2
-        
+        totalCells <- object@totalBins[chromosomeId]^2
+
         pctFill <- interactionsChr %>%
             dplyr::mutate(value = ifelse(bin.1 == bin.2, 1, 2)) %>%
             dplyr::group_by(replicate, condition) %>%
-            dplyr::summarise(pctSparse = 1 - sum(value) / totalCells,
-                      .groups = "keep") %>%
+            dplyr::summarise(
+                pctSparse = 1 - sum(value) / totalCells,
+                .groups = "keep"
+            ) %>%
             dplyr::ungroup()
-        
+
         pctFill %<>%
             dplyr::summarise(maxSparsity = max(pctSparse, na.rm = TRUE)) %>%
             dplyr::mutate(
@@ -34,10 +36,11 @@ sparsityChromosome <-
                     maxSparsity < 0.01,
                     "**",
                     ifelse(maxSparsity < 0.05, "*",
-                           ifelse(maxSparsity < 0.1, ".", ""))
+                        ifelse(maxSparsity < 0.1, ".", "")
+                    )
                 )
             ))
-        
+
         # reordering columns
         pctFill %<>% dplyr::select(chromosome, totalCells, maxSparsity, quality)
         return(pctFill)
@@ -51,7 +54,7 @@ sparsityChromosome <-
 #' @param object A HiCDOCDataSet object
 #' @param thresholdSparseMatrix A numerical value. The sparsity threshold
 #' from which a chromosome will be removed, if \code{removeChromosomes} is TRUE.
-#' If NULL, default to the first not NULL of \code{object$sparseThreshold.} and 
+#' If NULL, default to the first not NULL of \code{object$sparseThreshold.} and
 #' \code{HiCDOCDefaultParameters$sparseThreshold.}.
 #' @param removeChromosomes Logical, default to TRUE. Should the function
 #' remove sparse chromosomes ?
@@ -64,8 +67,8 @@ sparsityChromosome <-
 #' object <- filterSparseChromosomes(object)
 filterSparseChromosomes <-
     function(object,
-             thresholdSparseMatrix = NULL,
-             removeChromosomes = TRUE) {
+    thresholdSparseMatrix = NULL,
+    removeChromosomes = TRUE) {
         # Parameters
         if (!is.null(thresholdSparseMatrix)) {
             object@parameters$sparseThreshold <- thresholdSparseMatrix
@@ -73,16 +76,22 @@ filterSparseChromosomes <-
         object@parameters <- checkParameters(object@parameters)
         thresh <- object@parameters$sparseThreshold
         # Sparsity
-        chrQuality <- 
-            purrr::map_dfr(object@chromosomes,
-                           function(x)
-                               sparsityChromosome(object, 
-                                                  x))
+        chrQuality <-
+            purrr::map_dfr(
+                object@chromosomes,
+                function(x) {
+                      sparsityChromosome(
+                          object,
+                          x
+                      )
+                  }
+            )
         # Remove chromosomes
         if (removeChromosomes == TRUE) {
             sparseChromosomes <- chrQuality %>%
                 dplyr::filter(maxSparsity >= thresh) %>%
-                dplyr::pull(chromosome) %>% as.character()
+                dplyr::pull(chromosome) %>%
+                as.character()
             if (length(sparseChromosomes) == 0) {
                 message(
                     "No chromosome removed (threshold: ",
@@ -99,14 +108,16 @@ filterSparseChromosomes <-
                     "%)"
                 )
                 nonSparseChr <-
-                    object@chromosomes[!(object@chromosomes %in% 
-                                             sparseChromosomes)]
+                    object@chromosomes[!(object@chromosomes %in%
+                        sparseChromosomes)]
                 object <-
                     reduceHiCDOCDataSet(object, chromosomes = nonSparseChr)
             }
         }
-        chrQuality %<>% dplyr::mutate(maxSparsity = 
-                                   paste0(round(100 * maxSparsity, 2), "%"))
+        chrQuality %<>% dplyr::mutate(
+            maxSparsity =
+                paste0(round(100 * maxSparsity, 2), "%")
+        )
         print(data.frame(chrQuality)) # In data.frame for correct alignement
         cat("\n")
         return(object)

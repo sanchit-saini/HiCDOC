@@ -1,5 +1,5 @@
-##- normalizeDistanceEffectChr -----------------------------------------------#
-##----------------------------------------------------------------------------#
+## - normalizeDistanceEffectChr -----------------------------------------------#
+## ----------------------------------------------------------------------------#
 #' Normalize the distance effect using a loess on the intensity vs distance
 #' to diagonal.
 #'
@@ -12,11 +12,14 @@
 #' @return the normalized interaction matrix for this chromosome.
 normalizeDistanceEffectChr <- function(object, chromosomeId) {
     testSlotsHiCDOC(object,
-                       slots = c("interactions",
-                                 "binSize",
-                                 "weakBins",
-                                 "parameters"))
-    
+        slots = c(
+            "interactions",
+            "binSize",
+            "weakBins",
+            "parameters"
+        )
+    )
+
     message("Chromosome: ", chromosomeId)
 
     interactionsChr <- object@interactions %>%
@@ -24,8 +27,10 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
         dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize)
 
     sample <- interactionsChr %>%
-        dplyr::sample_n(size = min(object@parameters$sampleSize,
-                                   nrow(interactionsChr))) %>%
+        dplyr::sample_n(size = min(
+            object@parameters$sampleSize,
+            nrow(interactionsChr)
+        )) %>%
         dplyr::select(distance, value) %>%
         dplyr::arrange(distance)
 
@@ -35,33 +40,35 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
     }
 
     optimizeSpan <- function(model,
-                             criterion = c("aicc", "gcv"),
-                             spans = c(0.01, 0.9)) {
+    criterion = c("aicc", "gcv"),
+    spans = c(0.01, 0.9)) {
         criterion <- match.arg(criterion)
         f <- function(span) {
             m <- stats::update(model, span = span)
             span <- m$pars$span
             traceL <- m$trace.hat
-            sigma2 <- sum(m$residuals ^ 2) / (m$n - 1)
+            sigma2 <- sum(m$residuals^2) / (m$n - 1)
             if (criterion == "aicc") {
-                quality <- log(sigma2) + 1 + 
+                quality <- log(sigma2) + 1 +
                     2 * (2 * (traceL + 1)) / (m$n - traceL - 2)
             } else if (criterion == "gcv") {
-                quality <- m$n * sigma2 / (m$n - traceL) ^ 2
+                quality <- m$n * sigma2 / (m$n - traceL)^2
             }
-            return (quality)
+            return(quality)
         }
         result <- stats::optimize(f, spans)
-        return (result$minimum)
+        return(result$minimum)
     }
 
     methodtrace <- "approximate"
-    if (object@parameters$sampleSize <= 1000)
-        methodtrace <- "exact"
+    if (object@parameters$sampleSize <= 1000) {
+          methodtrace <- "exact"
+      }
 
     l <- stats::loess(value ~ distance,
-               data = sample,
-               control = stats::loess.control(trace.hat = methodtrace))
+        data = sample,
+        control = stats::loess.control(trace.hat = methodtrace)
+    )
     span <- optimizeSpan(l, criterion = "gcv")
 
     l <- stats::loess(
@@ -92,15 +99,15 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
     interactionsChr %<>%
         dplyr::left_join(valueMap, by = "distance") %>%
         dplyr::mutate(value = value / (loess + 0.00001)) %>%
-        dplyr::select(-distance,-loess)
+        dplyr::select(-distance, -loess)
 
     return(interactionsChr)
 }
 
 
 
-##- normalizeDistanceEffect --------------------------------------------------#
-##----------------------------------------------------------------------------#
+## - normalizeDistanceEffect --------------------------------------------------#
+## ----------------------------------------------------------------------------#
 #' Normalize the distance effect using a loess on the intensity vs distance
 #' to diagonal.
 #'
@@ -108,7 +115,7 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
 #'
 #' @param object A \code{HiCDOCDataSet} object.
 #' @param sampleSize A numerical value. The number of bins used when sampling
-#' all the bins. If NULL, default to the first not NULL of 
+#' all the bins. If NULL, default to the first not NULL of
 #' \code{object$sampleSize} and \code{HiCDOCDefaultParameters$sampleSize}.
 #'
 #' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
@@ -129,10 +136,14 @@ normalizeDistanceEffect <- function(object, sampleSize = NULL) {
     object@parameters <- checkParameters(object@parameters)
     # Normalization by chromosome
     interactionsNorm <-
-        purrr::map_dfr(object@chromosomes,
-                       function(x) normalizeDistanceEffectChr(object, x)) %>%
-        dplyr::mutate(chromosome = 
-                          factor(chromosome, levels = object@chromosomes))
+        purrr::map_dfr(
+            object@chromosomes,
+            function(x) normalizeDistanceEffectChr(object, x)
+        ) %>%
+        dplyr::mutate(
+            chromosome =
+                factor(chromosome, levels = object@chromosomes)
+        )
     object@interactions <- interactionsNorm
 
     return(object)

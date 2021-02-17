@@ -1,4 +1,4 @@
-##- chromosomes
+## - chromosomes
 setGeneric(
     name = "chromosomes",
     def = function(object) {
@@ -6,7 +6,7 @@ setGeneric(
     }
 )
 
-##- interactions
+## - interactions
 setGeneric(
     name = "interactions",
     def = function(object) {
@@ -14,7 +14,7 @@ setGeneric(
     }
 )
 
-##- positions
+## - positions
 setGeneric(
     name = "positions",
     def = function(object) {
@@ -22,7 +22,7 @@ setGeneric(
     }
 )
 
-##- differences
+## - differences
 setGeneric(
     name = "differences",
     def = function(object, pvalue) {
@@ -30,7 +30,7 @@ setGeneric(
     }
 )
 
-##- compartments
+## - compartments
 setGeneric(
     name = "compartments",
     def = function(object) {
@@ -38,7 +38,7 @@ setGeneric(
     }
 )
 
-##- concordances
+## - concordances
 setGeneric(
     name = "concordances",
     def = function(object) {
@@ -46,7 +46,7 @@ setGeneric(
     }
 )
 
-##- centroids
+## - centroids
 setGeneric(
     name = "centroids",
     def = function(object) {
@@ -54,7 +54,7 @@ setGeneric(
     }
 )
 
-##- parameters
+## - parameters
 setGeneric(
     name = "parameters",
     def = function(object) {
@@ -68,4 +68,3 @@ setGeneric(
         standardGeneric("parameters<-")
     }
 )
-
