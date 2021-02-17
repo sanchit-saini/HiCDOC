@@ -1,8 +1,9 @@
+obj <- HiCDOCExample()
+
 test_that("detectCompartments behaves as expected", {
-    object <- HiCDOCExample()
     # Detect Compartments
     set.seed(3215) # Test with 123 : no significant differences
-    expect_message(object <- detectCompartments(object), "Done.")
+    expect_message(object <- detectCompartments(obj), "Done.")
     # Keep object format
     expect_is(object@interactions$chromosome, "factor")
     expect_is(object@interactions$bin.1, "integer")
@@ -81,11 +82,10 @@ test_that("detectCompartments behaves as expected", {
 })
 
 test_that("detectCompartments behaves as expected in parallel", {
-    object <- HiCDOCExample()
     # Detect Compartments
     multiParam <- BiocParallel::MulticoreParam(workers = 3, progressbar = TRUE)
     BiocParallel::register(multiParam, default = TRUE)
-    expect_message(object <- detectCompartments(object, parallel = TRUE), 
+    expect_message(object <- detectCompartments(obj, parallel = TRUE), 
                    "Done.")
     # Keep object format
     expect_is(object@interactions$chromosome, "factor")

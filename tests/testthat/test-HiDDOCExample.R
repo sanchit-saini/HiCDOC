@@ -1,5 +1,6 @@
-test_that("HiCDOCExample produce expected object", {
-    object <- HiCDOCExample()
+object <- HiCDOCExample()
+
+test_that("HiCDOCExample produce object with correct format", {
     # Class and slots
     expect_is(object, "HiCDOCDataSet")
     expect_identical(slotNames(object), 
@@ -35,6 +36,15 @@ test_that("HiCDOCExample produce expected object", {
     expect_is(object@interactions$condition, "factor")
     expect_is(object@interactions$replicate, "factor")
     expect_is(object@interactions$value, "numeric")
+    # Positions
+    expect_is(object@positions$chromosome, "factor")
+    expect_is(object@positions$bin, "integer")
+    expect_is(object@positions$start, "numeric")
+    expect_is(object@positions$end, "numeric")
+})
+
+test_that("HiCDOCExample produce object with correct values", {
+    # Interactions
     expect_equal(nrow(object@interactions), 86736)
     expect_equal(mean(object@interactions$bin.1), 40.81129, tolerance = 1e-5)
     expect_equal(mean(object@interactions$bin.2), 80.62258, tolerance = 1e-5)
@@ -54,11 +64,8 @@ test_that("HiCDOCExample produce expected object", {
     # Parameters
     expect_identical(object@parameters, HiCDOCDefaultParameters)
     # Positions
-    expect_is(object@positions$chromosome, "factor")
-    expect_is(object@positions$bin, "integer")
-    expect_is(object@positions$start, "numeric")
-    expect_is(object@positions$end, "numeric")
     expect_equal(mean(object@positions$bin), 60.48536, tolerance = 1e-5)
     expect_equal(mean(object@positions$start), 29742678)
     expect_equal(mean(object@positions$end), 30242677)
 })
+

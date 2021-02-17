@@ -1,6 +1,6 @@
+object <- HiCDOCExample()
+
 test_that("filterSparseChromosomes behaves as expected", {
-    object <- HiCDOCExample()
-    
     # No filtering on the example dataset
     expect_message(filterSparseChromosomes(object), 
                    "No chromosome removed (threshold: 95%)", 
