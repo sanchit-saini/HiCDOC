@@ -46,23 +46,31 @@ checkParameters <- function(parameters) {
     return(parameters)
 }
 
-## - testChromosome -----------------------------------------------------------#
+## - testValidId -----------------------------------------------------------#
 ## ----------------------------------------------------------------------------#
-#' Test the existence of a given chromosome.
+#' Test the existence of a set of identifier
 #'
 #' @param object A \code{HiCDOCDataSet} object.
-#' @param chromosomeId The condition name, or an error.
+#' @param id The identifiers to test (string or integer)
+#' @param what In what slot should we test the presence of the identifiers ? 
+#' One of "chromosome", "condition", "replicate"
 #'
 #' @return The chromosome name or an error.
-testChromosome <- function(object, chromosomeId) {
-  if (chromosomeId %in% object@chromosomes) {
-    return(chromosomeId)
+testValidId <- function(object, id, what="chromosomes") {
+  valid <- unique(slot(object, what))
+  if (all(id %in% valid)) {
+    return(id)
   }
-  if (is.numeric(chromosomeId) == TRUE &&
-    chromosomeId %in% seq_len(length(object@chromosomes))) {
-    return(object@chromosomes[chromosomeId])
+  if (is.numeric(id) == TRUE && all(id %in% seq_len(length(valid)))) {
+    return(valid[id])
   }
-  stop(paste("Unknown chromosome:", chromosomeId), call. = FALSE)
+  if(length(id)==1) {
+    what <- substr(what, 1, nchar(what)-1)
+    stop(paste0("Unknown ",what, ": ", id), call. = FALSE)
+  } else {
+    stop(paste0("Unknown ",what, ": ", paste(id, collapse=", ")), 
+         call. = FALSE)
+  }
 }
 
 ## - testSlotsHiCDOC ----------------------------------------------------------#

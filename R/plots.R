@@ -27,7 +27,7 @@ plotInteractionMatrix <-
                                      "totalBins",
                                      "binSize",
                                      "positions"))
-        chr <- testChromosome(object, chromosomeId)
+        chr <- testValidId(object, chromosomeId, "chromosomes")
         if (is.null(trans))
             trans <- "Identity"
     
@@ -94,9 +94,10 @@ plotInteractionMatrix <-
 plotDistanceEffect <- function(object) {
     testSlotsHiCDOC(object, slots = c("interactions", "binSize"))
 
-    p <- object@interactions %>%
-        dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize) %>%
-        ggplot(aes(x = distance, y = value)) +
+    dataplot <- object@interactions %>%
+        dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize)
+    
+    p <- ggplot(dataplot, aes(x = distance, y = value)) +
         geom_bin2d() +
         scale_fill_gradient(low = "white",
                             high = "blue",
@@ -104,10 +105,10 @@ plotDistanceEffect <- function(object) {
         geom_point(col = "transparent") + # necessary for geom_smooth
         geom_smooth(col = "red") +
         labs(title = "Distance effect")
-    p <-
-        ggExtra::ggMarginal(p, margins = "x", 
-                            type = "histogram", 
-                            fill = "transparent")
+    p <- ggExtra::ggMarginal(p, margins = "x", 
+                             type = "histogram", 
+                             fill = "transparent",
+                             lwd=0.5)
     return(p)
 }
 
@@ -170,7 +171,7 @@ plotDiffConcordances <- function(object) {
 #' @export
 plotAB <- function(object, chromosomeId) {
     testSlotsHiCDOC(object, slots = c("diagonalRatios", "compartments"))
-    chromosomeId <- testChromosome(object, chromosomeId)
+    chromosomeId <- testValidId(object, chromosomeId, "chromosomes")
 
     data <- object@diagonalRatios %>%
         dplyr::left_join(
@@ -214,7 +215,7 @@ plotAB <- function(object, chromosomeId) {
 #' @export
 plotCentroids <- function(object, chromosomeId, size = 2) {
     testSlotsHiCDOC(object, slots = c("centroids"))
-    chr <- testChromosome(object, chromosomeId)
+    chr <- testValidId(object, chromosomeId, "chromosomes")
 
     df <- object@centroids %>%
         dplyr::filter(chromosome == chr) %>%

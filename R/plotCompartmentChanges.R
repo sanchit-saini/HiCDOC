@@ -92,7 +92,7 @@ plotConcordance <- function(object,
                             padjThreshold = 0.05,
                             points = FALSE) {
     testSlotsHiCDOC(object, slots = c("concordances", "differences"))
-    chr <- testChromosome(object, chromosomeId)
+    chr <- testValidId(object, chromosomeId, "chromosomes")
     
     poschr <- object@positions %>% 
         dplyr::filter(chromosome == chr) %>% 
@@ -196,7 +196,7 @@ plotCompartments <- function(object,
                              chromosomeId,
                              xlim = NULL) {
     testSlotsHiCDOC(object, slots = c("compartments", "positions"))
-    chr <- testChromosome(object, chromosomeId)
+    chr <- testValidId(object, chromosomeId, "chromosomes")
     
     poschr <- object@positions %>% 
         dplyr::filter(chromosome == chr) %>% 
@@ -267,7 +267,7 @@ plotCompartmentChanges <-
                            slots = c("concordances", 
                                      "compartments", 
                                      "differences"))
-        chr <- testChromosome(object, chromosomeId)
+        chr <- testValidId(object, chromosomeId, "chromosomes")
 
         pConcordance <- plotConcordance(object, 
                                         chr, 

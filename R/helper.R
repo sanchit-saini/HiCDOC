@@ -109,6 +109,10 @@ reduceHiCDOCDataSet <- function(object,
                       "a call to detectCompartments(). All the chromosomes,",
                       "conditons and replicates have been used in the",
                       "computations", sep=" "))
+    chromosomes <- testValidId(object, chromosomes, "chromosomes")
+    conditions <- testValidId(object, conditions, "conditions")
+    replicates <- testValidId(object, replicates, "replicates")
+    
     if(!is.null(chromosomes)){
         numchr <- which(object@chromosomes %in% chromosomes)
         object@chromosomes <- 
