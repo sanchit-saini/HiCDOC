@@ -118,6 +118,24 @@ tieCentroids <- function(object) {
     return(object)
 }
 
+#' constructLinkMatrix
+#'
+#' @param nbReplicates number of replicates under a condition
+#' @param nbBins number of bins of a chromosome
+#'
+#' @return an matrix filled with 0 to use in constraned clustering
+#' @keywords internal
+#' @noRd
+constructLinkMatrix <- function(nbReplicates, nbBins){
+  mustLink <- matrix(
+    rep(0:(nbReplicates - 1), nbBins) * nbBins +
+      rep(0:(nbBins - 1), each = nbReplicates),
+    nrow = nbBins,
+    byrow = TRUE
+  )
+  return(mustLink)
+}
+
 ## - clusterize for 1 chromosome and 1 condition-----------------------------#
 ## --------------------------------------------------------------------------#
 #' Segregate genomic positions into 2 clusters using constrained k-means.
@@ -142,18 +160,15 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
     totalBinsChr <- object@totalBins[[chromosomeId]]
     if (totalBinsChr == -Inf) return(NULL)
     positions <- seq.int(totalBinsChr)
-
     # Correct for filtered bins
     if (!is.null(object@weakBins[[chromosomeId]])) {
         positions <- positions[-object@weakBins[[chromosomeId]]]
         totalBinsChr <-
             totalBinsChr - length(object@weakBins[[chromosomeId]])
     }
-
     replicates <-
         object@replicates[which(object@conditions == conditionId)]
-
-    replicateInteractions <- purrr::map(replicates, function(x) {
+    interactions <- purrr::map(replicates, function(x) {
           sparseInteractionsToMatrix(object,
               chromosomeId,
               conditionId,
@@ -161,15 +176,9 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
               filter = TRUE
           )
       })
-    interactions <- do.call("rbind", replicateInteractions)
-
-    mustLink <- matrix(
-        rep(0:(length(replicates) - 1), totalBinsChr) * totalBinsChr +
-            rep(0:(totalBinsChr - 1), each = length(replicates)),
-        nrow = totalBinsChr,
-        byrow = TRUE
-    )
-
+    interactions <- do.call("rbind", interactions)
+    
+    mustLink <- constructLinkMatrix(length(replicates), totalBinsChr)
     clusteringOutput <- constrainedClustering(
         interactions,
         mustLink,
@@ -177,51 +186,43 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
         object@parameters$kMeansIterations,
         object@parameters$kMeansRestarts
     )
-
     clusters <- clusteringOutput[["clusters"]][0:totalBinsChr] + 1
     centroids <- clusteringOutput[["centroids"]]
-
+    
     min <- distanceRatio(centroids[[1]], centroids)
     max <- distanceRatio(centroids[[2]], centroids)
-
+    
     concordances <- apply(interactions, 1, function(row) {
         2 * (distanceRatio(row, centroids) - min) / (max - min) - 1
     })
-
+    
     distances <- apply(interactions, 1, function(row) {
         c(
             euclideanDistance(row, centroids[[1]]),
             euclideanDistance(row, centroids[[2]])
         )
     })
-
+    
     dfCompartments <- dplyr::tibble(
         chromosome = factor(chromosomeId, levels = object@chromosomes),
         bin = positions,
         condition = factor(conditionId, levels = unique(object@conditions)),
         compartment = factor(clusters, levels = c(1, 2))
     )
-
+    
     dfConcordances <-
         purrr::map_dfr(seq_len(length(replicates)), ~dfCompartments) %>%
         dplyr::mutate(
-            replicate = rep(factor(
-                replicates,
-                levels = unique(object@replicates)
-            ),
-            each = ncol(interactions)
-            ),
+            replicate = rep(factor(replicates, 
+                                   levels = unique(object@replicates)
+                                   ),
+                            each = ncol(interactions)),
             concordance = concordances
         ) %>%
         dplyr::select(
-            chromosome,
-            bin,
-            condition,
-            replicate,
-            compartment,
-            concordance
+            chromosome, bin, condition, replicate, compartment, concordance
         )
-
+    
     dfDistances <-
         purrr::map_dfr(seq_len(2), ~dfConcordances) %>%
         dplyr::select(-concordance) %>%
@@ -232,14 +233,14 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
             ),
             distance = c(t(distances))
         )
-
+    
     dfCentroids <- dplyr::tibble(
         chromosome = factor(chromosomeId, levels = object@chromosomes),
         condition = factor(conditionId, levels = unique(object@conditions)),
         compartment = factor(c(1, 2)),
         centroid = centroids
     )
-
+    
     return(
         list(
             "compartments" = dfCompartments,

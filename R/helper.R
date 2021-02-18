@@ -88,6 +88,88 @@ matrixToSparseInteractions <- function(m,
     )
 }
 
+reduceHiCDOCChromosomes <- function(object, chromosomes) {
+    numchr <- which(object@chromosomes %in% chromosomes)
+    object@chromosomes <-
+    object@chromosomes[numchr]
+    if (dropLevels == TRUE) {
+        object@chromosomes <-
+          gtools::mixedsort(as.character(object@chromosomes))
+    }
+  
+    object@weakBins <- object@weakBins[numchr]
+    object@totalBins <- object@totalBins[numchr]
+    for (slotName in c(
+        "interactions",
+        "distances",
+        "diagonalRatios",
+        "compartments",
+        "concordances",
+        "differences",
+        "centroids",
+        "positions"
+  )) {
+        if (!is.null(slot(object, slotName))) {
+            slot(object, slotName) %<>%
+                dplyr::filter(chromosome %in% chromosomes)
+            if (dropLevels == TRUE) {
+                slot(object, slotName) %<>%
+                    dplyr::mutate(chromosome = droplevels(chromosome))
+            }
+        }
+    }
+    return(object)
+}
+
+reduceHiCDOCConditions <- function(object, conditions) {
+    numcond <- which(object@conditions %in% conditions)
+    object@conditions <-
+        object@conditions[numcond]
+    object@replicates <-
+        object@replicates[numcond]
+    for (slotName in c(
+        "interactions",
+        "distances",
+        "diagonalRatios",
+        "compartments",
+        "concordances",
+        "centroids"
+    )) {
+        if (!is.null(slot(object, slotName))) {
+            slot(object, slotName) %<>%
+                dplyr::filter(condition %in% conditions)
+            if (dropLevels == TRUE) {
+                slot(object, slotName) %<>%
+                    dplyr::mutate(condition = droplevels(condition))
+            }
+        }
+    }
+    return(object)
+}
+
+reduceHiCDOCCReplicates <- function(object, replicates) {
+    numrep <- which(object@replicates %in% replicates)
+    object@conditions <-
+        object@conditions[numrep]
+    object@replicates <-
+        object@replicates[numrep]
+    for (slotName in c(
+        "interactions",
+        "distances",
+        "diagonalRatios",
+        "concordances"
+    )) {
+        if (!is.null(slot(object, slotName))) {
+            slot(object, slotName) %<>%
+                dplyr::filter(replicate %in% replicates)
+            if (dropLevels == TRUE) {
+                slot(object, slotName) %<>%
+                    dplyr::mutate(replicate = droplevels(replicate))
+            }
+        }
+    }
+    return(object)
+}
 #' reduce an HiCDOCDataSet
 #'
 #' @param object and HiCDOCDataSet object
@@ -124,83 +206,15 @@ reduceHiCDOCDataSet <- function(object,
     replicates <- testValidId(object, replicates, "replicates")
 
     if (!is.null(chromosomes)) {
-        numchr <- which(object@chromosomes %in% chromosomes)
-        object@chromosomes <-
-            object@chromosomes[numchr]
-        if (dropLevels == TRUE) {
-            object@chromosomes <-
-                gtools::mixedsort(as.character(object@chromosomes))
-        }
-
-        object@weakBins <- object@weakBins[numchr]
-        object@totalBins <- object@totalBins[numchr]
-        for (slotName in c(
-            "interactions",
-            "distances",
-            "diagonalRatios",
-            "compartments",
-            "concordances",
-            "differences",
-            "centroids",
-            "positions"
-        )) {
-            if (!is.null(slot(object, slotName))) {
-                slot(object, slotName) %<>%
-                    dplyr::filter(chromosome %in% chromosomes)
-                if (dropLevels == TRUE) {
-                    slot(object, slotName) %<>%
-                        dplyr::mutate(chromosome = droplevels(chromosome))
-                }
-            }
-        }
+        object <- reduceHiCDOCChromosomes(object, chromosomes)
     }
 
     if (!is.null(conditions)) {
-        numcond <- which(object@conditions %in% conditions)
-        object@conditions <-
-            object@conditions[numcond]
-        object@replicates <-
-            object@replicates[numcond]
-        for (slotName in c(
-            "interactions",
-            "distances",
-            "diagonalRatios",
-            "compartments",
-            "concordances",
-            "centroids"
-        )) {
-            if (!is.null(slot(object, slotName))) {
-                slot(object, slotName) %<>%
-                    dplyr::filter(condition %in% conditions)
-                if (dropLevels == TRUE) {
-                    slot(object, slotName) %<>%
-                        dplyr::mutate(condition = droplevels(condition))
-                }
-            }
-        }
+        object <- reduceHiCDOCConditions(object, conditions)
     }
 
     if (!is.null(replicates)) {
-        numrep <- which(object@replicates %in% replicates)
-        object@conditions <-
-            object@conditions[numrep]
-        object@replicates <-
-            object@replicates[numrep]
-        for (slotName in c(
-            "interactions",
-            "distances",
-            "diagonalRatios",
-            "concordances"
-        )) {
-            if (!is.null(slot(object, slotName))) {
-                slot(object, slotName) %<>%
-                    dplyr::filter(replicate %in% replicates)
-                if (dropLevels == TRUE) {
-                    slot(object, slotName) %<>%
-                        dplyr::mutate(replicate = droplevels(replicate))
-                }
-            }
-        }
+        object <- reduceHiCDOCReplicates(object, replicates)
     }
 
     object@totalReplicates <- length(object@replicates)
