@@ -138,8 +138,8 @@ reformatInteractions <- function(interactions) {
     # Put matrix in upper only
     low <- which(interactions$bin.1 > interactions$bin.2)
     if (length(low) > 0) {
-        lowpos1 <- interactions[low, "bin.1"] %>% pull()
-        lowpos2 <- interactions[low, "bin.2"] %>% pull()
+        lowpos1 <- interactions[low, "bin.1"] %>% dplyr::pull()
+        lowpos2 <- interactions[low, "bin.2"] %>% dplyr::pull()
         interactions[low, ]$bin.1 <- lowpos2
         interactions[low, ]$bin.2 <- lowpos1
     }

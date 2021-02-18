@@ -352,7 +352,7 @@ diagonalRatios <-
         offDiagonal <- interactions %>%
             dplyr::filter(bin.1 != bin.2) %>%
             tidyr::pivot_longer(
-                cols = starts_with("bin"),
+                cols = tidyr::starts_with("bin"),
                 names_to = "namepos",
                 values_to = "bin"
             ) %>%

@@ -127,7 +127,7 @@ plotConcordance <- function(object,
         dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
         dplyr::filter(padj < padjThreshold) %>%
         tidyr::pivot_longer(
-            cols = starts_with("condition"),
+            cols = tidyr::starts_with("condition"),
             values_to = "condition"
         ) %>%
         dplyr::mutate(condition = paste0("confidence, cond. ", condition))

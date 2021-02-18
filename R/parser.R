@@ -106,8 +106,8 @@ parseCoolMatrix <- function(fileName) {
     bins %<>%
         dplyr::select(-(end)) %>%
         dplyr::rename(position = start) %>%
-        dplyr::mutate(id = seq_len(nrow(bins)) - 1) %>%
-        dplyr::select(id, chromosome, position)
+        dplyr::mutate(ide = seq_len(nrow(bins)) - 1) %>%
+        dplyr::select(ide, chromosome, position)
     rownames(bins) <- NULL
 
     data <- dplyr::tibble(
@@ -124,13 +124,13 @@ parseCoolMatrix <- function(fileName) {
             name = uri("pixels/count")
         )
     ) %>%
-        dplyr::left_join(bins, by = c("id1" = "id")) %>%
+        dplyr::left_join(bins, by = c("id1" = "ide")) %>%
         dplyr::rename(
             chromosome.1 = chromosome,
             position.1 = position
         ) %>%
         dplyr::select(-id1) %>%
-        dplyr::left_join(bins, by = c("id2" = "id")) %>%
+        dplyr::left_join(bins, by = c("id2" = "ide")) %>%
         dplyr::rename(
             chromosome.2 = chromosome,
             position.2 = position
@@ -313,7 +313,9 @@ parseHicPro <- function(vectFiles) {
         dplyr::arrange(chromosome, index) %>%
         dplyr::group_by(chromosome) %>%
         dplyr::mutate(bin = index - min(index) + 1) %>%
-        dplyr::mutate(end = ifelse(end == lead(start), end - 1, end)) %>%
+        dplyr::mutate(end = ifelse(end == dplyr::lead(start), 
+                                   end - 1, 
+                                   end)) %>%
         dplyr::ungroup() %>%
         dplyr::select(chromosome, start, end, bin)
 
