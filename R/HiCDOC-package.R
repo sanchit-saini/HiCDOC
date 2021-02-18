@@ -42,11 +42,7 @@
 #' Élise Maigné
 #'
 #' @import methods
-# @import dplyr
-# @import tidyr
-# @import HiCcompare
 #' @import ggplot2
-# @importFrom Rcpp evalCpp sourceCpp
 #' @importFrom GenomicRanges start end distance
 #' @importFrom magrittr %<>%
 #' @importFrom magrittr %>%

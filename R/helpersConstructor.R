@@ -124,9 +124,6 @@ replacePositionsByBins <- function(object) {
 #' @param interactions the slot interactions of a HiCDOCDataSet object.
 #'
 #' @return a tibble, of the interactions corrected
-#' @export
-#'
-#' @examples
 reformatInteractions <- function(interactions) {
     # Put matrix in upper only
     low <- which(interactions$bin.1 > interactions$bin.2)
