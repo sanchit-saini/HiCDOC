@@ -7,7 +7,10 @@
 \alias{HiCDOC}
 \title{HiCDOC: Robust differential compartment detection}
 \description{
-Find compartments with significantly differential binding using replicated Hi-C data.
+Find compartments with significantly differential binding using 
+    replicated Hi-C data.
+    bla bla bla
+    bla bla bla
 }
 \author{
 \strong{Maintainer}: Zytnicki Matthias \email{matthias.zytnicki@inrae.fr}

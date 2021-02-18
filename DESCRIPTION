@@ -7,7 +7,10 @@ Authors@R: c(
     person("Zytnicki", "Matthias", email = "matthias.zytnicki@inrae.fr", role = c("aut", "cre")),
     person("Foissac",  "Sylvain",  email = "sylvain.foissac@inrae.fr",   role = c("aut")),
     person("Maigné",   "Élise",    email = "elise.maigne@inrae.fr",      role = c("aut")))
-Description: Find compartments with significantly differential binding using replicated Hi-C data.
+Description: Find compartments with significantly differential binding using 
+    replicated Hi-C data.
+    bla bla bla
+    bla bla bla
 License: LGPL (>= 3) + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -17,7 +20,6 @@ Imports:
     utils,
     methods,
     rhdf5,
-    devtools,
     dplyr,
     tidyr,
     multiHiCcompare,

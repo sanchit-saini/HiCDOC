@@ -60,7 +60,7 @@ checkParameters <- function(parameters) {
 }
 
 ## - testValidId -----------------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## -------------------------------------------------------------------------#
 #' Test the existence of a set of identifier
 #'
 #' @param object A \code{HiCDOCDataSet} object.
@@ -89,8 +89,8 @@ testValidId <- function(object, id, what = "chromosomes") {
     }
 }
 
-## - testSlotsHiCDOC ----------------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - testSlotsHiCDOC --------------------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Test the existence of slots
 #'
 #' @param object A \code{HiCDOCDataSet} object.
@@ -103,7 +103,8 @@ testValidId <- function(object, id, what = "chromosomes") {
 #' @noRd
 testSlotsHiCDOC <- function(object, slots = NULL) {
     if (!is(object, "HiCDOCDataSet")) {
-        stop("The object provided is not from class HiCDOCDataSet", call. = FALSE)
+        stop("The object provided is not from class HiCDOCDataSet", 
+             call. = FALSE)
     }
 
     if (!is.null(slots)) {
@@ -134,7 +135,7 @@ testSlotsHiCDOC <- function(object, slots = NULL) {
                     "Missing slot(s): ",
                     paste(missing, collapse = ", "),
                     if (missingInteractions) {
-                        "\nPlease provide an HiCDOC object, with filled interactions."
+                        "\nPlease provide an HiCDOC object, with interactions."
                     },
                     if (missingCompartments) {
                         "\nPlease run 'detectCompartments' first."

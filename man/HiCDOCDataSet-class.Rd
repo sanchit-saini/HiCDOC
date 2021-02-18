@@ -52,6 +52,34 @@
 \arguments{
 \item{object}{a HiCDOCDataSet object.}
 }
+\value{
+For \code{chromosomes}: a character vector, with the name 
+of chromosomes
+
+For \code{conditions}: a character vector, with the name of 
+conditions, with repetition over the replicates.
+
+For \code{replicates}: a character vector, with the name of 
+conditions, with repetition over the conditions
+
+For \code{interactions}: a tibble of the interactions on all 
+the choromosomes, conditions and replicates
+
+For \code{positions}: a tibble of the positions corresponding
+to the bins, for each chromosome
+
+For \code{differences}: a tibble of the differences found by
+\code{detectCompartments}
+
+For \code{concordances}: a tibble of the concordances found by
+\code{detectCompartments}
+
+For \code{compartments}: a tibble of the compartments found by
+\code{detectCompartments}
+
+For \code{centroids}: a tibble of the centroids found by
+\code{detectCompartments}
+}
 \description{
 \code{HiCDOCDataSet} is an S4 class providing the infrastructure (slots)
 to store the input data, methods parameters, intermediate calculations
@@ -136,7 +164,7 @@ segmentation methods. See \code{\link{parameters}}.}
 
 \examples{
 object <- HiCDOCExample()
-## Show methods
+## Print the object
 object
 
 ## Accessors

@@ -5,9 +5,11 @@
 #' \code{\link[HiCDOC]{parameters}} function to access the parameters of a 
 #' HiCDOCDataSet object.
 #' @param object a HiCDOCDataSet object.
+#' @return For \code{chromosomes}: a character vector, with the name 
+#' of chromosomes
 #' @examples 
 #' object <- HiCDOCExample()
-#' ## Show methods
+#' ## Print the object
 #' object
 #' 
 #' ## Accessors
@@ -31,18 +33,24 @@ setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 ## --------------------------------------------------------------------------#
 #' @describeIn HiCDOCDataSet access and print the conditions
 #' @export
+#' @return For \code{conditions}: a character vector, with the name of 
+#' conditions, with repetition over the replicates.
 setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 
 #### - replicates -------------------------------------------------------####
 ## -------------------------------------------------------------------------#
 #' @describeIn HiCDOCDataSet access and print the replicates
 #' @export
+#' @return For \code{replicates}: a character vector, with the name of 
+#' conditions, with repetition over the conditions
 setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 
 #### - interactions ------------------------------------------------------####
 ## --------------------------------------------------------------------------#
 #' @describeIn HiCDOCDataSet access and print the interactions matrix
 #' @export
+#' @return For \code{interactions}: a tibble of the interactions on all 
+#' the choromosomes, conditions and replicates
 setMethod(
     f = "interactions",
     signature = "HiCDOCDataSet",
@@ -80,6 +88,8 @@ setMethod(
 ## --------------------------------------------------------------------------#
 #' @describeIn HiCDOCDataSet access and print the positions
 #' @export
+#' @return For \code{positions}: a tibble of the positions corresponding
+#' to the bins, for each chromosome
 setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
 
 
@@ -87,6 +97,8 @@ setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
 ## --------------------------------------------------------------------------#
 #' @describeIn HiCDOCDataSet access and print the differences
 #' @export
+#' @return For \code{differences}: a tibble of the differences found by
+#' \code{detectCompartments}
 setMethod(
     f = "differences",
     signature = "HiCDOCDataSet",
@@ -124,6 +136,8 @@ setMethod(
 ## --------------------------------------------------------------------------#
 #' @describeIn HiCDOCDataSet access and print the concordances
 #' @export
+#' @return For \code{concordances}: a tibble of the concordances found by
+#' \code{detectCompartments}
 setMethod(
     f = "concordances",
     signature = "HiCDOCDataSet",
@@ -151,6 +165,8 @@ setMethod(
 ## --------------------------------------------------------------------------#
 #' @describeIn HiCDOCDataSet access and print the compartments
 #' @export
+#' @return For \code{compartments}: a tibble of the compartments found by
+#' \code{detectCompartments}
 setMethod(
     f = "compartments",
     signature = "HiCDOCDataSet",
@@ -198,6 +214,8 @@ setMethod(
 ## --------------------------------------------------------------------------#
 #' @describeIn HiCDOCDataSet access and print the centroids
 #' @export
+#' @return For \code{centroids}: a tibble of the centroids found by
+#' \code{detectCompartments}
 setMethod("centroids", "HiCDOCDataSet", function(object) object@centroids)
 
 
