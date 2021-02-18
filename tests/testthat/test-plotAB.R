@@ -6,7 +6,7 @@ test_that("plotAB behaves as expected", {
     )
     set.seed(3215)
     object <- detectCompartments(object)
-    expect_error(plotAB(object), 'chromosomeId" est manquant')
+    expect_error(plotAB(object), '"chromosomeId"')
     expect_error(plotAB(object, 3), "Unknown")
 
     pp <- plotAB(object, 1)

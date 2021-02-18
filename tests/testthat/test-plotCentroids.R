@@ -6,7 +6,7 @@ test_that("plotCentroids behaves as expected", {
     )
     set.seed(3215)
     object <- detectCompartments(object)
-    expect_error(plotCentroids(object), 'chromosomeId" est manquant')
+    expect_error(plotCentroids(object), '"chromosomeId"')
     expect_error(plotCentroids(object, 3), "Unknown")
 
     pp <- plotCentroids(object, 1)

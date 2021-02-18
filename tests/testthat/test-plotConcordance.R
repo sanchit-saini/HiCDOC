@@ -6,7 +6,7 @@ test_that("plotConcordance behaves as expected", {
     )
     set.seed(3215)
     object <- detectCompartments(object)
-    expect_error(plotConcordance(object), 'chromosomeId" est manquant')
+    expect_error(plotConcordance(object), '"chromosomeId"')
     expect_error(plotConcordance(object, 3), "Unknown")
 
     pp <- plotConcordance(object, 1)
