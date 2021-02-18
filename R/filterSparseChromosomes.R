@@ -5,6 +5,7 @@
 #' @param chromosomeId the name of the chromosome
 #'
 #' @return a one line tibble
+#' @keywords internal
 sparsityChromosome <-
     function(object,
     chromosomeId) {
@@ -61,7 +62,9 @@ sparsityChromosome <-
 #'
 #' @return A HiCDOCDataSet object
 #' @export
-#'
+#' @seealso \code{\link[HiCDOC]{filterSmallChromosomes}}, 
+#' \code{\link[HiCDOC]{filterWeakPositions}} and 
+#' \code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
 #' @examples
 #' object <- HiCDOCExample()
 #' object <- filterSparseChromosomes(object)

@@ -20,3 +20,4 @@ A character vector of length 1
 Return the text indicating what represent the gray areas on
 plotConcordance()
 }
+\keyword{internal}

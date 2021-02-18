@@ -26,20 +26,8 @@
 # --------------------------------
 #
 ###############################################################################
-
-#' Title...
-#'
-#' \code{HiCODC} is a package...
-#' TODO
-#'
-#' @examples
-#' # TODO
 #' @docType package
-#' @name HiCDOC
-#' @aliases HiCDOC-package
-#'
-#' @author Cyril Kurylo and Matthias Zytnicki and Sylvain Foissac and
-#' Élise Maigné
+#' @aliases HiCDOC
 #'
 #' @import methods
 #' @import ggplot2
@@ -47,7 +35,11 @@
 #' @importFrom magrittr %<>%
 #' @importFrom magrittr %>%
 #' @importFrom Rcpp evalCpp sourceCpp
+#' @importFrom stats D loess median quantile
 #' @useDynLib HiCDOC
 #'
-#' @keywords package
-NULL
+#' @keywords internal
+"_PACKAGE"
+#' @examples
+#' object <- HiCDOCExample()
+#' object <- runHiCDOC(object)

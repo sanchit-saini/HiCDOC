@@ -15,3 +15,4 @@ the legend as a grob
 \description{
 Inspired from gtable::gtable_filter (not used to avoid dependency)
 }
+\keyword{internal}

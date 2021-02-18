@@ -6,6 +6,7 @@
 #' @param padjThreshold threshold for the significance
 #'
 #' @return A character vector of length 1
+#' @keywords internal
 textsignif <- function(differences, padjThreshold) {
     text <- "The grey areas are significant changes"
     if (nrow(differences) == 0) {
@@ -25,6 +26,7 @@ textsignif <- function(differences, padjThreshold) {
 #' @param positions The positions from the data
 #'
 #' @return A length 2 numerical vector
+#' @keywords internal
 testxlim <- function(xlim, positions) {
     if (is.null(xlim) == FALSE) {
         if (length(xlim) != 2) {
@@ -55,6 +57,7 @@ testxlim <- function(xlim, positions) {
 #' @param x a grob
 #'
 #' @return the legend as a grob
+#' @keywords internal
 extract_legends <- function(x) {
     matches <- grepl("guide-box", .subset2(x$layout, "name"), fixed = FALSE)
     x$layout <- x$layout[matches, , drop = FALSE]

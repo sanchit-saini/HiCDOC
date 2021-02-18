@@ -103,6 +103,9 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 #' slot, and the weak bins identified by chromosomes in \code{object@weakBins}.
 #' @export
 #'
+#' @seealso \code{\link[HiCDOC]{filterSmallChromosomes}}, 
+#' \code{\link[HiCDOC]{filterSparseChromosomes}} and 
+#' \code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
 #' @examples
 #' exp <- HiCDOCExample()
 #' exp <- filterWeakPositions(exp)

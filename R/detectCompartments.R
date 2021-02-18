@@ -1,17 +1,19 @@
-## - euclideanDistance --------------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - euclideanDistance ------------------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Compute the euclidean distance between two vectors.
 #'
 #' @param x  A vector.
 #' @param y  A vector.
 #'
 #' @return A float number.
+#' @keywords internal
+#' @noRd
 euclideanDistance <- function(x, y) {
     sqrt(sum((x - y)^2))
 }
 
-## - distanceRatio ------------------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - distanceRatio ----------------------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Compute the log ratio of the distance of a position to each centroid.
 #'
 #' @param x          A vector of a genomic position.
@@ -19,6 +21,8 @@ euclideanDistance <- function(x, y) {
 #' @param eps        A small epsilon to avoid log(0).
 #'
 #' @return A float number.
+#' @keywords internal
+#' @noRd
 distanceRatio <- function(x, centroids, eps = 1e-10) {
     return(log((
         euclideanDistance(x, centroids[[1]]) + eps
@@ -28,14 +32,17 @@ distanceRatio <- function(x, centroids, eps = 1e-10) {
         )))
 }
 
-## - tieCentroids -------------------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - tieCentroids -----------------------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Assign correct cluster labels by comparing centroids across conditions.
 #'
 #' @param object A \code{HiCDOCDataSet} object.
 #'
-#' @return A \code{HiCDOCDataSet} object, with diagonalRatios, and with corrected
-#' cluster labels in centroids, compartments, distances and concordances.
+#' @return A \code{HiCDOCDataSet} object, with diagonalRatios, and with 
+#' corrected cluster labels in centroids, compartments, distances and 
+#' concordances.
+#' @keywords internal
+#' @noRd
 tieCentroids <- function(object) {
     totalConditions <- length(unique(object@conditions))
     referenceCondition <- object@conditions[[1]]
@@ -96,7 +103,8 @@ tieCentroids <- function(object) {
 
     object@distances %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
-        dplyr::mutate(compartment = dplyr::if_else(compartment == 1, cl1, cl2)) %>%
+        dplyr::mutate(compartment = 
+                        dplyr::if_else(compartment == 1, cl1, cl2)) %>%
         dplyr::select(-c(cl1, cl2))
 
     object@centroids %<>%
@@ -110,8 +118,8 @@ tieCentroids <- function(object) {
     return(object)
 }
 
-## - clusterize for 1 chromosome and 1 condition-------------------------------#
-## ----------------------------------------------------------------------------#
+## - clusterize for 1 chromosome and 1 condition-----------------------------#
+## --------------------------------------------------------------------------#
 #' Segregate genomic positions into 2 clusters using constrained k-means.
 #'
 #' @param object  A \code{HiCDOCDataSet} object.
@@ -120,17 +128,19 @@ tieCentroids <- function(object) {
 #' @param conditionId A character or numeric value.
 #' Name or number of the condition
 #'
-#' @return A \code{HiCDOCDataSet} object, with:
-#' - centroid (vector) for each cluster
-#' - compartment (cluster number) for each genomic position
-#' - distances to centroids (float) for each genomic position in each replicate
-#' - concordance (float in [-1, 1]) for each genomic position in each replicate
+#' @return A list of length 4:
+#' * centroid (vector) for each cluster
+#' * compartment (cluster number) for each genomic position
+#' * distances to centroids (float) for each genomic position in 
+#' each replicate
+#' * concordance (float between -1 and  1) for each genomic position in 
+#' each replicate
+#' @md
+#' @keywords internal
+#' @noRd
 clusterizeChrCond <- function(object, chromosomeId, conditionId) {
     totalBinsChr <- object@totalBins[[chromosomeId]]
-    if (totalBinsChr == -Inf) {
-          return(NULL)
-      }
-
+    if (totalBinsChr == -Inf) return(NULL)
     positions <- seq.int(totalBinsChr)
 
     # Correct for filtered bins
@@ -241,8 +251,8 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
 }
 
 
-## - clusterize ---------------------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - clusterize -------------------------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Segregate genomic positions into 2 clusters using constrained k-means.
 #'
 #' @param object  A \code{HiCDOCDataSet} object.
@@ -253,6 +263,8 @@ clusterizeChrCond <- function(object, chromosomeId, conditionId) {
 #' - compartment (cluster number) for each genomic position
 #' - distances to centroids (float) for each genomic position in each replicate
 #' - concordance (float in [-1, 1]) for each genomic position in each replicate
+#' @keywords internal
+#' @noRd
 clusterize <- function(object,
     parallel = FALSE) {
     vectChr <-
@@ -305,8 +317,8 @@ clusterize <- function(object,
     return(object)
 }
 
-## - diagonalRatios -----------------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - diagonalRatios ---------------------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Compute the ratio of the reads which are on the diagonal vs those off-
 #'   diagonal, for each bin, and each matrix.
 #'
@@ -319,6 +331,8 @@ clusterize <- function(object,
 #' Name or number of the replicate
 #'
 #' @return a \code{tibble}.
+#' @keywords internal
+#' @noRd
 diagonalRatios <-
     function(object,
     chromosomeId,
@@ -366,8 +380,8 @@ diagonalRatios <-
         return(diagonalRatios)
     }
 
-## - predictAB ----------------------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - predictAB --------------------------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Use ratio between diagonal and off-diagonal interactions to determine which
 #' clusters correspond to compartments A and B.
 #'
@@ -377,6 +391,8 @@ diagonalRatios <-
 #' @return A \code{HiCDOCDataSet} object, with diagonalRatios, and with A and B
 #' labels replacing cluster numbers in centroids, compartments, distances and
 #' concordances.
+#' @keywords internal
+#' @noRd
 predictAB <- function(object,
     parallel = FALSE) {
     chromosomeIds <- rep(object@chromosomes, each = length(object@replicates))
@@ -473,8 +489,8 @@ predictAB <- function(object,
     return(object)
 }
 
-## - computePValues -----------------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - computePValues ---------------------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Get p-values for genomic positions whose assigned compartment switches
 #' between two conditions:
 #' 1. For each pair of replicates in different conditions, for each genomic
@@ -489,6 +505,8 @@ predictAB <- function(object,
 #' @param object A \code{HiCDOCDataSet} object.
 #'
 #' @return A \code{HiCDOCDataSet} object, with differences and their p-values.
+#' @keywords internal
+#' @noRd
 computePValues <- function(object) {
     # Compute median of differences between pairs of concordances
     # N.b. median of differences != difference of medians
@@ -591,8 +609,8 @@ computePValues <- function(object) {
     return(object)
 }
 
-## - detectCompartments -------------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - detectCompartments -----------------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Detect compartments for each genomic position in each condition, and compute
 #' p-values for compartment differences between conditions.
 #'

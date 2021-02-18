@@ -6,6 +6,8 @@
 #'
 #' @return list of updated parameters, default from HiCDOCDefaultParameters()
 #' if null.
+#' @keywords internal
+#' @noRd
 checkParameters <- function(parameters) {
     defaultParNames <- names(HiCDOCDefaultParameters)
     currentParNames <- names(parameters)
@@ -67,6 +69,8 @@ checkParameters <- function(parameters) {
 #' One of "chromosome", "condition", "replicate"
 #'
 #' @return The chromosome name or an error.
+#' @keywords internal
+#' @noRd
 testValidId <- function(object, id, what = "chromosomes") {
     valid <- unique(slot(object, what))
     if (all(id %in% valid)) {
@@ -87,7 +91,7 @@ testValidId <- function(object, id, what = "chromosomes") {
 
 ## - testSlotsHiCDOC ----------------------------------------------------------#
 ## ----------------------------------------------------------------------------#
-#' Test the existence of slots in HiCDOCDataSet object
+#' Test the existence of slots
 #'
 #' @param object A \code{HiCDOCDataSet} object.
 #' @param slots Character vector, names of slots to verify. Default to NULL.
@@ -95,6 +99,8 @@ testValidId <- function(object, id, what = "chromosomes") {
 #'
 #' @return An error if the object is not a HiCDOCDataSet object or a slot is
 #' missing.
+#' @keywords internal
+#' @noRd
 testSlotsHiCDOC <- function(object, slots = NULL) {
     if (!is(object, "HiCDOCDataSet")) {
         stop("The object provided is not from class HiCDOCDataSet", call. = FALSE)

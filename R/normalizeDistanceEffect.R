@@ -1,15 +1,14 @@
-## - normalizeDistanceEffectChr -----------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - normalizeDistanceEffectChr ---------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Normalize the distance effect using a loess on the intensity vs distance
 #' to diagonal.
-#'
-#' @rdname normalizeDistanceEffectChr
-#'
 #' @param object A \code{HiCDOCDataSet} object.
 #' @param chromosomeId The name or number of the chromosome to plot.
 #' If number, will be taken in \code{object@chromosomes[chromosomeId]}
 #'
 #' @return the normalized interaction matrix for this chromosome.
+#' @keywords internal
+#' @noRd
 normalizeDistanceEffectChr <- function(object, chromosomeId) {
     testSlotsHiCDOC(object,
         slots = c(
@@ -106,10 +105,10 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
 
 
 
-## - normalizeDistanceEffect --------------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Normalize the distance effect using a loess on the intensity vs distance
-#' to diagonal.
+## - normalizeDistanceEffect ------------------------------------------------#
+## --------------------------------------------------------------------------#
+#' Normalize the distance effect on a HiCDOCDataSet object using a loess 
+#' on the intensity vs distance to diagonal.
 #'
 #' @rdname normalizeDistanceEffect
 #'
@@ -122,11 +121,10 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
 #'
 #' @examples
 #' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
+#' @seealso \code{\link[HiCDOC]{normalizeTechnicalBiases}}, 
+#' \code{\link[HiCDOC]{normalizeBiologicalBiases}} and 
+#' \code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
 #' @export
 normalizeDistanceEffect <- function(object, sampleSize = NULL) {
     # Parameters

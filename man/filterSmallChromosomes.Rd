@@ -29,3 +29,8 @@ chromosomes(object)
 object <- filterSmallChromosomes(object)
 chromosomes(object)
 }
+\seealso{
+\code{\link[HiCDOC]{filterWeakPositions}}, 
+\code{\link[HiCDOC]{filterSparseChromosomes}} and 
+\code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
+}

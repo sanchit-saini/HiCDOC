@@ -4,15 +4,11 @@
 #'
 #' This function parses the tsv files provided in
 #' \code{object@inputMatrixPath}.
-#'
-#' @name parseInteractionMatrix3Columns
-#' @rdname parseInteractionMatrix3Columns
-#'
-#' @aliases parseInteractionMatrix3Columns
-#'
 #' @param object An \code{HiCDOCDataSet} object.
 #'
 #' @return object An \code{HiCDOCDataSet} object.
+#' @keywords internal
+#' @noRd
 parseInteractionMatrix3Columns <- function(object) {
     object@interactions <- utils::read.table(
         file = object@inputPath,
@@ -70,14 +66,10 @@ parseInteractionMatrix3Columns <- function(object) {
 ## - parseCoolMatrix ----------------------------------------------------------#
 ## ----------------------------------------------------------------------------#
 #' Parse a single interaction matrix in .(m)cool format.
-#'
-#' @name parseCoolMatrix
-#' @rdname parseCoolMatrix
-#'
-#' @aliases parseCoolMatrix
-#'
 #' @param fileName The name of the matrix file in HDF5 format.
 #' @return object An \code{tibble} storing the (sparse) interaction matrix.
+#' @keywords internal
+#' @noRd
 parseCoolMatrix <- function(fileName) {
     splitName <- strsplit(fileName, "::", fixed = TRUE)[[1]]
     # Separate file path from URI in case of mcool file
@@ -155,15 +147,11 @@ parseCoolMatrix <- function(fileName) {
 ## - parseMCoolMatrix ---------------------------------------------------------#
 ## ----------------------------------------------------------------------------#
 #' Parse a single interaction matrix in .mcool format.
-#'
-#' @name parseMCoolMatrix
-#' @rdname parseMCoolMatrix
-#'
-#' @aliases parseMCoolMatrix
-#'
 #' @param fileName The name of the matrix file in HDF5 format.
 #' @param resolution The chosen resolution (in bp)
 #' @return object An \code{tibble} storing the (sparse) interaction matrix.
+#' @keywords internal
+#' @noRd
 parseMCoolMatrix <- function(fileName, resolution = resolution) {
     return(parseCoolMatrix(paste0(fileName, "::resolutions/", resolution)))
 }
@@ -171,19 +159,15 @@ parseMCoolMatrix <- function(fileName, resolution = resolution) {
 
 ## - mergeMatrices ------------------------------------------------------------#
 ## ----------------------------------------------------------------------------#
-#' Merge the matrices which have been parsed separately.
-#' Store the result into a \code{HiCDOCDataSet} object.
-#'
-#' @name mergeMatrices
-#' @rdname mergeMatrices
-#'
-#' @aliases mergeMatrices
-#'
+#' Merge the matrices which have been parsed separately, and put the result
+#' in the interactions slot of the object.
 #' @param object A \code{HiCDOCDataSet} object, where the matrices should be
 #'          stored.
 #' @param matrices The different matrices (one per sample).
 #' @return object The \code{HiCDOCDataSet} object, where the matrices have been
 #'           added.
+#' @keywords internal
+#' @noRd
 mergeMatrices <- function(object, matrices) {
     for (i in seq_along(matrices)) {
         matrices[[i]]$replicate <- object@replicates[[i]]
@@ -204,15 +188,12 @@ mergeMatrices <- function(object, matrices) {
 #'
 #' This function parses the .cool files provided in
 #' \code{object@inputMatrixPath}.
-#'
-#' @name parseInteractionMatrixCool
-#' @rdname parseInteractionMatrixCool
-#'
-#' @aliases parseInteractionMatrixCool
-#'
+#' 
 #' @param object An \code{HiCDOCDataSet} object.
 #'
 #' @return object An \code{HiCDOCDataSet} object.
+#' @keywords internal
+#' @noRd
 parseInteractionMatrixCool <- function(object) {
     matrices <- pbapply::pblapply(object@inputPath, parseCoolMatrix)
     return(mergeMatrices(object, matrices))
@@ -224,16 +205,13 @@ parseInteractionMatrixCool <- function(object) {
 #'
 #' This function parses the .mcool files provided in
 #' \code{object@inputMatrixPath} at a given resolution.
-#'
-#' @name parseInteractionMatrixMCool
-#' @rdname parseInteractionMatrixMCool
-#'
-#' @aliases parseInteractionMatrixMCool
-#'
+
 #' @param object     An \code{HiCDOCDataSet} object.
 #' @param resolution The chosen resolution, in base pairs.
 #'
 #' @return object    An \code{HiCDOCDataSet} object.
+#' @keywords internal
+#' @noRd
 parseInteractionMatrixMCool <- function(object, resolution) {
     matrices <- pbapply::pblapply(object@inputPath,
         parseMCoolMatrix,
@@ -245,17 +223,13 @@ parseInteractionMatrixMCool <- function(object, resolution) {
 ## - parseHicMatrix -----------------------------------------------------------#
 ## ----------------------------------------------------------------------------#
 #' Parse a single interaction matrix in .hic format.
-#'
-#' @name parseHicMatrix
-#' @rdname parseHicMatrix
-#'
-#' @aliases parseHicMatrix
-#'
 #' @param fileName   The file name of the .hic file.
 #' @param resolution The chosen resolution (should be present in the
 #'                     .hic file).
 #'
 #' @return object An \code{tibble} storing the (sparse) interaction matrix.
+#' @keywords internal
+#' @noRd
 parseHicMatrix <- function(fileName, resolution = resolution) {
     message(paste0("Parsing .hic matrix '", fileName, "'."))
     return(parseHic(fileName, resolution))
@@ -267,15 +241,12 @@ parseHicMatrix <- function(fileName, resolution = resolution) {
 #'
 #' This function parses the .hic files provided in
 #' \code{object@inputPath}.
-#'
-#' @name parseInteractionMatrixHic
-#' @rdname parseInteractionMatrixHic
-#'
-#' @aliases parseInteractionMatrixHic
-#'
+
 #' @param object An \code{HiCDOCDataSet} object.
 #'
 #' @return object An \code{HiCDOCDataSet} object.
+#' @keywords internal
+#' @noRd
 parseInteractionMatrixHic <- function(object) {
     matrices <-
         pbapply::pblapply(object@inputPath,
@@ -308,13 +279,10 @@ parseInteractionMatrixHic <- function(object) {
 ## ----------------------------------------------------------------------------#
 #' Parse a single interaction matrix in HiC-Pro format
 #'
-#' @name parseHicPro
-#' @rdname parseHicPro
-#'
-#' @aliases parseHicPro
-#'
 #' @param vectFiles 2 length vector, of the links to .matrix and .bed files.
 #' @return object An \code{tibble} storing the (sparse) interaction matrix.
+#' @keywords internal
+#' @noRd
 parseHicPro <- function(vectFiles) {
     if (length(vectFiles) != 2) {
         stop("vectFiles must be of length 2")
@@ -392,15 +360,11 @@ parseHicPro <- function(vectFiles) {
 #'
 #' This function parses the HiC-Pro files provided in
 #' \code{object@inputPath}.
-#'
-#' @name parseInteractionMatrixHicPro
-#' @rdname parseInteractionMatrixHicPro
-#'
-#' @aliases parseInteractionMatrixHicPro
-#'
 #' @param object An \code{HiCDOCDataSet} object.
 #'
 #' @return object An \code{HiCDOCDataSet} object.
+#' @keywords internal
+#' @noRd
 parseInteractionMatrixHicPro <- function(object) {
     matrices <- pbapply::pblapply(
         object@inputPath,

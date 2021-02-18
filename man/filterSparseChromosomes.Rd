@@ -39,3 +39,8 @@ on at least one condition and one replicate.
 object <- HiCDOCExample()
 object <- filterSparseChromosomes(object)
 }
+\seealso{
+\code{\link[HiCDOC]{filterSmallChromosomes}}, 
+\code{\link[HiCDOC]{filterWeakPositions}} and 
+\code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
+}

@@ -95,9 +95,6 @@ KR <- function(A,
 ## - normalizeBiologicalBiasesChr --------------------------------------------#
 ## ---------------------------------------------------------------------------#
 #' Remove biological biases by normalizing with Knight-Ruiz matrix balancing.
-#'
-#' @rdname normalizeBiologicalBiasesChr
-#'
 #' @param object A \code{HiCDOCDataSet} object.
 #' @param chromosomeId The name or number of the chromosome to plot.
 #' If number, will be taken in \code{object@chromosomes[chromosomeId]}
@@ -168,7 +165,8 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
 
 ## - normalizeBiologicalBiases ------------------------------------------------#
 ## ----------------------------------------------------------------------------#
-#' Remove biological biases by normalizing with Knight-Ruiz matrix balancing.
+#' Remove biological biases on a HiCDOCDataSet object by normalizing 
+#' with Knight-Ruiz matrix balancing.
 #'
 #' @rdname normalizeBiologicalBiases
 #'
@@ -180,6 +178,9 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
 #' object <- HiCDOCExample()
 #' object <- normalizeTechnicalBiases(object)
 #' object <- normalizeBiologicalBiases(object)
+#' @seealso \code{\link[HiCDOC]{normalizeTechnicalBiases}}, 
+#' \code{\link[HiCDOC]{normalizeDistanceEffect}} and 
+#' \code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
 #' @export
 normalizeBiologicalBiases <- function(object) {
     interactionsNorm <-

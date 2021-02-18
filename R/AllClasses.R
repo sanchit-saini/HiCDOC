@@ -1,14 +1,9 @@
-#### - HiCDOCDefaultParameters ---------------------------------------------####
-
-## --- HiCDOCDefaultParameters ------------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' List of HiCDOC default parameters.
-#'
-#' @name HiCDOCDefaultParameters
-#' @docType data
-#' @keywords data
+#### - HiCDOCDefaultParameters -------------------------------------------####
+#' @describeIn parameters Default parameters for the HiCDOC pipeline
 #' @examples
+#' # All the default parameters
 #' HiCDOCDefaultParameters
+#' 
 #' @export
 HiCDOCDefaultParameters <- list(
     minLengthChr = 100,
@@ -22,11 +17,12 @@ HiCDOCDefaultParameters <- list(
 
 #### - HiCDOCDataSet parsers ---------------------------------------------####
 
-## - makeHiCDOCDataSet --------------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - makeHiCDOCDataSet ------------------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Constructor function for the \code{HiCDOCDataSet} class.
 #'
-#' @param inputPath    One or several file(s) that contain the input matrix/ces.
+#' @param inputPath    One or several file(s) that contain the input 
+#' matrix/ces.
 #' @param interactions The interaction matrices.
 #' @param replicates   The list of the replicate names.
 #' @param conditions   The names of the two conditions.
@@ -34,11 +30,8 @@ HiCDOCDefaultParameters <- list(
 #' @param hicPro       Logical. Default to FALSE. Does the data sent are in
 #' HiC-Pro format ?
 #' @return A \code{HiCDOCDataSet} object.
-#' @export
-#' @examples
-#' basedir <- system.file("extdata", package = "HiCDOC", mustWork = TRUE)
-#' matrix <- file.path(basedir, "sampleMatrix.tsv")
-#' data <- makeHiCDOCDataSet(inputPath = matrix)
+#' @keywords internal
+#' @noRd
 makeHiCDOCDataSet <- function(
     inputPath = NULL,
     interactions = NULL,
@@ -46,8 +39,8 @@ makeHiCDOCDataSet <- function(
     conditions = NULL,
     binSize = NULL,
     hicPro = FALSE) {
-    ## - checking general input arguments -------------------------------------#
-    ## ------------------------------------------------------------------------#
+    ## - checking general input arguments -----------------------------------#
+    ## ----------------------------------------------------------------------#
 
     ## - matrix
     if (is.null(inputPath)) {
@@ -80,7 +73,7 @@ makeHiCDOCDataSet <- function(
             }
         }
     }
-    ## - end checking ---------------------------------------------------------#
+    ## - end checking -------------------------------------------------------#
 
     object <- new("HiCDOCDataSet")
     object@inputPath <- inputPath
@@ -100,8 +93,8 @@ makeHiCDOCDataSet <- function(
 }
 
 
-## - HiCDOCDataSet S4 class constructor from sparse matrix --------------------#
-## ----------------------------------------------------------------------------#
+## - HiCDOCDataSet S4 class constructor from sparse matrix ------------------#
+## --------------------------------------------------------------------------#
 #' Reads a sparse matrix and fill a \code{HiCDOCDataSet} with its content.
 #'
 #' @rdname HiCDOCDataSetFromSparseMatrix
@@ -110,15 +103,15 @@ makeHiCDOCDataSet <- function(
 #' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
 #'         object of class S4.
 #' @examples
-#' linkToMatrix <- system.file("extdata", "sampleMatrix.tsv", package = "HiCDOC")
-#' dataSet <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
+#' link <- system.file("extdata", "sampleMatrix.tsv", package = "HiCDOC")
+#' dataSet <- HiCDOCDataSetFromSparseMatrix(link)
 #' dataSet
 #' @export
 HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
-    ## - checking general input arguments -------------------------------------#
-    ## ------------------------------------------------------------------------#
+    ## - checking general input arguments -----------------------------------#
+    ## ----------------------------------------------------------------------#
 
-    ## - end checking ---------------------------------------------------------#
+    ## - end checking -------------------------------------------------------#
 
     data <- makeHiCDOCDataSet(inputPath = matrix)
     object <- parseInteractionMatrix3Columns(data)
@@ -127,8 +120,8 @@ HiCDOCDataSetFromSparseMatrix <- function(matrix = NULL) {
 }
 
 
-## - HiCDOCDataSet S4 class constructor from cool files -----------------------#
-## ----------------------------------------------------------------------------#
+## - HiCDOCDataSet S4 class constructor from cool files ---------------------#
+## --------------------------------------------------------------------------#
 #' Construct a \code{HiCDOCDataSet} from a cool file.
 #' @rdname HiCDOCDataSetFromCool
 #' @docType class
@@ -159,8 +152,8 @@ HiCDOCDataSetFromCool <- function(
     replicates,
     conditions) {
 
-    ## - checking general input arguments -------------------------------------#
-    ## ------------------------------------------------------------------------#
+    ## - checking general input arguments -----------------------------------#
+    ## ----------------------------------------------------------------------#
 
     ## - coolFileNames
     if (is.null(coolFileNames)) {
@@ -193,7 +186,7 @@ HiCDOCDataSetFromCool <- function(
     if (is.factor(conditions)) {
         conditions <- as.vector(conditions)
     }
-    ## - end checking ---------------------------------------------------------#
+    ## - end checking -------------------------------------------------------#
 
     data <- makeHiCDOCDataSet(
         inputPath = coolFileNames,
@@ -207,8 +200,8 @@ HiCDOCDataSetFromCool <- function(
 }
 
 
-## - HiCDOCDataSet S4 class constructor from hic files ------------------------#
-## ----------------------------------------------------------------------------#
+## - HiCDOCDataSet S4 class constructor from hic files ----------------------#
+## --------------------------------------------------------------------------#
 #' Construct a \code{HiCDOCDataSet} from a hic file.
 #' @rdname HiCDOCDataSetFromHic
 #' @docType class
@@ -230,8 +223,8 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
     replicates,
     conditions,
     resolution) {
-    ## - checking general input arguments -------------------------------------#
-    ## ------------------------------------------------------------------------#
+    ## - checking general input arguments -----------------------------------#
+    ## ----------------------------------------------------------------------#
 
     ## - hicFileNames
     if (is.null(hicFileNames)) {
@@ -260,7 +253,7 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
         stop("'resolution' should be an integer.", call. = FALSE)
     }
 
-    ## - end checking ---------------------------------------------------------#
+    ## - end checking -------------------------------------------------------#
 
     data <- makeHiCDOCDataSet(
         inputPath = hicFileNames,
@@ -274,8 +267,8 @@ HiCDOCDataSetFromHic <- function(hicFileNames,
     return(invisible(object))
 }
 
-## - HiCDOCDataSet S4 class constructor from HiC-Pro files --------------------#
-## ----------------------------------------------------------------------------#
+## - HiCDOCDataSet S4 class constructor from HiC-Pro files ------------------#
+## --------------------------------------------------------------------------#
 #' Construct a \code{HiCDOCDataSet} from hHiC-Pro files
 #' @rdname HiCDOCDataSetFromHicPro
 #' @docType class
@@ -297,13 +290,13 @@ HiCDOCDataSetFromHicPro <- function(matrixFileNames,
     bedFileNames,
     replicates,
     conditions) {
-    ## - checking general input arguments -------------------------------------#
-    ## ------------------------------------------------------------------------#
+    ## - checking general input arguments -----------------------------------#
+    ## ----------------------------------------------------------------------#
 
     ## - Matrix files
     if (!is.vector(matrixFileNames) || !is.character(matrixFileNames)) {
-        stop("'matrixFileNames' must be a character vector, giving the links to
-           .matrix files.", call. = FALSE)
+        stop(paste("'matrixFileNames' must be a character vector,",
+             "giving the links to matrix files."), call. = FALSE)
     }
 
     # bedFiles
@@ -313,7 +306,8 @@ HiCDOCDataSetFromHicPro <- function(matrixFileNames,
     }
 
     if (length(matrixFileNames) != length(bedFileNames)) {
-          stop("'matrixFileNames' and 'bedFileNames' should have the same length.",
+          stop(paste("'matrixFileNames' and 'bedFileNames'",
+                     "should have the same length."),
               call. = FALSE
           )
       }
@@ -326,7 +320,7 @@ HiCDOCDataSetFromHicPro <- function(matrixFileNames,
         conditions <- as.vector(conditions)
     }
     
-    ## - end checking ---------------------------------------------------------#
+    ## - end checking -------------------------------------------------------#
     hicProFiles <- split(
         cbind(matrixFileNames, bedFileNames),
         seq(length(matrixFileNames))
@@ -346,10 +340,10 @@ HiCDOCDataSetFromHicPro <- function(matrixFileNames,
     return(invisible(object))
 }
 
-#### - HiCDOCDataSet constructors---------------------------------------------####
+#### - HiCDOCDataSet constructors-----------------------------------------####
 
-## - Example constructor ------------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - Example constructor ----------------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Example constructor
 #'
 #' This function provides an example of a \code{HiCDOCDataSet} object from
@@ -373,20 +367,22 @@ HiCDOCExample <- function() {
 
 #### - class definition ####
 ## HiCDOCDataSet S4 class definition ----------------------------------------#
-## ---------------------------------------------------------------------------#
-#' Infrastructure for HiCDOC experiment and differential interaction
+## --------------------------------------------------------------------------#
+#' Infrastructure for HiCDOC experiment and differential interaction.
 #'
 #' \code{HiCDOCDataSet} is an S4 class providing the infrastructure (slots)
 #' to store the input data, methods parameters, intermediate calculations
 #' and results of a differential interaction pipeline
-#'
-#' @details HiCDOCDataSet does this
-#'
-#' @name HiCDOCDataSet
-#' @rdname HiCDOCDataSet
-#' @docType class
-#' @aliases HiCDOCDataSet HiCDOCDataSet-class
-#'
+#' 
+#' @aliases HiCDOCDataSet HiCDOCDataSet-class chromosomes conditions 
+#' replicates interactions positions differences concordances compartments 
+#' centroids show
+#' @details 
+#' A HiCDOCDataSet can be constructed from 4 different types of data :
+#' * Matrices: see \code{\link{HiCDOCDataSetFromSparseMatrix}}
+#' * Cool or mCool data: see \code{\link{HiCDOCDataSetFromCool}}
+#' * Hic files: see \code{\link{HiCDOCDataSetFromHic}}
+#' * Hic Pro matrices and bed files: see \code{\link{HiCDOCDataSetFromHicPro}}
 #' @slot inputPath The names of the matrix input files.
 #' @slot interactions The interaction matrices.
 #' @slot weakBins The empty bins.
@@ -408,8 +404,14 @@ HiCDOCExample <- function() {
 #' @slot parameters An named \code{list}. The parameters for the
 #' segmentation methods. See \code{\link{parameters}}.
 #' @slot positions The position of the bins.
-#'
+#' @seealso \code{\link{HiCDOCExample}}, 
+#' \code{\link{parameters}}, 
+#' \code{\link{HiCDOCDataSetFromSparseMatrix}}, 
+#' \code{\link{HiCDOCDataSetFromCool}},
+#' \code{\link{HiCDOCDataSetFromHic}},
+#' \code{\link{HiCDOCDataSetFromHicPro}}
 #' @export
+#' @md
 setClass(
     "HiCDOCDataSet",
     slots = c(
@@ -437,25 +439,23 @@ setClass(
 
 ## - HiCDOCDataSet S4 class constructor -------------------------------------#
 ## --------------------------------------------------------------------------#
-#' @rdname HiCDOCDataSet
-#' @docType class
-#'
-#' @param object     A \code{HiCDOCDataSet} object.
-#' @param parameters A named \code{list}. The parameters for the
-#'                    segmentation methods. See \code{\link{parameters}}.
-#' @param binSize    integer. The resolution.
+#' Constructor for the HiCDOCDataSet class.
+#' 
+#' This function should not be called directly. It is called by the functions
+#' \code{\link{HiCDOCDataSetFromSparseMatrix}}, 
+#' \code{\link{HiCDOCDataSetFromCool}}, 
+#' \code{\link{HiCDOCDataSetFromHic}} and 
+#' \code{\link{HiCDOCDataSetFromHicPro}}.
+#' @name HiCDOCDataSet-constructor
+#' @rdname HiCDOCDataSet-constructor
+#' @aliases HiCDOCDataSet-constructor
+#' @param object A prefilled \code{HiCDOCDataSet} object.
 #'
 #' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
 #'         object of class S4.
-#'
-#' @examples
-#' linkToMatrix <- system.file("extdata", "sampleMatrix.tsv", package = "HiCDOC")
-#' srnaDataSet <- HiCDOCDataSetFromSparseMatrix(linkToMatrix)
-#' @export
-HiCDOCDataSet <- function(object = NULL,
-    parameters = NULL,
-    binSize = NULL) {
-
+#' @keywords internal
+#' @noRd
+HiCDOCDataSet <- function(object = NULL) {
     # Create new empty object
     if (is.null(object)) {
         # stop("'dataSet' must be specified", call. = FALSE)
@@ -464,11 +464,7 @@ HiCDOCDataSet <- function(object = NULL,
 
     # Fill binSize slot
     if (is.null(object@binSize)) {
-        if (!is.null(binSize)) {
-            object@binSize <- binSize
-        } else {
-            object@binSize <- computeBinSize(object)
-        }
+        object@binSize <- computeBinSize(object)
     }
 
     if (!is.null(object@interactions)) {
@@ -512,28 +508,59 @@ HiCDOCDataSet <- function(object = NULL,
             FUN.VALUE = 0
         )
     }
-
+    
     object@parameters <- HiCDOCDefaultParameters
-    if (!is.null(parameters)) {
-        parameters(object) <- parameters
-    }
-
     return(invisible(object))
 }
 
 #### - Pipeline method ####
-## - Main method --------------------------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Main method.  Start the pipeline with default parameters.
-#'
+## - Main method ------------------------------------------------------------#
+## --------------------------------------------------------------------------#
+#' Launch the HiCDOC pipeline.
+#' 
+#' This functions allow to run all the recommended steps to run the HiCDOC 
+#' pipeline. 
+#' 
+#' \subsection{The pipeline have 7 steps :}{
+#'    \describe{
+#'        \item{3 filters to clean the data:}{
+#'        \itemize{
+#'            \item{\code{\link{filterSmallChromosomes}}}{
+#'            to filter the too small chromosomes}
+#'            \item{\code{\link{filterWeakPositions}}}{
+#'            to filter the "weak" positions of a chromosome}
+#'            \item{\code{\link{filterSparseChromosomes}}}{
+#'            to filter the too sparse interactions matrix
+#'            by chromosome}
+#'        }
+#'      }
+#'    \item{3 normalization steps to normalize the data:}{
+#'    \itemize{
+#'      \item{\code{\link{normalizeTechnicalBiases}}}{
+#'      to normalize the data in case of tehnical bias}
+#'      \item{\code{\link{normalizeBiologicalBiases}}}{
+#'      to normalize the data in case of biological bias}
+#'      \item{\code{\link{normalizeDistanceEffect}}}{
+#'      to normalize the distance effect}
+#'    }
+#'    }
+#'    \item{the detection of compartments}{
+#' \itemize{
+#'      \item{\code{\link{detectCompartments}}}{
+#'      to run the detection of compartments and sinificant differences}
+#'    }
+#'  }
+#'    }
+#'}
 #' @param object A \code{HiCDOCDataSet} object.
-#' @param parallel Logical, default to FALSE. Should parallel computation should be used ?
+#' @param parallel Logical, default to FALSE. Should parallel computation 
+#' should be used ?
 #' @return Returns an \code{HiCDOCDataSet} object.
 #' @examples
 #' object <- HiCDOCExample()
-#' object <- HiCDOC(object)
+#' object <- runHiCDOC(object)
 #' @export
-HiCDOC <- function(object, parallel = FALSE) {
+runHiCDOC <- function(object, parallel = FALSE) {
     object <- filterSmallChromosomes(object)
     object <- filterSparseChromosomes(object)
     object <- filterWeakPositions(object)

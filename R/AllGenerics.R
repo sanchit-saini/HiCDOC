@@ -6,6 +6,22 @@ setGeneric(
     }
 )
 
+## - conditions
+setGeneric(
+    name = "conditions",
+    def = function(object) {
+        standardGeneric("conditions")
+    }
+)
+
+## - replicates
+setGeneric(
+    name = "replicates",
+    def = function(object) {
+        standardGeneric("replicates")
+    }
+)
+
 ## - interactions
 setGeneric(
     name = "interactions",

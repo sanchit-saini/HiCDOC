@@ -30,3 +30,8 @@ be discarded, and added in object@weakBins.
 exp <- HiCDOCExample()
 exp <- filterWeakPositions(exp)
 }
+\seealso{
+\code{\link[HiCDOC]{filterSmallChromosomes}}, 
+\code{\link[HiCDOC]{filterSparseChromosomes}} and 
+\code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
+}

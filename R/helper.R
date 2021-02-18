@@ -1,5 +1,5 @@
-## - sparseInteractionsToMatrix -----------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - sparseInteractionsToMatrix ---------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Build the interaction matrix for a chromosome in a condition and replicate.
 #'
 #' @param object A \code{HiCDOCDataSet} object.
@@ -9,6 +9,8 @@
 #' @param filter  Shrink the matrix by removing weak rows/columns.
 #'
 #' @return A matrix.
+#' @keywords internal
+#' @noRd
 sparseInteractionsToMatrix <- function(object,
     chromosomeId,
     conditionId,
@@ -47,8 +49,8 @@ sparseInteractionsToMatrix <- function(object,
     return(result)
 }
 
-## - matrixToSparseInteractions -----------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - matrixToSparseInteractions ---------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Build the interactions tibble for a chromosome in a condition and replicate.
 #'
 #' @param m                         A matrix.
@@ -58,6 +60,8 @@ sparseInteractionsToMatrix <- function(object,
 #' @param replicateId     A replicate.
 #'
 #' @return An interactions tibble.
+#' @keywords internal
+#' @noRd
 matrixToSparseInteractions <- function(m,
     object,
     chromosomeId,
@@ -101,7 +105,7 @@ matrixToSparseInteractions <- function(m,
 #'
 #' @examples
 #' object <- HiCDOCExample()
-#' objSmall <- reduceHiCDOCDataSet(object, chromosomes = "17", replicates = "1")
+#' small <- reduceHiCDOCDataSet(object, chromosomes = "17", replicates = "1")
 reduceHiCDOCDataSet <- function(object,
     chromosomes = NULL,
     conditions = NULL,

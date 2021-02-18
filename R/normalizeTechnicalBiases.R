@@ -1,20 +1,21 @@
-## - normalizeTechnicalBiases -------------------------------------------------#
-## ----------------------------------------------------------------------------#
+## - normalizeTechnicalBiases -----------------------------------------------#
+## --------------------------------------------------------------------------#
 #' Normalize the distance effect using a cyclic loess on all the matrices.
 #'
 #' @rdname normalizeTechnicalBiases
 #'
 #' @param object A \code{HiCDOCDataSet} object.
-#' @param parallel Logical, defautl to FALSE. Should parallel computing be used
-#' in \code{\link[multiHiCcompare]{cyclic_loess}} ?
+#' @param parallel Logical, defautl to FALSE. Should parallel computing be 
+#' used in \code{\link[multiHiCcompare]{cyclic_loess}} ?
 #'
 #' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
 #'
 #' @examples
 #' object <- HiCDOCExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
 #' object <- normalizeTechnicalBiases(object)
+#' @seealso \code{\link[HiCDOC]{normalizeBiologicalBiases}}, 
+#' \code{\link[HiCDOC]{normalizeDistanceEffect}} and 
+#' \code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
 #' @export
 normalizeTechnicalBiases <- function(object, parallel = FALSE) {
 

@@ -2,7 +2,8 @@
 % Please edit documentation in R/normalizeBiologicalBiases.R
 \name{normalizeBiologicalBiases}
 \alias{normalizeBiologicalBiases}
-\title{Remove biological biases by normalizing with Knight-Ruiz matrix balancing.}
+\title{Remove biological biases on a HiCDOCDataSet object by normalizing 
+with Knight-Ruiz matrix balancing.}
 \usage{
 normalizeBiologicalBiases(object)
 }
@@ -13,10 +14,16 @@ normalizeBiologicalBiases(object)
 A \code{HiCDOCDataSet} object, with the normalized matrices.
 }
 \description{
-Remove biological biases by normalizing with Knight-Ruiz matrix balancing.
+Remove biological biases on a HiCDOCDataSet object by normalizing 
+with Knight-Ruiz matrix balancing.
 }
 \examples{
 object <- HiCDOCExample()
 object <- normalizeTechnicalBiases(object)
 object <- normalizeBiologicalBiases(object)
+}
+\seealso{
+\code{\link[HiCDOC]{normalizeTechnicalBiases}}, 
+\code{\link[HiCDOC]{normalizeDistanceEffect}} and 
+\code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
 }

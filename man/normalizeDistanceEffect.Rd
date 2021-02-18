@@ -2,8 +2,8 @@
 % Please edit documentation in R/normalizeDistanceEffect.R
 \name{normalizeDistanceEffect}
 \alias{normalizeDistanceEffect}
-\title{Normalize the distance effect using a loess on the intensity vs distance
-to diagonal.}
+\title{Normalize the distance effect on a HiCDOCDataSet object using a loess 
+on the intensity vs distance to diagonal.}
 \usage{
 normalizeDistanceEffect(object, sampleSize = NULL)
 }
@@ -18,14 +18,15 @@ all the bins. If NULL, default to the first not NULL of
 A \code{HiCDOCDataSet} object, with the normalized matrices.
 }
 \description{
-Normalize the distance effect using a loess on the intensity vs distance
-to diagonal.
+Normalize the distance effect on a HiCDOCDataSet object using a loess 
+on the intensity vs distance to diagonal.
 }
 \examples{
 object <- HiCDOCExample()
-object <- filterSmallChromosomes(object)
-object <- filterWeakPositions(object)
-object <- normalizeTechnicalBiases(object)
-object <- normalizeBiologicalBiases(object)
 object <- normalizeDistanceEffect(object)
+}
+\seealso{
+\code{\link[HiCDOC]{normalizeTechnicalBiases}}, 
+\code{\link[HiCDOC]{normalizeBiologicalBiases}} and 
+\code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
 }

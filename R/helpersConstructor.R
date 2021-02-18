@@ -3,7 +3,7 @@
 # These functions are called by HiCDOCDataSet() function
 
 #### computeBinSize ##########################################################
-#' Compute the binSize of an HiCDOCDataset object
+#' Compute the binSize 
 #'
 #' The function takes a HiCDOCDataset object and compute the binSize from
 #' the positions in the interactions matrix.
@@ -11,6 +11,8 @@
 #' @param object a HiCDOCDataSet object.
 #'
 #' @return binSize, an integer.
+#' @keywords internal
+#' @noRd
 computeBinSize <- function(object) {
     if (!is.null(object@interactions)) {
         binSize <- min(abs(
@@ -26,7 +28,7 @@ computeBinSize <- function(object) {
 }
 
 #### determinePositions ######################################################
-#' Determine the positions corresponding to the bins of a HiCDOCDataSet object
+#' Determine the positions corresponding to the bins
 #'
 #' The function determines, for each chromosome, the positions corresponding
 #' to the bins from the interaction matrix and the binSize. The positions will
@@ -35,6 +37,8 @@ computeBinSize <- function(object) {
 #' @param object a HiCDOCDataSet
 #'
 #' @return a tibble, with 4 columns : chromosome, bin, start, end.
+#' @keywords internal
+#' @noRd
 determinePositions <- function(object) {
     testSlotsHiCDOC(object, c("chromosomes", "interactions"))
     chromosomes <- object@chromosomes
@@ -83,12 +87,13 @@ determinePositions <- function(object) {
 }
 
 #### replacePositionsByBins ##################################################
-#' The function takes an HiCDOC object and replace the positions by the
-#' corresponding bins in the interaction matrix
+#' Replace the positions by the corresponding bins in the interaction matrix
 #'
 #' @param object a HiCDOCDataSet object
 #'
 #' @return a tibble, of the modified interactions matrix.
+#' @keywords internal
+#' @noRd
 replacePositionsByBins <- function(object) {
     chromosomes <- object@chromosomes
     interactions <- object@interactions %>%
@@ -115,6 +120,9 @@ replacePositionsByBins <- function(object) {
 }
 
 #### reformatInteractions ##################################################
+#' Reformat the interaction matrix
+#' 
+#' 
 #' The function takes an interaction matrix and performs some correction
 #' - the matrix is putted in upper format only (the values in the lower side
 #' will be reaffected in the upper side)
@@ -124,6 +132,8 @@ replacePositionsByBins <- function(object) {
 #' @param interactions the slot interactions of a HiCDOCDataSet object.
 #'
 #' @return a tibble, of the interactions corrected
+#' @keywords internal
+#' @noRd
 reformatInteractions <- function(interactions) {
     # Put matrix in upper only
     low <- which(interactions$bin.1 > interactions$bin.2)

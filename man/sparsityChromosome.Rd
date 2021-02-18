@@ -19,3 +19,4 @@ a one line tibble
 sparsityChromosome
 Compute the maximum of sparsity of a given chromosome
 }
+\keyword{internal}

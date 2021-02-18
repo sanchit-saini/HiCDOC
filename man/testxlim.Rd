@@ -19,3 +19,4 @@ test if the xlim is valid (length(2)) or \code{NULL} and return
 the xlim for the plot.
 If \code{NULL} or invalid return the min and max of \code{positions}.
 }
+\keyword{internal}
