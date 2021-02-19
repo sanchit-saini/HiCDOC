@@ -516,12 +516,26 @@ HiCDOCDataSet <- function(object = NULL) {
 #### - Pipeline method ####
 ## - Main method ------------------------------------------------------------#
 ## --------------------------------------------------------------------------#
-#' Launch the HiCDOC pipeline.
+#' @description 
+#' To learn more about HiCDOC, start with the vignette:
+#' \code{browseVignettes(package = "HiCDOC")}.
 #' 
-#' This functions allow to run all the recommended steps to run the HiCDOC 
-#' pipeline. 
+#' The HiCDOC function allow to run the HiCDOC pipeline, on a HiCDOCDataSet 
+#' object.
 #' 
-#' \subsection{The pipeline have 7 steps :}{
+#' @usage 
+#' HiCDOC(object, parallel = FALSE) # to run the entire HiCDOC pipeline
+#' @details
+#' \subsection{HiCDOCDataSet object}{
+#'     A \code{HiCDOCDataSet} object can be created from different object : 
+#'     \itemize{
+#'         \item{matrices: }{see \code{\link{HiCDOCDataSetFromSparseMatrix}}},
+#'         \item{cool or mcool data: }{see \code{\link{HiCDOCDataSetFromCool}}},
+#'         \item{hic data: }{see \code{\link{HiCDOCDataSetFromHic}}} and 
+#'         \item{HicPro data: }{see \code{\link{HiCDOCDataSetFromHicPro}}}
+#'     }
+#' }
+#' \subsection{The HiCDOCDataSet pipeline have 7 steps :}{
 #'    \describe{
 #'        \item{3 filters to clean the data:}{
 #'        \itemize{
@@ -547,7 +561,8 @@ HiCDOCDataSet <- function(object = NULL) {
 #'    \item{the detection of compartments}{
 #' \itemize{
 #'      \item{\code{\link{detectCompartments}}}{
-#'      to run the detection of compartments and sinificant differences}
+#'      to run the detection of compartments and compute 
+#'      significant differences}
 #'    }
 #'  }
 #'    }
@@ -556,11 +571,24 @@ HiCDOCDataSet <- function(object = NULL) {
 #' @param parallel Logical, default to FALSE. Should parallel computation 
 #' should be used ?
 #' @return Returns an \code{HiCDOCDataSet} object.
+#' @seealso \code{\link{HiCDOCDataSet}}
 #' @examples
 #' object <- HiCDOCExample()
-#' object <- runHiCDOC(object)
+#' object <- HiCDOC(object)
+#' 
+#' # This is equivalent of
+#' \dontrun{
+#' parallel = FALSE
+#' object <- filterSmallChromosomes(object)
+#' object <- filterSparseChromosomes(object)
+#' object <- filterWeakPositions(object)
+#' object <- normalizeTechnicalBiases(object, parallel = parallel)
+#' object <- normalizeBiologicalBiases(object)
+#' object <- normalizeDistanceEffect(object)
+#' object <- detectCompartments(object, parallel = parallel)
+#' }
 #' @export
-runHiCDOC <- function(object, parallel = FALSE) {
+HiCDOC <- function(object, parallel = FALSE) {
     object <- filterSmallChromosomes(object)
     object <- filterSparseChromosomes(object)
     object <- filterWeakPositions(object)

@@ -15,7 +15,7 @@
 #' object <- normalizeTechnicalBiases(object)
 #' @seealso \code{\link[HiCDOC]{normalizeBiologicalBiases}}, 
 #' \code{\link[HiCDOC]{normalizeDistanceEffect}} and 
-#' \code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
+#' \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
 #' @export
 normalizeTechnicalBiases <- function(object, parallel = FALSE) {
 

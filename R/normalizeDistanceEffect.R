@@ -124,7 +124,7 @@ normalizeDistanceEffectChr <- function(object, chromosomeId) {
 #' object <- normalizeDistanceEffect(object)
 #' @seealso \code{\link[HiCDOC]{normalizeTechnicalBiases}}, 
 #' \code{\link[HiCDOC]{normalizeBiologicalBiases}} and 
-#' \code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
+#' \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
 #' @export
 normalizeDistanceEffect <- function(object, sampleSize = NULL) {
     # Parameters

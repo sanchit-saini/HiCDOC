@@ -27,8 +27,10 @@
 #
 ###############################################################################
 #' @docType package
-#' @aliases HiCDOC
-#'
+#' @name HiCDOC
+#' @title Find compartments with significantly differential binding using 
+#' replicated Hi-C data
+#' @aliases HiCDOC-package
 #' @import methods
 #' @import ggplot2
 #' @importFrom GenomicRanges start end distance
@@ -37,9 +39,4 @@
 #' @importFrom Rcpp evalCpp sourceCpp
 #' @importFrom stats D loess median quantile
 #' @useDynLib HiCDOC
-#'
-#' @keywords internal
 "_PACKAGE"
-#' @examples
-#' object <- HiCDOCExample()
-#' object <- runHiCDOC(object)

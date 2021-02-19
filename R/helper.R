@@ -88,7 +88,7 @@ matrixToSparseInteractions <- function(m,
     )
 }
 
-reduceHiCDOCChromosomes <- function(object, chromosomes) {
+reduceHiCDOCChromosomes <- function(object, chromosomes, dropLevels) {
     numchr <- which(object@chromosomes %in% chromosomes)
     object@chromosomes <-
     object@chromosomes[numchr]
@@ -121,7 +121,7 @@ reduceHiCDOCChromosomes <- function(object, chromosomes) {
     return(object)
 }
 
-reduceHiCDOCConditions <- function(object, conditions) {
+reduceHiCDOCConditions <- function(object, conditions, dropLevels) {
     numcond <- which(object@conditions %in% conditions)
     object@conditions <-
         object@conditions[numcond]
@@ -147,7 +147,7 @@ reduceHiCDOCConditions <- function(object, conditions) {
     return(object)
 }
 
-reduceHiCDOCCReplicates <- function(object, replicates) {
+reduceHiCDOCReplicates <- function(object, replicates, dropLevels) {
     numrep <- which(object@replicates %in% replicates)
     object@conditions <-
         object@conditions[numrep]
@@ -206,15 +206,15 @@ reduceHiCDOCDataSet <- function(object,
     replicates <- testValidId(object, replicates, "replicates")
 
     if (!is.null(chromosomes)) {
-        object <- reduceHiCDOCChromosomes(object, chromosomes)
+        object <- reduceHiCDOCChromosomes(object, chromosomes, dropLevels)
     }
 
     if (!is.null(conditions)) {
-        object <- reduceHiCDOCConditions(object, conditions)
+        object <- reduceHiCDOCConditions(object, conditions, dropLevels)
     }
 
     if (!is.null(replicates)) {
-        object <- reduceHiCDOCReplicates(object, replicates)
+        object <- reduceHiCDOCReplicates(object, replicates, dropLevels)
     }
 
     object@totalReplicates <- length(object@replicates)

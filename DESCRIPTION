@@ -10,7 +10,7 @@ Authors@R: c(
 Description: Find compartments with significantly differential binding using 
     replicated Hi-C data.
     bla bla bla
-    bla bla bla
+    bla bla bla from the DESCRIPTION file
 License: LGPL (>= 3) + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -44,3 +44,5 @@ Suggests: knitr,
     BiocStyle,
     BiocManager
 VignetteBuilder: knitr
+URL: https://github.com/mzytnicki/HiCDOC
+BugReports: https://github.com/mzytnicki/HiCDOC/issues

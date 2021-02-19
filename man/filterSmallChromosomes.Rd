@@ -32,5 +32,5 @@ chromosomes(object)
 \seealso{
 \code{\link[HiCDOC]{filterWeakPositions}}, 
 \code{\link[HiCDOC]{filterSparseChromosomes}} and 
-\code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
+\code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
 }

@@ -25,5 +25,5 @@ object <- normalizeBiologicalBiases(object)
 \seealso{
 \code{\link[HiCDOC]{normalizeTechnicalBiases}}, 
 \code{\link[HiCDOC]{normalizeDistanceEffect}} and 
-\code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
+\code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
 }

@@ -64,7 +64,7 @@ sparsityChromosome <-
 #' @export
 #' @seealso \code{\link[HiCDOC]{filterSmallChromosomes}}, 
 #' \code{\link[HiCDOC]{filterWeakPositions}} and 
-#' \code{\link[HiCDOC]{runHiCDOC}} for the recommended pipeline.
+#' \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
 #' @examples
 #' object <- HiCDOCExample()
 #' object <- filterSparseChromosomes(object)

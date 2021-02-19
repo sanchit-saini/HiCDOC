@@ -21,7 +21,7 @@
 #' parameters(object)
 #' 
 #' ## Accessors after a run of detectCompartments
-#' object <- runHiCDOC(object)
+#' object <- HiCDOC(object)
 #' differences(object)
 #' concordances(object)
 #' compartments(object)
