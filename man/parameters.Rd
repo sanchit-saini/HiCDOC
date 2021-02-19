@@ -13,13 +13,16 @@ An object of class \code{list} of length 7.
 \usage{
 HiCDOCDefaultParameters
 
+## S4 replacement method for signature 'HiCDOCDataSet'
+parameters(object)
+
 \S4method{parameters}{HiCDOCDataSet}(object) <- value
 }
 \arguments{
 \item{object}{a HiCDOCDataSet object}
 
 \item{value}{a named list with the new parameters values. The names should
-match the \code{HiCDOCDefaultParameters} names.}
+be in the \code{HiCDOCDefaultParameters} names.}
 }
 \description{
 parameters Access and print the parameters.
@@ -78,7 +81,7 @@ HiCDOCDefaultParameters
 
 object <- HiCDOCExample()
 
-# Default parameters
+# Default parameters - when object is constructed
 parameters(object) 
 
 # Changing a parameter

@@ -291,11 +291,14 @@ setMethod(
 #' @description parameters Access and print the parameters.
 #' @aliases parameters HiCDOCDefaultParameters parameters<-
 #' @export
+#' @usage 
+#' ## S4 replacement method for signature 'HiCDOCDataSet'
+#' parameters(object)
 #' @param object a HiCDOCDataSet object
 #' @examples
 #' object <- HiCDOCExample()
 #' 
-#' # Default parameters
+#' # Default parameters - when object is constructed
 #' parameters(object) 
 #' 
 #' # Changing a parameter
@@ -330,7 +333,7 @@ setMethod(
 
 #' @describeIn parameters Change the values of parameters.
 #' @param value a named list with the new parameters values. The names should
-#' match the \code{HiCDOCDefaultParameters} names.
+#' be in the \code{HiCDOCDefaultParameters} names.
 #' @exportMethod "parameters<-"
 setReplaceMethod(
     "parameters",

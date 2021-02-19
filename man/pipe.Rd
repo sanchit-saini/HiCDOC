@@ -9,4 +9,7 @@ lhs \%>\% rhs
 \description{
 See \code{magrittr::\link[magrittr:pipe]{\%>\%}} for details.
 }
+\examples{
+c(1,2) \%>\% as.list
+}
 \keyword{internal}

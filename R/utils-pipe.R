@@ -8,5 +8,6 @@
 #' @export
 #' @importFrom magrittr %>%
 #' @usage lhs \%>\% rhs
-#' @example c(1,2) %>% as.list
+#' @examples
+#' c(1,2) %>% as.list
 NULL
