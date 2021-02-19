@@ -209,7 +209,6 @@ List constrainedClustering (
   if (any(is_nan(links))) {
     throw std::invalid_argument("Links should not contain NANs.");
   }
-  GetRNGstate();
 
   IntegerVector clusters(matrix.nrow()), bestClusters(matrix.nrow());
   std::vector<NumericVector> centroids(totalClusters), bestCentroids(totalClusters);
@@ -236,7 +235,6 @@ List constrainedClustering (
       is_false(any(bestClusters == 0))
       || is_false(any(bestClusters == 1))
     ) {
-      PutRNGstate();
       throw std::invalid_argument(
         "Failed clustering: one of the clusters is empty.\n"
       );
@@ -246,6 +244,5 @@ List constrainedClustering (
   List output;
   output["clusters"] = bestClusters;
   output["centroids"] = bestCentroids;
-  PutRNGstate();
   return output;
 }

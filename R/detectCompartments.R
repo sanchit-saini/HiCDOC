@@ -294,6 +294,9 @@ clusterize <- function(object,
                   )
               }
         )
+        BiocParallel::bpstart(BiocParallel::bpparam())
+        # bpstart to address this issue (and ensure reproductibility): 
+        # https://github.com/Bioconductor/BiocParallel/issues/122
         clusterRes <-
             BiocParallel::bpmapply(
                 FUN = function(x, y, z) {
@@ -305,6 +308,8 @@ clusterize <- function(object,
                 SIMPLIFY = FALSE,
                 BPPARAM = BiocParallel::bpparam()
             )
+        BiocParallel::bpstop(BiocParallel::bpparam())
+        # Idem than bpstart
     }
 
     object@compartments <-
