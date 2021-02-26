@@ -79,6 +79,9 @@ For \code{compartments}: a tibble of the compartments found by
 
 For \code{centroids}: a tibble of the centroids found by
 \code{detectCompartments}
+
+For \code{paramters}: a named list of the parameters use in the 
+the filters functions  and \code{detectCompartments}
 }
 \description{
 \code{HiCDOCDataSet} is an S4 class providing the infrastructure (slots)
@@ -130,7 +133,8 @@ A HiCDOCDataSet can be constructed from 4 different types of data :
 
 \item{\code{chromosomes}}{The list of chromosomes.}
 
-\item{\code{replicates}}{The names of the replicates.}
+\item{\code{replicates}}{The names of the replicates, with repetition along the
+conditions.}
 
 \item{\code{totalReplicates}}{The names of the replicates, glued with the
 name of the conditions.}
@@ -138,7 +142,8 @@ name of the conditions.}
 \item{\code{totalReplicatesPerCondition}}{A 2-element list, one for each condition,
 where the union is the names of the replicates.}
 
-\item{\code{conditions}}{The names of the conditions (exactly two different).}
+\item{\code{conditions}}{The names of the conditions (exactly two different), with
+repetition along the replicates.}
 
 \item{\code{totalBins}}{The number of bins per chromosome.}
 

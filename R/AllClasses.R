@@ -1,5 +1,6 @@
 #### - HiCDOCDefaultParameters -------------------------------------------####
-#' @describeIn parameters Default parameters for the HiCDOC pipeline
+# @describeIn parameters Default parameters for the HiCDOC pipeline
+#' @rdname parameters
 #' @examples
 #' # All the default parameters
 #' HiCDOCDefaultParameters
@@ -387,12 +388,14 @@ HiCDOCExample <- function() {
 #' @slot interactions The interaction matrices.
 #' @slot weakBins The empty bins.
 #' @slot chromosomes The list of chromosomes.
-#' @slot replicates The names of the replicates.
+#' @slot replicates The names of the replicates, with repetition along the 
+#' conditions.
 #' @slot totalReplicates The names of the replicates, glued with the
 #' name of the conditions.
 #' @slot totalReplicatesPerCondition A 2-element list, one for each condition,
 #' where the union is the names of the replicates.
-#' @slot conditions The names of the conditions (exactly two different).
+#' @slot conditions The names of the conditions (exactly two different), with 
+#' repetition along the replicates.
 #' @slot totalBins The number of bins per chromosome.
 #' @slot binSize The resolution.
 #' @slot distances The distribution of distances to the centroids.

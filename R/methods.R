@@ -307,6 +307,8 @@ setMethod(
 NULL
 
 #' @describeIn HiCDOCDataSet access and print the parameters
+#' @return For \code{paramters}: a named list of the parameters use in the 
+#' the filters functions  and \code{detectCompartments}
 #' @export
 setMethod(
     f = "parameters",
@@ -331,7 +333,8 @@ setMethod(
     }
 )
 
-#' @describeIn parameters Change the values of parameters.
+# @describeIn parameters Change the values of parameters.
+#' @rdname parameters
 #' @param value a named list with the new parameters values. The names should
 #' be in the \code{HiCDOCDefaultParameters} names.
 #' @exportMethod "parameters<-"

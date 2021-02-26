@@ -68,13 +68,6 @@ corresponding parameter, see below.
    }
 }
 }
-\section{Functions}{
-\itemize{
-\item \code{HiCDOCDefaultParameters}: Default parameters for the HiCDOC pipeline
-
-\item \code{parameters<-,HiCDOCDataSet-method}: Change the values of parameters.
-}}
-
 \examples{
 # All the default parameters
 HiCDOCDefaultParameters
