@@ -92,7 +92,7 @@ filterSparseChromosomes <-
         # Remove chromosomes
         if (removeChromosomes == TRUE) {
             sparseChromosomes <- chrQuality %>%
-                dplyr::filter(maxSparsity >= thresh & is.finite(maxSparsity)) %>%
+                dplyr::filter(maxSparsity >= thresh | is.infinite(maxSparsity)) %>%
                 dplyr::pull(chromosome) %>%
                 as.character()
             if (length(sparseChromosomes) == 0) {
