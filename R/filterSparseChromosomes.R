@@ -18,11 +18,11 @@ sparsityChromosome <-
             dplyr::mutate(value = ifelse(bin.1 == bin.2, 1, 2)) %>%
             dplyr::group_by(replicate, condition) %>%
             dplyr::summarise(
-                pctSparse = 1 - sum(value) / totalCells,
+                pctSparse = 1 - (0 + sum(value)) / totalCells,
                 .groups = "keep"
             ) %>%
             dplyr::ungroup()
-
+        
         pctFill %<>%
             dplyr::summarise(maxSparsity = max(pctSparse, na.rm = TRUE)) %>%
             dplyr::mutate(
@@ -92,7 +92,7 @@ filterSparseChromosomes <-
         # Remove chromosomes
         if (removeChromosomes == TRUE) {
             sparseChromosomes <- chrQuality %>%
-                dplyr::filter(maxSparsity >= thresh) %>%
+                dplyr::filter(maxSparsity >= thresh & is.finite(maxSparsity)) %>%
                 dplyr::pull(chromosome) %>%
                 as.character()
             if (length(sparseChromosomes) == 0) {
