@@ -1,4 +1,4 @@
-## - checkParameters ----------------------------------------------------------#
+## - validateParameters ----------------------------------------------------------#
 ## ----------------------------------------------------------------------------#
 #' Check object@parameters, return default if NULL
 #'
@@ -8,88 +8,107 @@
 #' if null.
 #' @keywords internal
 #' @noRd
-checkParameters <- function(parameters) {
-    defaultParNames <- names(HiCDOCDefaultParameters)
-    currentParNames <- names(parameters)
-    # Test for numerical values only
-    testNum <- vapply(
-        parameters,
-        function(x) is.numeric(x) && length(x) == 1, FALSE
-    )
-    if (!all(testNum)) {
-        warning(paste0(
-            "non numeric values found in parameters,",
-            "replaced by HiCDOCDefaultParameters corresponding values"
-        ),
-        call. = FALSE
+validateParameters <- function(parameters) {
+    defaultParameterNames <- names(HiCDOCDefaultParameters)
+    inputParameterNames <- names(parameters)
+
+    numeric <-
+        vapply(
+            parameters,
+            function(x) is.numeric(x) && length(x) == 1,
+            FUN.VALUE = TRUE
         )
-        notNum <- currentParNames[which(!testNum)]
-        parameters[notNum] <- HiCDOCDefaultParameters[notNum]
+    if (!all(numeric)) {
+        notNumericNames <- inputParameterNames[!numeric]
+        warning(
+            "Non-numeric value",
+            if (length(notNumericNames) != 1) "s",
+            " will be replaced with ",
+            if (length(notNumericNames) != 1) "their" else "its",
+            " default",
+            if (length(notNumericNames) != 1) "s",
+            " from 'HiCDOCDefaultParameters':\n",
+            paste0(
+                notNumericNames,
+                ":",
+                " ",
+                parameters[notNumericNames],
+                " -> ",
+                HiCDOCDefaultParameters[notNumericNames],
+                collapse = "\n"
+            ),
+            call. = FALSE
+        )
+        parameters[notNumericNames] <- HiCDOCDefaultParameters[notNumericNames]
     }
 
-    # Test for correct names
-    includePar <- currentParNames %in% defaultParNames
-    if (!(all(includePar))) {
-        unknownPAr <- currentParNames[!includePar]
-        warning(paste0(
-            "unknown parameters: ",
-            paste(unknownPAr, collapse = ", "),
-            " they will be removed."
-        ),
-        call. = FALSE
+    known <- inputParameterNames %in% defaultParameterNames
+    if (!all(known)) {
+        unknownParameterNames <- inputParameterNames[!known]
+        warning(
+            "Unknown parameter",
+            if (length(unknownParameterNames) != 1) "s",
+            " will be removed: ",
+            paste(unknownParameterNames, collapse = ", "),
+            call. = FALSE
         )
-        parameters[unknownPAr] <- NULL
+        parameters[unknownParameterNames] <- NULL
     }
 
-    includePar <- defaultParNames %in% currentParNames
-    if (!(all(includePar))) {
-        knownPAr <- defaultParNames[includePar]
-        warning(paste0(
-            "Unfixed parameters: ",
-            paste(unknownPAr, collapse = ", "),
-            " they will be removed."
-        ),
-        call. = FALSE
+    present <- defaultParameterNames %in% inputParameterNames
+    if (!all(present)) {
+        missingParameterNames <- defaultParameterNames[!present]
+        warning(
+            "Missing parameter",
+            if (length(missingParameterNames) != 1) "s",
+            " will be filled with ",
+            if (length(missingParameterNames) != 1) "their" else "its",
+            " default",
+            if (length(missingParameterNames) != 1) "s",
+            " from 'HiCDOCDefaultParameters':\n",
+            paste0(
+                missingParameterNames,
+                ":",
+                HiCDOCDefaultParameters[missingParameterNames],
+                collapse = "\n"
+            ),
+            call. = FALSE
         )
-        tempPar <- HiCDOCDefaultParameters
-        tempPar[knownPar] <- parameters[knownPAr]
-        parameters <- tempPar
+        parameters[missingParameterNames] <-
+            HiCDOCDefaultParameters[missingParameterNames]
     }
 
     return(parameters)
 }
 
-## - testValidId -----------------------------------------------------------#
+## - validateNameOrId -----------------------------------------------------------#
 ## -------------------------------------------------------------------------#
 #' Test the existence of a set of identifier
 #'
 #' @param object A \code{HiCDOCDataSet} object.
 #' @param id The identifiers to test (string or integer)
-#' @param what In what slot should we test the presence of the identifiers ?
-#' One of "chromosome", "condition", "replicate"
+#' @param category In which slot should we test the presence of the identifiers ?
+#' One of "chromosomes", "conditions", "replicates"
 #'
 #' @return The chromosome name or an error.
 #' @keywords internal
 #' @noRd
-testValidId <- function(object, id, what = "chromosomes") {
-    valid <- unique(slot(object, what))
-    if (all(id %in% valid)) {
-        return(id)
-    }
-    if (is.numeric(id) == TRUE && all(id %in% seq_len(length(valid)))) {
-        return(valid[id])
-    }
-    if (length(id) == 1) {
-        what <- substr(what, 1, nchar(what) - 1)
-        stop(paste0("Unknown ", what, ": ", id), call. = FALSE)
-    } else {
-        stop(paste0("Unknown ", what, ": ", paste(id, collapse = ", ")),
-            call. = FALSE
-        )
-    }
+validateNameOrId <- function(object, id, category = "chromosomes") {
+    names <- unique(slot(object, category))
+    if (all(id %in% names)) return(id)
+    if (is.numeric(id) && all(id %in% seq_len(length(names)))) return(names[id])
+    unknown <- id[which(!(id %in% names))]
+    stop(
+        "Unknown ",
+        substr(category, 1, nchar(category) - 1),
+        if (length(unknown) != 1) "s",
+        ": ",
+        paste(unknown, collapse = ", "),
+        call. = FALSE
+    )
 }
 
-## - testSlotsHiCDOC --------------------------------------------------------#
+## - validateSlots --------------------------------------------------------#
 ## --------------------------------------------------------------------------#
 #' Test the existence of slots
 #'
@@ -101,46 +120,46 @@ testValidId <- function(object, id, what = "chromosomes") {
 #' missing.
 #' @keywords internal
 #' @noRd
-testSlotsHiCDOC <- function(object, slots = NULL) {
+validateSlots <- function(object, slots = NULL) {
     if (!is(object, "HiCDOCDataSet")) {
-        stop("The object provided is not from class HiCDOCDataSet", 
-             call. = FALSE)
+        stop(
+            "The provided object is not an HiCDOC object.",
+            call. = FALSE
+        )
     }
 
     if (!is.null(slots)) {
-        existing <- slotNames("HiCDOCDataSet")
-        existing <- existing[vapply(
-            existing,
-            function(x) .hasSlot(object, x) && !is.null(slot(object, x)),
-            TRUE
-        )]
-        missing <- slots[!(slots %in% existing)]
-        if (length(missing) > 0) {
-            missingInteractions <- FALSE
-            missingCompartments <- FALSE
-            compartmentSlots <- c(
-                "compartments",
-                "concordances",
-                "differences",
-                "distances",
-                "centroids",
-                "diagonalRatios"
-            )
-            for (slot in missing) {
-                if (slot == "interactions") missingInteractions <- TRUE
-                if (slot %in% compartmentSlots) missingCompartments <- TRUE
-            }
-            stop(
-                paste0(
-                    "Missing slot(s): ",
-                    paste(missing, collapse = ", "),
-                    if (missingInteractions) {
-                        "\nPlease provide an HiCDOC object, with interactions."
+        allSlots <- slotNames("HiCDOCDataSet")
+        presentSlots <-
+            allSlots[
+                vapply(
+                    allSlots,
+                    function(x) {
+                        .hasSlot(object, x) && !is.null(slot(object, x))
                     },
-                    if (missingCompartments) {
-                        "\nPlease run 'detectCompartments' first."
-                    }
-                ),
+                    FUN.VALUE = TRUE
+                )
+            ]
+        missingSlots <- slots[!(slots %in% presentSlots)]
+        if ("interactions" %in% missingSlots) {
+            stop(
+                "No interactions found. ",
+                "Provide an HiCDOC object with interactions.",
+                call. = FALSE
+            )
+        }
+        compartmentSlots <- c(
+            "compartments",
+            "concordances",
+            "differences",
+            "distances",
+            "centroids",
+            "selfInteractionRatios"
+        )
+        if (any(missingSlots %in% compartmentSlots)) {
+            stop(
+                "No compartments found. ",
+                "Call 'detectCompartments()' first.",
                 call. = FALSE
             )
         }

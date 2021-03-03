@@ -1,20 +1,20 @@
 #' Suppress the small chromosomes
 #'
 #' The function return an HiCDOCDataSet object, with only the big chromosomes.
-#' The big chromosomes must have a totalBins >= minLength.
+#' The big chromosomes must have a totalBins >= threshold.
 #' The interactions are reduced to keep only those corresponding
 #' to the remaining chromosomes.
 #'
 #' @param object A HiCDOCDataSet object
-#' @param minLength Numeric value. The minimum chromosome
+#' @param threshold Numeric value. The minimum chromosome
 #' size (in number of bins), to be kept. If NULL, default to the first not
-#' NULL of \code{object$minLengthChr} and
-#' \code{HiCDOCDefaultParameters$minLengthChr}.
+#' NULL of \code{object$smallChromosomeThreshold} and
+#' \code{HiCDOCDefaultParameters$smallChromosomeThreshold}.
 #'
 #' @return A HiCDOCDataSet object
 #' @export
-#' @seealso \code{\link[HiCDOC]{filterWeakPositions}}, 
-#' \code{\link[HiCDOC]{filterSparseChromosomes}} and 
+#' @seealso \code{\link[HiCDOC]{filterWeakPositions}},
+#' \code{\link[HiCDOC]{filterSparseChromosomes}} and
 #' \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
 #'
 #' @examples
@@ -22,39 +22,51 @@
 #' chromosomes(object)
 #' object <- filterSmallChromosomes(object)
 #' chromosomes(object)
-filterSmallChromosomes <- function(object, minLength = NULL) {
-    if (!is.null(minLength)) object@parameters$minLengthChr <- minLength
-    object@parameters <- checkParameters(object@parameters)
+filterSmallChromosomes <- function(object, threshold = NULL) {
+    if (!is.null(threshold)) {
+        object@parameters$smallChromosomeThreshold <- threshold
+    }
+    object@parameters <- validateParameters(object@parameters)
 
     message(
-        "Keeping only the chromosomes with ",
-        object@parameters$minLengthChr, " bins or more"
+        "Keeping chromosomes with at least ",
+        object@parameters$smallChromosomeThreshold,
+        " position",
+        if (object@parameters$smallChromosomeThreshold != 1) "s",
+        "."
     )
-    bigChromosomes <- vapply(object@totalBins,
-        function(x) {
-              x >= object@parameters$minLengthChr
-          },
-        FUN.VALUE = TRUE
-    )
-    bigChromosomes <- names(bigChromosomes)[bigChromosomes == TRUE]
-    bigChromosomes <- gtools::mixedsort(bigChromosomes)
-    smallChr <- object@chromosomes[!(object@chromosomes %in% bigChromosomes)]
 
-    object <- reduceHiCDOCDataSet(object, chromosomes = bigChromosomes)
+    bigChromosomes <-
+        vapply(
+            object@totalBins,
+            function(x) x >= object@parameters$smallChromosomeThreshold,
+            FUN.VALUE = TRUE
+        )
+    bigChromosomeNames <- names(bigChromosomes)[bigChromosomes]
+    bigChromosomeNames <- gtools::mixedsort(bigChromosomeNames)
+    smallChromosomeNames <-
+        object@chromosomes[!(object@chromosomes %in% bigChromosomeNames)]
+
+    object <- reduceHiCDOCDataSet(object, chromosomes = bigChromosomeNames)
 
     message(
         "Kept ",
-        length(bigChromosomes),
+        length(bigChromosomeNames),
         " chromosome",
-        if (length(bigChromosomes) > 1) "s"
+        if (length(bigChromosomeNames) != 1) "s",
+        if (length(bigChromosomeNames) > 0) ": " else ".",
+        paste(bigChromosomeNames, collapse = ", ")
     )
     message(
         "Removed ",
-        length(smallChr),
+        length(smallChromosomeNames),
         " chromosome",
-        if (length(smallChr) > 1) "s :",
-        paste(smallChr, collapse = ", ")
+        if (length(smallChromosomeNames) != 1) "s",
+        if (length(smallChromosomeNames) > 0) ": " else ".",
+        paste(smallChromosomeNames, collapse = ", ")
     )
+
+    if (length(bigChromosomeNames) == 0) message("No data left!")
 
     return(object)
 }

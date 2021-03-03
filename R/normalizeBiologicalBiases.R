@@ -1,11 +1,14 @@
-KR <- function(A,
+# Based on
+# https://github.com/dozmorovlab/HiCcompare/blob/master/R/KRnormalization.R
+normalizeKnightRuiz <- function(
+    A,
     tol = 1e-6,
-    delta = 0.1,
-    Delta = 3) {
+    minDelta = 0.1,
+    maxDelta = 3
+) {
     n <- nrow(A)
     e <- matrix(1, nrow = n, ncol = 1)
     x0 <- e
-    # Inner stopping criterior
     g <- 0.9
     etamax <- 0.1
     eta <- etamax
@@ -17,16 +20,11 @@ KR <- function(A,
     rho_km1 <- drop(t(rk) %*% rk)
     rout <- rho_km1
     rold <- rout
-    MVP <- 0 # We'll count matrix vector products.
-    i <- 0 # Outer iteration count.
     while (rout > rt) {
-        # Outer iteration
-        i <- i + 1
         k <- 0
         y <- e
         innertol <- max(c(eta^2 * rout, rt))
         while (rho_km1 > innertol) {
-            # Inner iteration by CG
             k <- k + 1
             if (k == 1) {
                 Z <- rk / v
@@ -36,29 +34,24 @@ KR <- function(A,
                 beta <- rho_km1 / rho_km2
                 p <- Z + beta * p
             }
-
-            # Update search direction efficiently
             w <- x * (A %*% (x * p)) + v * p
             if (max(w) == Inf) {
-                message("Warning: KR algorithm diverges.")
+                warning("KR algorithm diverges.", call. = FALSE)
                 return(t(t(x[, 1] * A) * x[, 1]))
             }
             alpha <- rho_km1 / drop(t(p) %*% w)
             ap <- alpha * p
-            # Test distance to boundary of cone
             ynew <- y + ap
-            if (min(ynew) <= delta) {
-                if (delta == 0) {
-                      break()
-                  }
+            if (min(ynew) <= minDelta) {
+                if (minDelta == 0) break()
                 ind <- which(ap < 0)
-                gamma <- min((delta - y[ind]) / ap[ind])
+                gamma <- min((minDelta - y[ind]) / ap[ind])
                 y <- y + gamma * ap
                 break()
             }
-            if (max(ynew) >= Delta) {
-                ind <- which(ynew > Delta)
-                gamma <- min((Delta - y[ind]) / ap[ind])
+            if (max(ynew) >= maxDelta) {
+                ind <- which(ynew > maxDelta)
+                gamma <- min((maxDelta - y[ind]) / ap[ind])
                 y <- y + gamma * ap
                 break()
             }
@@ -73,35 +66,29 @@ KR <- function(A,
         rk <- 1 - v
         rho_km1 <- drop(t(rk) %*% rk)
         rout <- rho_km1
-        MVP <- MVP + k + 1
-        # Update inner iteration stopping criterion.
         rat <- rout / rold
         rold <- rout
         res_norm <- sqrt(rout)
         eta_o <- eta
         eta <- g * rat
-        if (g * eta_o^2 > 0.1) {
-            eta <- max(c(eta, g * eta_o^2))
-        }
+        if (g * eta_o^2 > 0.1) eta <- max(c(eta, g * eta_o^2))
         eta <- max(c(min(c(eta, etamax)), stop_tol / res_norm))
     }
-
     result <- t(t(x[, 1] * A) * x[, 1])
-
     return(result)
 }
 
 
-## - normalizeBiologicalBiasesChr --------------------------------------------#
+## - normalizeBiologicalBiasesOfChromosome -----------------------------------#
 ## ---------------------------------------------------------------------------#
 #' Remove biological biases by normalizing with Knight-Ruiz matrix balancing.
 #' @param object A \code{HiCDOCDataSet} object.
-#' @param chromosomeId The name or number of the chromosome to plot.
-#' If number, will be taken in \code{object@chromosomes[chromosomeId]}
+#' @param chromosomeName The name or number of the chromosome to plot.
+#' If number, will be taken in \code{object@chromosomes[chromosomeName]}
 #'
 #' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
-normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
-    testSlotsHiCDOC(
+normalizeBiologicalBiasesOfChromosome <- function(object, chromosomeName) {
+    validateSlots(
         object,
         slots = c(
             "interactions",
@@ -111,61 +98,81 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
             "totalBins"
         )
     )
-    message("Chromosome: ", chromosomeId)
 
-    if (object@totalBins[[chromosomeId]] == -Inf) {
-          return(NULL)
-      }
+    message("Chromosome ", chromosomeName, ": normalizing biological biases.")
 
-    rawMatrices <-
+    if (object@totalBins[[chromosomeName]] == -Inf) return(NULL)
+
+    matrices <-
         mapply(
-            function(x, y) {
-                  sparseInteractionsToMatrix(object,
-                      chromosomeId,
-                      x,
-                      y,
-                      filter = TRUE
-                  )
-              },
+            function(conditionName, replicateName) {
+                sparseInteractionsToMatrix(
+                    object,
+                    chromosomeName,
+                    conditionName,
+                    replicateName,
+                    filter = TRUE
+                )
+            },
             object@conditions,
             object@replicates,
             SIMPLIFY = FALSE
         )
 
-    testEmptyRow <-
-        vapply(rawMatrices, function(x) {
-              min(rowSums(x))
-          }, FUN.VALUE = c(0))
-    if (length(testEmptyRow[testEmptyRow == 0]) > 0) {
-        id <- which(testEmptyRow == 0)
+    badMatrices <-
+        vapply(
+            matrices,
+            function(matrix) min(rowSums(matrix)) == 0,
+            FUN.VALUE = TRUE
+        )
+
+    if (any(badMatrices)) {
         stop(
-            "A matrix has an empty row",
-            paste0(
-                "condition ",
-                object@conditions[id],
-                " replicate ",
-                object@replicates[id]
-            )
+            "Cannot normalize matri",
+            if (sum(badMatrices) != 1) "ces" else "x",
+            " with empty positions:\n",
+            sapply(
+                which(badMatrices),
+                function(x) {
+                    paste0(
+                        "chromosome ",
+                        chromosomeName,
+                        ", condition ",
+                        object@conditions[x],
+                        ", replicate ",
+                        object@replicates[x],
+                        ".\n"
+                    )
+                }
+            ),
+            "Call 'filterWeakPositions()' before normalizing."
         )
     }
 
-    normalizedMatrices <- lapply(rawMatrices, KR)
-    interactionsChr <- purrr::pmap_dfr(
-        list(
-            normalizedMatrices,
-            object@conditions,
-            object@replicates
-        ),
-        .f = function(x, y, z) {
-              matrixToSparseInteractions(x, object, chromosomeId, y, z)
-          }
-    )
-    return(interactionsChr)
+    normalizedMatrices <- lapply(matrices, normalizeKnightRuiz)
+    chromosomeInteractions <-
+        purrr::pmap_dfr(
+            list(
+                normalizedMatrices,
+                object@conditions,
+                object@replicates
+            ),
+            .f = function(matrix, conditionName, replicateName) {
+                matrixToSparseInteractions(
+                    matrix,
+                    object,
+                    chromosomeName,
+                    conditionName,
+                    replicateName
+                )
+            }
+        )
+    return(chromosomeInteractions)
 }
 
 ## - normalizeBiologicalBiases ------------------------------------------------#
 ## ----------------------------------------------------------------------------#
-#' Remove biological biases on a HiCDOCDataSet object by normalizing 
+#' Remove biological biases on a HiCDOCDataSet object by normalizing
 #' with Knight-Ruiz matrix balancing.
 #'
 #' @rdname normalizeBiologicalBiases
@@ -178,21 +185,23 @@ normalizeBiologicalBiasesChr <- function(object, chromosomeId) {
 #' object <- HiCDOCExample()
 #' object <- normalizeTechnicalBiases(object)
 #' object <- normalizeBiologicalBiases(object)
-#' @seealso \code{\link[HiCDOC]{normalizeTechnicalBiases}}, 
-#' \code{\link[HiCDOC]{normalizeDistanceEffect}} and 
+#' @seealso \code{\link[HiCDOC]{normalizeTechnicalBiases}},
+#' \code{\link[HiCDOC]{normalizeDistanceEffect}} and
 #' \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
 #' @export
 normalizeBiologicalBiases <- function(object) {
-    interactionsNorm <-
+    normalizedInteractions <-
         purrr::map_dfr(
             object@chromosomes,
-            function(x) normalizeBiologicalBiasesChr(object, x)
+            function(chromosomeName) {
+                normalizeBiologicalBiasesOfChromosome(object, chromosomeName)
+            }
         ) %>%
-        dplyr::mutate(chromosome = factor(chromosome,
-            levels = object@chromosomes
-        )) %>%
+        dplyr::mutate(
+            chromosome = factor(chromosome, levels = object@chromosomes)
+        ) %>%
         dplyr::mutate(condition = factor(condition)) %>%
         dplyr::mutate(replicate = factor(replicate))
-    object@interactions <- interactionsNorm
+    object@interactions <- normalizedInteractions
     return(object)
 }

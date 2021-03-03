@@ -8,79 +8,91 @@
 #' matrix for the chromosome, 1 condition and 1 replicate.
 #'
 #' @param object Interaction matrix for the chromosome
-#' @param chromosomeId A character or numeric value.
+#' @param chromosomeName A character or numeric value.
 #' Name or number of the chromosome
 #' @param threshold Numeric default to 0.
 #'
 #' @return list of length 2 : \code{"pos"} = the weak positions,
 #' \code{"interactions"} the interactions matrix for the chromosome,
 #' whithout the weak bins.
-filterWeakChr <- function(object, chromosomeId, threshold = 0) {
+filterWeakPositionsOfChromosome <- function(
+    object,
+    chromosomeName,
+    threshold = 0
+) {
     # Initialization
-    interChr <- object@interactions %>%
-        dplyr::filter(chromosome == chromosomeId) %>%
-        dplyr::filter(value > 0)
+    interactions <-
+        object@interactions %>%
+        dplyr::filter(chromosome == chromosomeName) %>%
+        dplyr::filter(interaction > 0)
 
-    totalBinsChr <- object@totalBins[[chromosomeId]]
-    fullPos <- seq_len(totalBinsChr)
+    totalBins <- object@totalBins[[chromosomeName]]
+    allBins <- seq_len(totalBins)
     removedBins <-
-        fullPos[!(fullPos %in%
-            unique(c(interChr$bin.1, interChr$bin.2))
-        )]
+        allBins[
+            !(allBins %in% unique(c(interactions$bin.1, interactions$bin.2)))
+        ]
 
-    nbNewEmptyBins <- 1
-    nbRemovedBins <- 0
+    totalNewWeakBins <- 1
+    totalRemovedBins <- 0
 
     # Recursive removal of bins - deleting a bin can create a new weak bin.
-    while (nbNewEmptyBins > 0 & nbRemovedBins <= totalBinsChr) {
-        interChrDiag <- interChr %>%
+    while (totalNewWeakBins > 0 & totalRemovedBins <= totalBins) {
+        diagonalInteractions <-
+            interactions %>%
             dplyr::filter(bin.1 == bin.2) %>%
             dplyr::rename(bin = bin.1) %>%
             dplyr::select(-chromosome, -bin.2)
 
-        existing <- interChr %>%
+        rowInteractions <-
+            interactions %>%
             dplyr::filter(bin.1 != bin.2) %>%
             tidyr::pivot_longer(
                 cols = c(`bin.1`, `bin.2`),
-                names_to = "pos_1or2",
-                names_prefix = "bin.",
                 values_to = "bin"
             ) %>%
-            dplyr::select(-pos_1or2, -chromosome) %>%
-            dplyr::bind_rows(interChrDiag) %>%
-            tidyr::complete(bin,
+            dplyr::select(-name, -chromosome) %>%
+            dplyr::bind_rows(diagonalInteractions) %>%
+            tidyr::complete(
+                bin,
                 tidyr::nesting(condition, replicate),
-                fill = list(value = 0)
+                fill = list(interaction = 0)
             )
-        weakdataset <- existing %>%
-            dplyr::group_by(replicate, condition, bin) %>%
-            dplyr::mutate(mean = sum(value) / totalBinsChr) %>%
-            dplyr::filter(mean <= threshold)
 
-        weakposChr <- weakdataset %>%
+        weakBins <-
+            rowInteractions %>%
+            dplyr::group_by(replicate, condition, bin) %>%
+            dplyr::mutate(mean = sum(interaction) / totalBins) %>%
+            dplyr::filter(mean <= threshold) %>%
             dplyr::pull(bin) %>%
             unique() %>%
             sort()
 
-        nbNewEmptyBins <- length(weakposChr) - nbRemovedBins
-        removedBins <- c(removedBins, weakposChr)
+        totalNewWeakBins <- length(weakBins) - totalRemovedBins
+        removedBins <- c(removedBins, weakBins)
 
-        # Remove the positions in rows and columns in empty bins
-        if (nbNewEmptyBins > 0) {
-            interChr <- interChr[!(interChr$bin.1 %in% weakposChr), ]
-            interChr <- interChr[!(interChr$bin.2 %in% weakposChr), ]
-            nbRemovedBins <- nbRemovedBins + nbNewEmptyBins
+        # Remove interactions of weak bins
+        if (totalNewWeakBins > 0) {
+            interactions <- interactions[!(interactions$bin.1 %in% weakBins), ]
+            interactions <- interactions[!(interactions$bin.2 %in% weakBins), ]
+            totalRemovedBins <- totalRemovedBins + totalNewWeakBins
         }
     }
 
-    message(paste0(
+    message(
         "Chromosome ",
-        chromosomeId,
+        chromosomeName,
         ": ",
         length(removedBins),
-        " position(s) removed"
-    ))
-    return(list("pos" = removedBins, "interactions" = interChr))
+        " position",
+        if (length(removedBins) != 1) "s",
+        " removed, ",
+        length(allBins) - length(removedBins),
+        " position",
+        if (length(allBins) - length(removedBins) != 1) "s",
+        " remaining."
+    )
+    return(list("removedBins" = removedBins, "interactions" = interactions))
 }
 
 
@@ -96,21 +108,21 @@ filterWeakChr <- function(object, chromosomeId, threshold = 0) {
 #'
 #' @param object A HiCDOCDataSet object
 #' @param threshold Numeric. Threshold to consider bins as 'weaks'. If NULL,
-#' default to the first not NULL of \code{object$weakPosThreshold} and
-#' \code{HiCDOCDefaultParameters$weakPosThreshold}.
+#' default to the first not NULL of \code{object$weakPositionThreshold} and
+#' \code{HiCDOCDefaultParameters$weakPositionThreshold}.
 #'
 #' @return A \code{HiCDOCDataSet} object with a reduced \code{interactions}
 #' slot, and the weak bins identified by chromosomes in \code{object@weakBins}.
 #' @export
 #'
-#' @seealso \code{\link[HiCDOC]{filterSmallChromosomes}}, 
-#' \code{\link[HiCDOC]{filterSparseChromosomes}} and 
+#' @seealso \code{\link[HiCDOC]{filterSmallChromosomes}},
+#' \code{\link[HiCDOC]{filterSparseChromosomes}} and
 #' \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
 #' @examples
 #' exp <- HiCDOCExample()
 #' exp <- filterWeakPositions(exp)
 filterWeakPositions <- function(object, threshold = NULL) {
-    testSlotsHiCDOC(
+    validateSlots(
         object,
         slots = c(
             "interactions",
@@ -123,42 +135,50 @@ filterWeakPositions <- function(object, threshold = NULL) {
         )
     )
     if (!is.null(threshold)) {
-        object@parameters$weakPosThreshold <- threshold
+        object@parameters$weakPositionThreshold <- threshold
     }
-    object@parameters <- checkParameters(object@parameters)
-    weakPositions <- lapply(
-        object@chromosomes,
-        function(chr) {
-            filterWeakChr(
-                object,
-                chr,
-                object@parameters$weakPosThreshold
-            )
-        }
+    object@parameters <- validateParameters(object@parameters)
+
+    message(
+        "Keeping positions with interactions average greater than ",
+        object@parameters$weakPositionThreshold,
+        "."
     )
-    names(weakPositions) <- object@chromosomes
 
-    weakBins <- weakPositions %>% purrr::map("pos")
-    nullweak <-
-        vapply(weakBins, function(x) {
-              length(x) == 0
-          }, FUN.VALUE = TRUE)
-    weakBins[nullweak] <- list(NULL)
-    interactions <- weakPositions %>% purrr::map_dfr("interactions")
+    results <-
+        lapply(
+            object@chromosomes,
+            function(chromosomeName) {
+                filterWeakPositionsOfChromosome(
+                    object,
+                    chromosomeName,
+                    object@parameters$weakPositionThreshold
+                )
+            }
+        )
+    names(results) <- object@chromosomes
+    weakBins <- results %>% purrr::map("removedBins")
+    intactChromosomes <-
+        vapply(
+            weakBins,
+            function(x) length(x) == 0,
+            FUN.VALUE = TRUE
+        )
+    weakBins[intactChromosomes] <- list(NULL)
+    interactions <- results %>% purrr::map_dfr("interactions")
 
-    # Save new values
     object@weakBins <- weakBins
     object@interactions <- interactions
-    nbweak <- sum(vapply(weakBins, length, c(0)))
+    totalWeakBins <- sum(vapply(weakBins, length, FUN.VALUE = 0))
     message(
         "Removed ",
-        nbweak,
+        totalWeakBins,
         " position",
-        if (nbweak != 1) "s"
+        if (totalWeakBins != 1) "s",
+        " in total."
     )
-    if (nbweak >= sum(unlist(object@totalBins))) {
-        message("No data left!")
-    }
+
+    if (totalWeakBins >= sum(unlist(object@totalBins))) message("No data left!")
 
     return(object)
 }

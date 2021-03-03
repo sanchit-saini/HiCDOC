@@ -1,9 +1,9 @@
 #' Plot the interaction matrix (as heatmap).
 #'
 #' @param object an \code{HiCDOCDataSet} object
-#' @param chromosomeId The name or number of the chromosome to plot.
-#' If number, will be taken in \code{object@chromosomes[chromosomeId]}
-#' @param trans character: transformation of the color scale. Default to "log2".
+#' @param chromosome The name or number of the chromosome to plot.
+#' If number, will be taken in \code{object@chromosomes[chromosome]}
+#' @param transform character: transformation of the color scale. Default to "log2".
 #' See \code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.
 #' Set to NULL for no transformation.
 #' @param colours character vector, vector of colours to use for n-colour
@@ -13,89 +13,90 @@
 #' @return A \code{ggplot} object.
 #' @examples
 #' object <- HiCDOCExample()
-#' p <- plotInteractionMatrix(object, chromosomeId = 1, trans = "log2")
+#' p <- plotInteractions(object, chromosome = 1, transform = "log2")
 #' @export
-plotInteractionMatrix <-
-    function(object,
-    chromosomeId,
-    trans = "log2",
-    colours = c("#000066", "#ffffbf", "#990000")) {
-        # Parameters
-        testSlotsHiCDOC(object,
-            slots = c(
-                "interactions",
-                "conditions",
-                "totalBins",
-                "binSize",
-                "positions"
-            )
+plotInteractions <- function(
+    object,
+    chromosome,
+    transform = "log2",
+    colours = c("#000066", "#ffffbf", "#990000")
+) {
+
+    validateSlots(
+        object,
+        slots = c(
+            "interactions",
+            "conditions",
+            "totalBins",
+            "binSize",
+            "positions"
         )
-        chr <- testValidId(object, chromosomeId, "chromosomes")
-        if (is.null(trans)) {
-              trans <- "Identity"
-          }
+    )
+    chromosomeName <- validateNameOrId(object, chromosome, "chromosomes")
+    if (is.null(transform)) transform <- "Identity"
 
-        posChr <- object@positions %>%
-            dplyr::filter(chromosome == chr)
-        # Prepare data
-        interactionsChr <- object@interactions %>%
-            dplyr::filter(chromosome == chr & value > 0) %>%
-            dplyr::left_join(posChr %>%
-                dplyr::select(
-                    bin.1 = bin,
-                    position.1 = start
-                ),
+    positions <-
+        object@positions %>%
+        dplyr::filter(chromosome == chromosomeName)
+    interactions <-
+        object@interactions %>%
+        dplyr::filter(chromosome == chromosomeName & interaction > 0) %>%
+        dplyr::left_join(
+            positions %>% dplyr::select(
+                bin.1 = bin,
+                position.1 = start
+            ),
             by = "bin.1"
-            ) %>%
-            dplyr::left_join(posChr %>%
-                dplyr::select(
-                    bin.2 = bin,
-                    position.2 = start
-                ),
+        ) %>%
+        dplyr::left_join(
+            positions %>% dplyr::select(
+                bin.2 = bin,
+                position.2 = start
+            ),
             by = "bin.2"
-            )
-        nblevels <- table(object@conditions)
-        nbrows <- 1
-        if (max(nblevels) == min(nblevels)) {
-              nbrows <- length(unique(object@conditions))
-          }
-        xylim <- c(min(posChr$start), max(posChr$start))
+        )
 
-        if (nrow(interactionsChr) > 0) {
-            p <-
-                ggplot(
-                    data = interactionsChr,
-                    aes(x = position.1, y = position.2, z = value)
-                ) +
-                geom_raster(aes(fill = value), na.rm = TRUE) +
-                geom_raster(
-                    data = interactionsChr[interactionsChr$bin.1 !=
-                        interactionsChr$bin.2, ],
-                    aes(x = position.2, y = position.1, fill = value),
-                    na.rm = TRUE
-                ) +
-                coord_fixed(ratio = 1) +
-                theme_bw() +
-                xlim(xylim) +
-                scale_y_reverse(limits = rev(xylim)) +
-                facet_wrap(condition ~ replicate,
-                    nrow = nbrows,
-                    labeller = label_wrap_gen(multi_line = FALSE)
-                ) +
-                labs(title = paste("Chromosome:", chr), x = "", y = "")
-            p <-
-                p + scale_fill_gradientn(
-                    colours = colours,
-                    trans = trans,
-                    name = "Intensity",
-                    na.value = "transparent"
-                )
-        } else {
-            message("No interaction data, with positive value to plot")
-            p <- NULL
-        }
-        return(p)
+    if (nrow(interactions) == 0) {
+        message("No interaction data to plot.")
+        return(NULL)
     }
+
+    totalLevels <- table(object@conditions)
+    totalRows <- 1
+    if (max(totalLevels) == min(totalLevels)) {
+        totalRows <- length(unique(object@conditions))
+    }
+    xylim <- c(min(positions$start), max(positions$start))
+
+    plot <-
+        ggplot(
+            data = interactions,
+            aes(x = position.1, y = position.2, z = interaction)
+        ) +
+        geom_raster(aes(fill = interaction), na.rm = TRUE) +
+        geom_raster(
+            data = interactions[interactions$bin.1 != interactions$bin.2, ],
+            aes(x = position.2, y = position.1, fill = interaction),
+            na.rm = TRUE
+        ) +
+        coord_fixed(ratio = 1) +
+        theme_bw() +
+        xlim(xylim) +
+        scale_y_reverse(limits = rev(xylim)) +
+        facet_wrap(
+            condition ~ replicate,
+            nrow = totalRows,
+            labeller = label_wrap_gen(multi_line = FALSE)
+        ) +
+        labs(title = paste("Chromosome:", chromosomeName), x = "", y = "") +
+        scale_fill_gradientn(
+            colours = colours,
+            trans = transform,
+            name = "Intensity",
+            na.value = "transparent"
+        )
+    return(plot)
+}
 
 #' Plot the distance vs intensity matrix.
 #'
@@ -106,12 +107,12 @@ plotInteractionMatrix <-
 #' plotDistanceEffect(object)
 #' @export
 plotDistanceEffect <- function(object) {
-    testSlotsHiCDOC(object, slots = c("interactions", "binSize"))
-
-    dataplot <- object@interactions %>%
+    validateSlots(object, slots = c("interactions", "binSize"))
+    data <-
+        object@interactions %>%
         dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize)
-
-    p <- ggplot(dataplot, aes(x = distance, y = value)) +
+    plot <-
+        ggplot(data, aes(x = distance, y = interaction)) +
         geom_bin2d() +
         scale_fill_gradient(
             low = "white",
@@ -121,13 +122,15 @@ plotDistanceEffect <- function(object) {
         geom_point(col = "transparent") + # necessary for geom_smooth
         geom_smooth(col = "red") +
         labs(title = "Distance effect")
-    p <- ggExtra::ggMarginal(p,
-        margins = "x",
-        type = "histogram",
-        fill = "transparent",
-        lwd = 0.5
-    )
-    return(p)
+    plot <-
+        ggExtra::ggMarginal(
+            plot,
+            margins = "x",
+            type = "histogram",
+            fill = "transparent",
+            lwd = 0.5
+        )
+    return(plot)
 }
 
 #' Plot the concordance, i.e. the relative distance of the genomic positions
@@ -143,10 +146,11 @@ plotDistanceEffect <- function(object) {
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
 #' object <- detectCompartments(object)
-#' plotDiffConcordances(object)
+#' plotConcordanceDistribution(object)
 #' @export
-plotDiffConcordances <- function(object) {
-    testSlotsHiCDOC(object,
+plotConcordanceDistribution <- function(object) {
+    validateSlots(
+        object,
         slots = c(
             "interactions",
             "differences",
@@ -154,11 +158,13 @@ plotDiffConcordances <- function(object) {
         )
     )
 
-    changed <- object@differences %>%
-        dplyr::select(-c(`padj`)) %>%
+    changed <-
+        object@differences %>%
+        dplyr::select(-pvalue.adjusted) %>%
         dplyr::mutate(changed = "T")
 
-    differences <- object@concordances %>%
+    differences <-
+        object@concordances %>%
         dplyr::group_by(.dots = c("chromosome", "bin", "condition")) %>%
         dplyr::summarise(median = stats::median(concordance)) %>%
         dplyr::ungroup() %>%
@@ -168,7 +174,8 @@ plotDiffConcordances <- function(object) {
         dplyr::left_join(changed, by = c("chromosome", "bin")) %>%
         dplyr::mutate(changed = tidyr::replace_na(changed, "F"))
 
-    p <- ggplot(differences, aes(x = difference, fill = changed)) +
+    p <-
+        ggplot(differences, aes(x = difference, fill = changed)) +
         geom_histogram() +
         labs(
             x = "Concordance",
@@ -177,10 +184,11 @@ plotDiffConcordances <- function(object) {
     return(p)
 }
 
-#' Plot the distribution of A/B compartments along the genomic positions.
+#' Plot boxplots of the diagonal ratios in each compartment,
+#' for a given chromosome.
 #'
 #' @param object an \code{HiCDOCDataSet} object
-#' @param chromosomeId character or numeric value, name or number of chromosome
+#' @param chromosome character or numeric value, name or number of chromosome
 #' @return A list of \code{ggplot}, one for each chromosome.
 #' @examples
 #' object <- HiCDOCExample()
@@ -190,20 +198,22 @@ plotDiffConcordances <- function(object) {
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
 #' object <- detectCompartments(object)
-#' plotAB(object, 1)
+#' plotSelfInteractionRatios(object, 1)
 #' @export
-plotAB <- function(object, chromosomeId) {
-    testSlotsHiCDOC(object, slots = c("diagonalRatios", "compartments"))
-    chromosomeId <- testValidId(object, chromosomeId, "chromosomes")
+plotSelfInteractionRatios <- function(object, chromosome) {
+    validateSlots(object, slots = c("selfInteractionRatios", "compartments"))
+    chromosomeName <- validateNameOrId(object, chromosome, "chromosomes")
 
-    data <- object@diagonalRatios %>%
+    data <-
+        object@selfInteractionRatios %>%
         dplyr::left_join(
             object@compartments,
             by = c("chromosome", "condition", "bin")
         ) %>%
-        dplyr::filter(chromosome == chromosomeId)
+        dplyr::filter(chromosome == chromosomeName)
 
-    ggplot(data, aes(x = compartment, y = value)) +
+    plot <-
+        ggplot(data, aes(x = compartment, y = ratio)) +
         geom_jitter(aes(color = compartment)) +
         geom_boxplot(
             outlier.colour = NA,
@@ -213,14 +223,18 @@ plotAB <- function(object, chromosomeId) {
         labs(
             color = "Compartment",
             x = "Compartment",
-            y = "Difference of int.",
-            title = paste0("Chromosome: ", chromosomeId)
+            y = "Interaction difference",
+            title = paste0(
+                "Differences between self-interactions ",
+                "and other interactions in chromosome ",
+                chromosomeName
+            )
         )
+    return(plot)
 }
 
 
-#' Plot the centroid distributions along the genomic positions
-#' for a given chromosome.
+#' Plot the centroids PCA for a given chromosome.
 #'
 #' @param object an \code{HiCDOCDataSet} object
 #' @param chromosomeId Character or numeric value. Name or number of
@@ -238,16 +252,17 @@ plotAB <- function(object, chromosomeId) {
 #' object <- detectCompartments(object)
 #' plotCentroids(object, 1)
 #' @export
-plotCentroids <- function(object, chromosomeId, size = 2) {
-    testSlotsHiCDOC(object, slots = c("centroids"))
-    chr <- testValidId(object, chromosomeId, "chromosomes")
+plotCentroids <- function(object, chromosome, size = 2) {
+    validateSlots(object, slots = c("centroids"))
+    chromosomeName <- validateNameOrId(object, chromosome, "chromosomes")
 
-    df <- object@centroids %>%
-        dplyr::filter(chromosome == chr) %>%
+    df <-
+        object@centroids %>%
+        dplyr::filter(chromosome == chromosomeName) %>%
         dplyr::select(-chromosome) %>%
         tidyr::unite(name, c(condition, compartment))
     names <- df$name
-    df <- df %>%
+    df %<>%
         tidyr::spread(name, centroid) %>%
         tidyr::unnest(cols = names) %>%
         t()
@@ -259,18 +274,21 @@ plotCentroids <- function(object, chromosomeId, size = 2) {
 
     pca <- as.data.frame(pca$x)
     pca$group <- row.names(df)
-    p <-
-        ggplot(pca, aes(
-            x = PC1,
-            y = PC2,
-            color = group,
-            shape = group
-        )) +
+    plot <-
+        ggplot(
+            pca,
+            aes(
+                x = PC1,
+                y = PC2,
+                color = group,
+                shape = group
+            )
+        ) +
         geom_point(size = size) +
         labs(
-            title = paste0("Centroids of chromosome ", chr),
+            title = paste0("Centroids of chromosome ", chromosomeName),
             x = paste("PC1 ", propvar[1]),
             y = paste("PC2 ", propvar[2])
         )
-    return(p)
+    return(plot)
 }

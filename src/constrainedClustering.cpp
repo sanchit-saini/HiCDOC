@@ -17,7 +17,11 @@ double getCentroidsDelta(
 
   double delta = 0.0;
 
-  for (unsigned int centroidId = 0; centroidId < previousCentroids.size(); centroidId++) {
+  for (
+    unsigned int centroidId = 0;
+    centroidId < previousCentroids.size();
+    centroidId++
+  ) {
     delta += getDistance(previousCentroids[centroidId], centroids[centroidId]);
   }
 
@@ -55,9 +59,15 @@ void updateCentroids(
     centroids[clusters[vectorId]] += matrix.row(vectorId);
     totalClusterMembers[clusters[vectorId]]++;
   }
-  for (unsigned int centroidId = 0; centroidId < centroids.size(); centroidId++) {
+  for (
+    unsigned int centroidId = 0;
+    centroidId < centroids.size();
+    centroidId++
+  ) {
     if (totalClusterMembers[centroidId] > 0) {
-      centroids[centroidId] = centroids[centroidId] / totalClusterMembers[centroidId];
+      centroids[centroidId] = (
+        centroids[centroidId] / totalClusterMembers[centroidId]
+      );
     }
   }
 }
@@ -76,7 +86,11 @@ NearestCentroid getNearestCentroid(
   nearestCentroid.distance = std::numeric_limits<double>::max();
   double distance;
 
-  for (unsigned int centroidId = 0; centroidId < centroids.size(); centroidId++) {
+  for (
+    unsigned int centroidId = 0;
+    centroidId < centroids.size();
+    centroidId++
+  ) {
     if (centroids[centroidId].size() == 0) continue;
     distance = getDistance(vector, centroids[centroidId]);
     if (distance < nearestCentroid.distance) {
@@ -100,10 +114,17 @@ void initializeCentroids(
   row = matrix.row(unif_rand() * matrix.nrow());
   centroids[0] = clone(row);
 
-  for (unsigned int centroidId = 1; centroidId < centroids.size(); centroidId++) {
+  for (
+    unsigned int centroidId = 1;
+    centroidId < centroids.size();
+    centroidId++
+  ) {
     sum = 0;
     for (int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
-      distances[vectorId] = getNearestCentroid(matrix.row(vectorId), centroids).distance;
+      distances[vectorId] = getNearestCentroid(
+        matrix.row(vectorId),
+        centroids
+      ).distance;
       sum += distances[vectorId];
     }
     sum *= unif_rand();
@@ -145,7 +166,10 @@ void assignClusters(
       linkedVectors.push_back(matrix.row(vectorId));
     }
 
-    centroidId = getNearestCentroid(getMedianVector(linkedVectors), centroids).centroidId;
+    centroidId = getNearestCentroid(
+      getMedianVector(linkedVectors),
+      centroids
+    ).centroidId;
 
     for (int vectorId: link) {
       clusters[vectorId] = centroidId;
@@ -188,7 +212,7 @@ double clusterize(
 }
 
 // [[Rcpp::export]]
-List constrainedClustering (
+List constrainedClustering(
   NumericMatrix &matrix,
   IntegerMatrix &links,
   double maxDelta = 0.0001,
@@ -225,7 +249,11 @@ List constrainedClustering (
       if (quality < minQuality) {
         minQuality = quality;
         bestClusters = clone(clusters);
-        for (unsigned int centroidId = 0; centroidId < centroids.size(); centroidId++) {
+        for (
+          unsigned int centroidId = 0;
+          centroidId < centroids.size();
+          centroidId++
+        ) {
           bestCentroids[centroidId] = clone(centroids[centroidId]);
         }
       }

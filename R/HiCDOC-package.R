@@ -28,7 +28,7 @@
 ###############################################################################
 #' @docType package
 #' @name HiCDOC
-#' @title Find compartments with significantly differential binding using 
+#' @title Find compartments with significantly differential binding using
 #' replicated Hi-C data
 #' @aliases HiCDOC-package
 #' @import methods
