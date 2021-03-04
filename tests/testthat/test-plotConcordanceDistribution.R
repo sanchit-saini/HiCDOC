@@ -1,12 +1,12 @@
-test_that("plotDiffConcordances behaves as expected", {
+test_that("plotConcordanceDistribution behaves as expected", {
     object <- HiCDOCExample()
     expect_error(
-        pp <- plotDiffConcordances(object),
+        pp <- plotConcordanceDistribution(object),
         "Please run 'detectCompartments' first."
     )
     set.seed(3215)
     object <- detectCompartments(object)
-    pp <- plotDiffConcordances(object)
+    pp <- plotConcordanceDistribution(object)
     expect_is(pp, "ggplot")
     expect_identical(
         pp$labels,

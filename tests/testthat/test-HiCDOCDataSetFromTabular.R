@@ -1,48 +1,44 @@
-test_that("HiCDOCDataSetFromSparseMatrix produce correct format", {
-    linkToMatrix <- system.file("extdata",
-        "sampleMatrix.tsv",
+test_that("HiCDOCDataSetFromTabular produce correct format", {
+    linkToMatrix <- system.file(
+        "extdata",
+        "sample.tsv",
         package = "HiCDOC"
     )
-    expect_error(object <-
-        HiCDOCDataSetFromSparseMatrix(linkToMatrix), NA)
+    expect_error(object <- HiCDOCDataSetFromTabular(linkToMatrix), NA)
     # Class and slots
     expect_is(object, "HiCDOCDataSet")
     expect_identical(
         slotNames(object),
         c(
-            "inputPath",
+            "input",
+            "parameters",
             "interactions",
-            "weakBins",
             "chromosomes",
             "replicates",
-            "totalReplicates",
-            "totalReplicatesPerCondition",
+            "positions",
             "conditions",
-            "totalBins",
             "binSize",
-            "distances",
-            "diagonalRatios",
+            "totalBins",
+            "weakBins",
             "compartments",
             "concordances",
             "differences",
+            "distances",
             "centroids",
-            "parameters",
-            "positions"
+            "selfInteractionRatios",
         )
     )
     # Class of slots
-    expect_is(object@inputPath, "character")
+    expect_is(object@input, "character")
     expect_is(object@interactions, "tbl_df")
     expect_is(object@weakBins, "list")
     expect_is(object@chromosomes, "character")
     expect_is(object@replicates, "character")
-    expect_is(object@totalReplicates, "integer")
-    expect_is(object@totalReplicatesPerCondition, "numeric")
     expect_is(object@conditions, "character")
     expect_is(object@totalBins, "numeric")
     expect_is(object@binSize, "integer")
     expect_is(object@distances, "NULL")
-    expect_is(object@diagonalRatios, "NULL")
+    expect_is(object@selfInteractionRatios, "NULL")
     expect_is(object@compartments, "NULL")
     expect_is(object@concordances, "NULL")
     expect_is(object@differences, "NULL")
@@ -63,13 +59,13 @@ test_that("HiCDOCDataSetFromSparseMatrix produce correct format", {
     expect_true(is.numeric(object@positions$end))
 })
 
-test_that("HiCDOCDataSetFromSparseMatrix produce correct values", {
-    linkToMatrix <- system.file("extdata",
-        "sampleMatrix.tsv",
+test_that("HiCDOCDataSetFromTabular produce correct values", {
+    linkToMatrix <- system.file(
+        "extdata",
+        "sample.tsv",
         package = "HiCDOC"
     )
-    expect_error(object <-
-        HiCDOCDataSetFromSparseMatrix(linkToMatrix), NA)
+    expect_error(object <- HiCDOCDataSetFromTabular(linkToMatrix), NA)
 
     # Interactions
     expect_equal(nrow(object@interactions), 86736)
@@ -83,13 +79,11 @@ test_that("HiCDOCDataSetFromSparseMatrix produce correct values", {
     # replicates & conditions
     expect_identical(object@replicates, c("1", "2", "3", "1", "2", "3"))
     expect_identical(object@conditions, c("1", "1", "1", "2", "2", "2"))
-    expect_identical(object@totalReplicates, 6L)
-    expect_identical(object@totalReplicatesPerCondition, c("1" = 3, "2" = 3))
     # bins
     expect_identical(object@totalBins, c("17" = 127, "18" = 112))
     expect_identical(object@binSize, 500000L)
     # Parameters
-    expect_identical(object@parameters, HiCDOCDefaultParameters)
+    expect_identical(object@parameters, defaultHiCDOCParameters)
     # Positions
     expect_equal(mean(object@positions$bin), 60.48536, tolerance = 1e-5)
     expect_equal(mean(object@positions$start), 29742678)

@@ -14,18 +14,16 @@ test_that("HiCDOCDataSetFromCool produce correct format", {
     expect_identical(
         slotNames(object),
         c(
-            "inputPath",
+            "path",
             "interactions",
             "weakBins",
             "chromosomes",
             "replicates",
-            "totalReplicates",
-            "totalReplicatesPerCondition",
             "conditions",
             "totalBins",
             "binSize",
             "distances",
-            "diagonalRatios",
+            "selfInteractionRatios",
             "compartments",
             "concordances",
             "differences",
@@ -35,18 +33,16 @@ test_that("HiCDOCDataSetFromCool produce correct format", {
         )
     )
     # Class of slots
-    expect_is(object@inputPath, "character")
+    expect_is(object@input, "character")
     expect_is(object@interactions, "tbl_df")
     expect_is(object@weakBins, "list")
     expect_is(object@chromosomes, "character")
     expect_is(object@replicates, "character")
-    expect_is(object@totalReplicates, "integer")
-    expect_is(object@totalReplicatesPerCondition, "numeric")
     expect_is(object@conditions, "integer")
     expect_is(object@totalBins, "numeric")
     expect_is(object@binSize, "integer")
     expect_is(object@distances, "NULL")
-    expect_is(object@diagonalRatios, "NULL")
+    expect_is(object@selfInteractionRatios, "NULL")
     expect_is(object@compartments, "NULL")
     expect_is(object@concordances, "NULL")
     expect_is(object@differences, "NULL")

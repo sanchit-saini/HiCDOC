@@ -1,6 +1,5 @@
 test_that("filterWeakPositions behaves as expected", {
     object <- HiCDOCExample()
-
     # Filter the 0 values in interactions
     expect_message(
         object <- filterWeakPositions(object),
@@ -19,5 +18,5 @@ test_that("filterWeakPositions behaves as expected", {
         object@weakBins,
         list("17" = c(124L, 125L, 126L), "18" = NULL)
     )
-    expect_identical(object@parameters$weakPosThreshold, 50)
+    expect_identical(object@parameters$weakPositionThreshold, 50)
 })

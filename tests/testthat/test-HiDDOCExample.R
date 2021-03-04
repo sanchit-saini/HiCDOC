@@ -5,27 +5,24 @@ test_that("HiCDOCExample produce object with correct format", {
     expect_identical(
         slotNames(object),
         c(
-            "inputPath", "interactions", "weakBins",
-            "chromosomes", "replicates", "totalReplicates",
-            "totalReplicatesPerCondition", "conditions", "totalBins",
-            "binSize", "distances", "diagonalRatios",
+            "path", "interactions", "weakBins",
+            "chromosomes", "replicates", "conditions", "totalBins",
+            "binSize", "distances", "selfInteractionRatios",
             "compartments", "concordances", "differences",
             "centroids", "parameters", "positions"
         )
     )
     # Class of slots
-    expect_is(object@inputPath, "character")
+    expect_is(object@input, "character")
     expect_is(object@interactions, "tbl_df")
     expect_is(object@weakBins, "list")
     expect_is(object@chromosomes, "character")
     expect_is(object@replicates, "character")
-    expect_is(object@totalReplicates, "integer")
-    expect_is(object@totalReplicatesPerCondition, "numeric")
     expect_is(object@conditions, "character")
     expect_is(object@totalBins, "numeric")
     expect_is(object@binSize, "integer")
     expect_is(object@distances, "NULL")
-    expect_is(object@diagonalRatios, "NULL")
+    expect_is(object@selfInteractionRatios, "NULL")
     expect_is(object@compartments, "NULL")
     expect_is(object@concordances, "NULL")
     expect_is(object@differences, "NULL")
@@ -60,13 +57,11 @@ test_that("HiCDOCExample produce object with correct values", {
     # replicates & conditions
     expect_identical(object@replicates, c("1", "2", "3", "1", "2", "3"))
     expect_identical(object@conditions, c("1", "1", "1", "2", "2", "2"))
-    expect_identical(object@totalReplicates, 6L)
-    expect_identical(object@totalReplicatesPerCondition, c("1" = 3, "2" = 3))
     # bins
     expect_identical(object@totalBins, c("17" = 127, "18" = 112))
     expect_identical(object@binSize, 500000L)
     # Parameters
-    expect_identical(object@parameters, HiCDOCDefaultParameters)
+    expect_identical(object@parameters, defaultHiCDOCParameters)
     # Positions
     expect_equal(mean(object@positions$bin), 60.48536, tolerance = 1e-5)
     expect_equal(mean(object@positions$start), 29742678)

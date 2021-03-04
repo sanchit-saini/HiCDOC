@@ -438,7 +438,7 @@ HiCDOCDataSetFromHiCPro <- function(
 HiCDOCExample <- function() {
     object <- NULL
     basedir <- system.file("extdata", package = "HiCDOC", mustWork = TRUE)
-    path <- file.path(basedir, "sampleMatrix.tsv")
+    path <- file.path(basedir, "sample.tsv")
     object <- HiCDOCDataSetFromTabular(path)
     return(invisible(object))
 }

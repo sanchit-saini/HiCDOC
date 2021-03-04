@@ -11,13 +11,16 @@ test_that("plotCentroids behaves as expected", {
 
     pp <- plotCentroids(object, 1)
     expect_is(pp, "ggplot")
-    expect_identical(pp$labels, list(
-        "x" = "PC1  94.47 %",
-        "y" = "PC2  5.19 %",
-        "title" = "Centroids of chromosome 17",
-        "colour" = "group",
-        "shape" = "group"
-    ))
+    expect_identical(
+        pp$labels,
+        list(
+            "x" = "PC1  94.47 %",
+            "y" = "PC2  5.19 %",
+            "title" = "Centroids of chromosome 17",
+            "colour" = "group",
+            "shape" = "group"
+        )
+    )
     expect_is(pp$layers[[1]]$geom, "GeomPoint")
     # No error when printed
     expect_error(print(pp), NA)
