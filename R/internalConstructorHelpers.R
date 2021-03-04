@@ -2,7 +2,7 @@
 # For internal use only
 # These functions are called by the HiCDOCDataSet() function
 
-#### computeBinSize ##########################################################
+#### .computeBinSize ##########################################################
 #' Compute the binSize
 #'
 #' The function takes a HiCDOCDataset object and computes the binSize from
@@ -13,7 +13,7 @@
 #' @return binSize, an integer.
 #' @keywords internal
 #' @noRd
-computeBinSize <- function(object) {
+.computeBinSize <- function(object) {
 
     if (is.null(object@interactions)) return(NULL)
 
@@ -30,7 +30,7 @@ computeBinSize <- function(object) {
     return(binSize)
 }
 
-#### determinePositions ######################################################
+#### .determinePositions ######################################################
 #' Determine the positions corresponding to the bins
 #'
 #' The function determines, for each chromosome, the positions corresponding
@@ -42,8 +42,8 @@ computeBinSize <- function(object) {
 #' @return a tibble, with 4 columns : chromosome, bin, start, end.
 #' @keywords internal
 #' @noRd
-determinePositions <- function(object) {
-    validateSlots(object, c("chromosomes", "interactions"))
+.determinePositions <- function(object) {
+    .validateSlots(object, c("chromosomes", "interactions"))
     chromosomes <- object@chromosomes
 
     maxPositions <-
@@ -93,7 +93,7 @@ determinePositions <- function(object) {
     return(positions)
 }
 
-#### replacePositionsByBins ##################################################
+#### .replacePositionsByBins ##################################################
 #' Replace the positions by the corresponding bins in the interaction matrix
 #'
 #' @param object a HiCDOCDataSet object
@@ -101,7 +101,7 @@ determinePositions <- function(object) {
 #' @return a tibble, of the modified interactions matrix.
 #' @keywords internal
 #' @noRd
-replacePositionsByBins <- function(object) {
+.replacePositionsByBins <- function(object) {
     interactions <-
         object@interactions %>%
         dplyr::mutate(
@@ -137,7 +137,7 @@ replacePositionsByBins <- function(object) {
     return(interactions)
 }
 
-#### reformatInteractions ##################################################
+#### .reformatInteractions ##################################################
 #' Reformat the interaction matrix
 #'
 #'
@@ -152,7 +152,7 @@ replacePositionsByBins <- function(object) {
 #' @return a tibble, of the interactions corrected
 #' @keywords internal
 #' @noRd
-reformatInteractions <- function(interactions) {
+.reformatInteractions <- function(interactions) {
     # Move lower triangle interactions to upper triangle
     lowerTriangle <- which(interactions$bin.1 > interactions$bin.2)
     if (length(lowerTriangle) > 0) {

@@ -356,7 +356,7 @@ void readFooter(std::istream& fin, hicInfo &info, outputStr &output) {
 
 
 // [[Rcpp::export]]
-DataFrame parseHic(std::string &fname, int resolution) {
+DataFrame parseHiCFile(std::string &fname, int resolution) {
   hicInfo info;
   outputStr output;
   std::ifstream fin;

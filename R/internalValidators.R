@@ -1,4 +1,4 @@
-## - validateParameters ----------------------------------------------------------#
+## - .validateParameters ----------------------------------------------------------#
 ## ----------------------------------------------------------------------------#
 #' Check object@parameters, return default if NULL
 #'
@@ -8,7 +8,7 @@
 #' if null.
 #' @keywords internal
 #' @noRd
-validateParameters <- function(parameters) {
+.validateParameters <- function(parameters) {
     defaultParameterNames <- names(HiCDOCDefaultParameters)
     inputParameterNames <- names(parameters)
 
@@ -81,7 +81,7 @@ validateParameters <- function(parameters) {
     return(parameters)
 }
 
-## - validateNameOrId -----------------------------------------------------------#
+## - .validateNameOrId -----------------------------------------------------------#
 ## -------------------------------------------------------------------------#
 #' Test the existence of a set of identifier
 #'
@@ -93,7 +93,7 @@ validateParameters <- function(parameters) {
 #' @return The chromosome name or an error.
 #' @keywords internal
 #' @noRd
-validateNameOrId <- function(object, id, category = "chromosomes") {
+.validateNameOrId <- function(object, id, category = "chromosomes") {
     names <- unique(slot(object, category))
     if (all(id %in% names)) return(id)
     if (is.numeric(id) && all(id %in% seq_len(length(names)))) return(names[id])
@@ -108,7 +108,7 @@ validateNameOrId <- function(object, id, category = "chromosomes") {
     )
 }
 
-## - validateSlots --------------------------------------------------------#
+## - .validateSlots --------------------------------------------------------#
 ## --------------------------------------------------------------------------#
 #' Test the existence of slots
 #'
@@ -120,7 +120,7 @@ validateNameOrId <- function(object, id, category = "chromosomes") {
 #' missing.
 #' @keywords internal
 #' @noRd
-validateSlots <- function(object, slots = NULL) {
+.validateSlots <- function(object, slots = NULL) {
     if (!is(object, "HiCDOCDataSet")) {
         stop(
             "The provided object is not an HiCDOC object.",

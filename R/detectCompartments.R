@@ -1,4 +1,4 @@
-## - euclideanDistance ------------------------------------------------------#
+## - .euclideanDistance ------------------------------------------------------#
 ## --------------------------------------------------------------------------#
 #' Compute the euclidean distance between two vectors.
 #'
@@ -8,11 +8,11 @@
 #' @return A float number.
 #' @keywords internal
 #' @noRd
-euclideanDistance <- function(x, y) {
+.euclideanDistance <- function(x, y) {
     sqrt(sum((x - y)^2))
 }
 
-## - distanceRatio ----------------------------------------------------------#
+## - .distanceRatio ----------------------------------------------------------#
 ## --------------------------------------------------------------------------#
 #' Compute the log ratio of the distance of a position to each centroid.
 #'
@@ -23,16 +23,16 @@ euclideanDistance <- function(x, y) {
 #' @return A float number.
 #' @keywords internal
 #' @noRd
-distanceRatio <- function(x, centroids, eps = 1e-10) {
+.distanceRatio <- function(x, centroids, eps = 1e-10) {
     return(
         log(
-            (euclideanDistance(x, centroids[[1]]) + eps) /
-            (euclideanDistance(x, centroids[[2]]) + eps)
+            (.euclideanDistance(x, centroids[[1]]) + eps) /
+            (.euclideanDistance(x, centroids[[2]]) + eps)
         )
     )
 }
 
-## - tieCentroids -----------------------------------------------------------#
+## - .tieCentroids -----------------------------------------------------------#
 ## --------------------------------------------------------------------------#
 #' Assign correct cluster labels by comparing centroids across conditions.
 #'
@@ -43,7 +43,7 @@ distanceRatio <- function(x, centroids, eps = 1e-10) {
 #' concordances.
 #' @keywords internal
 #' @noRd
-tieCentroids <- function(object) {
+.tieCentroids <- function(object) {
     totalConditions <- length(unique(object@conditions))
     referenceCondition <- object@conditions[[1]]
 
@@ -69,10 +69,10 @@ tieCentroids <- function(object) {
         dplyr::rowwise() %>%
         dplyr::mutate(
             cluster.1 = dplyr::if_else(
-                euclideanDistance(centroid.1, reference.1) *
-                euclideanDistance(centroid.2, reference.2) <
-                euclideanDistance(centroid.1, reference.2) *
-                euclideanDistance(centroid.2, reference.1),
+                .euclideanDistance(centroid.1, reference.1) *
+                .euclideanDistance(centroid.2, reference.2) <
+                .euclideanDistance(centroid.1, reference.2) *
+                .euclideanDistance(centroid.2, reference.1),
                 1,
                 2
             )
@@ -119,7 +119,7 @@ tieCentroids <- function(object) {
     return(object)
 }
 
-#' constructLinkMatrix
+#' .constructLinkMatrix
 #'
 #' @param nbReplicates number of replicates under a condition
 #' @param nbBins number of bins of a chromosome
@@ -127,7 +127,7 @@ tieCentroids <- function(object) {
 #' @return an matrix filled with 0 to use in constraned clustering
 #' @keywords internal
 #' @noRd
-constructLinkMatrix <- function(totalReplicates, totalBins) {
+.constructLinkMatrix <- function(totalReplicates, totalBins) {
     return(
         matrix(
             rep(0:(totalReplicates - 1), totalBins) * totalBins +
@@ -158,7 +158,7 @@ constructLinkMatrix <- function(totalReplicates, totalBins) {
 #' @md
 #' @keywords internal
 #' @noRd
-clusterizeChromosomeCondition <- function(
+.clusterizeChromosomeCondition <- function(
     object,
     chromosomeName,
     conditionName
@@ -178,7 +178,7 @@ clusterizeChromosomeCondition <- function(
         purrr::map(
             replicateNames,
             function(replicateName) {
-                sparseInteractionsToMatrix(
+                .sparseInteractionsToMatrix(
                     object,
                     chromosomeName,
                     conditionName,
@@ -189,7 +189,7 @@ clusterizeChromosomeCondition <- function(
         )
     interactions <- do.call("rbind", interactions)
 
-    mustLink <- constructLinkMatrix(length(replicateNames), totalBins)
+    mustLink <- .constructLinkMatrix(length(replicateNames), totalBins)
     clusteringOutput <-
         constrainedClustering(
             interactions,
@@ -201,19 +201,19 @@ clusterizeChromosomeCondition <- function(
     clusters <- clusteringOutput[["clusters"]][0:totalBins] + 1
     centroids <- clusteringOutput[["centroids"]]
 
-    min <- distanceRatio(centroids[[1]], centroids)
-    max <- distanceRatio(centroids[[2]], centroids)
+    min <- .distanceRatio(centroids[[1]], centroids)
+    max <- .distanceRatio(centroids[[2]], centroids)
 
     concordances <-
         apply(interactions, 1, function(row) {
-            2 * (distanceRatio(row, centroids) - min) / (max - min) - 1
+            2 * (.distanceRatio(row, centroids) - min) / (max - min) - 1
         })
 
     distances <-
         apply(interactions, 1, function(row) {
             c(
-                euclideanDistance(row, centroids[[1]]),
-                euclideanDistance(row, centroids[[2]])
+                .euclideanDistance(row, centroids[[1]]),
+                .euclideanDistance(row, centroids[[2]])
             )
         })
 
@@ -286,7 +286,7 @@ clusterizeChromosomeCondition <- function(
 #' - concordance (float in [-1, 1]) for each genomic position in each replicate
 #' @keywords internal
 #' @noRd
-clusterize <- function(object, parallel = FALSE) {
+.clusterize <- function(object, parallel = FALSE) {
     chromosomeNames <-
         rep(object@chromosomes, each = length(unique(object@conditions)))
     conditionNames <-
@@ -297,7 +297,7 @@ clusterize <- function(object, parallel = FALSE) {
         result <-
             pbapply::pbmapply(
                 FUN = function(chromosomeName, conditionName) {
-                    clusterizeChromosomeCondition(
+                    .clusterizeChromosomeCondition(
                         object,
                         chromosomeName,
                         conditionName
@@ -328,7 +328,7 @@ clusterize <- function(object, parallel = FALSE) {
         # https://github.com/Bioconductor/BiocParallel/issues/122
         result <-
             BiocParallel::bpmapply(
-                FUN = clusterizeChromosomeCondition,
+                FUN = .clusterizeChromosomeCondition,
                 reducedObjects,
                 chromosomeNames,
                 conditionNames,
@@ -344,11 +344,11 @@ clusterize <- function(object, parallel = FALSE) {
     object@distances <- purrr::map_dfr(result, "distances")
     object@centroids <- purrr::map_dfr(result, "centroids")
 
-    object <- tieCentroids(object)
+    object <- .tieCentroids(object)
     return(object)
 }
 
-## - computeSelfInteractionRatios ---------------------------------------------------------#
+## - .computeSelfInteractionRatios ---------------------------------------------------------#
 ## --------------------------------------------------------------------------#
 #' Compute the ratio of the reads which are on the diagonal vs those off-
 #'   diagonal, for each bin, and each matrix.
@@ -364,7 +364,7 @@ clusterize <- function(object, parallel = FALSE) {
 #' @return a \code{tibble}.
 #' @keywords internal
 #' @noRd
-computeSelfInteractionRatios <- function(
+.computeSelfInteractionRatios <- function(
     object,
     chromosomeName,
     conditionName,
@@ -414,7 +414,7 @@ computeSelfInteractionRatios <- function(
     return(selfInteractionRatios)
 }
 
-## - predictCompartmentsAB --------------------------------------------------------------#
+## - .predictCompartmentsAB --------------------------------------------------------------#
 ## --------------------------------------------------------------------------#
 #' Use ratio between diagonal and off-diagonal interactions to determine which
 #' clusters correspond to compartments A and B.
@@ -427,7 +427,7 @@ computeSelfInteractionRatios <- function(
 #' concordances.
 #' @keywords internal
 #' @noRd
-predictCompartmentsAB <- function(
+.predictCompartmentsAB <- function(
     object,
     parallel = FALSE
 ) {
@@ -439,7 +439,7 @@ predictCompartmentsAB <- function(
         ratios <-
             pbapply::pbmapply(
                 function(chromosomeName, conditionName, replicateName) {
-                    computeSelfInteractionRatios(
+                    .computeSelfInteractionRatios(
                         object,
                         chromosomeName,
                         conditionName,
@@ -468,7 +468,7 @@ predictCompartmentsAB <- function(
             )
         object@selfInteractionRatios <-
             BiocParallel::bpmapply(
-                FUN = computeSelfInteractionRatios,
+                FUN = .computeSelfInteractionRatios,
                 reducedObjects,
                 chromosomeNames,
                 conditionNames,
@@ -527,7 +527,7 @@ predictCompartmentsAB <- function(
     return(object)
 }
 
-## - computePValues ---------------------------------------------------------#
+## - .computePValues ---------------------------------------------------------#
 ## --------------------------------------------------------------------------#
 #' Get p-values for genomic positions whose assigned compartment switches
 #' between two conditions:
@@ -545,7 +545,7 @@ predictCompartmentsAB <- function(
 #' @return A \code{HiCDOCDataSet} object, with differences and their p-values.
 #' @keywords internal
 #' @noRd
-computePValues <- function(object) {
+.computePValues <- function(object) {
     # Compute median of differences between pairs of concordances
     # N.b. median of differences != difference of medians
     totalReplicates <- length(object@replicates)
@@ -692,7 +692,7 @@ detectCompartments <- function(
     kMeansIterations = NULL,
     kMeansRestarts = NULL
 ) {
-    validateSlots(
+    .validateSlots(
         object,
         slots = c(
             "chromosomes",
@@ -714,14 +714,14 @@ detectCompartments <- function(
     if (!is.null(kMeansRestarts)) {
         object@parameters$kMeansRestarts <- kMeansRestarts
     }
-    object@parameters <- validateParameters(object@parameters)
+    object@parameters <- .validateParameters(object@parameters)
 
     message("Clustering.")
-    object <- clusterize(object, parallel)
+    object <- .clusterize(object, parallel)
     message("Predicting compartments.")
-    object <- predictCompartmentsAB(object, parallel)
+    object <- .predictCompartmentsAB(object, parallel)
     message("Computing p-values.")
-    object <- computePValues(object)
+    object <- .computePValues(object)
 
     return(object)
 }

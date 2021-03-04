@@ -26,7 +26,7 @@ filterSmallChromosomes <- function(object, threshold = NULL) {
     if (!is.null(threshold)) {
         object@parameters$smallChromosomeThreshold <- threshold
     }
-    object@parameters <- validateParameters(object@parameters)
+    object@parameters <- .validateParameters(object@parameters)
 
     message(
         "Keeping chromosomes with at least ",

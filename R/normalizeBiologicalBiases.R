@@ -1,6 +1,6 @@
 # Based on
 # https://github.com/dozmorovlab/HiCcompare/blob/master/R/KRnormalization.R
-normalizeKnightRuiz <- function(
+.normalizeKnightRuiz <- function(
     A,
     tol = 1e-6,
     minDelta = 0.1,
@@ -79,7 +79,7 @@ normalizeKnightRuiz <- function(
 }
 
 
-## - normalizeBiologicalBiasesOfChromosome -----------------------------------#
+## - .normalizeBiologicalBiasesOfChromosome -----------------------------------#
 ## ---------------------------------------------------------------------------#
 #' Remove biological biases by normalizing with Knight-Ruiz matrix balancing.
 #' @param object A \code{HiCDOCDataSet} object.
@@ -87,8 +87,8 @@ normalizeKnightRuiz <- function(
 #' If number, will be taken in \code{object@chromosomes[chromosomeName]}
 #'
 #' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
-normalizeBiologicalBiasesOfChromosome <- function(object, chromosomeName) {
-    validateSlots(
+.normalizeBiologicalBiasesOfChromosome <- function(object, chromosomeName) {
+    .validateSlots(
         object,
         slots = c(
             "interactions",
@@ -106,7 +106,7 @@ normalizeBiologicalBiasesOfChromosome <- function(object, chromosomeName) {
     matrices <-
         mapply(
             function(conditionName, replicateName) {
-                sparseInteractionsToMatrix(
+                .sparseInteractionsToMatrix(
                     object,
                     chromosomeName,
                     conditionName,
@@ -149,7 +149,7 @@ normalizeBiologicalBiasesOfChromosome <- function(object, chromosomeName) {
         )
     }
 
-    normalizedMatrices <- lapply(matrices, normalizeKnightRuiz)
+    normalizedMatrices <- lapply(matrices, .normalizeKnightRuiz)
     chromosomeInteractions <-
         purrr::pmap_dfr(
             list(
@@ -158,7 +158,7 @@ normalizeBiologicalBiasesOfChromosome <- function(object, chromosomeName) {
                 object@replicates
             ),
             .f = function(matrix, conditionName, replicateName) {
-                matrixToSparseInteractions(
+                .matrixToSparseInteractions(
                     matrix,
                     object,
                     chromosomeName,
@@ -194,7 +194,7 @@ normalizeBiologicalBiases <- function(object) {
         purrr::map_dfr(
             object@chromosomes,
             function(chromosomeName) {
-                normalizeBiologicalBiasesOfChromosome(object, chromosomeName)
+                .normalizeBiologicalBiasesOfChromosome(object, chromosomeName)
             }
         ) %>%
         dplyr::mutate(

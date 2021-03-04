@@ -76,7 +76,7 @@ filterSparseChromosomes <- function(
     if (!is.null(threshold)) {
         object@parameters$sparseReplicateThreshold <- threshold
     }
-    object@parameters <- validateParameters(object@parameters)
+    object@parameters <- .validateParameters(object@parameters)
     thresh <- object@parameters$sparseReplicateThreshold
     # Sparsity
     chrQuality <-

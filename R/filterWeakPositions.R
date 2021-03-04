@@ -15,7 +15,7 @@
 #' @return list of length 2 : \code{"pos"} = the weak positions,
 #' \code{"interactions"} the interactions matrix for the chromosome,
 #' whithout the weak bins.
-filterWeakPositionsOfChromosome <- function(
+.filterWeakPositionsOfChromosome <- function(
     object,
     chromosomeName,
     threshold = 0
@@ -122,7 +122,7 @@ filterWeakPositionsOfChromosome <- function(
 #' exp <- HiCDOCExample()
 #' exp <- filterWeakPositions(exp)
 filterWeakPositions <- function(object, threshold = NULL) {
-    validateSlots(
+    .validateSlots(
         object,
         slots = c(
             "interactions",
@@ -137,7 +137,7 @@ filterWeakPositions <- function(object, threshold = NULL) {
     if (!is.null(threshold)) {
         object@parameters$weakPositionThreshold <- threshold
     }
-    object@parameters <- validateParameters(object@parameters)
+    object@parameters <- .validateParameters(object@parameters)
 
     message(
         "Keeping positions with interactions average greater than ",
@@ -149,7 +149,7 @@ filterWeakPositions <- function(object, threshold = NULL) {
         lapply(
             object@chromosomes,
             function(chromosomeName) {
-                filterWeakPositionsOfChromosome(
+                .filterWeakPositionsOfChromosome(
                     object,
                     chromosomeName,
                     object@parameters$weakPositionThreshold

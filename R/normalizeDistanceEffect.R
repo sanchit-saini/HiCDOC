@@ -1,4 +1,4 @@
-## - normalizeDistanceEffectOfChromosome ---------------------------------------------#
+## - .normalizeDistanceEffectOfChromosome ---------------------------------------------#
 ## --------------------------------------------------------------------------#
 #' Normalize the distance effect using a loess on the intensity vs distance
 #' to diagonal.
@@ -9,8 +9,8 @@
 #' @return the normalized interaction matrix for this chromosome.
 #' @keywords internal
 #' @noRd
-normalizeDistanceEffectOfChromosome <- function(object, chromosomeName) {
-    validateSlots(
+.normalizeDistanceEffectOfChromosome <- function(object, chromosomeName) {
+    .validateSlots(
         object,
         slots = c(
             "interactions",
@@ -147,13 +147,13 @@ normalizeDistanceEffect <- function(object, loessSampleSize = NULL) {
     if (!is.null(loessSampleSize)) {
         object@parameters$loessSampleSize <- loessSampleSize
     }
-    object@parameters <- validateParameters(object@parameters)
+    object@parameters <- .validateParameters(object@parameters)
     # Normalization by chromosome
     normalizedInteractions <-
         purrr::map_dfr(
             object@chromosomes,
             function(chromosomeName) {
-                normalizeDistanceEffectOfChromosome(object, chromosomeName)
+                .normalizeDistanceEffectOfChromosome(object, chromosomeName)
             }
         ) %>%
         dplyr::mutate(

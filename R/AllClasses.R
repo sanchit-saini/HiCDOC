@@ -1,3 +1,68 @@
+#### - class definition ####
+## HiCDOCDataSet S4 class definition ----------------------------------------#
+## --------------------------------------------------------------------------#
+#' Infrastructure for HiCDOC experiment and differential interaction.
+#'
+#' \code{HiCDOCDataSet} is an S4 class providing the infrastructure (slots)
+#' to store the input data, methods parameters, intermediate calculations
+#' and results of a differential interaction pipeline
+#'
+#' @aliases HiCDOCDataSet HiCDOCDataSet-class chromosomes conditions
+#' replicates interactions positions differences concordances compartments
+#' centroids show
+#' @details
+#' A HiCDOCDataSet can be constructed from 4 different types of data :
+#' * Matrices: see \code{\link{HiCDOCDataSetFromTabular}}
+#' * Cool or mCool data: see \code{\link{HiCDOCDataSetFromCool}}
+#' * Hic files: see \code{\link{HiCDOCDataSetFromHiC}}
+#' * Hic Pro matrices and bed files: see \code{\link{HiCDOCDataSetFromHiCPro}}
+#' @slot input The names of the matrix input files.
+#' @slot interactions The interaction matrices.
+#' @slot weakBins The empty bins.
+#' @slot chromosomes The list of chromosomes.
+#' @slot replicates The names of the replicates.
+#' @slot conditions The names of the conditions (exactly two different).
+#' @slot totalBins The number of bins per chromosome.
+#' @slot binSize The resolution.
+#' @slot distances The distribution of distances to the centroids.
+#' @slot selfInteractionRatios TODO
+#' @slot compartments The A/B compartments distribution, along the chromosomes.
+#' @slot concordances The concordance distribution, along the chromosomes.
+#' @slot differences The distribution of the difference of the concordance.
+#' @slot centroids The position of the centroids.
+#' @slot parameters An named \code{list}. The parameters for the
+#' segmentation methods. See \code{\link{parameters}}.
+#' @slot positions The position of the bins.
+#' @seealso \code{\link{HiCDOCExample}},
+#' \code{\link{parameters}},
+#' \code{\link{HiCDOCDataSetFromTabular}},
+#' \code{\link{HiCDOCDataSetFromCool}},
+#' \code{\link{HiCDOCDataSetFromHiC}},
+#' \code{\link{HiCDOCDataSetFromHiCPro}}
+#' @export
+#' @md
+setClass(
+    "HiCDOCDataSet",
+    slots = c(
+        input = "ANY",
+        parameters = "ANY",
+        interactions = "ANY",
+        chromosomes = "ANY",
+        conditions = "ANY",
+        replicates = "ANY",
+        positions = "ANY",
+        binSize = "ANY",
+        weakBins = "ANY",
+        totalBins = "ANY",
+        compartments = "ANY",
+        concordances = "ANY",
+        differences = "ANY",
+        distances = "ANY",
+        centroids = "ANY",
+        selfInteractionRatios = "ANY"
+    )
+)
+
 #### - HiCDOCDefaultParameters -------------------------------------------####
 # @describeIn parameters Default parameters for the HiCDOC pipeline
 #' @rdname parameters
@@ -16,6 +81,69 @@ HiCDOCDefaultParameters <- list(
     kMeansRestarts = 20
 )
 
+
+## - HiCDOCDataSet S4 class constructor -------------------------------------#
+## --------------------------------------------------------------------------#
+#' Constructor for the HiCDOCDataSet class.
+#'
+#' This function should not be called directly. It is called by the functions
+#' \code{\link{HiCDOCDataSetFromTabular}},
+#' \code{\link{HiCDOCDataSetFromCool}},
+#' \code{\link{HiCDOCDataSetFromHiC}} and
+#' \code{\link{HiCDOCDataSetFromHiCPro}}.
+#' @name HiCDOCDataSet-constructor
+#' @rdname HiCDOCDataSet-constructor
+#' @aliases HiCDOCDataSet-constructor
+#' @param object A prefilled \code{HiCDOCDataSet} object.
+#'
+#' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
+#'         object of class S4.
+#' @keywords internal
+#' @noRd
+HiCDOCDataSet <- function(object = NULL) {
+    # Create new empty object
+    if (is.null(object)) object <- new("HiCDOCDataSet")
+
+    # Fill binSize slot
+    if (is.null(object@binSize)) object@binSize <- .computeBinSize(object)
+
+    if (!is.null(object@interactions)) {
+        chromosomes <-
+            gtools::mixedsort(
+                unique(as.character(object@interactions$chromosome))
+            )
+        object@chromosomes <- chromosomes
+
+        # Determine positions
+        if (is.null(object@positions)) {
+            object@positions <- .determinePositions(object)
+        }
+
+        # Replace positions by bins
+        object@interactions <- .replacePositionsByBins(object)
+
+        object@weakBins <- vector("list", length(chromosomes))
+        names(object@weakBins) <- chromosomes
+
+        # Make upper triangular matrix, values as numeric, average duplicates
+        object@interactions <- .reformatInteractions(object@interactions)
+    }
+
+    # Fill totalBins slot
+    if (!is.null(object@binSize) & !is.null(object@interactions)) {
+        object@totalBins <-
+            vapply(
+                as.character(object@chromosomes),
+                function(x) {
+                    nrow(object@positions[object@positions$chromosome == x, ])
+                },
+                FUN.VALUE = 0
+            )
+    }
+
+    object@parameters <- HiCDOCDefaultParameters
+    return(invisible(object))
+}
 
 ## - HiCDOCDataSet S4 class constructor from sparse matrix ------------------#
 ## --------------------------------------------------------------------------#
@@ -42,11 +170,10 @@ HiCDOCDataSetFromTabular <- function(path = NULL) {
 
     object <- new("HiCDOCDataSet")
     object@input <- path
-    object <- parseTabular(object)
+    object <- .parseTabular(object)
     object <- HiCDOCDataSet(object)
     return(invisible(object))
 }
-
 
 ## - HiCDOCDataSet S4 class constructor from cool files ---------------------#
 ## --------------------------------------------------------------------------#
@@ -102,12 +229,11 @@ HiCDOCDataSetFromCool <- function(
     object@input <- paths
     object@replicates <- replicates
     object@conditions <- conditions
-    object <- parseCool(object)
+    object <- .parseCool(object)
     object <- HiCDOCDataSet(object)
 
     return(invisible(object))
 }
-
 
 ## - HiCDOCDataSet S4 class constructor from hic files ----------------------#
 ## --------------------------------------------------------------------------#
@@ -159,7 +285,7 @@ HiCDOCDataSetFromHiC <- function(
     object@replicates <- replicates
     object@conditions <- conditions
     object@binSize <- resolution
-    object <- parseHiC(object)
+    object <- .parseHiC(object)
     object <- HiCDOCDataSet(object)
 
     return(invisible(object))
@@ -229,7 +355,7 @@ HiCDOCDataSetFromHiCPro <- function(
     object@input <- paths
     object@replicates <- replicates
     object@conditions <- conditions
-    parsed <- parseHiCPro(object)
+    parsed <- .parseHiCPro(object)
     object <- parsed[["matrix"]]
     object@binSize <- parsed[["resolution"]]
     object@positions <- parsed[["positions"]]
@@ -259,135 +385,6 @@ HiCDOCExample <- function() {
     basedir <- system.file("extdata", package = "HiCDOC", mustWork = TRUE)
     path <- file.path(basedir, "sampleMatrix.tsv")
     object <- HiCDOCDataSetFromTabular(path)
-    return(invisible(object))
-}
-
-#### - class definition ####
-## HiCDOCDataSet S4 class definition ----------------------------------------#
-## --------------------------------------------------------------------------#
-#' Infrastructure for HiCDOC experiment and differential interaction.
-#'
-#' \code{HiCDOCDataSet} is an S4 class providing the infrastructure (slots)
-#' to store the input data, methods parameters, intermediate calculations
-#' and results of a differential interaction pipeline
-#'
-#' @aliases HiCDOCDataSet HiCDOCDataSet-class chromosomes conditions
-#' replicates interactions positions differences concordances compartments
-#' centroids show
-#' @details
-#' A HiCDOCDataSet can be constructed from 4 different types of data :
-#' * Matrices: see \code{\link{HiCDOCDataSetFromTabular}}
-#' * Cool or mCool data: see \code{\link{HiCDOCDataSetFromCool}}
-#' * Hic files: see \code{\link{HiCDOCDataSetFromHiC}}
-#' * Hic Pro matrices and bed files: see \code{\link{HiCDOCDataSetFromHiCPro}}
-#' @slot input The names of the matrix input files.
-#' @slot interactions The interaction matrices.
-#' @slot weakBins The empty bins.
-#' @slot chromosomes The list of chromosomes.
-#' @slot replicates The names of the replicates.
-#' @slot conditions The names of the conditions (exactly two different).
-#' @slot totalBins The number of bins per chromosome.
-#' @slot binSize The resolution.
-#' @slot distances The distribution of distances to the centroids.
-#' @slot selfInteractionRatios TODO
-#' @slot compartments The A/B compartments distribution, along the chromosomes.
-#' @slot concordances The concordance distribution, along the chromosomes.
-#' @slot differences The distribution of the difference of the concordance.
-#' @slot centroids The position of the centroids.
-#' @slot parameters An named \code{list}. The parameters for the
-#' segmentation methods. See \code{\link{parameters}}.
-#' @slot positions The position of the bins.
-#' @seealso \code{\link{HiCDOCExample}},
-#' \code{\link{parameters}},
-#' \code{\link{HiCDOCDataSetFromTabular}},
-#' \code{\link{HiCDOCDataSetFromCool}},
-#' \code{\link{HiCDOCDataSetFromHiC}},
-#' \code{\link{HiCDOCDataSetFromHiCPro}}
-#' @export
-#' @md
-setClass(
-    "HiCDOCDataSet",
-    slots = c(
-        input = "ANY",
-        parameters = "ANY",
-        interactions = "ANY",
-        chromosomes = "ANY",
-        conditions = "ANY",
-        replicates = "ANY",
-        positions = "ANY",
-        binSize = "ANY",
-        weakBins = "ANY",
-        totalBins = "ANY",
-        compartments = "ANY",
-        concordances = "ANY",
-        differences = "ANY",
-        distances = "ANY",
-        centroids = "ANY",
-        selfInteractionRatios = "ANY"
-    )
-)
-
-
-## - HiCDOCDataSet S4 class constructor -------------------------------------#
-## --------------------------------------------------------------------------#
-#' Constructor for the HiCDOCDataSet class.
-#'
-#' This function should not be called directly. It is called by the functions
-#' \code{\link{HiCDOCDataSetFromTabular}},
-#' \code{\link{HiCDOCDataSetFromCool}},
-#' \code{\link{HiCDOCDataSetFromHiC}} and
-#' \code{\link{HiCDOCDataSetFromHiCPro}}.
-#' @name HiCDOCDataSet-constructor
-#' @rdname HiCDOCDataSet-constructor
-#' @aliases HiCDOCDataSet-constructor
-#' @param object A prefilled \code{HiCDOCDataSet} object.
-#'
-#' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
-#'         object of class S4.
-#' @keywords internal
-#' @noRd
-HiCDOCDataSet <- function(object = NULL) {
-    # Create new empty object
-    if (is.null(object)) object <- new("HiCDOCDataSet")
-
-    # Fill binSize slot
-    if (is.null(object@binSize)) object@binSize <- computeBinSize(object)
-
-    if (!is.null(object@interactions)) {
-        chromosomes <-
-            gtools::mixedsort(
-                unique(as.character(object@interactions$chromosome))
-            )
-        object@chromosomes <- chromosomes
-
-        # Determine positions
-        if (is.null(object@positions)) {
-            object@positions <- determinePositions(object)
-        }
-
-        # Replace positions by bins
-        object@interactions <- replacePositionsByBins(object)
-
-        object@weakBins <- vector("list", length(chromosomes))
-        names(object@weakBins) <- chromosomes
-
-        # Make upper triangular matrix, values as numeric, average duplicates
-        object@interactions <- reformatInteractions(object@interactions)
-    }
-
-    # Fill totalBins slot
-    if (!is.null(object@binSize) & !is.null(object@interactions)) {
-        object@totalBins <-
-            vapply(
-                as.character(object@chromosomes),
-                function(x) {
-                    nrow(object@positions[object@positions$chromosome == x, ])
-                },
-                FUN.VALUE = 0
-            )
-    }
-
-    object@parameters <- HiCDOCDefaultParameters
     return(invisible(object))
 }
 
