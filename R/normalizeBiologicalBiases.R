@@ -141,7 +141,7 @@
                         object@conditions[x],
                         ", replicate ",
                         object@replicates[x],
-                        ".\n"
+                        "\n"
                     )
                 }
             ),

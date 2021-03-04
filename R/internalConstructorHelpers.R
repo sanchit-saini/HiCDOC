@@ -1,6 +1,6 @@
 # Helpers for HiCDOCDataSet constructor
 # For internal use only
-# These functions are called by the HiCDOCDataSet() function
+# These functions are called by the .fillHiCDOCDataSet() function
 
 #### .computeBinSize ##########################################################
 #' Compute the binSize
@@ -184,4 +184,71 @@
             dplyr::ungroup()
     }
     return(interactions)
+}
+
+## - HiCDOCDataSet S4 class constructor -------------------------------------#
+## --------------------------------------------------------------------------#
+#' Constructor for the HiCDOCDataSet class.
+#'
+#' This function should not be called directly. It is called by the functions
+#' \code{\link{HiCDOCDataSetFromTabular}},
+#' \code{\link{HiCDOCDataSetFromCool}},
+#' \code{\link{HiCDOCDataSetFromHiC}} and
+#' \code{\link{HiCDOCDataSetFromHiCPro}}.
+#' @name HiCDOCDataSet-constructor
+#' @rdname HiCDOCDataSet-constructor
+#' @aliases HiCDOCDataSet-constructor
+#' @param object A prefilled \code{HiCDOCDataSet} object.
+#'
+#' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
+#'         object of class S4.
+#' @keywords internal
+#' @noRd
+.fillHiCDOCDataSet <- function(object) {
+
+    # Fill binSize slot
+    if (is.null(object@binSize)) object@binSize <- .computeBinSize(object)
+
+    if (!is.null(object@interactions)) {
+        chromosomes <-
+            gtools::mixedsort(
+                unique(as.character(object@interactions$chromosome))
+            )
+        object@chromosomes <- chromosomes
+
+        # Determine positions
+        if (is.null(object@positions)) {
+            object@positions <- .determinePositions(object)
+        }
+
+        # Replace positions by bins
+        object@interactions <- .replacePositionsByBins(object)
+
+        object@weakBins <- vector("list", length(chromosomes))
+        names(object@weakBins) <- chromosomes
+
+        object@sparseConditions <- vector("list", length(chromosomes))
+        names(object@sparseConditions) <- chromosomes
+
+        object@sparseReplicates <- vector("list", length(chromosomes))
+        names(object@sparseReplicates) <- chromosomes
+
+        # Make upper triangular matrix, values as numeric, average duplicates
+        object@interactions <- .reformatInteractions(object@interactions)
+    }
+
+    # Fill totalBins slot
+    if (!is.null(object@binSize) & !is.null(object@interactions)) {
+        object@totalBins <-
+            vapply(
+                as.character(object@chromosomes),
+                function(x) {
+                    nrow(object@positions[object@positions$chromosome == x, ])
+                },
+                FUN.VALUE = 0
+            )
+    }
+
+    object@parameters <- defaultHiCDOCParameters
+    return(object)
 }

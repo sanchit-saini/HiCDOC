@@ -1,45 +1,55 @@
-#' Suppress the small chromosomes
+#' @title
+#' Filter small chromosomes.
 #'
-#' The function return an HiCDOCDataSet object, with only the big chromosomes.
-#' The big chromosomes must have a totalBins >= threshold.
-#' The interactions are reduced to keep only those corresponding
-#' to the remaining chromosomes.
+#' @desciption
+#' Removes chromosomes whose length (in number of positions) is smaller than the
+#' threshold.
 #'
-#' @param object A HiCDOCDataSet object
-#' @param threshold Numeric value. The minimum chromosome
-#' size (in number of bins), to be kept. If NULL, default to the first not
-#' NULL of \code{object$smallChromosomeThreshold} and
-#' \code{HiCDOCDefaultParameters$smallChromosomeThreshold}.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param threshold
+#' The minimum length (number of positions) for a chromosome to be kept.
+#' Defaults to \code{object$smallChromosomeThreshold} which is originally set to
+#' \code{defaultHiCDOCParameters$smallChromosomeThreshold}.
 #'
-#' @return A HiCDOCDataSet object
-#' @export
-#' @seealso \code{\link[HiCDOC]{filterWeakPositions}},
-#' \code{\link[HiCDOC]{filterSparseChromosomes}} and
-#' \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
+#' @return
+#' A filtered \code{\link{HiCDOCDataSet}}.
+#'
+#' @seealso
+#' \code{\link{filterSparseReplicates}},
+#' \code{\link{filterWeakPositions}},
+#' \code{\link{HiCDOC}}
 #'
 #' @examples
 #' object <- HiCDOCExample()
 #' chromosomes(object)
 #' object <- filterSmallChromosomes(object)
 #' chromosomes(object)
+#'
+#' @usage
+#' filterSmallChromosomes(object, threshold = 100)
+#'
+#' @export
 filterSmallChromosomes <- function(object, threshold = NULL) {
+
     if (!is.null(threshold)) {
         object@parameters$smallChromosomeThreshold <- threshold
     }
     object@parameters <- .validateParameters(object@parameters)
+    threshold <- object@parameters$smallChromosomeThreshold
 
     message(
         "Keeping chromosomes with at least ",
-        object@parameters$smallChromosomeThreshold,
+        threshold,
         " position",
-        if (object@parameters$smallChromosomeThreshold != 1) "s",
+        if (threshold != 1) "s",
         "."
     )
 
     bigChromosomes <-
         vapply(
             object@totalBins,
-            function(x) x >= object@parameters$smallChromosomeThreshold,
+            function(x) x >= threshold,
             FUN.VALUE = TRUE
         )
     bigChromosomeNames <- names(bigChromosomes)[bigChromosomes]

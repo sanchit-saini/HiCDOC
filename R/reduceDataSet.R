@@ -109,7 +109,7 @@ reduceHiCDOCDataSet <- function(
 ) {
     if (!is.null(object@differences)) {
         warning(
-            "You should not reduce a HiCDOCDataSet object after calling ",
+            "You should not reduce a HiCDOCDataSet after calling ",
             "'detectCompartments()'. All chromosomes, conditions, and ",
             "replicates have been used in the computations.",
             call. = FALSE
@@ -119,17 +119,48 @@ reduceHiCDOCDataSet <- function(
     conditionNames <- .validateNameOrId(object, conditions, "conditions")
     replicateNames <- .validateNameOrId(object, replicates, "replicates")
 
+    if (
+        !is.null(chromosomeNames) &&
+        !is.null(conditionNames) &&
+        !is.null(replicateNames)
+    ) {
+        # TODO:
+        # Filter the replicates of those conditions and chromosomes only
+        # object <- ...
+        return(object)
+    }
+
+    if (
+        !is.null(chromosomeNames) &&
+        !is.null(conditionNames)
+    ) {
+        # TODO:
+        # Filter the conditions of those chromosomes only
+        # object <- ...
+        return(object)
+    }
+
+    if (
+        !is.null(conditionNames) &&
+        !is.null(replicateNames)
+    ) {
+        # TODO:
+        # Filter the replicates of those conditions only
+        # object <- ...
+        return(object)
+    }
+
     if (!is.null(chromosomeNames)) {
         object <- .reduceHiCDOCChromosomes(object, chromosomeNames, dropLevels)
+        return(object)
     }
 
     if (!is.null(conditionNames)) {
         object <- .reduceHiCDOCConditions(object, conditionNames, dropLevels)
+        return(object)
     }
 
     if (!is.null(replicateNames)) {
-        object <- .reduceHiCDOCReplicates(object, replicateNames, dropLevels)
+        stop("Provide 'conditions' to filter 'replicates'", call. = FALSE)
     }
-
-    return(object)
 }

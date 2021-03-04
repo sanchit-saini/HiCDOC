@@ -1,46 +1,75 @@
-#### - class definition ####
-## HiCDOCDataSet S4 class definition ----------------------------------------#
-## --------------------------------------------------------------------------#
-#' Infrastructure for HiCDOC experiment and differential interaction.
+#' @title
+#' \code{HiCDOCDataSet} S4 class.
 #'
-#' \code{HiCDOCDataSet} is an S4 class providing the infrastructure (slots)
-#' to store the input data, methods parameters, intermediate calculations
-#' and results of a differential interaction pipeline
+#' @aliases
+#' HiCDOCDataSet HiCDOCDataSet-class defaultHiCDOCParameters chromosomes
+#' conditions replicates interactions positions compartments concordances
+#' differences centroids show
 #'
-#' @aliases HiCDOCDataSet HiCDOCDataSet-class chromosomes conditions
-#' replicates interactions positions differences concordances compartments
-#' centroids show
+#' @description
+#' Data structure for a Hi-C experiment.
+#'
 #' @details
-#' A HiCDOCDataSet can be constructed from 4 different types of data :
-#' * Matrices: see \code{\link{HiCDOCDataSetFromTabular}}
-#' * Cool or mCool data: see \code{\link{HiCDOCDataSetFromCool}}
-#' * Hic files: see \code{\link{HiCDOCDataSetFromHiC}}
-#' * Hic Pro matrices and bed files: see \code{\link{HiCDOCDataSetFromHiCPro}}
-#' @slot input The names of the matrix input files.
-#' @slot interactions The interaction matrices.
-#' @slot weakBins The empty bins.
-#' @slot chromosomes The list of chromosomes.
-#' @slot replicates The names of the replicates.
-#' @slot conditions The names of the conditions (exactly two different).
-#' @slot totalBins The number of bins per chromosome.
-#' @slot binSize The resolution.
-#' @slot distances The distribution of distances to the centroids.
-#' @slot selfInteractionRatios TODO
-#' @slot compartments The A/B compartments distribution, along the chromosomes.
-#' @slot concordances The concordance distribution, along the chromosomes.
-#' @slot differences The distribution of the difference of the concordance.
-#' @slot centroids The position of the centroids.
-#' @slot parameters An named \code{list}. The parameters for the
-#' segmentation methods. See \code{\link{parameters}}.
-#' @slot positions The position of the bins.
-#' @seealso \code{\link{HiCDOCExample}},
-#' \code{\link{parameters}},
+#' An instance of \code{HiCDOCDataSet} describes a Hi-C experiment with slots
+#' for path(s) to input file(s), interactions, pipeline parameters defaulting to
+#' \code{defaultHiCDOCParameters}, and computation results. It can be
+#' constructed from 4 different types of data:
+#' - Tabular files: see \code{\link{HiCDOCDataSetFromTabular}}
+#' - (m)Cool files: see \code{\link{HiCDOCDataSetFromCool}}
+#' - HiC files: see \code{\link{HiCDOCDataSetFromHiC}}
+#' - HiC-Pro matrices and bed files: see \code{\link{HiCDOCDataSetFromHiCPro}}
+#' An example \code{HiCDOCDataSet} is also available, see
+#' \code{\link{HiCDOCDataSetExample}}.
+#'
+#' @slot input
+#' A vector of path(s) to input file(s).
+#' @slot parameters
+#' A list of parameters for filtering and computation.
+#' @slot interactions
+#' A tibble of interactions.
+#' @slot chromosomes
+#' A vector of names of chromosomes.
+#' @slot conditions
+#' A vector of names of conditions repeated along the replicates.
+#' @slot replicates
+#' A vector of names of replicates repeated along the conditions.
+#' @slot positions
+#' A tibble of the position of each bin.
+#' @slot binSize
+#' The resolution (number of bases per bin).
+#' @slot totalBins
+#' A list of the number of bins in each chromosome.
+#' @slot weakBins
+#' A list of weak bins that are filtered out in each chromosome.
+#' @slot sparseConditions
+#' A list of sparse conditions repeated along the sparse replicates in each
+#' chromosome.
+#' @slot sparseReplicates
+#' A list of sparse replicates repeated along the sparse conditions in each
+#' chromosome.
+#' @slot compartments
+#' A tibble of the A or B compartment of each bin in each condition.
+#' @slot concordances
+#' A tibble of the concordance of each bin in each replicate.
+#' @slot differences
+#' A tibble of detected compartment differences between conditions.
+#' @slot distances
+#' A tibble of the distances to centroids of each bin in each replicate.
+#' @slot centroids
+#' A tibble of centroids in each chromosome and condition.
+#' @slot selfInteractionRatios
+#' A tibble of differences between self interaction and other interactions for
+#' each bin in each replicate.
+#'
+#' @seealso
+#' \code{\link{HiCDOCExample}},
 #' \code{\link{HiCDOCDataSetFromTabular}},
 #' \code{\link{HiCDOCDataSetFromCool}},
 #' \code{\link{HiCDOCDataSetFromHiC}},
 #' \code{\link{HiCDOCDataSetFromHiCPro}}
-#' @export
+#'
 #' @md
+#' @export
 setClass(
     "HiCDOCDataSet",
     slots = c(
@@ -52,8 +81,10 @@ setClass(
         replicates = "ANY",
         positions = "ANY",
         binSize = "ANY",
-        weakBins = "ANY",
         totalBins = "ANY",
+        weakBins = "ANY",
+        sparseConditions = "ANY",
+        sparseReplicates = "ANY",
         compartments = "ANY",
         concordances = "ANY",
         differences = "ANY",
@@ -63,101 +94,53 @@ setClass(
     )
 )
 
-#### - HiCDOCDefaultParameters -------------------------------------------####
-# @describeIn parameters Default parameters for the HiCDOC pipeline
-#' @rdname parameters
-#' @examples
-#' # All the default parameters
-#' HiCDOCDefaultParameters
+#' @describeIn HiCDOCDataSet
+#' Provides default parameters, imported into a \code{HiCDOCDataSet} upon
+#' creation. The \code{HiCDOCDataSet} parameters are then used for the
+#' \code{\link{HiCDOC}} pipeline.
+#'
+#' @format
+#'
+#' @usage
 #'
 #' @export
-HiCDOCDefaultParameters <- list(
+defaultHiCDOCParameters <- list(
     smallChromosomeThreshold = 100,
-    weakPositionThreshold = 0,
-    sparseReplicateThreshold = 0.95,
+    weakPositionThreshold = 1,
+    sparseReplicateThreshold = 0.05,
     loessSampleSize = 20000,
-    kMeansIterations = 50,
     kMeansDelta = 0.0001,
+    kMeansIterations = 50,
     kMeansRestarts = 20
 )
 
-
-## - HiCDOCDataSet S4 class constructor -------------------------------------#
-## --------------------------------------------------------------------------#
-#' Constructor for the HiCDOCDataSet class.
+#' @title
+#' \code{\link{HiCDOCDataSet}} constructor from a tabular file.
 #'
-#' This function should not be called directly. It is called by the functions
-#' \code{\link{HiCDOCDataSetFromTabular}},
-#' \code{\link{HiCDOCDataSetFromCool}},
-#' \code{\link{HiCDOCDataSetFromHiC}} and
-#' \code{\link{HiCDOCDataSetFromHiCPro}}.
-#' @name HiCDOCDataSet-constructor
-#' @rdname HiCDOCDataSet-constructor
-#' @aliases HiCDOCDataSet-constructor
-#' @param object A prefilled \code{HiCDOCDataSet} object.
+#' @description
+#' Constructs a \code{\link{HiCDOCDataSet}} from a tabular file.
 #'
-#' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
-#'         object of class S4.
-#' @keywords internal
-#' @noRd
-HiCDOCDataSet <- function(object = NULL) {
-    # Create new empty object
-    if (is.null(object)) object <- new("HiCDOCDataSet")
-
-    # Fill binSize slot
-    if (is.null(object@binSize)) object@binSize <- .computeBinSize(object)
-
-    if (!is.null(object@interactions)) {
-        chromosomes <-
-            gtools::mixedsort(
-                unique(as.character(object@interactions$chromosome))
-            )
-        object@chromosomes <- chromosomes
-
-        # Determine positions
-        if (is.null(object@positions)) {
-            object@positions <- .determinePositions(object)
-        }
-
-        # Replace positions by bins
-        object@interactions <- .replacePositionsByBins(object)
-
-        object@weakBins <- vector("list", length(chromosomes))
-        names(object@weakBins) <- chromosomes
-
-        # Make upper triangular matrix, values as numeric, average duplicates
-        object@interactions <- .reformatInteractions(object@interactions)
-    }
-
-    # Fill totalBins slot
-    if (!is.null(object@binSize) & !is.null(object@interactions)) {
-        object@totalBins <-
-            vapply(
-                as.character(object@chromosomes),
-                function(x) {
-                    nrow(object@positions[object@positions$chromosome == x, ])
-                },
-                FUN.VALUE = 0
-            )
-    }
-
-    object@parameters <- HiCDOCDefaultParameters
-    return(invisible(object))
-}
-
-## - HiCDOCDataSet S4 class constructor from sparse matrix ------------------#
-## --------------------------------------------------------------------------#
-#' Reads a sparse matrix and fill a \code{HiCDOCDataSet} with its content.
+#' @details
+#' Accepts a tabular file with \code{chromosome}, \code{posiiton 1},
+#' \code{position 2}, and multiple replicate columns listing interaction counts.
+#' Null interactions do not have to be listed. Values must be separated by
+#' tabulations. The header must be
+#' \code{chromosome	position 1	position 2	x.y	x.y	x.y	...} with \code{x}
+#' replaced by condition names and \code{y} replaced by replicate names.
 #'
-#' @rdname HiCDOCDataSetFromTabular
-#' @docType class
-#' @param matrix A matrix with the data.
-#' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
-#'         object of class S4.
+#' @param path
+#' A path to a tabular file.
+#'
+#' @return
+#' A \code{\link{HiCDOCDataSet}}.
+#'
 #' @examples
-#' link <- system.file("extdata", "sampleMatrix.tsv", package = "HiCDOC")
-#' dataSet <- HiCDOCDataSetFromTabular(link)
-#' dataSet
+#' path <- system.file("extdata", "sample.tsv", package = "HiCDOC")
+#' dataSet <- HiCDOCDataSetFromTabular(path)
+#'
+#' @usage
+#' HiCDOCDataSetFromTabular(path)
+#'
 #' @export
 HiCDOCDataSetFromTabular <- function(path = NULL) {
 
@@ -171,36 +154,49 @@ HiCDOCDataSetFromTabular <- function(path = NULL) {
     object <- new("HiCDOCDataSet")
     object@input <- path
     object <- .parseTabular(object)
-    object <- HiCDOCDataSet(object)
+    object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
 
-## - HiCDOCDataSet S4 class constructor from cool files ---------------------#
-## --------------------------------------------------------------------------#
-#' Construct a \code{HiCDOCDataSet} from a cool file.
-#' @rdname HiCDOCDataSetFromCool
-#' @docType class
+#' @title
+#' \code{\link{HiCDOCDataSet}} constructor from Cool files.
 #'
-#' @param paths A vector of file names, each one being a .cool file.
-#' @param replicates   character vector. The list of the replicate names.
-#' This vector can have repeated values if the replicates are repeated
-#' over the conditions.
-#' @param conditions   character vector. The names of the two conditions.
-#' This should be repeated values of the names, the vector should have the
-#' same size as \code{replicates}.
+#' @description
+#' Constructs a \code{\link{HiCDOCDataSet}} from a set of \code{.cool} or
+#' \code{.mcool} files.
 #'
-#' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
-#'         object of class S4.
+#' @param paths
+#' A vector of paths to \code{.cool} or \code{.mcool} files.
+#' @param replicates
+#' A vector of replicate names repeated along the conditions.
+#' @param conditions
+#' A vector of condition names repeated along the replicates.
+#'
+#' @return
+#' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
-#' basedir <- system.file("extdata", package = "HiCDOC")
-#' data <- read.csv(file.path(basedir, "coolData.csv"))
-#' data
+#' # Retrieve Cool files
+#' directory <- system.file("extdata", package = "HiCDOC")
+#' paths <- list.files(directory, '\\.cool$')[0:5]
+#' # Specify replicate and condition for each file
+#' # In this case:
+#' # - The first file in the paths vector is replicate 1 of condition a
+#' # - The second file in the paths vector is replicate 2 of condition a
+#' # - ...
+#' # - The last file in the paths vector is replicate x of condition 3
+#' replicates <- (  1,   2,   1,   2, 'x')
+#' conditions <- ('a', 'a',   2,   2,   3)
+#' # Create dataSet
 #' dataSet <- HiCDOCDataSetFromCool(
-#'     file.path(basedir, data$FileName),
-#'     data$Replicate,
-#'     data$Condition
+#'     paths,
+#'     replicates = replicates
+#'     conditions = conditions
 #' )
+#'
+#' @usage
+#' HiCDOCDataSetFromCool(paths, replicates, conditions)
+#'
 #' @export
 HiCDOCDataSetFromCool <- function(
     paths = NULL,
@@ -220,6 +216,11 @@ HiCDOCDataSetFromCool <- function(
         }
     }
 
+    if (is.factor(replicates)) conditions <- as.vector(replicates)
+    if (is.null(replicates)) {
+        stop("'replicates' must be a vector of replicates.", call. = FALSE)
+    }
+
     if (is.factor(conditions)) conditions <- as.vector(conditions)
     if (is.null(conditions)) {
         stop("'conditions' must be a vector of conditions.", call. = FALSE)
@@ -230,28 +231,52 @@ HiCDOCDataSetFromCool <- function(
     object@replicates <- replicates
     object@conditions <- conditions
     object <- .parseCool(object)
-    object <- HiCDOCDataSet(object)
-
+    object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
 
-## - HiCDOCDataSet S4 class constructor from hic files ----------------------#
-## --------------------------------------------------------------------------#
-#' Construct a \code{HiCDOCDataSet} from a hic file.
-#' @rdname HiCDOCDataSetFromHiC
-#' @docType class
+#' @title
+#' \code{\link{HiCDOCDataSet}} constructor from HiC files.
 #'
-#' @param paths A vector of file names, each one being a .hic file.
-#' @param replicates   character vector. The list of the replicate names.
-#' This vector can have repeated values if the replicates are repeated
-#' over the conditions.
-#' @param conditions   character vector. The names of the two conditions.
-#' This should be repeated values of the names, the vector should have the
-#' same size as \code{replicates}.
-#' @param resolution   integer. The resolution of the matrices.
+#' @description
+#' Constructs a \code{\link{HiCDOCDataSet}} from a set of
+#' \code{.hic} files.
 #'
-#' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
-#'         object of class S4.
+#' @param paths
+#' A vector of paths to \code{.hic} files.
+#' @param replicates
+#' A vector of replicate names repeated along the conditions.
+#' @param conditions
+#' A vector of condition names repeated along the replicates.
+#' @param resolution
+#' The resolution (span of each position in number of bases) to select within
+#' the \code{.hic} files.
+#'
+#' @return
+#' A \code{\link{HiCDOCDataSet}}.
+#'
+#' @examples
+#' # Retrieve Hi-C files
+#' directory <- system.file("extdata", package = "HiCDOC")
+#' paths <- list.files(directory, '\\.hic$')[0:5]
+#' # Specify replicate and condition for each file
+#' # In this case:
+#' # - The first file in the paths vector is replicate 1 of condition a
+#' # - The second file in the paths vector is replicate 2 of condition a
+#' # - ...
+#' # - The last file in the paths vector is replicate x of condition 3
+#' replicates <- (  1,   2,   1,   2, 'x')
+#' conditions <- ('a', 'a',   2,   2,   3)
+#' # Create dataSet
+#' dataSet <- HiCDOCDataSetFromHiC(
+#'     paths,
+#'     replicates = replicates
+#'     conditions = conditions,
+#'     resolution = 500000
+#' )
+#'
+#' @usage
+#' HiCDOCDataSetFromHiC(paths, replicates, conditions, resolution)
 #'
 #' @export
 HiCDOCDataSetFromHiC <- function(
@@ -271,6 +296,11 @@ HiCDOCDataSetFromHiC <- function(
         }
     }
 
+    if (is.factor(replicates)) replicates <- as.vector(replicates)
+    if (is.null(replicates)) {
+        stop("'replicates' must be a vector of replicates.", call. = FALSE)
+    }
+
     if (is.factor(conditions)) conditions <- as.vector(conditions)
     if (is.null(conditions)) {
         stop("'conditions' must be a vector of conditions.", call. = FALSE)
@@ -286,28 +316,52 @@ HiCDOCDataSetFromHiC <- function(
     object@conditions <- conditions
     object@binSize <- resolution
     object <- .parseHiC(object)
-    object <- HiCDOCDataSet(object)
-
+    object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
 
-## - HiCDOCDataSet S4 class constructor from HiC-Pro files ------------------#
-## --------------------------------------------------------------------------#
-#' Construct a \code{HiCDOCDataSet} from hHiC-Pro files
-#' @rdname HiCDOCDataSetFromHiCPro
-#' @docType class
+#' @title
+#' \code{\link{HiCDOCDataSet}} constructor from HiC-Pro files.
 #'
-#' @param matrixPaths A vector of file names, each one being a .matrix file.
-#' @param bedPaths A vector of file names, each one being a .bed file.
-#' @param replicates   character vector. The list of the replicate names.
-#' This vector can have repeated values if the replicates are repeated
-#' over the conditions.
-#' @param conditions   character vector. The names of the two conditions.
-#' This should be repeated values of the names, the vector should have the
-#' same size as \code{replicates}.
+#' @description
+#' Constructs a \code{\link{HiCDOCDataSet}} from a set of HiC-Pro generated
+#' files.
 #'
-#' @return \code{HiCDOCDataSet} constructor returns an \code{HiCDOCDataSet}
-#'         object of class S4.
+#' @param matrixPaths
+#' A vector of paths to HiC-Pro matrix files.
+#' @param bedPaths
+#' A vector of paths to HiC-Pro bed files.
+#' @param replicates
+#' A vector of replicate names repeated along the conditions.
+#' @param conditions
+#' A vector of condition names repeated along the replicates.
+#'
+#' @return
+#' A \code{\link{HiCDOCDataSet}}.
+#'
+#' @examples
+#' # Retrieve HiC-Pro files
+#' directory <- system.file("extdata", package = "HiCDOC")
+#' matrixPaths <- list.files(directory, '\\.hicpro$')[0:5]
+#' bedPaths <- list.files(directory, '\\.bed$')[0:5]
+#' # Specify replicate and condition for each pair of files
+#' # In this case:
+#' # - The first files in the paths vectors are replicate 1 of condition a
+#' # - The second files in the paths vectors are replicate 2 of condition a
+#' # - ...
+#' # - The last files in the paths vectors are replicate x of condition 3
+#' replicates <- (  1,   2,   1,   2, 'x')
+#' conditions <- ('a', 'a',   2,   2,   3)
+#' # Create dataSet
+#' dataSet <- HiCDOCDataSetFromHiCPro(
+#'     matrixPaths,
+#'     bedPaths,
+#'     replicates = replicates
+#'     conditions = conditions
+#' )
+#'
+#' @usage
+#' HiCDOCDataSetFromHiCPro(matrixPaths, bedPaths, replicates, conditions)
 #'
 #' @export
 HiCDOCDataSetFromHiCPro <- function(
@@ -346,6 +400,11 @@ HiCDOCDataSetFromHiCPro <- function(
         }
     }
 
+    if (is.factor(replicates)) replicates <- as.vector(replicates)
+    if (is.null(replicates)) {
+        stop("'replicates' must be a vector of replicates.", call. = FALSE)
+    }
+
     if (is.factor(conditions)) conditions <- as.vector(conditions)
     if (is.null(conditions)) {
         stop("'conditions' must be a vector of conditions.", call. = FALSE)
@@ -359,26 +418,22 @@ HiCDOCDataSetFromHiCPro <- function(
     object <- parsed[["matrix"]]
     object@binSize <- parsed[["resolution"]]
     object@positions <- parsed[["positions"]]
-    object <- HiCDOCDataSet(object)
-
+    object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
 
-#### - HiCDOCDataSet constructors-----------------------------------------####
-
-## - Example constructor ----------------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Example constructor
+#' @title
+#' Example \code{\link{HiCDOCDataSet}} constructor.
 #'
-#' This function provides an example of a \code{HiCDOCDataSet} object from
-#' Marti-Marimon et al.
+#' @description
+#' Constructs a toy \code{\link{HiCDOCDataSet}} from simulated data.
 #'
-#' @return An \code{HiCDOCDataSet} object called '\code{exp}'.
+#' @return
+#' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
-#' ## The 'HiCDOCDataSet' object in this example was constructed by:
-#' exp <- HiCDOCExample()
-#' exp
+#' dataSet <- HiCDOCExample()
+#'
 #' @export
 HiCDOCExample <- function() {
     object <- NULL
@@ -388,84 +443,103 @@ HiCDOCExample <- function() {
     return(invisible(object))
 }
 
-#### - Pipeline method ####
-## - Main method ------------------------------------------------------------#
-## --------------------------------------------------------------------------#
+#' @title
+#' Default pipeline to run on a \code{\link{HiCDOCDataSet}}.
+#'
 #' @description
-#' To learn more about HiCDOC, start with the vignette:
+#' Runs the default filtering, normalization, and computational steps on a
+#' \code{\link{HiCDOCDataSet}}. To learn more about HiCDOC, browse the vignette:
 #' \code{browseVignettes(package = "HiCDOC")}.
 #'
-#' The HiCDOC function allow to run the HiCDOC pipeline, on a HiCDOCDataSet
-#' object.
-#'
-#' @usage
-#' HiCDOC(object, parallel = FALSE) # to run the entire HiCDOC pipeline
 #' @details
-#' \subsection{HiCDOCDataSet object}{
-#'     A \code{HiCDOCDataSet} object can be created from different object :
+#' \subsection{\code{HiCDOCDataSet} object}{
+#'     A \code{\link{HiCDOCDataSet}} object can be created from different files:
 #'     \itemize{
-#'         \item{matrices: }{see \code{\link{HiCDOCDataSetFromTabular}}},
-#'         \item{cool or mcool data: }{see \code{\link{HiCDOCDataSetFromCool}}},
-#'         \item{hic data: }{see \code{\link{HiCDOCDataSetFromHiC}}} and
-#'         \item{HicPro data: }{see \code{\link{HiCDOCDataSetFromHiCPro}}}
+#'         \item{Tabular files: }{
+#'             see \code{\link{HiCDOCDataSetFromTabular}}
+#'         }
+#'         \item{(m)Cool files: }{
+#'             see \code{\link{HiCDOCDataSetFromCool}}
+#'         }
+#'         \item{HiC files: }{
+#'             see \code{\link{HiCDOCDataSetFromHiC}}
+#'         }
+#'         \item{HiC-Pro matrices and bed files: }{
+#'             see \code{\link{HiCDOCDataSetFromHiCPro}}
+#'         }
 #'     }
 #' }
-#' \subsection{The HiCDOCDataSet pipeline have 7 steps :}{
-#'    \describe{
-#'        \item{3 filters to clean the data:}{
-#'        \itemize{
-#'            \item{\code{\link{filterSmallChromosomes}}}{
-#'            to filter the too small chromosomes}
-#'            \item{\code{\link{filterWeakPositions}}}{
-#'            to filter the "weak" positions of a chromosome}
-#'            \item{\code{\link{filterSparseChromosomes}}}{
-#'            to filter the too sparse interactions matrix
-#'            by chromosome}
-#'        }
-#'      }
-#'    \item{3 normalization steps to normalize the data:}{
-#'    \itemize{
-#'      \item{\code{\link{normalizeTechnicalBiases}}}{
-#'      to normalize the data in case of tehnical bias}
-#'      \item{\code{\link{normalizeBiologicalBiases}}}{
-#'      to normalize the data in case of biological bias}
-#'      \item{\code{\link{normalizeDistanceEffect}}}{
-#'      to normalize the distance effect}
-#'    }
-#'    }
-#'    \item{the detection of compartments}{
-#' \itemize{
-#'      \item{\code{\link{detectCompartments}}}{
-#'      to run the detection of compartments and compute
-#'      significant differences}
-#'    }
-#'  }
-#'    }
-#'}
-#' @param object A \code{HiCDOCDataSet} object.
-#' @param parallel Logical, default to FALSE. Should parallel computation
-#' should be used ?
-#' @return Returns an \code{HiCDOCDataSet} object.
-#' @seealso \code{\link{HiCDOCDataSet}}
+#' \subsection{\code{HiCDOC} pipeline}{
+#'     The HiCDOC pipeline has seven steps:
+#'     \describe{
+#'         \item{Three filtering steps:}{
+#'             \itemize{
+#'                 \item{\code{\link{filterSmallChromosomes}}}{
+#'                     to filter out small chromosomes
+#'                 }
+#'                 \item{\code{\link{filterWeakPositions}}}{
+#'                     to filter out weak positions with very few interactions
+#'                 }
+#'                 \item{\code{\link{filterSparseReplicates}}}{
+#'                     to filter out sparse replicates with many null
+#'                     interactions
+#'                 }
+#'             }
+#'         }
+#'         \item{Three normalization steps:}{
+#'             \itemize{
+#'                 \item{\code{\link{normalizeTechnicalBiases}}}{
+#'                     to normalize technical biases in each replicates
+#'                 }
+#'                 \item{\code{\link{normalizeBiologicalBiases}}}{
+#'                     to normalize biological biases in each replicate
+#'                 }
+#'                 \item{\code{\link{normalizeDistanceEffect}}}{
+#'                     to normalize the distance effect in each chromosome
+#'                 }
+#'             }
+#'         }
+#'         \item{One computational step:}{
+#'             \itemize{
+#'                 \item{\code{\link{detectCompartments}}}{
+#'                     to detect compartments in each condition and find
+#'                     significant changes between conditions.
+#'                 }
+#'             }
+#'         }
+#'     }
+#' }
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param parallel
+#' Whether or not to parallelize each step. Defaults to TRUE.
+#'
+#' @return
+#' A \code{\link{HiCDOCDataSet}} with all slots filled.
+#'
+#' @seealso
+#' \code{\link{HiCDOCDataSet}}
+#'
 #' @examples
 #' object <- HiCDOCExample()
 #' object <- HiCDOC(object)
 #'
-#' # This is equivalent of
+#' # Equivalent to
 #' \dontrun{
-#' parallel = FALSE
 #' object <- filterSmallChromosomes(object)
-#' object <- filterSparseChromosomes(object)
+#' object <- filterSparseReplicates(object)
 #' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object, parallel = parallel)
+#' object <- normalizeTechnicalBiases(object)
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
-#' object <- detectCompartments(object, parallel = parallel)
+#' object <- detectCompartments(object)
 #' }
+#'
 #' @export
-HiCDOC <- function(object, parallel = FALSE) {
+HiCDOC <- function(object, parallel = TRUE) {
     object <- filterSmallChromosomes(object)
-    object <- filterSparseChromosomes(object)
+    object <- filterSparseReplicates(object)
     object <- filterWeakPositions(object)
     object <- normalizeTechnicalBiases(object, parallel = parallel)
     object <- normalizeBiologicalBiases(object)

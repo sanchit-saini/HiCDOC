@@ -200,8 +200,7 @@ double clusterize(
     totalIterations++;
     centroidsDelta = getCentroidsDelta(previousCentroids, centroids);
   } while (
-    centroidsDelta > maxDelta
-    && totalIterations < maxIterations
+    centroidsDelta > maxDelta && totalIterations < maxIterations
   );
 
   double quality = 0.0;

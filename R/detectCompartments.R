@@ -1,26 +1,33 @@
-## - .euclideanDistance ------------------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Compute the euclidean distance between two vectors.
+#' @description
+#' Computes the euclidean distance between two vectors.
 #'
-#' @param x  A vector.
-#' @param y  A vector.
+#' @param x
+#' A vector.
+#' @param y
+#' A vector.
 #'
-#' @return A float number.
+#' @return
+#' A float number.
+#'
 #' @keywords internal
 #' @noRd
 .euclideanDistance <- function(x, y) {
     sqrt(sum((x - y)^2))
 }
 
-## - .distanceRatio ----------------------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Compute the log ratio of the distance of a position to each centroid.
+#' @description
+#' Computes the log ratio of the distance of a position to each centroid.
 #'
-#' @param x          A vector of a genomic position.
-#' @param centroids  A list of 2 vectors.
-#' @param eps        A small epsilon to avoid log(0).
+#' @param x
+#' The vector of a genomic position.
+#' @param centroids
+#' A list of two vectors.
+#' @param eps
+#' A small float number to avoid log(0).
 #'
-#' @return A float number.
+#' @return
+#' A float number.
+#'
 #' @keywords internal
 #' @noRd
 .distanceRatio <- function(x, centroids, eps = 1e-10) {
@@ -32,18 +39,20 @@
     )
 }
 
-## - .tieCentroids -----------------------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Assign correct cluster labels by comparing centroids across conditions.
+#' @description
+#' Assigns correct cluster labels by comparing centroids across conditions.
 #'
-#' @param object A \code{HiCDOCDataSet} object.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
 #'
-#' @return A \code{HiCDOCDataSet} object, with selfInteractionRatios, and with
-#' corrected cluster labels in centroids, compartments, distances and
-#' concordances.
+#' @return
+#' A \code{\link{HiCDOCDataSet}} with corrected cluster labels in compartments,
+#' concordances, distances and centroids.
+#'
 #' @keywords internal
 #' @noRd
 .tieCentroids <- function(object) {
+
     totalConditions <- length(unique(object@conditions))
     referenceCondition <- object@conditions[[1]]
 
@@ -119,12 +128,18 @@
     return(object)
 }
 
-#' .constructLinkMatrix
+#' @description
+#' Constructs a link matrix of interaction rows to be clustered together.
 #'
-#' @param nbReplicates number of replicates under a condition
-#' @param nbBins number of bins of a chromosome
+#' @param totalReplicates
+#' The number of replicates.
+#' @param totalBins
+#' The number of bins.
 #'
-#' @return an matrix filled with 0 to use in constraned clustering
+#' @return
+#' A matrix, each row holding the row indices of interactions to be clustered
+#' together.
+#'
 #' @keywords internal
 #' @noRd
 .constructLinkMatrix <- function(totalReplicates, totalBins) {
@@ -138,23 +153,24 @@
     )
 }
 
-## - clusterize for 1 chromosome and 1 condition-----------------------------#
-## --------------------------------------------------------------------------#
-#' Segregate genomic positions into 2 clusters using constrained k-means.
+#' @description
+#' Segregates positions of a chromosome into two clusters using constrained
+#' K-means.
 #'
-#' @param object  A \code{HiCDOCDataSet} object.
-#' @param chromosomeName A character or numeric value.
-#' Name or number of the chromosome
-#' @param conditionName A character or numeric value.
-#' Name or number of the condition
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosomeName
+#' The name of a chromosome.
+#' @param conditionName
+#' The name of a condition.
 #'
-#' @return A list of length 4:
-#' * centroid (vector) for each cluster
-#' * compartment (cluster number) for each genomic position
-#' * distances to centroids (float) for each genomic position in
-#' each replicate
-#' * concordance (float between -1 and  1) for each genomic position in
-#' each replicate
+#' @return
+#' A list of:
+#' - The compartment (cluster number) of each position.
+#' - The concordance (float) of each genomic position in each replicate.
+#' - The distances to centroids (float) of each position in each replicate.
+#' - The centroid (vector) of each cluster.
+#'
 #' @md
 #' @keywords internal
 #' @noRd
@@ -167,11 +183,13 @@
     totalBins <- object@totalBins[[chromosomeName]]
     if (totalBins == -Inf) return(NULL)
     positions <- seq.int(totalBins)
+
     # Substract filtered positions
     if (!is.null(object@weakBins[[chromosomeName]])) {
         positions <- positions[-object@weakBins[[chromosomeName]]]
         totalBins <- totalBins - length(object@weakBins[[chromosomeName]])
     }
+
     replicateNames <-
         object@replicates[which(object@conditions == conditionName)]
     interactions <-
@@ -271,22 +289,22 @@
     ))
 }
 
-
-## - clusterize -------------------------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Segregate genomic positions into 2 clusters using constrained k-means.
+#' @description
+#' Runs the clustering to detect compartments in each chromosome and condition.
 #'
-#' @param object  A \code{HiCDOCDataSet} object.
-#' @param parallel Logical. Should parallel processing be used?
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param parallel
+#' Whether or not to parallelize the processing. Defaults to TRUE.
 #'
-#' @return A \code{HiCDOCDataSet} object, with:
-#' - centroid (vector) for each cluster
-#' - compartment (cluster number) for each genomic position
-#' - distances to centroids (float) for each genomic position in each replicate
-#' - concordance (float in [-1, 1]) for each genomic position in each replicate
+#' @return
+#' A \code{\link{HiCDOCDataSet}} with compartments, concordances, distances
+#' and centroids.
+#'
 #' @keywords internal
 #' @noRd
-.clusterize <- function(object, parallel = FALSE) {
+.clusterize <- function(object, parallel = TRUE) {
+
     chromosomeNames <-
         rep(object@chromosomes, each = length(unique(object@conditions)))
     conditionNames <-
@@ -324,7 +342,7 @@
                 }
             )
         BiocParallel::bpstart(BiocParallel::bpparam())
-        # bpstart to address this issue (and ensure reproductibility):
+        # bpstart to address this issue (and ensure reproducibility):
         # https://github.com/Bioconductor/BiocParallel/issues/122
         result <-
             BiocParallel::bpmapply(
@@ -345,23 +363,26 @@
     object@centroids <- purrr::map_dfr(result, "centroids")
 
     object <- .tieCentroids(object)
+
     return(object)
 }
 
-## - .computeSelfInteractionRatios ---------------------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Compute the ratio of the reads which are on the diagonal vs those off-
-#'   diagonal, for each bin, and each matrix.
+#' @description
+#' Computes the ratio of self interaction vs median of other interactions for
+#' each position.
 #'
-#' @param object an HiCDOCDataSet object
-#' @param chromosomeName A character or numeric value.
-#' Name or number of the chromosome
-#' @param conditionName A character or numeric value.
-#' Name or number of the condition
-#' @param replicateName A character or numeric value.
-#' Name or number of the replicate
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosomeName
+#' The name of a chromosome.
+#' @param conditionName
+#' The name of a condition.
+#' @param replicateName
+#' The name of a replicate.
 #'
-#' @return a \code{tibble}.
+#' @return
+#' A tibble.
+#'
 #' @keywords internal
 #' @noRd
 .computeSelfInteractionRatios <- function(
@@ -370,6 +391,7 @@
     conditionName,
     replicateName
 ) {
+
     interactions <-
         object@interactions %>%
         dplyr::filter(chromosome == chromosomeName) %>%
@@ -414,23 +436,24 @@
     return(selfInteractionRatios)
 }
 
-## - .predictCompartmentsAB --------------------------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Use ratio between diagonal and off-diagonal interactions to determine which
-#' clusters correspond to compartments A and B.
+#' @description
+#' Uses ratio between self interactions and other interactions to determine
+#' which clusters correspond to compartments A and B.
 #'
-#' @param object A \code{HiCDOCDataSet} object.
-#' @param parallel Logical. Should parallel processing be used?
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param parallel
+#' Whether or not to parallelize the processing. Defaults to TRUE.
 #'
-#' @return A \code{HiCDOCDataSet} object, with selfInteractionRatios, and with A and B
-#' labels replacing cluster numbers in centroids, compartments, distances and
-#' concordances.
+#' @return
+#' A \code{\link{HiCDOCDataSet}}, with selfInteractionRatios, and with A and B
+#' labels replacing cluster numbers in compartments, concordances, distances,
+#' and centroids.
+#'
 #' @keywords internal
 #' @noRd
-.predictCompartmentsAB <- function(
-    object,
-    parallel = FALSE
-) {
+.predictCompartmentsAB <- function(object, parallel = TRUE) {
+
     chromosomeNames <- rep(object@chromosomes, each = length(object@replicates))
     conditionNames <- rep(object@conditions, length(object@chromosomes))
     replicateNames <- rep(object@replicates, length(object@chromosomes))
@@ -527,25 +550,21 @@
     return(object)
 }
 
-## - .computePValues ---------------------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Get p-values for genomic positions whose assigned compartment switches
-#' between two conditions:
-#' 1. For each pair of replicates in different conditions, for each genomic
-#'    position, compute the absolute difference between its concordances.
-#' 2. For each pair of conditions, for each genomic position, compute the
-#'    median of its concordance differences.
-#' 3. For each pair of conditions, for each genomic position whose assigned
-#'    compartment switches, rank its median against the empirical cumulative
-#'    distribution of medians of all non-switching positions in that condition
-#'    pair. Adjust the resulting p-value with the Benjamini–Hochberg procedure.
+#' @description
+#' Computes p-values for genomic positions whose assigned compartment switches
+#' between two conditions.
 #'
-#' @param object A \code{HiCDOCDataSet} object.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
 #'
-#' @return A \code{HiCDOCDataSet} object, with differences and their p-values.
+#' @return
+#' A \code{\link{HiCDOCDataSet}}, with differences and their p-values.
+#'
+#' @md
 #' @keywords internal
 #' @noRd
 .computePValues <- function(object) {
+
     # Compute median of differences between pairs of concordances
     # N.b. median of differences != difference of medians
     totalReplicates <- length(object@replicates)
@@ -655,43 +674,119 @@
     return(object)
 }
 
-## - detectCompartments -----------------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Detect compartments for each genomic position in each condition, and compute
-#' p-values for compartment differences between conditions.
+#' @title
+#' A and B compartments detection and differences across conditions.
 #'
-#' @param object  A \code{HiCDOCDataSet} object.
-#' @param parallel Logical. Should parallel processing be used?
-#' Default to FALSE.
-#' @param kMeansDelta A numerical value. The maximum number of 2-means
-#' iterations. If NULL, default to the first not NULL of
-#' \code{object$kMeansDelta} and \code{HiCDOCDefaultParameters$kMeansDelta}.
-#' @param kMeansIterations A numerical value. The stop criterion of
-#' convergence of the 2-means method. If NULL, default to the first not
-#' NULL of \code{object$kMeansIterations} and
-#' \code{HiCDOCDefaultParameters$kMeansIterations}.
-#' @param kMeansRestarts A numerical value. The maximum number of restarts
-#' for the 2-means. If NULL, default to the first not NULL of
-#' \code{object$kMeansRestarts} and
-#' \code{HiCDOCDefaultParameters$kMeansRestarts}.
+#' @description
+#' Detects compartments for each genomic position in each condition, and
+#' computes p-values for compartment differences between conditions.
 #'
-#' @return A \code{HiCDOCDataSet} object, with centroids, compartments,
-#' distances,concordances and differences.
+#' @details
+#' \subsection{Genomic positions clustering}{
+#' To clusterize genomic positions, the algorithm follows these steps:
+#' 1. For each chromosome and condition, get the interaction vectors of each
+#'    genomic position. Each genomic position can have multiple interaction
+#'    vectors, corresponding to the multiple replicates in that condition.
+#' 2. For each chromosome and condition, use constrained K-means to clusterize
+#'    the interaction vectors, forcing replicate interaction vectors into the
+#'    same cluster. The euclidean distance between interaction vectors
+#'    determines their similarity.
+#' 3. For each interaction vector, compute its concordance, which is the
+#'    confidence in its assigned cluster. Mathematically, it is the log
+#'    ratio of its distance to each centroid, normalized by the distance between
+#'    both centroids, and min-maxed to a \[-1,1\] interval.
+#' 4. For each chromosome, compute the distance between all centroids and the
+#'    centroids of the first condition. The cross-condition clusters whose
+#'    centroids are closest are given the same cluster label. This effectively
+#'    results in having two clusters per chromosome, spanning all conditions.
+#' }
+#' \subsection{A/B compartments prediction}{
+#' To match each cluster with an A or B compartment, the algorithm follows these
+#' steps:
+#' 1. For each genomic position, compute its self interaction ratio, which is
+#'    the difference between its self interaction and the median of its other
+#'    interactions.
+#' 2. For each chromosome, for each cluster, get the median self interaction
+#'    ratio of the genomic positions in that cluster.
+#' 3. For each chromosome, the cluster with the smallest median self interaction
+#'    ratio is matched with compartment A, and the cluster with the greatest
+#'    median self interaction ratio is matched with compartment B. Compartment
+#'    A being open, there are more overall interactions between distant genomic
+#'    positions, so it is assumed that there is a lower difference between self
+#'    interactions and other interactions than in compartment B.
+#' }
+#' \subsection{Significant differences detection}{
+#' To find significant compartment differences across conditions, and compute
+#' their p-values, the algorithm follows three steps:
+#' 1. For each pair of replicates in different conditions, for each genomic
+#'    position, compute the absolute difference between its concordances.
+#' 2. For each pair of conditions, for each genomic position, compute the
+#'    median of its concordance differences.
+#' 3. For each pair of conditions, for each genomic position whose assigned
+#'    compartment switches, rank its median against the empirical cumulative
+#'    distribution of medians of all non-switching positions in that condition
+#'    pair. Adjust the resulting p-value with the Benjamini–Hochberg procedure.
+#' }
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#'
+#' @param parallel
+#' Whether or not to parallelize the processing. Defaults to TRUE.
+#'
+#' @param kMeansDelta
+#' The convergence stop criterion for the clustering. When the centroids'
+#' distances between two iterations is lower than this value, the clustering
+#' stops. Defaults to \code{object$kMeansDelta} which is originally set to
+#' \code{defaultHiCDOCParameters$kMeansDelta}.
+#'
+#' @param kMeansIterations
+#' The maximum number of iterations during clustering. Defaults to
+#' \code{object$kMeansIterations} which is originally set to
+#' \code{defaultHiCDOCParameters$kMeansIterations}.
+#'
+#' @param kMeansRestarts A numerical value.
+#' The amount of times the clustering is restarted. For each restart, the
+#' clustering iterates until convergence or reaching the maximum number of
+#' iterations. The clustering that minimizes inner-cluster variance is selected.
+#' Defaults to \code{object$kMeansRestarts} which is originally set to
+#' \code{defaultHiCDOCParameters$kMeansRestarts}.
+#'
+#' @return
+#' A \code{\link{HiCDOCDataSet}}, with compartments, concordances, distances,
+#' centroids, and differences.
 #'
 #' @examples
 #' object <- HiCDOCExample()
+#' \dontrun{
+#' object <- filterSmallChromosomes(object)
+#' object <- filterSparseReplicates(object)
+#' object <- filterWeakPositions(object)
 #' object <- normalizeTechnicalBiases(object)
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
+#' }
 #' object <- detectCompartments(object)
+#'
+#' @usage
+#' detectCompartments(
+#'     object,
+#'     parallel = TRUE,
+#'     kMeansDelta = 0.0001,
+#'     kMeansIterations = 50,
+#'     kMeansRestarts = 20
+#' )
+#'
+#' @md
 #' @export
 detectCompartments <- function(
     object,
-    parallel = FALSE,
+    parallel = TRUE,
     kMeansDelta = NULL,
     kMeansIterations = NULL,
     kMeansRestarts = NULL
 ) {
+
     .validateSlots(
         object,
         slots = c(
@@ -704,7 +799,7 @@ detectCompartments <- function(
             "parameters"
         )
     )
-    # Parameters
+
     if (!is.null(kMeansDelta)) {
         object@parameters$kMeansDelta <- kMeansDelta
     }
@@ -716,11 +811,11 @@ detectCompartments <- function(
     }
     object@parameters <- .validateParameters(object@parameters)
 
-    message("Clustering.")
+    message("Clustering genomic positions.")
     object <- .clusterize(object, parallel)
-    message("Predicting compartments.")
+    message("Predicting A/B compartments.")
     object <- .predictCompartmentsAB(object, parallel)
-    message("Computing p-values.")
+    message("Detecting significant differences.")
     object <- .computePValues(object)
 
     return(object)

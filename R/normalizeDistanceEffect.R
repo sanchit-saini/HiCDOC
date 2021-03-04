@@ -131,7 +131,7 @@
 #' @param object A \code{HiCDOCDataSet} object.
 #' @param loessSampleSize A numerical value. The number of bins used when sampling
 #' all the bins. If NULL, default to the first not NULL of
-#' \code{object$loessSampleSize} and \code{HiCDOCDefaultParameters$loessSampleSize}.
+#' \code{object$loessSampleSize} and \code{defaultHiCDOCParameters$loessSampleSize}.
 #'
 #' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
 #'

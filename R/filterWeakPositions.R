@@ -1,24 +1,25 @@
-#' Look for the weak positions for a given chromosome
+#' @describe
+#' Removes weak positions of a given chromosome.
 #'
-#' The function identifies and remove the weak positions
-#' from the interaction matrix for a given chromosome, in a recursive way.
-#' To be kept, the bins (positions) must have a mean value greater than
-#' \code{threshold}, on all replicates and all conditions.
-#' The mean is computed on the row of the reconstructed full interaction
-#' matrix for the chromosome, 1 condition and 1 replicate.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosomeName
+#' The name of a chromosome.
+#' @param threshold
+#' The minimum average interaction for a position to be kept.
 #'
-#' @param object Interaction matrix for the chromosome
-#' @param chromosomeName A character or numeric value.
-#' Name or number of the chromosome
-#' @param threshold Numeric default to 0.
+#' @return
+#' A list of:
+#' - The weak positions.
+#' - The filtered interactions.
 #'
-#' @return list of length 2 : \code{"pos"} = the weak positions,
-#' \code{"interactions"} the interactions matrix for the chromosome,
-#' whithout the weak bins.
+#' @md
+#' @keywords internal
+#' @noRd
 .filterWeakPositionsOfChromosome <- function(
     object,
     chromosomeName,
-    threshold = 0
+    threshold
 ) {
     # Initialization
     interactions <-
@@ -63,7 +64,7 @@
             rowInteractions %>%
             dplyr::group_by(replicate, condition, bin) %>%
             dplyr::mutate(mean = sum(interaction) / totalBins) %>%
-            dplyr::filter(mean <= threshold) %>%
+            dplyr::filter(mean < threshold) %>%
             dplyr::pull(bin) %>%
             unique() %>%
             sort()
@@ -92,36 +93,49 @@
         if (length(allBins) - length(removedBins) != 1) "s",
         " remaining."
     )
+
     return(list("removedBins" = removedBins, "interactions" = interactions))
 }
 
-
-#' Remove the weak bins of an HiCDOCDataSet object
+#' @title
+#' Filter weak positions.
 #'
-#' The function indentifies and remove the weak bins of an HiCDOCDataSet object,
-#' chromosome by chromosome.
-#' To be kept, the bins (positions)of a chromosome must have a mean value
-#' greater than \code{threshold}, on all replicates and all conditions.
-#' The mean is computed on the row of the reconstructed full interaction
-#' matrix for 1 chromosome, 1 condition and 1 replicate. The weak bins will
-#' be discarded, and added in object@weakBins.
+#' @description
+#' Removes weak genomic positions whose interactions average is lower than the
+#' threshold.
 #'
-#' @param object A HiCDOCDataSet object
-#' @param threshold Numeric. Threshold to consider bins as 'weaks'. If NULL,
-#' default to the first not NULL of \code{object$weakPositionThreshold} and
-#' \code{HiCDOCDefaultParameters$weakPositionThreshold}.
+#' @details
+#' Detects weak genomic positions in each replicate, and removes them from all
+#' replicates to guarantee comparability across conditions when calling
+#' \code{\link{detectCompartments}}.
 #'
-#' @return A \code{HiCDOCDataSet} object with a reduced \code{interactions}
-#' slot, and the weak bins identified by chromosomes in \code{object@weakBins}.
-#' @export
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param threshold
+#' The minimum average interaction for a position to be kept. If a position's
+#' average interaction with the entire chromosome is lower than this value in
+#' any of the replicates, it is removed from all replicates and conditions.
+#' Defaults to \code{object$smallChromosomeThreshold} which is
+#' originally set to \code{defaultHiCDOCParameters$smallChromosomeThreshold}.
 #'
-#' @seealso \code{\link[HiCDOC]{filterSmallChromosomes}},
-#' \code{\link[HiCDOC]{filterSparseChromosomes}} and
-#' \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
+#' @return
+#' A filtered \code{\link{HiCDOCDataSet}}.
+#'
+#' @seealso
+#' \code{\link{filterSmallChromosomes}},
+#' \code{\link{filterSparseReplicates}},
+#' \code{\link{HiCDOC}}
+#'
 #' @examples
 #' exp <- HiCDOCExample()
 #' exp <- filterWeakPositions(exp)
+#'
+#' @usage
+#' filterWeakPositions(object, threshold = 1)
+#'
+#' @export
 filterWeakPositions <- function(object, threshold = NULL) {
+
     .validateSlots(
         object,
         slots = c(
@@ -134,14 +148,16 @@ filterWeakPositions <- function(object, threshold = NULL) {
             "parameters"
         )
     )
+
     if (!is.null(threshold)) {
         object@parameters$weakPositionThreshold <- threshold
     }
     object@parameters <- .validateParameters(object@parameters)
+    threshold <- object@parameters$weakPositionThreshold
 
     message(
-        "Keeping positions with interactions average greater than ",
-        object@parameters$weakPositionThreshold,
+        "Keeping positions with interactions average greater or equal to ",
+        threshold,
         "."
     )
 
@@ -152,11 +168,13 @@ filterWeakPositions <- function(object, threshold = NULL) {
                 .filterWeakPositionsOfChromosome(
                     object,
                     chromosomeName,
-                    object@parameters$weakPositionThreshold
+                    threshold
                 )
             }
         )
+
     names(results) <- object@chromosomes
+
     weakBins <- results %>% purrr::map("removedBins")
     intactChromosomes <-
         vapply(
@@ -165,11 +183,14 @@ filterWeakPositions <- function(object, threshold = NULL) {
             FUN.VALUE = TRUE
         )
     weakBins[intactChromosomes] <- list(NULL)
+
     interactions <- results %>% purrr::map_dfr("interactions")
 
     object@weakBins <- weakBins
     object@interactions <- interactions
+
     totalWeakBins <- sum(vapply(weakBins, length, FUN.VALUE = 0))
+
     message(
         "Removed ",
         totalWeakBins,
@@ -178,7 +199,7 @@ filterWeakPositions <- function(object, threshold = NULL) {
         " in total."
     )
 
-    if (totalWeakBins >= sum(unlist(object@totalBins))) message("No data left!")
+    if (nrow(object@interactions) == 0) message("No data left!")
 
     return(object)
 }

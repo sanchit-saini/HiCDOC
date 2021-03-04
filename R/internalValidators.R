@@ -4,12 +4,12 @@
 #'
 #' @param parameters list of parameters
 #'
-#' @return list of updated parameters, default from HiCDOCDefaultParameters()
+#' @return list of updated parameters, default from defaultHiCDOCParameters()
 #' if null.
 #' @keywords internal
 #' @noRd
 .validateParameters <- function(parameters) {
-    defaultParameterNames <- names(HiCDOCDefaultParameters)
+    defaultParameterNames <- names(defaultHiCDOCParameters)
     inputParameterNames <- names(parameters)
 
     numeric <-
@@ -21,25 +21,26 @@
     if (!all(numeric)) {
         notNumericNames <- inputParameterNames[!numeric]
         warning(
-            "Non-numeric value",
+            "Non-numeric parameter",
             if (length(notNumericNames) != 1) "s",
             " will be replaced with ",
             if (length(notNumericNames) != 1) "their" else "its",
             " default",
             if (length(notNumericNames) != 1) "s",
-            " from 'HiCDOCDefaultParameters':\n",
+            ":\n",
             paste0(
                 notNumericNames,
                 ":",
                 " ",
                 parameters[notNumericNames],
                 " -> ",
-                HiCDOCDefaultParameters[notNumericNames],
+                defaultHiCDOCParameters[notNumericNames],
                 collapse = "\n"
             ),
             call. = FALSE
         )
-        parameters[notNumericNames] <- HiCDOCDefaultParameters[notNumericNames]
+        parameters[notNumericNames] <-
+            defaultHiCDOCParameters[notNumericNames]
     }
 
     known <- inputParameterNames %in% defaultParameterNames
@@ -48,8 +49,8 @@
         warning(
             "Unknown parameter",
             if (length(unknownParameterNames) != 1) "s",
-            " will be removed: ",
-            paste(unknownParameterNames, collapse = ", "),
+            " will be removed:\n",
+            paste(unknownParameterNames, collapse = "\n"),
             call. = FALSE
         )
         parameters[unknownParameterNames] <- NULL
@@ -61,21 +62,21 @@
         warning(
             "Missing parameter",
             if (length(missingParameterNames) != 1) "s",
-            " will be filled with ",
+            " will be replaced with ",
             if (length(missingParameterNames) != 1) "their" else "its",
             " default",
             if (length(missingParameterNames) != 1) "s",
-            " from 'HiCDOCDefaultParameters':\n",
+            ":\n",
             paste0(
                 missingParameterNames,
                 ":",
-                HiCDOCDefaultParameters[missingParameterNames],
+                defaultHiCDOCParameters[missingParameterNames],
                 collapse = "\n"
             ),
             call. = FALSE
         )
         parameters[missingParameterNames] <-
-            HiCDOCDefaultParameters[missingParameterNames]
+            defaultHiCDOCParameters[missingParameterNames]
     }
 
     return(parameters)

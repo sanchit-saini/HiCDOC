@@ -5,8 +5,6 @@
 # AllClasses .... class definitions and object constructors
 # AllGenerics ... the generics defined in srnadiff-package
 # methods ....... the S4 methods (accessors for slots and replace methods)
-# helper ........ computeNormFactors, computeLogFoldChange, cvgNormalization,
-#                 reconcileRegions, checkParameters, IRlist2GR
 # RcppExports ... the R wrappers for the C++ functions (auto)
 #
 #

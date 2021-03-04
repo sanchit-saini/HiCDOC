@@ -227,7 +227,7 @@ setMethod("show", "HiCDOCDataSet", function(object) {
     cat(
         length(object@replicates),
         " replicate",
-        if (object@totalReplicates != 1) "s",
+        if (length(object@replicates) != 1) "s",
         " in",
         length(unique(object@conditions)),
         "condition",
@@ -262,7 +262,7 @@ setMethod("show", "HiCDOCDataSet", function(object) {
 #'                reconstructed full interaction matrix for 1 chromosome,
 #'                1 condition and 1 replicate. Default to 0.}
 #'        \item{\code{sparseReplicateThreshold}}{To be kept by the function
-#'                \code{\link{filterSparseChromosomes}}, the sparsity
+#'                \code{\link{filterSparseReplicates}}, the sparsity
 #'                (percentage of empty cells) of the interactions matrix
 #'                must be lower than the threshold, on all replicates and
 #'                all conditions. Default to 0.95.}
@@ -284,7 +284,7 @@ setMethod("show", "HiCDOCDataSet", function(object) {
 #' @name parameters
 #' @title Print or change the parameters of an HiCDOCDataSet object
 #' @description parameters Access and print the parameters.
-#' @aliases parameters HiCDOCDefaultParameters parameters<-
+#' @aliases parameters defaultHiCDOCParameters parameters<-
 #' @export
 #' @usage
 #' ## S4 replacement method for signature 'HiCDOCDataSet'
@@ -310,7 +310,7 @@ setMethod("parameters", "HiCDOCDataSet", function(object) object@parameters)
 # @describeIn parameters Change the values of parameters.
 #' @rdname parameters
 #' @param value a named list with the new parameters values. The names should
-#' be in the \code{HiCDOCDefaultParameters} names.
+#' be in the \code{defaultHiCDOCParameters} names.
 #' @exportMethod "parameters<-"
 setReplaceMethod(
     "parameters",
@@ -318,7 +318,7 @@ setReplaceMethod(
     function(object, value) {
         ## - checking input value ---------------------------------#
         ## --------------------------------------------------------#
-        defaultParNames <- names(HiCDOCDefaultParameters)
+        defaultParNames <- names(defaultHiCDOCParameters)
         currentPar <- object@parameters
         if (!is(value, "list")) {
             stop(
