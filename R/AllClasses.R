@@ -136,7 +136,7 @@ defaultHiCDOCParameters <- list(
 #'
 #' @examples
 #' path <- system.file("extdata", "sample.tsv", package = "HiCDOC")
-#' dataSet <- HiCDOCDataSetFromTabular(path)
+#' object <- HiCDOCDataSetFromTabular(path)
 #'
 #' @usage
 #' HiCDOCDataSetFromTabular(path)
@@ -185,12 +185,12 @@ HiCDOCDataSetFromTabular <- function(path = NULL) {
 #' # - The second file in the paths vector is replicate 2 of condition a
 #' # - ...
 #' # - The last file in the paths vector is replicate x of condition 3
-#' replicates <- (  1,   2,   1,   2, 'x')
-#' conditions <- ('a', 'a',   2,   2,   3)
-#' # Create dataSet
-#' dataSet <- HiCDOCDataSetFromCool(
+#' replicates <- c(  1,   2,   1,   2, 'x')
+#' conditions <- c('a', 'a',   2,   2,   3)
+#' # Create HiCDOC object
+#' object <- HiCDOCDataSetFromCool(
 #'     paths,
-#'     replicates = replicates
+#'     replicates = replicates,
 #'     conditions = conditions
 #' )
 #'
@@ -265,12 +265,12 @@ HiCDOCDataSetFromCool <- function(
 #' # - The second file in the paths vector is replicate 2 of condition a
 #' # - ...
 #' # - The last file in the paths vector is replicate x of condition 3
-#' replicates <- (  1,   2,   1,   2, 'x')
-#' conditions <- ('a', 'a',   2,   2,   3)
-#' # Create dataSet
-#' dataSet <- HiCDOCDataSetFromHiC(
+#' replicates <- c(  1,   2,   1,   2, 'x')
+#' conditions <- c('a', 'a',   2,   2,   3)
+#' # Create HiCDOC object
+#' object <- HiCDOCDataSetFromHiC(
 #'     paths,
-#'     replicates = replicates
+#'     replicates = replicates,
 #'     conditions = conditions,
 #'     resolution = 500000
 #' )
@@ -342,7 +342,7 @@ HiCDOCDataSetFromHiC <- function(
 #' @examples
 #' # Retrieve HiC-Pro files
 #' directory <- system.file("extdata", package = "HiCDOC")
-#' matrixPaths <- list.files(directory, '\\.hicpro$')[0:5]
+#' matrixPaths <- list.files(directory, '\\.matrix$')[0:5]
 #' bedPaths <- list.files(directory, '\\.bed$')[0:5]
 #' # Specify replicate and condition for each pair of files
 #' # In this case:
@@ -350,13 +350,13 @@ HiCDOCDataSetFromHiC <- function(
 #' # - The second files in the paths vectors are replicate 2 of condition a
 #' # - ...
 #' # - The last files in the paths vectors are replicate x of condition 3
-#' replicates <- (  1,   2,   1,   2, 'x')
-#' conditions <- ('a', 'a',   2,   2,   3)
-#' # Create dataSet
-#' dataSet <- HiCDOCDataSetFromHiCPro(
+#' replicates <- c(  1,   2,   1,   2, 'x')
+#' conditions <- c('a', 'a',   2,   2,   3)
+#' # Create HiCDOC object
+#' object <- HiCDOCDataSetFromHiCPro(
 #'     matrixPaths,
 #'     bedPaths,
-#'     replicates = replicates
+#'     replicates = replicates,
 #'     conditions = conditions
 #' )
 #'
@@ -432,13 +432,13 @@ HiCDOCDataSetFromHiCPro <- function(
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
-#' dataSet <- HiCDOCExample()
+#' object <- HiCDOCExample()
 #'
 #' @export
 HiCDOCExample <- function() {
     object <- NULL
-    basedir <- system.file("extdata", package = "HiCDOC", mustWork = TRUE)
-    path <- file.path(basedir, "sample.tsv")
+    directory <- system.file("extdata", package = "HiCDOC", mustWork = TRUE)
+    path <- file.path(directory, "sample.tsv")
     object <- HiCDOCDataSetFromTabular(path)
     return(invisible(object))
 }

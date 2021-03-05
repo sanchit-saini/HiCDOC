@@ -1,170 +1,336 @@
-HiCDOC normalizes intrachromosomal Hi-C matrices and detects A/B compartments
-with multiple replicates using unsupervised learning.
+# HiCDOC: Detection of compartments and differential analysis with multiple replicates
 
-## Prerequisites
+HiCDOC normalizes intrachromosomal Hi-C matrices, uses unsupervised learning to
+predict A/B compartments from multiple replicates, and detects significant
+compartment changes between experiment conditions.
 
-- R >= 3.5
+It provides a collection of functions assembled into a pipeline:
 
-## Installation
+1. [Filter](#filtering-data):
+    1. Filter small chromosomes to remove irrelevant scaffolds.
+    2. Filter sparse replicates to remove uninformative replicates with few
+       interactions.
+    3. Filter weak positions to remove hollow regions with few interactions.
+2. [Normalize](#normalizing-biases):
+    1. Normalize technical biases using
+       [cyclic loess normalization][multihiccompare-publication].
+    2. Normalize biological biases using
+       [Knight-Ruiz matrix balancing][knight-ruiz-publication].
+    3. Normalize the distance effect, which results from higher interaction
+       proportions between closer regions, with a MD loess.
+3. [Predict](#predicting-compartments-and-differences):
+    1. Predict compartments using
+       [constrained K-means][constrained-k-means-publication], and detect
+       significant differences between experiment condition pairs.
+4. [Visualize](#visualizing-data-and-results):
+    1. Plot the interaction matrices of every replicate.
+    2. Plot the overall distance effect on the proportion of interactions.
+    3. Plot the compartments in each chromosome, along with their concordance
+       (confidence measure) in each replicate, and significant changes between
+       experiment conditions.
+    4. Plot the overall distribution of concordances.
+    5. Plot the result of the PCA on centroids of predicted compartments.
+    6. Plot the boxplots of self interaction ratios (differences between self
+       interactions and the median of other interactions) of each compartment.
 
-- Open `R`
-- Install `devtools` if not already installed
 
-    ```R
-    install.packages("devtools")
-    ```
+# Table of contents
 
-- Install the package:
-
-    ```R
-    library(devtools)
-    install_github("mzytnicki/HiCDOC")
-     ```
-
-- Load the package
-
-    ```R
-    library(HiCDOC)
-    ```
+* [Installation](#installation)
+* [Quick Start](#quick-start)
+* [Usage](#quick-start)
+    * [Importing Hi-C data](#importing-hi-c-data)
+        * [Tabular files](#tabular-files)
+        * [Cooler files](#cooler-files)
+        * [Juicer files](#juicer-files)
+        * [HiC-Pro files](#hic-pro-files)
+    * [Running the HiCDOC pipeline](#running-the-hicdoc-pipeline)
+        * [Filtering data](#filtering-data)
+        * [Normalizing biases](#normalizing-biases)
+        * [Predicting compartments and differences](#predicting-compartments-and-differences)
+    * [Visualizing data and results](#visualizing-data-and-results)
+* [References](#references)
 
 
-HiCDOC is segmented in a collection of functions, which can be used to construct a
-custom pipeline.
+# Installation
 
-1. Normalize technical biases with using a cyclic loess<sup>[[publication][multihiccompare-publication]][[implementation][cyclic-loess-implementation]]</sup>
-2. Normalize biological biases with Knight-Ruiz method<sup>[[publication][knight-ruiz-publication]][[implementation][knight-ruiz-implementation]]</sup>
-3. Normalize distance effect with an MD loess
-4. Detect compartments with constrained k-means<sup>[[publication][constrained-k-means-publication]][[implementation][constrained-k-means-implementation]]</sup>
-5. Plot compartment changes and measures
+To install, execute the following commands in your console:
 
-## Input format
+```bash
+Rscript -e 'install.packages("devtools")'
+Rscript -e 'devtools::install_github("mzytnicki/HiCDOC")'
+```
 
-### Table format
+After installation, the package can be loaded in R >= 4.0:
 
-Each script accepts a tab-separated multi-replicate sparse matrix with a header
-line and optional comment lines.
+```r
+library("HiCDOC")
+```
 
-    # Optional comment lines
-    # ...
-    chromosome    position 1    position 2    replicate 1.1    replicate 1.2    replicate 2.1    ...
-    3             1500000       7500000       145              184              72               ...
+
+# Quick Start
+
+To try out HiCDOC, load the simulated toy data set:
+
+```r
+hic.experiment <- HiCDOCExample()
+```
+
+Then run the default pipeline on the created object:
+
+```r
+hic.experiment <- HiCDOC(hic.experiment)
+```
+
+And plot some results:
+
+```r
+plotCompartmentChanges(hic.experiment, chromosome = 'Y')
+```
+
+
+# Usage
+
+## Importing Hi-C data
+
+HiCDOC can import Hi-C data sets in various different formats:
+- Tabular `.tsv` files.
+- Cooler `.cool` or `.mcool` files.
+- Juicer `.hic` files.
+- HiC-Pro `.matrix` and `.bed` files.
+
+### Tabular files
+
+A tabular file is a tab-separated multi-replicate sparse matrix with a header:
+
+    chromosome    position 1    position 2    C1.R1    C1.R2    C2.R1    ...
+    3             1500000       7500000       145      184      72       ...
     ...
 
-The interaction proportions between `position 1` and `position 2` are reported
-in each replicate column, named `replicate <condition.replicate>`. There is no
-limit to the number of replicates and conditions.
+The interaction proportions between `position 1` and `position 2` of chromosome
+`chromosome` are reported in each `condition.replicate` column. There is no
+limit to the number of conditions and replicates.
 
-### Cool files
+To load Hi-C data in this format:
 
-Files with the [cool format](https://github.com/mirnylab/cooler/) can also be used.
-Call the function `HiCDOCDataSetFromCool` this way:
-
-```R
-HiCDOCDataSetFromCool(coolFiles, replicates, conditions)
+```r
+hic.experiment <- HiCDOCDataSetFromTabular('path/to/data.tsv')
 ```
 
-where:
+### Cooler files
 
- - `coolFiles` is a vector containing the files names
- - `replicates` is a vector containing the names of the replicates (such as `c("rep1_wt", "rep1_wt", ...)`)
- - `conditions` is a vector containing the id of each condition (such as `c(1, 1, 1, 2, 2, 2)` if you have 3 replicates for each condition).
+To load `.cool` or `.mcool` files generated by [Cooler][cooler-documentation]:
 
+```r
+# Path to each file
+paths = c(
+  'path/to/condition-1.replicate-1.cool',
+  'path/to/condition-1.replicate-2.cool',
+  'path/to/condition-2.replicate-1.cool',
+  'path/to/condition-2.replicate-2.cool',
+  'path/to/condition-3.replicate-1.cool'
+)
 
-## Start with HiCDOC
+# Replicate and condition of each file. Can be names instead of numbers.
+replicates <- c(1, 2, 1, 2, 1)
+conditions <- c(1, 1, 2, 2, 3)
 
-A small dataset is shipped with the package:
-
-```R
-object <- HiCDOCExample()
+# HiCDOC object
+hic.experiment <- HiCDOCDataSetFromCool(
+  paths,
+  replicates = replicates,
+  conditions = conditions
+)
 ```
 
-After creating your HiCDOC object, follow these steps:
+### Juicer files
 
-```R
-object  <- filterSmallChromosomes(object)
-object  <- filterWeakPositions(object)
+To load `.hic` files generated by [Juicer][juicer-documentation]:
 
-object <- normalizeTechnicalBiases(object)
-object <- normalizeBiologicalBiases(object)
-object <- normalizeDistanceEffect(object)
+```r
+# Path to each file
+paths = c(
+  'path/to/condition-1.replicate-1.hic',
+  'path/to/condition-1.replicate-2.hic',
+  'path/to/condition-2.replicate-1.hic',
+  'path/to/condition-2.replicate-2.hic',
+  'path/to/condition-3.replicate-1.hic'
+)
 
-object <- detectCompartments(object)
+# Replicate and condition of each file. Can be names instead of numbers.
+replicates <- c(1, 2, 1, 2, 1)
+conditions <- c(1, 1, 2, 2, 3)
+
+# Resolution to select
+resolution <- 500000
+
+# HiCDOC object
+hic.experiment <- HiCDOCDataSetFromCool(
+  paths,
+  replicates = replicates,
+  conditions = conditions,
+  resolution = resolution
+)
 ```
 
-Detected compartments and differences between conditions can be displayed with:
+### HiC-Pro files
 
-```R
-compartments(object)
-differences(differences)
+To load `.matrix` and `.bed` files generated by [HiC-Pro][hicpro-documentation]:
+
+```r
+# Path to each matrix file
+matrixPaths = c(
+  'path/to/condition-1.replicate-1.matrix',
+  'path/to/condition-1.replicate-2.matrix',
+  'path/to/condition-2.replicate-1.matrix',
+  'path/to/condition-2.replicate-2.matrix',
+  'path/to/condition-3.replicate-1.matrix'
+)
+
+# Path to each bed file
+bedPaths = c(
+  'path/to/condition-1.replicate-1.bed',
+  'path/to/condition-1.replicate-2.bed',
+  'path/to/condition-2.replicate-1.bed',
+  'path/to/condition-2.replicate-2.bed',
+  'path/to/condition-3.replicate-1.bed'
+)
+
+# Replicate and condition of each file. Can be names instead of numbers.
+replicates <- c(1, 2, 1, 2, 1)
+conditions <- c(1, 1, 2, 2, 3)
+
+# HiCDOC object
+hic.experiment <- HiCDOCDataSetFromHiCPro(
+  matrixPaths = matrixPaths,
+  bedPaths = bedPaths,
+  replicates = replicates,
+  conditions = conditions
+)
 ```
 
-Or saved to a file with:
+## Running the HiCDOC pipeline
 
-```R
-options(scipen=999)
-write.table(object@differences, file='differences.tsv', sep='\t', quote=FALSE)
-write.table(object@compartments, file='compartments.tsv', sep='\t', quote=FALSE)
+Once your data is loaded, you can run all the filtering, normalization, and
+computation steps with:
+
+```r
+hic.experiment <- HiCDOC(hic.experiment)
 ```
 
-Various visualizations are also available:
+This one-liner runs all the steps detailed below.
 
-```R
-plotInteractionMatrix(object, chromosomeId = 1, trans = "log2")
+### Filtering data
 
-plotDistanceEffect(object)
+Remove small chromosomes of length smaller than 100 positions:
 
-plotAB(object, chromosomeId = 1)
-
-plotDiffConcordances(object)
-
-plotCentroids(object, chromosomeId = 1)
-
-plotCompartmentChanges(object, chromosomeId = 1)
-plotCompartmentChanges(object, chromosomeId = "18")
+```r
+hic.experiment <- filterSmallChromosomes(hic.experiment, threshold = 100)
 ```
 
-### Load from sparse matrix
+Remove sparse replicates filled with less than 5% non-zero interactions:
 
-Start you script with:
-```R
-dataSet <- HiCDOCDataSetFromSparseMatrix(matrix)
-object  <- HiCDOCExp(dataSet)
-```
-Then, follow the usual pipe-line.
-
-
-### Load from `.cool` files
-
-If the `.cool` files are stored in the vector `coolFiles`, start your script
-with:
-```R
-dataSet <- HiCDOCDataSetFromCool(coolFiles, replicates, conditions)
-object  <- HiCDOCExp(dataSet)
+```r
+hic.experiment <- filterSparseReplicates(hic.experiment, threshold = 0.05)
 ```
 
-### Load from `.hic` files
+Remove weak positions with less than 1 interaction in average:
 
-If the `.hic` files are stored in the vector `hicFiles`, start your script with:
-```R
-resolution <- 100000     # set as desired
-dataSet <- HiCDOCDataSetFromHic(hicFiles, replicates, conditions, resolution)
-object  <- HiCDOCExp(dataSet)
+```r
+hic.experiment <- filterWeakPositions(hic.experiment, threshold = 1)
 ```
 
-## References
+### Normalizing biases
 
-Philip A. Knight, Daniel Ruiz, A fast algorithm for matrix balancing, _IMA
-Journal of Numerical Analysis_, Volume 33, Issue 3, July 2013, Pages 1029–1047,
-https://doi.org/10.1093/imanum/drs019
+Normalize technical biases such as different sequencing depths:
 
-Rajendra Kumar, Haitham Sobhy, Per Stenberg, Ludvig Lizana, Genome contact map
-explorer: a platform for the comparison, interactive visualization and analysis
-of genome contact maps, _Nucleic Acids Research_, Volume 45, Issue 17, 29
-September 2017, Page e152, https://doi.org/10.1093/nar/gkx644
+```r
+hic.experiment <- normalizeTechnicalBiases(hic.experiment)
+```
+
+Normalize biological biases such as GC content:
+
+```r
+hic.experiment <- normalizeBiologicalBiases(hic.experiment)
+```
+
+Normalize the distance effect resulting from higher interaction proportions
+between closer regions:
+
+```r
+hic.experiment <- normalizeDistanceEffect(hic.experiment, loessSampleSize = 20000)
+```
+
+### Predicting compartments and differences
+
+Predict A and B compartments and detect significant differences:
+
+```r
+hic.experiment <- detectCompartments(
+  hic.experiment,
+  kMeansDelta = 0.0001,
+  kMeansIterations = 50,
+  kMeansRestarts = 20
+)
+```
+
+
+## Visualizing data and results
+
+View the interaction matrix of each replicate:
+
+```r
+plotInteractions(hic.experiment, chromosome = '3')
+```
+
+View the overall distance effect on the proportion of interactions:
+
+```r
+plotDistanceEffect(hic.experiment)
+```
+
+List and view compartments with their concordance (confidence measure) in each
+replicate, and significant changes between experiment conditions:
+
+```r
+compartments(hic.experiment)
+
+concordances(hic.experiment)
+
+differences(hic.experiment)
+
+plotCompartmentChanges(hic.experiment, chromosome = '3')
+```
+
+View the overall distribution of concordances:
+
+```r
+plotConcordanceDistribution(hic.experiment)
+```
+
+View the result of the PCA on centroids of predicted compartments:
+
+```r
+plotSelfInteractionRatios(hic.experiment, chromosome = '3')
+```
+
+View the boxplots of self interaction ratios (differences between self
+interactions and the median of other interactions) of each compartment:
+
+```r
+plotCentroids(hic.experiment, chromosome = '3')
+```
+
+
+# References
 
 John C Stansfield, Kellen G Cresswell, Mikhail G Dozmorov, multiHiCcompare:
 joint normalization and comparative analysis of complex Hi-C experiments,
 _Bioinformatics_, 2019, https://doi.org/10.1093/bioinformatics/btz048
+
+Philip A. Knight, Daniel Ruiz, A fast algorithm for matrix balancing, _IMA
+Journal of Numerical Analysis_, Volume 33, Issue 3, July 2013, Pages 1029–1047,
+https://doi.org/10.1093/imanum/drs019
 
 Kiri Wagstaff, Claire Cardie, Seth Rogers, Stefan Schrödl, Constrained K-means
 Clustering with Background Knowledge, _Proceedings of 18th International
@@ -172,15 +338,9 @@ Conference on Machine Learning_, 2001, Pages 577-584,
 https://pdfs.semanticscholar.org/0bac/ca0993a3f51649a6bb8dbb093fc8d8481ad4.pdf
 
 [multihiccompare-publication]: https://doi.org/10.1093/bioinformatics/btz048
-[multihiccompare-installation]: https://bioconductor.org/packages/release/bioc/html/multiHiCcompare.html
-[gcmapexplorer-publication]: https://doi.org/10.1093/nar/gkx644
-[gcmapexplorer-installation]: https://gcmapexplorer.readthedocs.io/en/latest/install.html
-[orca-installation]: https://github.com/plotly/orca#installation
-[cyclic-loess-implementation]: https://bioconductor.org/packages/release/bioc/vignettes/multiHiCcompare/inst/doc/multiHiCcompare.html#cyclic-loess-normalization
 [knight-ruiz-publication]: https://doi.org/10.1093/imanum/drs019
-[knight-ruiz-implementation]: https://gcmapexplorer.readthedocs.io/en/latest/commands/normKR.html
-[rnr-implementation]: https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.RadiusNeighborsRegressor.html
-[interaction-mean-implementation]: https://gcmapexplorer.readthedocs.io/en/latest/commands/normMCFS.html
 [constrained-k-means-publication]: https://pdfs.semanticscholar.org/0bac/ca0993a3f51649a6bb8dbb093fc8d8481ad4.pdf
-[constrained-k-means-implementation]: https://github.com/Behrouz-Babaki/COP-Kmeans
-[silhouette-implementation]: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.silhouette_samples.html
+
+[cooler-documentation]: https://cooler.readthedocs.io/en/latest/
+[juicer-documentation]: https://github.com/aidenlab/juicer/wiki/Data
+[hicpro-documentation]: https://github.com/nservant/HiC-Pro

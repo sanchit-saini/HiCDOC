@@ -21,7 +21,7 @@
     chromosomeName,
     threshold
 ) {
-    # Initialization
+
     interactions <-
         object@interactions %>%
         dplyr::filter(chromosome == chromosomeName) %>%
