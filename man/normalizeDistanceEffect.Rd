@@ -2,23 +2,23 @@
 % Please edit documentation in R/normalizeDistanceEffect.R
 \name{normalizeDistanceEffect}
 \alias{normalizeDistanceEffect}
-\title{Normalize the distance effect on a HiCDOCDataSet object using a loess 
+\title{Normalize the distance effect on a HiCDOCDataSet object using a loess
 on the intensity vs distance to diagonal.}
 \usage{
-normalizeDistanceEffect(object, sampleSize = NULL)
+normalizeDistanceEffect(object, loessSampleSize = NULL)
 }
 \arguments{
 \item{object}{A \code{HiCDOCDataSet} object.}
 
-\item{sampleSize}{A numerical value. The number of bins used when sampling
+\item{loessSampleSize}{A numerical value. The number of bins used when sampling
 all the bins. If NULL, default to the first not NULL of
-\code{object$sampleSize} and \code{HiCDOCDefaultParameters$sampleSize}.}
+\code{object$loessSampleSize} and \code{defaultHiCDOCParameters$loessSampleSize}.}
 }
 \value{
 A \code{HiCDOCDataSet} object, with the normalized matrices.
 }
 \description{
-Normalize the distance effect on a HiCDOCDataSet object using a loess 
+Normalize the distance effect on a HiCDOCDataSet object using a loess
 on the intensity vs distance to diagonal.
 }
 \examples{
@@ -26,7 +26,7 @@ object <- HiCDOCExample()
 object <- normalizeDistanceEffect(object)
 }
 \seealso{
-\code{\link[HiCDOC]{normalizeTechnicalBiases}}, 
-\code{\link[HiCDOC]{normalizeBiologicalBiases}} and 
+\code{\link[HiCDOC]{normalizeTechnicalBiases}},
+\code{\link[HiCDOC]{normalizeBiologicalBiases}} and
 \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
 }

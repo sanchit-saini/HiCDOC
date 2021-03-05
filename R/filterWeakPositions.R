@@ -1,4 +1,4 @@
-#' @describe
+#' @description
 #' Removes weak positions of a given chromosome.
 #'
 #' @param object

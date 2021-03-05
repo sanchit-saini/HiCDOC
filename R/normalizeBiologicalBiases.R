@@ -87,6 +87,7 @@
 #' If number, will be taken in \code{object@chromosomes[chromosomeName]}
 #'
 #' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
+#' @noRd
 .normalizeBiologicalBiasesOfChromosome <- function(object, chromosomeName) {
     .validateSlots(
         object,

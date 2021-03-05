@@ -9,6 +9,7 @@
 #'
 #' @return A length 2 numerical vector
 #' @keywords internal
+#' @noRd
 .validateXlim <- function(xlim, object, chromosomeName) {
     if (!is.null(xlim)) {
         if (length(xlim) != 2) {
@@ -41,6 +42,7 @@
 #'
 #' @return the legend as a grob
 #' @keywords internal
+#' @noRd
 .extractLegends <- function(x) {
     matches <- grepl("guide-box", .subset2(x$layout, "name"), fixed = FALSE)
     x$layout <- x$layout[matches, , drop = FALSE]

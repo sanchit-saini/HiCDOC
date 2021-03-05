@@ -2,19 +2,17 @@
 % Please edit documentation in R/AllClasses.R
 \name{HiCDOCExample}
 \alias{HiCDOCExample}
-\title{Example constructor}
+\title{Example \code{\link{HiCDOCDataSet}} constructor.}
 \usage{
 HiCDOCExample()
 }
 \value{
-An \code{HiCDOCDataSet} object called '\code{exp}'.
+A \code{\link{HiCDOCDataSet}}.
 }
 \description{
-This function provides an example of a \code{HiCDOCDataSet} object from
-Marti-Marimon et al.
+Constructs a toy \code{\link{HiCDOCDataSet}} from simulated data.
 }
 \examples{
-## The 'HiCDOCDataSet' object in this example was constructed by:
-exp <- HiCDOCExample()
-exp
+object <- HiCDOCExample()
+
 }

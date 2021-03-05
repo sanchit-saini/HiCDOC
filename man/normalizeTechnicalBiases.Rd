@@ -9,7 +9,7 @@ normalizeTechnicalBiases(object, parallel = FALSE)
 \arguments{
 \item{object}{A \code{HiCDOCDataSet} object.}
 
-\item{parallel}{Logical, defautl to FALSE. Should parallel computing be 
+\item{parallel}{Logical, defautl to FALSE. Should parallel computing be
 used in \code{\link[multiHiCcompare]{cyclic_loess}} ?}
 }
 \value{
@@ -23,7 +23,7 @@ object <- HiCDOCExample()
 object <- normalizeTechnicalBiases(object)
 }
 \seealso{
-\code{\link[HiCDOC]{normalizeBiologicalBiases}}, 
-\code{\link[HiCDOC]{normalizeDistanceEffect}} and 
+\code{\link[HiCDOC]{normalizeBiologicalBiases}},
+\code{\link[HiCDOC]{normalizeDistanceEffect}} and
 \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
 }

@@ -47,14 +47,14 @@ It provides a collection of functions assembled into a pipeline:
        [constrained K-means][constrained-k-means-publication], and detect
        significant differences between experiment condition pairs.
 4. [Visualize](#visualizing-data-and-results):
-    1. Plot the interaction matrices of every replicate.
-    2. Plot the overall distance effect on the proportion of interactions.
-    3. Plot the compartments in each chromosome, along with their concordance
+    1. View the interaction matrices of every replicate.
+    2. View the overall distance effect on the proportion of interactions.
+    3. View the compartments in each chromosome, along with their concordance
        (confidence measure) in each replicate, and significant changes between
        experiment conditions.
-    4. Plot the overall distribution of concordances.
-    5. Plot the result of the PCA on centroids of predicted compartments.
-    6. Plot the boxplots of self interaction ratios (differences between self
+    4. View the overall distribution of concordances.
+    5. View the result of the PCA on centroids of predicted compartments.
+    6. View the boxplots of self interaction ratios (differences between self
        interactions and the median of other interactions) of each compartment.
 
 
@@ -189,7 +189,7 @@ conditions <- c(1, 1, 2, 2, 3)
 resolution <- 500000
 
 # HiCDOC object
-hic.experiment <- HiCDOCDataSetFromCool(
+hic.experiment <- HiCDOCDataSetFromHiC(
   paths,
   replicates = replicates,
   conditions = conditions,

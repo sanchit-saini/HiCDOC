@@ -2,36 +2,38 @@
 % Please edit documentation in R/filterWeakPositions.R
 \name{filterWeakPositions}
 \alias{filterWeakPositions}
-\title{Remove the weak bins of an HiCDOCDataSet object}
+\title{Filter weak positions.}
 \usage{
-filterWeakPositions(object, threshold = NULL)
+filterWeakPositions(object, threshold = 1)
 }
 \arguments{
-\item{object}{A HiCDOCDataSet object}
+\item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{threshold}{Numeric. Threshold to consider bins as 'weaks'. If NULL,
-default to the first not NULL of \code{object$weakPosThreshold} and
-\code{HiCDOCDefaultParameters$weakPosThreshold}.}
+\item{threshold}{The minimum average interaction for a position to be kept. If a position's
+average interaction with the entire chromosome is lower than this value in
+any of the replicates, it is removed from all replicates and conditions.
+Defaults to \code{object$smallChromosomeThreshold} which is
+originally set to \code{defaultHiCDOCParameters$smallChromosomeThreshold}.}
 }
 \value{
-A \code{HiCDOCDataSet} object with a reduced \code{interactions}
-slot, and the weak bins identified by chromosomes in \code{object@weakBins}.
+A filtered \code{\link{HiCDOCDataSet}}.
 }
 \description{
-The function indentifies and remove the weak bins of an HiCDOCDataSet object,
-chromosome by chromosome.
-To be kept, the bins (positions)of a chromosome must have a mean value
-greater than \code{threshold}, on all replicates and all conditions.
-The mean is computed on the row of the reconstructed full interaction
-matrix for 1 chromosome, 1 condition and 1 replicate. The weak bins will
-be discarded, and added in object@weakBins.
+Removes weak genomic positions whose interactions average is lower than the
+threshold.
+}
+\details{
+Detects weak genomic positions in each replicate, and removes them from all
+replicates to guarantee comparability across conditions when calling
+\code{\link{detectCompartments}}.
 }
 \examples{
 exp <- HiCDOCExample()
 exp <- filterWeakPositions(exp)
+
 }
 \seealso{
-\code{\link[HiCDOC]{filterSmallChromosomes}}, 
-\code{\link[HiCDOC]{filterSparseChromosomes}} and 
-\code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
+\code{\link{filterSmallChromosomes}},
+\code{\link{filterSparseReplicates}},
+\code{\link{HiCDOC}}
 }

@@ -2,35 +2,33 @@
 % Please edit documentation in R/filterSmallChromosomes.R
 \name{filterSmallChromosomes}
 \alias{filterSmallChromosomes}
-\title{Suppress the small chromosomes}
+\title{Filter small chromosomes.}
 \usage{
-filterSmallChromosomes(object, minLength = NULL)
+filterSmallChromosomes(object, threshold = 100)
 }
 \arguments{
-\item{object}{A HiCDOCDataSet object}
+\item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{minLength}{Numeric value. The minimum chromosome
-size (in number of bins), to be kept. If NULL, default to the first not
-NULL of \code{object$minLengthChr} and
-\code{HiCDOCDefaultParameters$minLengthChr}.}
+\item{threshold}{The minimum length (number of positions) for a chromosome to be kept.
+Defaults to \code{object$smallChromosomeThreshold} which is originally set to
+\code{defaultHiCDOCParameters$smallChromosomeThreshold}.}
 }
 \value{
-A HiCDOCDataSet object
+A filtered \code{\link{HiCDOCDataSet}}.
 }
 \description{
-The function return an HiCDOCDataSet object, with only the big chromosomes.
-The big chromosomes must have a totalBins >= minLength.
-The interactions are reduced to keep only those corresponding
-to the remaining chromosomes.
+Removes chromosomes whose length (in number of positions) is smaller than the
+threshold.
 }
 \examples{
 object <- HiCDOCExample()
 chromosomes(object)
 object <- filterSmallChromosomes(object)
 chromosomes(object)
+
 }
 \seealso{
-\code{\link[HiCDOC]{filterWeakPositions}}, 
-\code{\link[HiCDOC]{filterSparseChromosomes}} and 
-\code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
+\code{\link{filterSparseReplicates}},
+\code{\link{filterWeakPositions}},
+\code{\link{HiCDOC}}
 }

@@ -1,7 +1,7 @@
 #' @title
 #' Filter small chromosomes.
 #'
-#' @desciption
+#' @description
 #' Removes chromosomes whose length (in number of positions) is smaller than the
 #' threshold.
 #'
