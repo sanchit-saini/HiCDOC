@@ -233,8 +233,10 @@ List constrainedClustering(
     throw std::invalid_argument("Links should not contain NANs.");
   }
 
-  IntegerVector clusters(matrix.nrow()), bestClusters(matrix.nrow());
-  std::vector<NumericVector> centroids(totalClusters), bestCentroids(totalClusters);
+  IntegerVector clusters(matrix.nrow());
+  IntegerVector bestClusters(matrix.nrow());
+  std::vector<NumericVector> centroids(totalClusters);
+  std::vector<NumericVector> bestCentroids(totalClusters);
 
   if (matrix.nrow() > 0) {
     double quality, minQuality = std::numeric_limits<double>::max();
@@ -258,10 +260,7 @@ List constrainedClustering(
       }
     }
 
-    if (
-      is_false(any(bestClusters == 0))
-      || is_false(any(bestClusters == 1))
-    ) {
+    if (is_false(any(bestClusters == 0)) || is_false(any(bestClusters == 1))) {
       throw std::invalid_argument(
         "Failed clustering: one of the clusters is empty.\n"
       );
