@@ -35,7 +35,7 @@ A ggplot.
 Plot the concordance of all the replicates for one chromosome.
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 object <- filterSmallChromosomes(object)
 object <- filterWeakPositions(object)
 object <- normalizeTechnicalBiases(object)

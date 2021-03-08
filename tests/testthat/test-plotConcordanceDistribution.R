@@ -1,5 +1,5 @@
 test_that("plotConcordanceDistribution behaves as expected", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     expect_error(
         pp <- plotConcordanceDistribution(object),
         "Please run 'detectCompartments' first."

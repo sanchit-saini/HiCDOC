@@ -1,5 +1,5 @@
 test_that("plotConcordances behaves as expected", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     expect_error(
         pp <- plotConcordances(object),
         "Please run 'detectCompartments' first."

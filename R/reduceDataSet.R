@@ -3,7 +3,7 @@
     object@chromosomes <- object@chromosomes[chromosomeIds]
     if (dropLevels) {
         object@chromosomes <-
-            gtools::mixedsort(as.character(object@chromosomes))
+            gtools::mixedsort(unique(as.character(object@chromosomes)))
     }
 
     object@weakBins <- object@weakBins[chromosomeIds]
@@ -98,7 +98,7 @@
 #' @export
 #'
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #' small <- reduceHiCDOCDataSet(object, chromosomes = "17", replicates = "1")
 reduceHiCDOCDataSet <- function(
     object,

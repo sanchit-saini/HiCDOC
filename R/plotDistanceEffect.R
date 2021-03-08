@@ -3,7 +3,7 @@
 #' @param object an \code{HiCDOCDataSet} object
 #' @return A \code{ggplot}.
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #' plotDistanceEffect(object)
 #' @export
 plotDistanceEffect <- function(object) {

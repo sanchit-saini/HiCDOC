@@ -4,13 +4,11 @@
 \name{HiCDOC-package}
 \alias{HiCDOC}
 \alias{HiCDOC-package}
-\title{Find compartments with significantly differential binding using
-replicated Hi-C data}
+\title{A/B compartment detection and differential analysis}
 \description{
-Find compartments with significantly differential binding using 
-    replicated Hi-C data.
-    bla bla bla
-    bla bla bla from the DESCRIPTION file
+HiCDOC normalizes intrachromosomal Hi-C matrices, uses unsupervised learning
+    to predict A/B compartments from multiple replicates, and detects
+    significant compartment changes between experiment conditions.
 }
 \seealso{
 Useful links:
@@ -25,7 +23,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Kurylo Cyril \email{Cyril.Kurylo@inrae.fr}
+  \item Kurylo Cyril \email{cyril.kurylo@inrae.fr}
   \item Foissac Sylvain \email{sylvain.foissac@inrae.fr}
   \item Maigné Élise \email{elise.maigne@inrae.fr}
 }

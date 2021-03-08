@@ -1,5 +1,5 @@
 test_that("plotDistanceEffect behaves as expected", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     expect_message(pp <- plotDistanceEffect(object))
     expect_is(pp, "ggExtraPlot")
     # No error when printed

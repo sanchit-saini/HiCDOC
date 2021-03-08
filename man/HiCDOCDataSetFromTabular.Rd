@@ -24,7 +24,7 @@ tabulations. The header must be
 replaced by condition names and \code{y} replaced by replicate names.
 }
 \examples{
-path <- system.file("extdata", "sample.tsv", package = "HiCDOC")
+path <- system.file("extdata", "example.tsv", package = "HiCDOC")
 object <- HiCDOCDataSetFromTabular(path)
 
 }

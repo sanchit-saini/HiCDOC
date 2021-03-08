@@ -11,7 +11,7 @@
 #' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
 #'
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #' object <- normalizeTechnicalBiases(object)
 #' @seealso \code{\link[HiCDOC]{normalizeBiologicalBiases}},
 #' \code{\link[HiCDOC]{normalizeDistanceEffect}} and
@@ -105,10 +105,10 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
         dplyr::mutate(chromosome = factor(object@chromosomes[chromosome])) %>%
         dplyr::select(
             chromosome,
-            bin.1,
-            bin.2,
             condition,
             replicate,
+            bin.1,
+            bin.2,
             interaction
         )
 

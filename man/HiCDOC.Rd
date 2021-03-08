@@ -79,7 +79,7 @@ Runs the default filtering, normalization, and computational steps on a
 }
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 object <- HiCDOC(object)
 
 # Equivalent to

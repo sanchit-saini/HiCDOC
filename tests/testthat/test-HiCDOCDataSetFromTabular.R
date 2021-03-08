@@ -1,10 +1,10 @@
 test_that("HiCDOCDataSetFromTabular produce correct format", {
-    linkToMatrix <- system.file(
+    path <- system.file(
         "extdata",
-        "sample.tsv",
+        "liver_18_10M_500000.tsv",
         package = "HiCDOC"
     )
-    expect_error(object <- HiCDOCDataSetFromTabular(linkToMatrix), NA)
+    expect_error(object <- HiCDOCDataSetFromTabular(path), NA)
     # Class and slots
     expect_is(object, "HiCDOCDataSet")
     expect_identical(
@@ -60,9 +60,9 @@ test_that("HiCDOCDataSetFromTabular produce correct format", {
 })
 
 test_that("HiCDOCDataSetFromTabular produce correct values", {
-    linkToMatrix <- system.file(
+    path <- system.file(
         "extdata",
-        "sample.tsv",
+        "liver_18_10M_500000.tsv",
         package = "HiCDOC"
     )
     expect_error(object <- HiCDOCDataSetFromTabular(linkToMatrix), NA)

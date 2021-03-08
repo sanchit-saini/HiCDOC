@@ -140,7 +140,7 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #' object <- filterSparseReplicates(object)
 #'
 #' @usage
@@ -206,7 +206,9 @@ filterSparseReplicates <- function(
         " in total."
     )
 
-    if (nrow(object@interactions) == 0) message("No data left!")
+    if (nrow(object@interactions) == 0) {
+        warning("No data left!", call. = FALSE)
+    }
 
     return(object)
 }

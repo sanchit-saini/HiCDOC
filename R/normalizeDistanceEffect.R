@@ -136,7 +136,7 @@
 #' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
 #'
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #' object <- normalizeDistanceEffect(object)
 #' @seealso \code{\link[HiCDOC]{normalizeTechnicalBiases}},
 #' \code{\link[HiCDOC]{normalizeBiologicalBiases}} and

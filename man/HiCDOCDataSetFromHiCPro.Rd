@@ -23,24 +23,36 @@ Constructs a \code{\link{HiCDOCDataSet}} from a set of HiC-Pro generated
 files.
 }
 \examples{
-# Retrieve HiC-Pro files
-directory <- system.file("extdata", package = "HiCDOC")
-matrixPaths <- list.files(directory, '\\\\.matrix$')[0:5]
-bedPaths <- list.files(directory, '\\\\.bed$')[0:5]
-# Specify replicate and condition for each pair of files
-# In this case:
-# - The first files in the paths vectors are replicate 1 of condition a
-# - The second files in the paths vectors are replicate 2 of condition a
-# - ...
-# - The last files in the paths vectors are replicate x of condition 3
-replicates <- c(  1,   2,   1,   2, 'x')
-conditions <- c('a', 'a',   2,   2,   3)
-# Create HiCDOC object
-object <- HiCDOCDataSetFromHiCPro(
-    matrixPaths,
-    bedPaths,
-    replicates = replicates,
-    conditions = conditions
+\dontrun{
+# Path to each matrix file
+matrixPaths = c(
+  'path/to/condition-1.replicate-1.matrix',
+  'path/to/condition-1.replicate-2.matrix',
+  'path/to/condition-2.replicate-1.matrix',
+  'path/to/condition-2.replicate-2.matrix',
+  'path/to/condition-3.replicate-1.matrix'
 )
+
+# Path to each bed file
+bedPaths = c(
+  'path/to/condition-1.replicate-1.bed',
+  'path/to/condition-1.replicate-2.bed',
+  'path/to/condition-2.replicate-1.bed',
+  'path/to/condition-2.replicate-2.bed',
+  'path/to/condition-3.replicate-1.bed'
+)
+
+# Replicate and condition of each file. Can be names instead of numbers.
+replicates <- c(1, 2, 1, 2, 1)
+conditions <- c(1, 1, 2, 2, 3)
+
+# Instantiation of data set
+hic.experiment <- HiCDOCDataSetFromHiCPro(
+  matrixPaths = matrixPaths,
+  bedPaths = bedPaths,
+  replicates = replicates,
+  conditions = conditions
+)
+}
 
 }

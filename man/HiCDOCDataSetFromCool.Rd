@@ -12,6 +12,9 @@ HiCDOCDataSetFromCool(paths, replicates, conditions)
 \item{replicates}{A vector of replicate names repeated along the conditions.}
 
 \item{conditions}{A vector of condition names repeated along the replicates.}
+
+\item{resolution}{The number of bases per bin. Optionally provided to select the appropriate
+resolution in \code{.mcool} files. Defaults to NULL.}
 }
 \value{
 A \code{\link{HiCDOCDataSet}}.
@@ -21,22 +24,30 @@ Constructs a \code{\link{HiCDOCDataSet}} from a set of \code{.cool} or
 \code{.mcool} files.
 }
 \examples{
-# Retrieve Cool files
-directory <- system.file("extdata", package = "HiCDOC")
-paths <- list.files(directory, '\\\\.cool$')[0:5]
-# Specify replicate and condition for each file
-# In this case:
-# - The first file in the paths vector is replicate 1 of condition a
-# - The second file in the paths vector is replicate 2 of condition a
-# - ...
-# - The last file in the paths vector is replicate x of condition 3
-replicates <- c(  1,   2,   1,   2, 'x')
-conditions <- c('a', 'a',   2,   2,   3)
-# Create HiCDOC object
-object <- HiCDOCDataSetFromCool(
-    paths,
-    replicates = replicates,
-    conditions = conditions
+\dontrun{
+# Path to each file
+paths = c(
+  'path/to/condition-1.replicate-1.cool',
+  'path/to/condition-1.replicate-2.cool',
+  'path/to/condition-2.replicate-1.cool',
+  'path/to/condition-2.replicate-2.cool',
+  'path/to/condition-3.replicate-1.cool'
 )
+
+# Replicate and condition of each file. Can be names instead of numbers.
+replicates <- c(1, 2, 1, 2, 1)
+conditions <- c(1, 1, 2, 2, 3)
+
+# Resolution to select in .mcool files
+resolution = 500000
+
+# Instantiation of data set
+object <- HiCDOCDataSetFromCool(
+  paths,
+  replicates = replicates,
+  conditions = conditions,
+  resolution = resolution # Specified for .mcool files.
+)
+}
 
 }

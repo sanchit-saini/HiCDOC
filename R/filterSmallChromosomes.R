@@ -21,7 +21,7 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #' chromosomes(object)
 #' object <- filterSmallChromosomes(object)
 #' chromosomes(object)
@@ -49,7 +49,7 @@ filterSmallChromosomes <- function(object, threshold = NULL) {
     bigChromosomes <-
         vapply(
             object@totalBins,
-            function(x) x >= threshold,
+            function(totalBins) totalBins >= threshold,
             FUN.VALUE = TRUE
         )
     bigChromosomeNames <- names(bigChromosomes)[bigChromosomes]
@@ -76,7 +76,9 @@ filterSmallChromosomes <- function(object, threshold = NULL) {
         paste(smallChromosomeNames, collapse = ", ")
     )
 
-    if (length(bigChromosomeNames) == 0) message("No data left!")
+    if (length(bigChromosomeNames) == 0) {
+        warning("No data left!", call. = FALSE)
+    }
 
     return(object)
 }

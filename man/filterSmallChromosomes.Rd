@@ -21,7 +21,7 @@ Removes chromosomes whose length (in number of positions) is smaller than the
 threshold.
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 chromosomes(object)
 object <- filterSmallChromosomes(object)
 chromosomes(object)

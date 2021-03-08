@@ -1,5 +1,5 @@
 test_that("filterWeakPositions behaves as expected", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     # Filter the 0 values in interactions
     expect_message(
         object <- filterWeakPositions(object),

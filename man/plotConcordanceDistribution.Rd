@@ -18,7 +18,7 @@ Plot the concordance, i.e. the relative distance of the genomic positions
 with respect to the centroids.
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 object <- filterSmallChromosomes(object)
 object <- filterWeakPositions(object)
 object <- normalizeTechnicalBiases(object)

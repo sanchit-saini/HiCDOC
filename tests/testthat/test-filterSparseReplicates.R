@@ -1,5 +1,5 @@
 test_that("filterSparseReplicates behaves as expected", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     # No filtering on the example dataset
     expect_message(
         filterSparseReplicates(object),

@@ -91,7 +91,7 @@ pair. Adjust the resulting p-value with the Benjamini–Hochberg procedure.
 }
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 \dontrun{
 object <- filterSmallChromosomes(object)
 object <- filterSparseReplicates(object)

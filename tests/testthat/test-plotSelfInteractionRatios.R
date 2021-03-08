@@ -1,5 +1,5 @@
 test_that("plotSelfInteractionRatios behaves as expected", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     expect_error(
         pp <- plotSelfInteractionRatios(object),
         "Please run 'detectCompartments' first."

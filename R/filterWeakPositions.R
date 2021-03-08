@@ -127,8 +127,8 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @examples
-#' exp <- HiCDOCExample()
-#' exp <- filterWeakPositions(exp)
+#' object <- HiCDOCDataSetExample()
+#' object <- filterWeakPositions(exp)
 #'
 #' @usage
 #' filterWeakPositions(object, threshold = 1)
@@ -199,7 +199,9 @@ filterWeakPositions <- function(object, threshold = NULL) {
         " in total."
     )
 
-    if (nrow(object@interactions) == 0) message("No data left!")
+    if (nrow(object@interactions) == 0) {
+        warning("No data left!", call. = FALSE)
+    }
 
     return(object)
 }

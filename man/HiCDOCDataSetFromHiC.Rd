@@ -24,23 +24,30 @@ Constructs a \code{\link{HiCDOCDataSet}} from a set of
 \code{.hic} files.
 }
 \examples{
-# Retrieve Hi-C files
-directory <- system.file("extdata", package = "HiCDOC")
-paths <- list.files(directory, '\\\\.hic$')[0:5]
-# Specify replicate and condition for each file
-# In this case:
-# - The first file in the paths vector is replicate 1 of condition a
-# - The second file in the paths vector is replicate 2 of condition a
-# - ...
-# - The last file in the paths vector is replicate x of condition 3
-replicates <- c(  1,   2,   1,   2, 'x')
-conditions <- c('a', 'a',   2,   2,   3)
-# Create HiCDOC object
-object <- HiCDOCDataSetFromHiC(
-    paths,
-    replicates = replicates,
-    conditions = conditions,
-    resolution = 500000
+\dontrun{
+# Path to each file
+paths = c(
+  'path/to/condition-1.replicate-1.hic',
+  'path/to/condition-1.replicate-2.hic',
+  'path/to/condition-2.replicate-1.hic',
+  'path/to/condition-2.replicate-2.hic',
+  'path/to/condition-3.replicate-1.hic'
 )
+
+# Replicate and condition of each file. Can be names instead of numbers.
+replicates <- c(1, 2, 1, 2, 1)
+conditions <- c(1, 1, 2, 2, 3)
+
+# Resolution to select
+resolution <- 500000
+
+# Instantiation of data set
+hic.experiment <- HiCDOCDataSetFromHiC(
+  paths,
+  replicates = replicates,
+  conditions = conditions,
+  resolution = resolution
+)
+}
 
 }

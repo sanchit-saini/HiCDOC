@@ -20,7 +20,7 @@ Plot boxplots of the diagonal ratios in each compartment,
 for a given chromosome.
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 object <- filterSmallChromosomes(object)
 object <- filterWeakPositions(object)
 object <- normalizeTechnicalBiases(object)

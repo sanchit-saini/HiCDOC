@@ -1,5 +1,5 @@
 test_that("normalizeBiologicalBiases behaves as expected", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     # Apply normalization
     expect_message(
         object <- normalizeBiologicalBiases(object),

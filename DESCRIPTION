@@ -1,16 +1,16 @@
 Package: HiCDOC
-Title: Robust differential compartment detection
+Title: A/B compartment detection and differential analysis
 Version: 0.99.0
 Date: 2019-07-29
 Authors@R: c(
-    person("Kurylo",   "Cyril",    email = "Cyril.Kurylo@inrae.fr",      role = c("aut")),
+    person("Kurylo", "Cyril", email = "cyril.kurylo@inrae.fr", role = c("aut")),
     person("Zytnicki", "Matthias", email = "matthias.zytnicki@inrae.fr", role = c("aut", "cre")),
-    person("Foissac",  "Sylvain",  email = "sylvain.foissac@inrae.fr",   role = c("aut")),
-    person("Maigné",   "Élise",    email = "elise.maigne@inrae.fr",      role = c("aut")))
-Description: Find compartments with significantly differential binding using 
-    replicated Hi-C data.
-    bla bla bla
-    bla bla bla from the DESCRIPTION file
+    person("Foissac", "Sylvain", email = "sylvain.foissac@inrae.fr", role = c("aut")),
+    person("Maigné", "Élise", email = "elise.maigne@inrae.fr", role = c("aut")))
+Description:
+    HiCDOC normalizes intrachromosomal Hi-C matrices, uses unsupervised learning
+    to predict A/B compartments from multiple replicates, and detects
+    significant compartment changes between experiment conditions.
 License: LGPL (>= 3) + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -38,7 +38,8 @@ LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 biocViews:
     TODO
-Suggests: knitr,
+Suggests:
+    knitr,
     rmarkdown,
     testthat,
     BiocStyle,

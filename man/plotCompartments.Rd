@@ -25,7 +25,7 @@ Plot the A and B compartments after \code{detectCompartments()} on
 a HiCDOCDataSet object, for a chromosome.
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 object <- filterSmallChromosomes(object)
 object <- filterWeakPositions(object)
 object <- normalizeTechnicalBiases(object)

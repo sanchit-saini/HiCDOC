@@ -1,5 +1,5 @@
 test_that("normalizeTechnicalBiases behaves as expected", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     # Apply normalization
     expect_warning(object <- normalizeTechnicalBiases(object, parallel = FALSE))
     # Keep object format
@@ -18,7 +18,7 @@ test_that("normalizeTechnicalBiases behaves as expected", {
 
 
 test_that("normalizeTechnicalBiases behaves as expected in parallel", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     multiParam <- BiocParallel::MulticoreParam(workers = 3)
     BiocParallel::register(multiParam, default = TRUE)
     # Apply normalization

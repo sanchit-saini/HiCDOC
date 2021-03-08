@@ -36,7 +36,7 @@ Run plotCompartments() and plotConcordances() and assemble them on the
 same plot
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 object <- filterSmallChromosomes(object)
 object <- filterWeakPositions(object)
 object <- normalizeTechnicalBiases(object)

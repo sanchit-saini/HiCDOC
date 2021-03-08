@@ -1,5 +1,5 @@
 test_that("plotCentroids behaves as expected", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     expect_error(
         pp <- plotCentroids(object),
         "Please run 'detectCompartments' first."

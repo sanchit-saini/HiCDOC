@@ -1,5 +1,5 @@
 test_that("plotCompartmentChanges behaves as expected", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     expect_error(
         pp <- plotCompartmentChanges(object),
         "Please run 'detectCompartments' first."

@@ -1,16 +1,20 @@
-## - Parse input data ---------------------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Read interaction matrices in tabular 3-column format.
+#' @description
+#' Parses interactions in tabular format and fills the conditions, replicates,
+#' and interactions slots of the provided \code{\link{HiCDOCDataSet}}.
 #'
-#' This function parses the tsv files provided in
-#' \code{object@input}.
-#' @param object An \code{HiCDOCDataSet} object.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
 #'
-#' @return object An \code{HiCDOCDataSet} object.
+#' @return
+#' A filled \code{\link{HiCDOCDataSet}}.
+#'
 #' @keywords internal
 #' @noRd
 .parseTabular <- function(object) {
-    object@interactions <-
+
+    message(paste0("Parsing '", object@input, "'."))
+
+    interactions <-
         utils::read.table(
             file = object@input,
             sep = "\t",
@@ -20,45 +24,41 @@
         ) %>%
         dplyr::as_tibble()
 
-    if (colnames(object@interactions)[[1]] != "chromosome") {
+    if (colnames(interactions)[[1]] != "chromosome") {
         stop(
-            "First column of the input matrix should be named 'chromosome'.",
+            "First column of the input file must be named 'chromosome'.",
             call. = FALSE
         )
     }
-    if (colnames(object@interactions)[[2]] != "position 1") {
+    if (colnames(interactions)[[2]] != "position 1") {
         stop(
-            "Second column of the input matrix should be named 'position 1'.",
+            "Second column of the input file must be named 'position 1'.",
             call. = FALSE
         )
     }
-    if (colnames(object@interactions)[[3]] != "position 2") {
+    if (colnames(interactions)[[3]] != "position 2") {
         stop(
-            "Third column of the input matrix should be named 'position 2'.",
+            "Third column of the input file must be named 'position 2'.",
             call. = FALSE
         )
     }
 
-    conditions.replicates <-
-        colnames(object@interactions)[4:ncol(object@interactions)]
+    conditions.replicates <- colnames(interactions)[4:ncol(interactions)]
 
     if (!all(grepl("^.+?\\..+$", conditions.replicates))) {
         stop(
-            "Fourth to last columns of the input matrix ",
-            "should be named 'x.y' ",
-            "with x the condition number ",
-            "and y the replicate number.",
+            "Fourth to last column of the input file must be named 'C.R', ",
+            "with C the condition number/name and R the replicate number/name.",
             call. = FALSE
         )
     }
 
-    object@conditions <-
-        gsub("^(.+?)\\..+$", "\\1", conditions.replicates)
-    object@replicates <-
-        gsub("^.+?\\.(.+)$", "\\1", conditions.replicates)
+    object@conditions <- gsub("^(.+?)\\..+$", "\\1", conditions.replicates)
+    object@replicates <- gsub("^.+?\\.(.+)$", "\\1", conditions.replicates)
 
-    object@interactions %<>%
+    object@interactions <-
         tidyr::gather(
+            interactions,
             conditions.replicates,
             key = condition.replicate,
             value = interaction
@@ -82,41 +82,48 @@
     return(object)
 }
 
-## - .parseOneCool ----------------------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Parse a single interaction matrix in .(m)cool format.
-#' @param fileName The name of the matrix file in HDF5 format.
-#' @return object An \code{tibble} storing the (sparse) interaction matrix.
+#' @description
+#' Parses a single interactions file in \code{.cool} or \code{.mcool} format.
+#'
+#' @param path
+#' The path to the interactions file.
+#' @param resolution
+#' The number of bases per bin. Optionally provided to select the appropriate
+#' interactions in a \code{.mcool} file. Defaults to NULL.
+#'
+#' @return
+#' A tibble of interactions.
+#'
 #' @keywords internal
 #' @noRd
-.parseOneCool <- function(fileName) {
-    splitName <- strsplit(fileName, "::", fixed = TRUE)[[1]]
-    # Separate file path from URI in case of mcool file
-    filePath <- splitName[1]
-    fileURI <- ifelse(length(splitName) > 1, splitName[2], "")
-    uri <- function(path) return(paste(fileURI, path, sep = "/"))
+.parseOneCool <- function(path, resolution = NULL) {
+
+    message(paste0("\nParsing '", path, "'."))
+
+    uri <- function(path) {
+        if (!is.numeric(resolution)) return(path)
+        return(
+            paste(
+                "resolutions",
+                format(resolution, scientific = FALSE),
+                path,
+                sep = "/"
+            )
+        )
+    }
+
     bins <-
         dplyr::tibble(
             chromosome = factor(
-                rhdf5::h5read(file = filePath, name = uri("bins/chrom"))
+                rhdf5::h5read(file = path, name = uri("bins/chrom"))
             ),
-            start = rhdf5::h5read(
-                file = filePath,
-                name = uri("bins/start")
-            ),
-            end = rhdf5::h5read(
-                file = filePath,
-                name = uri("bins/end")
-            )
+            start = rhdf5::h5read(file = path, name = uri("bins/start")),
+            end = rhdf5::h5read(file = path, name = uri("bins/end"))
         )
 
     step <- bins$end - bins$start
     if (length(step) < 0.9) {
-        stop(
-            "Cannot parse cool file '",
-            fileName,
-            "': fixed width only."
-        )
+        stop("Cannot parse '", path, "': fixed width only.", call. = FALSE)
     }
     step <- max(step)
 
@@ -128,249 +135,185 @@
 
     rownames(bins) <- NULL
 
-    data <-
+    interactions <-
         dplyr::tibble(
-            id1 = rhdf5::h5read(
-                file = filePath,
-                name = uri("pixels/bin1_id")
-            ),
-            id2 = rhdf5::h5read(
-                file = filePath,
-                name = uri("pixels/bin2_id")
-            ),
-            interaction = rhdf5::h5read(
-                file = filePath,
-                name = uri("pixels/count")
-            )
+            id1 = rhdf5::h5read(file = path, name = uri("pixels/bin1_id")),
+            id2 = rhdf5::h5read(file = path, name = uri("pixels/bin2_id")),
+            interaction = rhdf5::h5read(file = path, name = uri("pixels/count"))
         ) %>%
         dplyr::left_join(bins, by = c("id1" = "ide")) %>%
-        dplyr::rename(
-            chromosome.1 = chromosome,
-            position.1 = position
-        ) %>%
+        dplyr::rename(chromosome.1 = chromosome, position.1 = position) %>%
         dplyr::select(-id1) %>%
         dplyr::left_join(bins, by = c("id2" = "ide")) %>%
-        dplyr::rename(
-            chromosome.2 = chromosome,
-            position.2 = position
-        ) %>%
+        dplyr::rename(chromosome.2 = chromosome, position.2 = position) %>%
         dplyr::select(-id2) %>%
         dplyr::filter(chromosome.1 == chromosome.2) %>%
         dplyr::select(-chromosome.2) %>%
         dplyr::rename(chromosome = chromosome.1) %>%
         dplyr::select(chromosome, position.1, position.2, interaction)
 
-    return(data)
+    return(interactions)
 }
 
-## - .parseOneMCool ---------------------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Parse a single interaction matrix in .mcool format.
-#' @param fileName The name of the matrix file in HDF5 format.
-#' @param resolution The chosen resolution (in bp)
-#' @return object An \code{tibble} storing the (sparse) interaction matrix.
+#' @description
+#' Parses interactions in \code{.cool} or \code{.mcool} format and fills the
+#' interactions slot of the provided \code{\link{HiCDOCDataSet}}.
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param resolution
+#' The number of bases per bin. Optionally provided to select the appropriate
+#' interactions in \code{.mcool} files. Defaults to NULL.
+#'
+#' @return
+#' A filled \code{\link{HiCDOCDataSet}}.
+#'
 #' @keywords internal
 #' @noRd
-.parseOneMCool <- function(fileName, resolution = resolution) {
-    return(.parseOneCool(paste0(fileName, "::resolutions/", resolution)))
-}
+.parseCool <- function(object, resolution = NULL) {
 
+    interactions <-
+        pbapply::pblapply(
+            object@input,
+            .parseOneCool,
+            resolution = resolution
+        )
 
-## - .mergeMatrices ------------------------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Merge the matrices which have been parsed separately, and put the result
-#' in the interactions slot of the object.
-#' @param object A \code{HiCDOCDataSet} object, where the matrices should be
-#'          stored.
-#' @param matrices The different matrices (one per sample).
-#' @return object The \code{HiCDOCDataSet} object, where the matrices have been
-#'           added.
-#' @keywords internal
-#' @noRd
-.mergeMatrices <- function(object, matrices) {
-    for (i in seq_along(matrices)) {
-        matrices[[i]]$replicate <- object@replicates[[i]]
-        matrices[[i]]$condition <- object@conditions[[i]]
+    for (i in seq_along(interactions)) {
+        interactions[[i]]$replicate <- object@replicates[[i]]
+        interactions[[i]]$condition <- object@conditions[[i]]
     }
+
     object@interactions <-
-        dplyr::bind_rows(matrices) %>%
-        dplyr::mutate(chromosome = factor(chromosome)) %>%
-        dplyr::mutate(replicate = factor(replicate)) %>%
-        dplyr::mutate(condition = factor(condition))
+        dplyr::bind_rows(interactions) %>%
+        dplyr::mutate(
+            chromosome = factor(chromosome),
+            condition = factor(condition),
+            replicate = factor(replicate),
+            interaction = as.numeric(interaction)
+        )
+
     return(object)
 }
 
-
-## - .parseCool -----------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Read interaction matrices in .cool format.
+#' @description
+#' Parses a single interactions file in \code{.hic} format. Calls the C++
+#' \code{parseHiCFile} parser.
 #'
-#' This function parses the .cool files provided in
-#' \code{object@input}.
+#' @param path
+#' The path to the interactions file.
+#' @param resolution
+#' The number of bases per bin. Selects the appropriate interactions in the
+#' \code{.hic} file.
 #'
-#' @param object An \code{HiCDOCDataSet} object.
+#' @return
+#' A dataframe of interactions.
 #'
-#' @return object An \code{HiCDOCDataSet} object.
 #' @keywords internal
 #' @noRd
-.parseCool <- function(object) {
-    matrices <- pbapply::pblapply(object@input, .parseOneCool)
-    return(.mergeMatrices(object, matrices))
+.parseOneHiC <- function(path, resolution) {
+    message(paste0("\nParsing '", path, "'."))
+    return(parseHiCFile(path, resolution))
 }
 
-## - .parseMCool ----------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Read interaction matrices in .mcool format.
+#' @description
+#' Parses interactions in \code{.hic} format and fills the interactions slots of
+#' the provided \code{\link{HiCDOCDataSet}}.
 #'
-#' This function parses the .mcool files provided in
-#' \code{object@input} at a given resolution.
-
-#' @param object     An \code{HiCDOCDataSet} object.
-#' @param resolution The chosen resolution, in base pairs.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param resolution
+#' The number of bases per bin. Selects the appropriate interactions in the
+#' \code{.hic} files.
 #'
-#' @return object    An \code{HiCDOCDataSet} object.
+#' @return
+#' A filled \code{\link{HiCDOCDataSet}}.
+#'
 #' @keywords internal
 #' @noRd
-.parseMCool <- function(object, resolution) {
-    matrices <-
-        pbapply::pblapply(
-            object@input,
-            .parseOneMCool,
-            resolution = resolution
-        )
-    return(.mergeMatrices(object, matrices))
-}
+.parseHiC <- function(object, resolution) {
 
-## - .parseOneHiC -----------------------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Parse a single interaction matrix in .hic format.
-#' @param fileName   The file name of the .hic file.
-#' @param resolution The chosen resolution (should be present in the
-#'                     .hic file).
-#'
-#' @return object An \code{tibble} storing the (sparse) interaction matrix.
-#' @keywords internal
-#' @noRd
-.parseOneHiC <- function(fileName, resolution = resolution) {
-    message(paste0("Parsing .hic file '", fileName, "'."))
-    return(parseHiCFile(fileName, resolution))
-}
-
-## - .parseHiC ------------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Read interaction matrices in .hic format.
-#'
-#' This function parses the .hic files provided in
-#' \code{object@input}.
-
-#' @param object An \code{HiCDOCDataSet} object.
-#'
-#' @return object An \code{HiCDOCDataSet} object.
-#' @keywords internal
-#' @noRd
-.parseHiC <- function(object) {
-    matrices <-
+    interactions <-
         pbapply::pblapply(
             object@input,
             .parseOneHiC,
-            resolution = object@binSize
-        )
-    matrices <-
+            resolution = resolution
+        ) %>%
         purrr::map2(
-            matrices,
             object@replicates,
             ~ dplyr::mutate(.x, replicate = .y)
-        )
-    matrices <-
+        ) %>%
         purrr::map2(
-            matrices,
             object@conditions,
             ~ dplyr::mutate(.x, condition = .y)
         )
-    object@interactions <- dplyr::bind_rows(matrices) %>% dplyr::as_tibble()
-    object@interactions %<>%
+
+    object@interactions <-
+        dplyr::bind_rows(interactions) %>%
+        dplyr::as_tibble() %>%
         dplyr::mutate(
-            chromosome = factor(
-                chromosome,
-                levels = gtools::mixedsort(
-                    unique(object@interactions$chromosome)
-                )
-            )
-        ) %>%
-        dplyr::mutate(replicate = factor(replicate)) %>%
-        dplyr::mutate(condition = factor(condition))
+            chromosome = factor(chromosome),
+            condition = factor(condition),
+            replicate = factor(replicate),
+            interaction = as.numeric(interaction)
+        )
+
     return(object)
 }
 
-
-## - .parseOneHiCPro --------------------------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Parse a single interaction matrix in HiC-Pro format
+#' @description
+#' Parses a single pair of \code{.matrix} and \code{.bed} files.
 #'
-#' @param vectFiles 2 length vector, of the links to .matrix and .bed files.
-#' @return object An \code{tibble} storing the (sparse) interaction matrix.
+#' @param matrixPath
+#' The path to the interactions matrix file.
+#' @param bedPath
+#' The path to the bed file.
+#'
+#' @return
+#' A tibble of interactions.
+#'
 #' @keywords internal
 #' @noRd
-.parseOneHiCPro <- function(vectFiles) {
-    if (length(vectFiles) != 2) {
-        stop("vectFiles must be of length 2")
-    }
-    matrixFile <- vectFiles[1]
-    bedFile <- vectFiles[2]
-    dfMatrix <-
+.parseOneHiCPro <- function(matrixPath, bedPath) {
+
+    message(paste0("\nParsing '", matrixPath, "' and '", bedPath, "'."))
+
+    interactions <-
         utils::read.table(
-            matrixFile,
+            matrixPath,
             header = FALSE,
             stringsAsFactors = FALSE,
             col.names = c("startIndex", "stopIndex", "interaction")
-        )
-    dfBed <-
+        ) %>%
+        dplyr::as_tibble()
+
+    bed <-
         utils::read.table(
-            bedFile,
+            bedPath,
             header = FALSE,
             stringsAsFactors = FALSE,
             col.names = c("chromosome", "start", "end", "index")
-        )
+        ) %>%
+        dplyr::as_tibble()
 
-    dfMatrix <- dplyr::as_tibble(dfMatrix)
-    dfBed <- dplyr::as_tibble(dfBed)
-
-    differences <- sort(table(abs(dfBed$end - dfBed$start)), decreasing = TRUE)
-    resolution <- as.numeric(names(differences[1]))
-
-    positions <-
-        dfBed %>%
-        dplyr::arrange(chromosome, index) %>%
-        dplyr::group_by(chromosome) %>%
-        dplyr::mutate(bin = index - min(index) + 1) %>%
-        dplyr::mutate(end = ifelse(end == dplyr::lead(start), end - 1, end)) %>%
-        dplyr::ungroup() %>%
-        dplyr::select(chromosome, start, end, bin)
-
-    # Merge data
-    dfMatrix <-
+    interactions %<>%
         dplyr::left_join(
-            dfMatrix,
-            dfBed %>% dplyr::select(
+            bed %>% dplyr::select(
                 chromosome.1 = chromosome,
                 startIndex = index,
                 position.1 = start
             ),
             by = "startIndex"
-        )
-    dfMatrix %<>% dplyr::select(-startIndex)
-    dfMatrix <-
+        ) %>%
+        dplyr::select(-startIndex) %>%
         dplyr::left_join(
-            dfMatrix,
-            dfBed %>% dplyr::select(
+            bed %>% dplyr::select(
                 chromosome.2 = chromosome,
                 stopIndex = index,
                 position.2 = start
             ),
             by = "stopIndex"
-        )
-    message("Removing inter-chromosome interactions.")
-    dfMatrix %<>%
+        ) %>%
         dplyr::filter(chromosome.1 == chromosome.2) %>%
         dplyr::select(
             chromosome = chromosome.1,
@@ -379,54 +322,46 @@
             interaction
         )
 
-    return(list(
-        "matrix" = dfMatrix,
-        "resolution" = resolution,
-        "positions" = positions
-    ))
+    return(interactions)
 }
 
-
-## - .parseHiCPro ---------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Read interaction matrices in Hic-Pro format.
+#' @description
+#' Parses interactions in pairs of \code{.matrix} and \code{.bed} files and
+#' fills the interactions slots of the provided \code{\link{HiCDOCDataSet}}.
 #'
-#' This function parses the HiC-Pro files provided in
-#' \code{object@input}.
-#' @param object An \code{HiCDOCDataSet} object.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
 #'
-#' @return object An \code{HiCDOCDataSet} object.
+#' @return
+#' A filled \code{\link{HiCDOCDataSet}}.
+#'
 #' @keywords internal
 #' @noRd
 .parseHiCPro <- function(object) {
-    matrices <-
+
+    interactions <-
         pbapply::pblapply(
             object@input,
-            function(x) .parseOneHiCPro(x)
-        )
-    matrices <-
-        purrr::map2(
-            matrices,
-            object@replicates,
-            ~ dplyr::mutate(.x, replicate = .y, .after = position.2)
-        )
-    matrices <-
-        purrr::map2(
-            matrices,
-            object@conditions,
-            ~ dplyr::mutate(.x, condition = .y, .after = position.2)
-        )
-    object@interactions <- dplyr::bind_rows(matrices) %>% dplyr::as_tibble()
-    object@interactions %<>%
-        dplyr::mutate(
-            chromosome = factor(
-                chromosome,
-                levels = gtools::mixedsort(
-                    unique(object@interactions$chromosome)
-                )
-            )
+            function(paths) .parseOneHiCPro(paths[1], paths[2])
         ) %>%
-        dplyr::mutate(replicate = factor(replicate)) %>%
-        dplyr::mutate(condition = factor(condition))
+        purrr::map2(
+            object@replicates,
+            ~ dplyr::mutate(.x, replicate = .y)
+        ) %>%
+        purrr::map2(
+            object@conditions,
+            ~ dplyr::mutate(.x, condition = .y)
+        )
+
+    object@interactions <-
+        dplyr::bind_rows(interactions) %>%
+        dplyr::as_tibble() %>%
+        dplyr::mutate(
+            chromosome = factor(chromosome),
+            condition = factor(condition),
+            replicate = factor(replicate),
+            interaction = as.numeric(interaction)
+        )
+
     return(object)
 }

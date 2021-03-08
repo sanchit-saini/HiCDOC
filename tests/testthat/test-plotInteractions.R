@@ -1,5 +1,5 @@
 test_that("plotInteractions behaves as expected", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     expect_error(plotInteractions(object, 3), "Unknown chromosome")
     expect_error(plotInteractions(object), '"chromosomeId"')
     pp <- plotInteractions(object, 1)

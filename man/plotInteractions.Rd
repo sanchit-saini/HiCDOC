@@ -32,6 +32,6 @@ A \code{ggplot} object.
 Plot the interaction matrix (as heatmap).
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 p <- plotInteractions(object, chromosome = 1, transform = "log2")
 }

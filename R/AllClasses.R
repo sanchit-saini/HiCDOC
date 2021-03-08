@@ -62,7 +62,7 @@
 #' each bin in each replicate.
 #'
 #' @seealso
-#' \code{\link{HiCDOCExample}},
+#' \code{\link{HiCDOCDataSetExample}},
 #' \code{\link{HiCDOCDataSetFromTabular}},
 #' \code{\link{HiCDOCDataSetFromCool}},
 #' \code{\link{HiCDOCDataSetFromHiC}},
@@ -135,7 +135,7 @@ defaultHiCDOCParameters <- list(
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
-#' path <- system.file("extdata", "sample.tsv", package = "HiCDOC")
+#' path <- system.file("extdata", "example.tsv", package = "HiCDOC")
 #' object <- HiCDOCDataSetFromTabular(path)
 #'
 #' @usage
@@ -171,28 +171,39 @@ HiCDOCDataSetFromTabular <- function(path = NULL) {
 #' A vector of replicate names repeated along the conditions.
 #' @param conditions
 #' A vector of condition names repeated along the replicates.
+#' @param resolution
+#' The number of bases per bin. Optionally provided to select the appropriate
+#' resolution in \code{.mcool} files. Defaults to NULL.
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
-#' # Retrieve Cool files
-#' directory <- system.file("extdata", package = "HiCDOC")
-#' paths <- list.files(directory, '\\.cool$')[0:5]
-#' # Specify replicate and condition for each file
-#' # In this case:
-#' # - The first file in the paths vector is replicate 1 of condition a
-#' # - The second file in the paths vector is replicate 2 of condition a
-#' # - ...
-#' # - The last file in the paths vector is replicate x of condition 3
-#' replicates <- c(  1,   2,   1,   2, 'x')
-#' conditions <- c('a', 'a',   2,   2,   3)
-#' # Create HiCDOC object
-#' object <- HiCDOCDataSetFromCool(
-#'     paths,
-#'     replicates = replicates,
-#'     conditions = conditions
+#' \dontrun{
+#' # Path to each file
+#' paths = c(
+#'   'path/to/condition-1.replicate-1.cool',
+#'   'path/to/condition-1.replicate-2.cool',
+#'   'path/to/condition-2.replicate-1.cool',
+#'   'path/to/condition-2.replicate-2.cool',
+#'   'path/to/condition-3.replicate-1.cool'
 #' )
+#'
+#' # Replicate and condition of each file. Can be names instead of numbers.
+#' replicates <- c(1, 2, 1, 2, 1)
+#' conditions <- c(1, 1, 2, 2, 3)
+#'
+#' # Resolution to select in .mcool files
+#' resolution = 500000
+#'
+#' # Instantiation of data set
+#' object <- HiCDOCDataSetFromCool(
+#'   paths,
+#'   replicates = replicates,
+#'   conditions = conditions,
+#'   resolution = resolution # Specified for .mcool files.
+#' )
+#' }
 #'
 #' @usage
 #' HiCDOCDataSetFromCool(paths, replicates, conditions)
@@ -201,7 +212,8 @@ HiCDOCDataSetFromTabular <- function(path = NULL) {
 HiCDOCDataSetFromCool <- function(
     paths = NULL,
     replicates = NULL,
-    conditions = NULL
+    conditions = NULL,
+    resolution = NULL
 ) {
 
     if (is.factor(paths)) paths <- as.vector(paths)
@@ -209,8 +221,6 @@ HiCDOCDataSetFromCool <- function(
         stop("'paths' must be a vector of characters.", call. = FALSE)
     }
     for (path in paths) {
-        # Remove trailing URI in case of an mCool file
-        path <- strsplit(path, "::/")[[1]][1]
         if (!file.exists(path)) {
             stop("'", path, "' does not exist.", call. = FALSE)
         }
@@ -226,11 +236,18 @@ HiCDOCDataSetFromCool <- function(
         stop("'conditions' must be a vector of conditions.", call. = FALSE)
     }
 
+    if (
+        !is.null(resolution) &&
+        (!is.numeric(resolution) || length(resolution) != 1)
+    ) {
+        stop("'resolution' must be an integer.", call. = FALSE)
+    }
+
     object <- new("HiCDOCDataSet")
     object@input <- paths
     object@replicates <- replicates
     object@conditions <- conditions
-    object <- .parseCool(object)
+    object <- .parseCool(object, resolution)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
@@ -256,24 +273,31 @@ HiCDOCDataSetFromCool <- function(
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
-#' # Retrieve Hi-C files
-#' directory <- system.file("extdata", package = "HiCDOC")
-#' paths <- list.files(directory, '\\.hic$')[0:5]
-#' # Specify replicate and condition for each file
-#' # In this case:
-#' # - The first file in the paths vector is replicate 1 of condition a
-#' # - The second file in the paths vector is replicate 2 of condition a
-#' # - ...
-#' # - The last file in the paths vector is replicate x of condition 3
-#' replicates <- c(  1,   2,   1,   2, 'x')
-#' conditions <- c('a', 'a',   2,   2,   3)
-#' # Create HiCDOC object
-#' object <- HiCDOCDataSetFromHiC(
-#'     paths,
-#'     replicates = replicates,
-#'     conditions = conditions,
-#'     resolution = 500000
+#' \dontrun{
+#' # Path to each file
+#' paths = c(
+#'   'path/to/condition-1.replicate-1.hic',
+#'   'path/to/condition-1.replicate-2.hic',
+#'   'path/to/condition-2.replicate-1.hic',
+#'   'path/to/condition-2.replicate-2.hic',
+#'   'path/to/condition-3.replicate-1.hic'
 #' )
+#'
+#' # Replicate and condition of each file. Can be names instead of numbers.
+#' replicates <- c(1, 2, 1, 2, 1)
+#' conditions <- c(1, 1, 2, 2, 3)
+#'
+#' # Resolution to select
+#' resolution <- 500000
+#'
+#' # Instantiation of data set
+#' hic.experiment <- HiCDOCDataSetFromHiC(
+#'   paths,
+#'   replicates = replicates,
+#'   conditions = conditions,
+#'   resolution = resolution
+#' )
+#' }
 #'
 #' @usage
 #' HiCDOCDataSetFromHiC(paths, replicates, conditions, resolution)
@@ -314,8 +338,7 @@ HiCDOCDataSetFromHiC <- function(
     object@input <- paths
     object@replicates <- replicates
     object@conditions <- conditions
-    object@binSize <- resolution
-    object <- .parseHiC(object)
+    object <- .parseHiC(object, resolution)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
@@ -340,25 +363,37 @@ HiCDOCDataSetFromHiC <- function(
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
-#' # Retrieve HiC-Pro files
-#' directory <- system.file("extdata", package = "HiCDOC")
-#' matrixPaths <- list.files(directory, '\\.matrix$')[0:5]
-#' bedPaths <- list.files(directory, '\\.bed$')[0:5]
-#' # Specify replicate and condition for each pair of files
-#' # In this case:
-#' # - The first files in the paths vectors are replicate 1 of condition a
-#' # - The second files in the paths vectors are replicate 2 of condition a
-#' # - ...
-#' # - The last files in the paths vectors are replicate x of condition 3
-#' replicates <- c(  1,   2,   1,   2, 'x')
-#' conditions <- c('a', 'a',   2,   2,   3)
-#' # Create HiCDOC object
-#' object <- HiCDOCDataSetFromHiCPro(
-#'     matrixPaths,
-#'     bedPaths,
-#'     replicates = replicates,
-#'     conditions = conditions
+#' \dontrun{
+#' # Path to each matrix file
+#' matrixPaths = c(
+#'   'path/to/condition-1.replicate-1.matrix',
+#'   'path/to/condition-1.replicate-2.matrix',
+#'   'path/to/condition-2.replicate-1.matrix',
+#'   'path/to/condition-2.replicate-2.matrix',
+#'   'path/to/condition-3.replicate-1.matrix'
 #' )
+#'
+#' # Path to each bed file
+#' bedPaths = c(
+#'   'path/to/condition-1.replicate-1.bed',
+#'   'path/to/condition-1.replicate-2.bed',
+#'   'path/to/condition-2.replicate-1.bed',
+#'   'path/to/condition-2.replicate-2.bed',
+#'   'path/to/condition-3.replicate-1.bed'
+#' )
+#'
+#' # Replicate and condition of each file. Can be names instead of numbers.
+#' replicates <- c(1, 2, 1, 2, 1)
+#' conditions <- c(1, 1, 2, 2, 3)
+#'
+#' # Instantiation of data set
+#' hic.experiment <- HiCDOCDataSetFromHiCPro(
+#'   matrixPaths = matrixPaths,
+#'   bedPaths = bedPaths,
+#'   replicates = replicates,
+#'   conditions = conditions
+#' )
+#' }
 #'
 #' @usage
 #' HiCDOCDataSetFromHiCPro(matrixPaths, bedPaths, replicates, conditions)
@@ -414,10 +449,7 @@ HiCDOCDataSetFromHiCPro <- function(
     object@input <- paths
     object@replicates <- replicates
     object@conditions <- conditions
-    parsed <- .parseHiCPro(object)
-    object <- parsed[["matrix"]]
-    object@binSize <- parsed[["resolution"]]
-    object@positions <- parsed[["positions"]]
+    object <- .parseHiCPro(object)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
@@ -432,13 +464,13 @@ HiCDOCDataSetFromHiCPro <- function(
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #'
 #' @export
-HiCDOCExample <- function() {
+HiCDOCDataSetExample <- function() {
     object <- NULL
     directory <- system.file("extdata", package = "HiCDOC", mustWork = TRUE)
-    path <- file.path(directory, "sample.tsv")
+    path <- file.path(directory, "example.tsv")
     object <- HiCDOCDataSetFromTabular(path)
     return(invisible(object))
 }
@@ -522,7 +554,7 @@ HiCDOCExample <- function() {
 #' \code{\link{HiCDOCDataSet}}
 #'
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #' object <- HiCDOC(object)
 #'
 #' # Equivalent to

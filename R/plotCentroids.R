@@ -7,7 +7,7 @@
 #'
 #' @return A \code{ggplot} object
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #' object <- filterSmallChromosomes(object)
 #' object <- filterWeakPositions(object)
 #' object <- normalizeTechnicalBiases(object)

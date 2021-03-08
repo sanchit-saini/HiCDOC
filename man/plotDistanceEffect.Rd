@@ -16,6 +16,6 @@ A \code{ggplot}.
 Plot the distance vs intensity matrix.
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 plotDistanceEffect(object)
 }

@@ -1,21 +1,28 @@
-#' Return valid xlim
+#' @description
+#' Returns the provided limit if valid, or the minimium and maximium of the
+#' chromosome's positions.
 #'
-#' test if the xlim is valid (length(2)) or \code{NULL} and return
-#' the xlim for the plot.
-#' If \code{NULL} or invalid return the min and max of \code{positions}.
+#' @param xlim
+#' A numeric vector of a minimum and a maximum limit for the x axis.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosomeName
+#' The name of a chromosome.
 #'
-#' @param xlim The entred xlim
-#' @param positions The positions from the data
+#' @return
+#' A numeric vector of a minimum and a maximum limit for the x axis.
 #'
-#' @return A length 2 numerical vector
 #' @keywords internal
 #' @noRd
 .validateXlim <- function(xlim, object, chromosomeName) {
     if (!is.null(xlim)) {
         if (length(xlim) != 2) {
             message(
-                "Incorrect values for xlim (numerical of length 2 expected). ",
-                "Setting xlim to NULL."
+                paste0(c(
+                    "Expected a vector of two numbers but received '",
+                    paste(xlim, collapse = " "),
+                    "'. Setting xlim to NULL."
+                ))
             )
             xlim <- NULL
         } else {
@@ -33,19 +40,20 @@
     return(xlim)
 }
 
-
-#' Function to extract legends from ggplot2 objects
+#' @description
+#' Extracts legends from ggplot2 objects. Based on \code{gtable::gtable_filter}.
 #'
-#' Inspired from gtable::gtable_filter (not used to avoid dependency)
+#' @param grob
+#' A grid graphical object.
 #'
-#' @param x a grob
+#' @return
+#' The legend as a grob.
 #'
-#' @return the legend as a grob
 #' @keywords internal
 #' @noRd
-.extractLegends <- function(x) {
-    matches <- grepl("guide-box", .subset2(x$layout, "name"), fixed = FALSE)
-    x$layout <- x$layout[matches, , drop = FALSE]
-    x$grobs <- x$grobs[matches]
-    return(x)
+.extractLegends <- function(grob) {
+    matches <- grepl("guide-box", .subset2(grob$layout, "name"), fixed = FALSE)
+    grob$layout <- grob$layout[matches, , drop = FALSE]
+    grob$grobs <- grob$grobs[matches]
+    return(grob)
 }

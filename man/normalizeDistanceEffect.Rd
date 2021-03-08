@@ -22,7 +22,7 @@ Normalize the distance effect on a HiCDOCDataSet object using a loess
 on the intensity vs distance to diagonal.
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 object <- normalizeDistanceEffect(object)
 }
 \seealso{

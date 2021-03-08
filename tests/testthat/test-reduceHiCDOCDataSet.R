@@ -1,5 +1,5 @@
 test_that("reduceHiCDOCDataSet return correct errors", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     # On chromosomes
     expect_error(
         reduceHiCDOCDataSet(object, chromosomes = c(3, 4)),
@@ -30,7 +30,7 @@ test_that("reduceHiCDOCDataSet return correct errors", {
 })
 
 test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     # Run a detectCompartments
     object <- detectCompartments(object)
     expect_warning(
@@ -70,7 +70,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
 })
 
 test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     # Run a detectCompartments
     object <- detectCompartments(object)
     expect_warning(
@@ -116,7 +116,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
 })
 
 test_that("reduceHiCDOCDataSet works if select conditions, dropLevels", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     # Run a detectCompartments
     object <- detectCompartments(object)
     expect_warning(
@@ -157,7 +157,7 @@ test_that("reduceHiCDOCDataSet works if select conditions, dropLevels", {
 
 
 test_that("reduceHiCDOCDataSet works if select replicate, dropLevels", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     # Run a detectCompartments
     object <- detectCompartments(object)
     expect_warning(
@@ -197,7 +197,7 @@ test_that("reduceHiCDOCDataSet works if select replicate, dropLevels", {
 })
 
 test_that("reduceHiCDOCDataSet works if select chr, cond & rep, keep levels", {
-    object <- HiCDOCExample()
+    object <- HiCDOCDataSetExample()
     # Run a detectCompartments
     object <- detectCompartments(object)
     # This case is used in detectCompartments, in parallel mode

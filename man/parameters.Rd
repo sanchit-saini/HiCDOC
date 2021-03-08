@@ -64,7 +64,7 @@ corresponding parameter, see below.
 }
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 
 # Default parameters - when object is constructed
 parameters(object)

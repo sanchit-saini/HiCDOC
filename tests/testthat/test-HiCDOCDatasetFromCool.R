@@ -1,11 +1,16 @@
 test_that("HiCDOCDataSetFromCool produce correct format", {
-    basedir <- system.file("extdata", package = "HiCDOC")
-    data <- read.csv(file.path(basedir, "coolData.csv"))
+    path <- system.file(
+        "extdata",
+        "liver_18_10M_500000.cool",
+        package = "HiCDOC"
+    )
+    replicates <- c("R1", "R2", "R1", "R1", "R2")
+    conditions <- c(1, 1, 2, 3, 3)
     expect_error(
         object <- HiCDOCDataSetFromCool(
-            file.path(basedir, data$FileName),
-            data$Replicate,
-            data$Condition
+            rep(path, 5),
+            replicates = replicates,
+            conditions = conditions,
         ),
         NA
     )

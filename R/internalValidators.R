@@ -124,7 +124,7 @@
 .validateSlots <- function(object, slots = NULL) {
     if (!is(object, "HiCDOCDataSet")) {
         stop(
-            "The provided object is not an HiCDOC object.",
+            "The provided object is not a 'HiCDOCDataSet'.",
             call. = FALSE
         )
     }
@@ -144,8 +144,7 @@
         missingSlots <- slots[!(slots %in% presentSlots)]
         if ("interactions" %in% missingSlots) {
             stop(
-                "No interactions found. ",
-                "Provide an HiCDOC object with interactions.",
+                "No interactions found.",
                 call. = FALSE
             )
         }
@@ -159,8 +158,14 @@
         )
         if (any(missingSlots %in% compartmentSlots)) {
             stop(
-                "No compartments found. ",
-                "Call 'detectCompartments()' first.",
+                "No compartments found. Call 'detectCompartments()' first.",
+                call. = FALSE
+            )
+        }
+        if (length(missingSlots) > 0) {
+            stop(
+                "Missing slots: ",
+                paste(missingSlots, collapse = ", "),
                 call. = FALSE
             )
         }

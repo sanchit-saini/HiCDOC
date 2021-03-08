@@ -8,7 +8,7 @@
 #' @return For \code{chromosomes}: a character vector, with the name
 #' of chromosomes
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #' ## Print the object
 #' object
 #'
@@ -291,7 +291,7 @@ setMethod("show", "HiCDOCDataSet", function(object) {
 #' parameters(object)
 #' @param object a HiCDOCDataSet object
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #'
 #' # Default parameters - when object is constructed
 #' parameters(object)

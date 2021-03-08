@@ -4,7 +4,7 @@
 #' @param object an \code{HiCDOCDataSet} object
 #' @return A list of \code{ggplot}, one for each chromosome.
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #' object <- filterSmallChromosomes(object)
 #' object <- filterWeakPositions(object)
 #' object <- normalizeTechnicalBiases(object)

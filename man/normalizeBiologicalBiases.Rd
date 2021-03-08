@@ -18,7 +18,7 @@ Remove biological biases on a HiCDOCDataSet object by normalizing
 with Knight-Ruiz matrix balancing.
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 object <- normalizeTechnicalBiases(object)
 object <- normalizeBiologicalBiases(object)
 }

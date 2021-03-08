@@ -1,4 +1,4 @@
-# HiCDOC: Detection of compartments and differential analysis with multiple replicates
+# HiCDOC: Detection of compartments and differential analysis from multiple replicates
 
 HiCDOC normalizes intrachromosomal Hi-C matrices, uses unsupervised learning to
 predict A/B compartments from multiple replicates, and detects significant
@@ -23,15 +23,15 @@ It provides a collection of functions assembled into a pipeline:
        [constrained K-means][constrained-k-means-publication], and detect
        significant differences between experiment condition pairs.
 4. [Visualize](#visualizing-data-and-results):
-    1. View the interaction matrices of every replicate.
-    2. View the overall distance effect on the proportion of interactions.
-    3. View the compartments in each chromosome, along with their concordance
+    1. Plot the interaction matrices of every replicate.
+    2. Plot the overall distance effect on the proportion of interactions.
+    3. Plot the compartments in each chromosome, along with their concordance
        (confidence measure) in each replicate, and significant changes between
        experiment conditions.
-    4. View the overall distribution of concordances.
-    5. View the result of the PCA on centroids of predicted compartments.
-    6. View the boxplots of self interaction ratios (differences between self
-       interactions and the median of other interactions) of each compartment.
+    4. Plot the overall distribution of concordances.
+    5. Plot the result of the PCA on centroids of predicted compartments.
+    6. Plot the boxplots of self interaction ratios (differences between self
+       interactions and the medians of other interactions) of each compartment.
 
 
 # Table of contents
@@ -73,7 +73,7 @@ library("HiCDOC")
 To try out HiCDOC, load the simulated toy data set:
 
 ```r
-hic.experiment <- HiCDOCExample()
+hic.experiment <- HiCDOCDataSetExample()
 ```
 
 Then run the default pipeline on the created object:
@@ -135,11 +135,15 @@ paths = c(
 replicates <- c(1, 2, 1, 2, 1)
 conditions <- c(1, 1, 2, 2, 3)
 
-# HiCDOC object
+# Resolution to select in .mcool files
+resolution = 500000
+
+# Instantiation of data set
 hic.experiment <- HiCDOCDataSetFromCool(
   paths,
   replicates = replicates,
-  conditions = conditions
+  conditions = conditions,
+  resolution = resolution # Specified for .mcool files.
 )
 ```
 
@@ -164,7 +168,7 @@ conditions <- c(1, 1, 2, 2, 3)
 # Resolution to select
 resolution <- 500000
 
-# HiCDOC object
+# Instantiation of data set
 hic.experiment <- HiCDOCDataSetFromHiC(
   paths,
   replicates = replicates,
@@ -200,7 +204,7 @@ bedPaths = c(
 replicates <- c(1, 2, 1, 2, 1)
 conditions <- c(1, 1, 2, 2, 3)
 
-# HiCDOC object
+# Instantiation of data set
 hic.experiment <- HiCDOCDataSetFromHiCPro(
   matrixPaths = matrixPaths,
   bedPaths = bedPaths,
@@ -212,7 +216,7 @@ hic.experiment <- HiCDOCDataSetFromHiCPro(
 ## Running the HiCDOC pipeline
 
 Once your data is loaded, you can run all the filtering, normalization, and
-computation steps with:
+prediction steps with:
 
 ```r
 hic.experiment <- HiCDOC(hic.experiment)
@@ -242,7 +246,7 @@ hic.experiment <- filterWeakPositions(hic.experiment, threshold = 1)
 
 ### Normalizing biases
 
-Normalize technical biases such as different sequencing depths:
+Normalize technical biases such as sequencing depth:
 
 ```r
 hic.experiment <- normalizeTechnicalBiases(hic.experiment)
@@ -277,19 +281,19 @@ hic.experiment <- detectCompartments(
 
 ## Visualizing data and results
 
-View the interaction matrix of each replicate:
+Plot the interaction matrix of each replicate:
 
 ```r
 plotInteractions(hic.experiment, chromosome = '3')
 ```
 
-View the overall distance effect on the proportion of interactions:
+Plot the overall distance effect on the proportion of interactions:
 
 ```r
 plotDistanceEffect(hic.experiment)
 ```
 
-List and view compartments with their concordance (confidence measure) in each
+List and plot compartments with their concordance (confidence measure) in each
 replicate, and significant changes between experiment conditions:
 
 ```r
@@ -302,19 +306,19 @@ differences(hic.experiment)
 plotCompartmentChanges(hic.experiment, chromosome = '3')
 ```
 
-View the overall distribution of concordances:
+Plot the overall distribution of concordances:
 
 ```r
 plotConcordanceDistribution(hic.experiment)
 ```
 
-View the result of the PCA on centroids of predicted compartments:
+Plot the result of the PCA on centroids of predicted compartments:
 
 ```r
 plotSelfInteractionRatios(hic.experiment, chromosome = '3')
 ```
 
-View the boxplots of self interaction ratios (differences between self
+Plot the boxplots of self interaction ratios (differences between self
 interactions and the median of other interactions) of each compartment:
 
 ```r

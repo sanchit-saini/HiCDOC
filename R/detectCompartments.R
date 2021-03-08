@@ -757,7 +757,7 @@
 #' centroids, and differences.
 #'
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #' \dontrun{
 #' object <- filterSmallChromosomes(object)
 #' object <- filterSparseReplicates(object)

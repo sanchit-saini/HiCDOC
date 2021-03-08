@@ -183,7 +183,7 @@
 #' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
 #'
 #' @examples
-#' object <- HiCDOCExample()
+#' object <- HiCDOCDataSetExample()
 #' object <- normalizeTechnicalBiases(object)
 #' object <- normalizeBiologicalBiases(object)
 #' @seealso \code{\link[HiCDOC]{normalizeTechnicalBiases}},

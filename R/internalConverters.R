@@ -1,14 +1,22 @@
-## - .sparseInteractionsToMatrix ---------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Build the interaction matrix for a chromosome in a condition and replicate.
+#' @description
+#' Builds the full interaction matrix of a given chromosome, condition, and
+#' replicate.
 #'
-#' @param object A \code{HiCDOCDataSet} object.
-#' @param chromosomeName A chromosome.
-#' @param conditionName A condition.
-#' @param replicateName A replicate.
-#' @param filter  Shrink the matrix by removing weak rows/columns.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosomeName
+#' The name of a chromosome.
+#' @param conditionName
+#' The name of a condition.
+#' @param replicateName
+#' The name of a replicate.
+#' @param filter
+#' Whether or not to shrink the matrix by removing weak rows/columns. Defaults
+#' to FALSE.
 #'
-#' @return A matrix.
+#' @return
+#' A matrix.
+#'
 #' @keywords internal
 #' @noRd
 .sparseInteractionsToMatrix <- function(
@@ -62,17 +70,24 @@
     return(result)
 }
 
-## - .matrixToSparseInteractions ---------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Build the interactions tibble for a chromosome in a condition and replicate.
+#' @description
+#' Builds the sparse interactions tibble from a matrix for a given chromosome,
+#' condition, and replicate.
 #'
-#' @param m                         A matrix.
-#' @param object                A \code{HiCDOCDataSet} object.
-#' @param chromosomeName    A chromosome.
-#' @param conditionName     A condition.
-#' @param replicateName     A replicate.
+#' @param m
+#' A matrix.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosomeName
+#' The name of a chromosome.
+#' @param conditionName
+#' The name of a condition.
+#' @param replicateName
+#' The name of a replicate.
 #'
-#' @return An interactions tibble.
+#' @return
+#' An interactions tibble.
+#'
 #' @keywords internal
 #' @noRd
 .matrixToSparseInteractions <- function(

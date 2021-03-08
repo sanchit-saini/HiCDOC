@@ -19,7 +19,7 @@ A \code{HiCDOCDataSet} object, with the normalized matrices.
 Normalize the distance effect using a cyclic loess on all the matrices.
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 object <- normalizeTechnicalBiases(object)
 }
 \seealso{

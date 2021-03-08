@@ -28,7 +28,7 @@ replicates to guarantee comparability across conditions when calling
 \code{\link{detectCompartments}}.
 }
 \examples{
-exp <- HiCDOCExample()
+exp <- HiCDOCDataSetExample()
 exp <- filterWeakPositions(exp)
 
 }

@@ -21,7 +21,7 @@ A \code{ggplot} object
 Plot the centroids PCA for a given chromosome.
 }
 \examples{
-object <- HiCDOCExample()
+object <- HiCDOCDataSetExample()
 object <- filterSmallChromosomes(object)
 object <- filterWeakPositions(object)
 object <- normalizeTechnicalBiases(object)

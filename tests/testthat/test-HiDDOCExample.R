@@ -1,5 +1,5 @@
-test_that("HiCDOCExample produce object with correct format", {
-    expect_error(object <- HiCDOCExample(), NA)
+test_that("HiCDOCDataSetExample produce object with correct format", {
+    expect_error(object <- HiCDOCDataSetExample(), NA)
     # Class and slots
     expect_is(object, "HiCDOCDataSet")
     expect_identical(
@@ -43,8 +43,8 @@ test_that("HiCDOCExample produce object with correct format", {
     expect_true(is.numeric(object@positions$end))
 })
 
-test_that("HiCDOCExample produce object with correct values", {
-    object <- HiCDOCExample()
+test_that("HiCDOCDataSetExample produce object with correct values", {
+    object <- HiCDOCDataSetExample()
     # Interactions
     expect_equal(nrow(object@interactions), 86736)
     expect_equal(mean(object@interactions$bin.1), 40.81129, tolerance = 1e-5)
