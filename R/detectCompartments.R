@@ -531,6 +531,9 @@
         dplyr::left_join(compartments, by = c("chromosome")) %>%
         dplyr::mutate(change = dplyr::if_else(A == 1, 1, -1)) %>%
         dplyr::mutate(concordance = change * concordance) %>%
+        dplyr::mutate(
+            compartment = factor(dplyr::if_else(compartment == A, "A", "B"))
+        ) %>%
         dplyr::select(-c(A, change))
 
     object@distances %<>%
