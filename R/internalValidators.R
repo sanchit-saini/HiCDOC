@@ -27,8 +27,8 @@
         notNumericParameters <- inputParameterNames[!numericParameters]
         warning(
             "Non-numeric parameter",
-            if (length(notNumericParameters) != 1) "s",
-            " will be replaced with ",
+            if (length(notNumericParameters) != 1) "s were" else "was",
+            " replaced with ",
             if (length(notNumericParameters) != 1) "their" else "its",
             " default",
             if (length(notNumericParameters) != 1) "s",
@@ -54,8 +54,8 @@
         unknownParameterNames <- inputParameterNames[!known]
         warning(
             "Unknown parameter",
-            if (length(unknownParameterNames) != 1) "s",
-            " will be removed:\n",
+            if (length(unknownParameterNames) != 1) "s were" else "was",
+            " removed:\n",
             paste(unknownParameterNames, collapse = "\n"),
             call. = FALSE
         )
@@ -68,8 +68,8 @@
         missingParameterNames <- defaultParameterNames[!present]
         warning(
             "Missing parameter",
-            if (length(missingParameterNames) != 1) "s",
-            " will be replaced with ",
+            if (length(missingParameterNames) != 1) "s were" else "was",
+            " replaced with ",
             if (length(missingParameterNames) != 1) "their" else "its",
             " default",
             if (length(missingParameterNames) != 1) "s",
@@ -155,6 +155,19 @@
         )
     }
 
+    if (
+        "interactions" %in% slots && (
+            !.hasSlot(object, "interactions") ||
+            is.null(slot(object, "interactions")) ||
+            nrow(object@interactions) == 0
+        )
+    ) {
+        stop(
+            "No interactions found in the 'HiCDOCDataSet'.",
+            call. = FALSE
+        )
+    }
+
     if (!is.null(slots)) {
 
         allSlots <- slotNames("HiCDOCDataSet")
@@ -172,9 +185,42 @@
 
         missingSlots <- slots[!(slots %in% presentSlots)]
 
-        if ("interactions" %in% missingSlots) {
+        if ("binSize" %in% missingSlots) {
             stop(
-                "No interactions found.",
+                "Resolution is unknown.\n",
+                "This 'HiCDOCDataSet' wasn't built properly.",
+                call. = FALSE
+            )
+        }
+
+        if ("totalBins" %in% missingSlots) {
+            stop(
+                "Chromosome lengths are unknown.\n",
+                "This 'HiCDOCDataSet' wasn't built properly.",
+                call. = FALSE
+            )
+        }
+
+        if ("positions" %in% missingSlots) {
+            stop(
+                "Positions are unknown.\n",
+                "This 'HiCDOCDataSet' wasn't built properly.",
+                call. = FALSE
+            )
+        }
+
+        if (any(c("validReplicates", "validConditions") %in% missingSlots)) {
+            stop(
+                "Cannot process potentially sparse replicates.\n",
+                "First, run 'filterSparseReplicates()' on the object.",
+                call. = FALSE
+            )
+        }
+
+        if ("weakBins" %in% missingSlots) {
+            stop(
+                "Cannot process potentially weak positions.\n",
+                "First, run 'filterWeakPositions()' on the object.",
                 call. = FALSE
             )
         }
@@ -188,9 +234,10 @@
             "selfInteractionRatios"
         )
 
-        if (any(missingSlots %in% compartmentSlots)) {
+        if (any(compartmentSlots %in% missingSlots)) {
             stop(
-                "No compartments found. Call 'detectCompartments()' first.",
+                "No compartments found.\n",
+                "First, run 'detectCompartments()' on the object.",
                 call. = FALSE
             )
         }

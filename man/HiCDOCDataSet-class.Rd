@@ -60,10 +60,11 @@ compartments.}
 
 \item{\code{weakBins}}{A list of weak bins that are filtered out in each chromosome.}
 
-\item{\code{sparseConditions}}{A list of sparse conditions, repeated along the sparse replicates in each
-chromosome.}
+\item{\code{validConditions}}{A list of non-sparse valid conditions, repeated along the valid replicates
+in each chromosome.}
 
-\item{\code{sparseReplicates}}{A list of sparse replicates, repeated along the sparse conditions in each
+\item{\code{validReplicates}}{A list of non-sparse valid replicates, repeated along the valid conditions
+in each
 chromosome.}
 
 \item{\code{compartments}}{A tibble of the A or B compartment of each bin in each condition.}

@@ -2,28 +2,30 @@
 % Please edit documentation in R/normalizeBiologicalBiases.R
 \name{normalizeBiologicalBiases}
 \alias{normalizeBiologicalBiases}
-\title{Remove biological biases on a HiCDOCDataSet object by normalizing
-with Knight-Ruiz matrix balancing.}
+\title{Normalize biological biases.}
 \usage{
 normalizeBiologicalBiases(object)
 }
 \arguments{
-\item{object}{A \code{HiCDOCDataSet} object.}
+\item{object}{A \code{\link{HiCDOCDataSet}}.}
 }
 \value{
-A \code{HiCDOCDataSet} object, with the normalized matrices.
+A \code{\link{HiCDOCDataSet}} with the normalized interactions.
 }
 \description{
-Remove biological biases on a HiCDOCDataSet object by normalizing
-with Knight-Ruiz matrix balancing.
+Normalizes biological biases such as GC content and repeated regions. Uses
+the Knight-Ruiz balancing algorithm to transform interaction matrices into
+doubly stochastic matrices, with sum of rows and sum of columns equal to 1.
 }
 \examples{
 object <- HiCDOCDataSetExample()
-object <- normalizeTechnicalBiases(object)
+object <- filterSparseReplicates(object)
+object <- filterWeakPositions(object)
 object <- normalizeBiologicalBiases(object)
+
 }
 \seealso{
-\code{\link[HiCDOC]{normalizeTechnicalBiases}},
-\code{\link[HiCDOC]{normalizeDistanceEffect}} and
-\code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
+\code{\link{filterSparseReplicates}},
+\code{\link{filterWeakPositions}},
+\code{\link{HiCDOC}}
 }

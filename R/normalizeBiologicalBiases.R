@@ -1,12 +1,24 @@
-# Based on
-# https://github.com/dozmorovlab/HiCcompare/blob/master/R/KRnormalization.R
-.normalizeKnightRuiz <- function(
-    A,
-    tol = 1e-6,
-    minDelta = 0.1,
-    maxDelta = 3
-) {
-    n <- nrow(A)
+#" Based on
+#" https://github.com/dozmorovlab/HiCcompare/blob/master/R/KRnormalization.R
+#"
+#' @description
+#' Applies the Knight-Ruiz balancing algorithm on the provided matrix. The
+#' matrix is transformed such that the sum of each row equals 1 and the sum of
+#' each column equals 1.
+#'
+#' @param m
+#' A matrix.
+#'
+#' @return
+#' The transformed matrix.
+#'
+#' @keywords internal
+#' @noRd
+.normalizeKnightRuiz <- function(m) {
+    tol <- 1e-6
+    minDelta <- 0.1
+    maxDelta <- 3
+    n <- nrow(m)
     e <- matrix(1, nrow = n, ncol = 1)
     x0 <- e
     g <- 0.9
@@ -15,7 +27,7 @@
     stop_tol <- tol * .5
     x <- x0
     rt <- tol^2
-    v <- x * (A %*% x)
+    v <- x * (m %*% x)
     rk <- 1 - v
     rho_km1 <- drop(t(rk) %*% rk)
     rout <- rho_km1
@@ -34,10 +46,10 @@
                 beta <- rho_km1 / rho_km2
                 p <- Z + beta * p
             }
-            w <- x * (A %*% (x * p)) + v * p
+            w <- x * (m %*% (x * p)) + v * p
             if (max(w) == Inf) {
                 warning("KR algorithm diverges.", call. = FALSE)
-                return(t(t(x[, 1] * A) * x[, 1]))
+                return(t(t(x[, 1] * m) * x[, 1]))
             }
             alpha <- rho_km1 / drop(t(p) %*% w)
             ap <- alpha * p
@@ -62,7 +74,7 @@
             rho_km1 <- drop(t(rk) %*% Z)
         }
         x <- x * y
-        v <- x * (A %*% x)
+        v <- x * (m %*% x)
         rk <- 1 - v
         rho_km1 <- drop(t(rk) %*% rk)
         rout <- rho_km1
@@ -74,31 +86,25 @@
         if (g * eta_o^2 > 0.1) eta <- max(c(eta, g * eta_o^2))
         eta <- max(c(min(c(eta, etamax)), stop_tol / res_norm))
     }
-    result <- t(t(x[, 1] * A) * x[, 1])
+    result <- t(t(x[, 1] * m) * x[, 1])
     return(result)
 }
 
-
-## - .normalizeBiologicalBiasesOfChromosome -----------------------------------#
-## ---------------------------------------------------------------------------#
-#' Remove biological biases by normalizing with Knight-Ruiz matrix balancing.
-#' @param object A \code{HiCDOCDataSet} object.
-#' @param chromosomeName The name or number of the chromosome to plot.
-#' If number, will be taken in \code{object@chromosomes[chromosomeName]}
+#' @description
+#' Normalizes the biological biases in the interactions of a given chromosome.
+#' Calls \code{.normalizeKnightRuiz} internally.
 #'
-#' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosomeName
+#' The name of a chromosome to normalize.
+#'
+#' @return
+#' A tibble of normalized interactions.
+#'
+#' @keywords internal
 #' @noRd
 .normalizeBiologicalBiasesOfChromosome <- function(object, chromosomeName) {
-    .validateSlots(
-        object,
-        slots = c(
-            "interactions",
-            "totalBins",
-            "conditions",
-            "replicates",
-            "totalBins"
-        )
-    )
 
     message("Chromosome ", chromosomeName, ": normalizing biological biases.")
 
@@ -115,48 +121,19 @@
                     filter = TRUE
                 )
             },
-            object@conditions,
-            object@replicates,
+            object@validConditions[[chromosomeName]],
+            object@validReplicates[[chromosomeName]],
             SIMPLIFY = FALSE
         )
 
-    badMatrices <-
-        vapply(
-            matrices,
-            function(matrix) min(rowSums(matrix)) == 0,
-            FUN.VALUE = TRUE
-        )
-
-    if (any(badMatrices)) {
-        stop(
-            "Cannot normalize matri",
-            if (sum(badMatrices) != 1) "ces" else "x",
-            " with empty positions:\n",
-            sapply(
-                which(badMatrices),
-                function(x) {
-                    paste0(
-                        "chromosome ",
-                        chromosomeName,
-                        ", condition ",
-                        object@conditions[x],
-                        ", replicate ",
-                        object@replicates[x],
-                        "\n"
-                    )
-                }
-            ),
-            "Call 'filterWeakPositions()' before normalizing."
-        )
-    }
-
     normalizedMatrices <- lapply(matrices, .normalizeKnightRuiz)
-    chromosomeInteractions <-
+
+    interactions <-
         purrr::pmap_dfr(
             list(
                 normalizedMatrices,
-                object@conditions,
-                object@replicates
+                object@validConditions[[chromosomeName]],
+                object@validReplicates[[chromosomeName]]
             ),
             .f = function(matrix, conditionName, replicateName) {
                 .matrixToSparseInteractions(
@@ -168,29 +145,48 @@
                 )
             }
         )
-    return(chromosomeInteractions)
+    return(interactions)
 }
 
-## - normalizeBiologicalBiases ------------------------------------------------#
-## ----------------------------------------------------------------------------#
-#' Remove biological biases on a HiCDOCDataSet object by normalizing
-#' with Knight-Ruiz matrix balancing.
+#' @title
+#' Normalize biological biases.
 #'
-#' @name normalizeBiologicalBiases
+#' @description
+#' Normalizes biological biases such as GC content and repeated regions. Uses
+#' the Knight-Ruiz balancing algorithm to transform interaction matrices into
+#' doubly stochastic matrices, with sum of rows and sum of columns equal to 1.
 #'
-#' @param object A \code{HiCDOCDataSet} object.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
 #'
-#' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
+#' @return
+#' A \code{\link{HiCDOCDataSet}} with the normalized interactions.
 #'
 #' @examples
 #' object <- HiCDOCDataSetExample()
-#' object <- normalizeTechnicalBiases(object)
+#' object <- filterSparseReplicates(object)
+#' object <- filterWeakPositions(object)
 #' object <- normalizeBiologicalBiases(object)
-#' @seealso \code{\link[HiCDOC]{normalizeTechnicalBiases}},
-#' \code{\link[HiCDOC]{normalizeDistanceEffect}} and
-#' \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
+#'
+#' @seealso
+#' \code{\link{filterSparseReplicates}},
+#' \code{\link{filterWeakPositions}},
+#' \code{\link{HiCDOC}}
+#'
 #' @export
 normalizeBiologicalBiases <- function(object) {
+
+    .validateSlots(
+        object,
+        slots = c(
+            "interactions",
+            "totalBins",
+            "weakBins",
+            "validReplicates",
+            "validConditions"
+        )
+    )
+
     normalizedInteractions <-
         purrr::map_dfr(
             object@chromosomes,
@@ -203,6 +199,8 @@ normalizeBiologicalBiases <- function(object) {
         ) %>%
         dplyr::mutate(condition = factor(condition)) %>%
         dplyr::mutate(replicate = factor(replicate))
+
     object@interactions <- normalizedInteractions
+
     return(object)
 }

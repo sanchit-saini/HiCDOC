@@ -86,31 +86,33 @@
         dplyr::filter(interaction > 0) %>%
         dplyr::select(-fill)
 
-    removedReplicates <- fillPercentages %>% dplyr::filter(fill < threshold)
+    removed <- fillPercentages %>% dplyr::filter(fill < threshold)
 
-    if (nrow(removedReplicates) > 0) {
+    if (nrow(removed) > 0) {
         message(
             paste0(
                 "Removed interactions matrix of chromosome ",
-                removedReplicates$chromosome,
+                removed$chromosome,
                 ", condition ",
-                removedReplicates$condition,
+                removed$condition,
                 ", replicate ",
-                removedReplicates$replicate,
+                removed$replicate,
                 " filled at ",
-                round(removedReplicates$fill, digits = 5) * 100,
+                round(removed$fill, digits = 5) * 100,
                 "%.",
                 collapse = "\n"
             )
         )
     }
 
-    sparseConditions <- removedReplicates %>% dplyr::pull(condition)
-    sparseReplicates <- removedReplicates %>% dplyr::pull(replicate)
+    valid <- fillPercentages %>% dplyr::filter(fill >= threshold)
+
+    validConditions <- valid %>% dplyr::pull(condition)
+    validReplicates <- valid %>% dplyr::pull(replicate)
 
     return(list(
-        "sparseConditions" = sparseConditions,
-        "sparseReplicates" = sparseReplicates,
+        "validConditions" = validConditions,
+        "validReplicates" = validReplicates,
         "interactions" = chromosomeInteractions
     ))
 }
@@ -147,10 +149,7 @@
 #' filterSparseReplicates(object, threshold = 0.05)
 #'
 #' @export
-filterSparseReplicates <- function(
-    object,
-    threshold = NULL
-) {
+filterSparseReplicates <- function(object, threshold = NULL) {
 
     if (!is.null(threshold)) {
         object@parameters$sparseReplicateThreshold <- threshold
@@ -178,25 +177,33 @@ filterSparseReplicates <- function(
 
     names(results) <- object@chromosomes
 
-    sparseConditions <- results %>% purrr::map("sparseConditions")
-    sparseReplicates <- results %>% purrr::map("sparseReplicates")
-    intactChromosomes <-
+    validConditions <- results %>% purrr::map("validConditions")
+    validReplicates <- results %>% purrr::map("validReplicates")
+    badChromosomes <-
         vapply(
-            sparseReplicates,
+            validReplicates,
             function(x) length(x) == 0,
             FUN.VALUE = TRUE
         )
-    sparseConditions[intactChromosomes] <- list(NULL)
-    sparseReplicates[intactChromosomes] <- list(NULL)
+    validConditions[badChromosomes] <- list(NULL)
+    validReplicates[badChromosomes] <- list(NULL)
 
     interactions <- results %>% purrr::map_dfr("interactions")
 
-    object@sparseConditions <- sparseConditions
-    object@sparseReplicates <- sparseReplicates
+    object@validConditions <- validConditions
+    object@validReplicates <- validReplicates
     object@interactions <- interactions
 
     totalSparseReplicates <-
-        sum(vapply(sparseReplicates, length, FUN.VALUE = 0))
+        sum(
+            vapply(
+                validReplicates,
+                function(replicates) {
+                    length(object@replicates) - length(replicates)
+                },
+                FUN.VALUE = 0
+            )
+        )
 
     message(
         "Removed ",

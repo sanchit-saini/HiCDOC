@@ -119,37 +119,6 @@ reduceHiCDOCDataSet <- function(
     conditionNames <- .validateNames(object, conditions, "conditions")
     replicateNames <- .validateNames(object, replicates, "replicates")
 
-    if (
-        !is.null(chromosomeNames) &&
-        !is.null(conditionNames) &&
-        !is.null(replicateNames)
-    ) {
-        # TODO:
-        # Filter the replicates of those conditions and chromosomes only
-        # object <- ...
-        return(object)
-    }
-
-    if (
-        !is.null(chromosomeNames) &&
-        !is.null(conditionNames)
-    ) {
-        # TODO:
-        # Filter the conditions of those chromosomes only
-        # object <- ...
-        return(object)
-    }
-
-    if (
-        !is.null(conditionNames) &&
-        !is.null(replicateNames)
-    ) {
-        # TODO:
-        # Filter the replicates of those conditions only
-        # object <- ...
-        return(object)
-    }
-
     if (!is.null(chromosomeNames)) {
         object <- .reduceHiCDOCChromosomes(object, chromosomeNames, dropLevels)
         return(object)
@@ -161,6 +130,7 @@ reduceHiCDOCDataSet <- function(
     }
 
     if (!is.null(replicateNames)) {
-        stop("Provide 'conditions' to filter 'replicates'", call. = FALSE)
+        object <- .reduceHiCDOCReplicates(object, replicateNames, dropLevels)
+        return(object)
     }
 }

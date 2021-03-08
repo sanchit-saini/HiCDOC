@@ -1,6 +1,6 @@
 #' @description
-#' Computes the number of bases per bin by finding the minimum distance between
-#' \code{position.1} and \code{position.2} that is not zero.
+#' Determines the number of bases per bin by finding the minimum distance
+#' between \code{position.1} and \code{position.2} that is not zero.
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
@@ -134,6 +134,34 @@
 }
 
 #' @description
+#' Determines the number of bins per chromosome.
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#'
+#' @return
+#' A list of the number of bins per chromosome.
+#'
+#' @keywords internal
+#' @noRd
+.determineChromosomeSizes <- function(object) {
+
+    totalBins <- vapply(
+        object@chromosomes,
+        function(chromosomeName) {
+            nrow(
+                object@positions[
+                    object@positions$chromosome == chromosomeName,
+                ]
+            )
+        },
+        FUN.VALUE = 0
+    )
+
+    return(totalBins)
+}
+
+#' @description
 #' Reformats the interactions to fit them into a numeric upper triangular
 #' sparse matrix. If duplicate interactions are found, they are averaged.
 #'
@@ -196,21 +224,10 @@
 #' @noRd
 .fillHiCDOCDataSet <- function(object) {
 
-    if (is.null(object@interactions) || nrow(object@interactions) == 0) {
-        stop("No interactions found.", call. = FALSE)
-    }
+    .validateSlots(object, "interactions")
 
     object@chromosomes <-
         gtools::mixedsort(unique(as.character(object@interactions$chromosome)))
-
-    object@weakBins <- vector("list", length(object@chromosomes))
-    names(object@weakBins) <- object@chromosomes
-
-    object@sparseConditions <- vector("list", length(object@chromosomes))
-    names(object@sparseConditions) <- object@chromosomes
-
-    object@sparseReplicates <- vector("list", length(object@chromosomes))
-    names(object@sparseReplicates) <- object@chromosomes
 
     if ('position.1' %in% colnames(object@interactions)) {
         object@binSize <- .determineBinSize(object)
@@ -219,18 +236,7 @@
     }
 
     if (!is.null(object@positions)) {
-        object@totalBins <-
-            vapply(
-                object@chromosomes,
-                function(chromosomeName) {
-                    nrow(
-                        object@positions[
-                            object@positions$chromosome == chromosomeName,
-                        ]
-                    )
-                },
-                FUN.VALUE = 0
-            )
+        object@totalBins <- .determineChromosomeSizes(object)
     }
 
     object@interactions <- .reformatInteractions(object@interactions)

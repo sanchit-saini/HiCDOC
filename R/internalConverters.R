@@ -110,10 +110,10 @@
     interactions <-
         dplyr::tibble(
             chromosome = chromosomeName,
-            bin.1 = rep(seq(totalBins), each = totalBins),
-            bin.2 = rep(seq(totalBins), times = totalBins),
             condition = conditionName,
             replicate = replicateName,
+            bin.1 = rep(seq(totalBins), each = totalBins),
+            bin.2 = rep(seq(totalBins), times = totalBins),
             interaction = as.vector(t(m))
         ) %>%
         dplyr::filter(bin.1 <= bin.2 & interaction > 0)
