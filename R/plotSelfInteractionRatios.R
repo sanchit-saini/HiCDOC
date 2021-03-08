@@ -16,7 +16,7 @@
 #' @export
 plotSelfInteractionRatios <- function(object, chromosome) {
     .validateSlots(object, slots = c("selfInteractionRatios", "compartments"))
-    chromosomeName <- .validateNameOrId(object, chromosome, "chromosomes")
+    chromosomeName <- .validateNames(object, chromosome, "chromosomes")
 
     data <-
         object@selfInteractionRatios %>%

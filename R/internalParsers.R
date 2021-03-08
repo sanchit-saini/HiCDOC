@@ -88,8 +88,9 @@
 #' @param path
 #' The path to the interactions file.
 #' @param resolution
-#' The number of bases per bin. Optionally provided to select the appropriate
-#' interactions in a \code{.mcool} file. Defaults to NULL.
+#' The resolution (span of each position in number of bases). Optionally
+#' provided to select the appropriate resolution in \code{.mcool} files.
+#' Defaults to NULL.
 #'
 #' @return
 #' A tibble of interactions.
@@ -162,8 +163,9 @@
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
 #' @param resolution
-#' The number of bases per bin. Optionally provided to select the appropriate
-#' interactions in \code{.mcool} files. Defaults to NULL.
+#' The resolution (span of each position in number of bases). Optionally
+#' provided to select the appropriate resolution in \code{.mcool} files.
+#' Defaults to NULL.
 #'
 #' @return
 #' A filled \code{\link{HiCDOCDataSet}}.
@@ -203,8 +205,8 @@
 #' @param path
 #' The path to the interactions file.
 #' @param resolution
-#' The number of bases per bin. Selects the appropriate interactions in the
-#' \code{.hic} file.
+#' The resolution (span of each position in number of bases) to select within
+#' the \code{.hic} file.
 #'
 #' @return
 #' A dataframe of interactions.
@@ -223,8 +225,8 @@
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
 #' @param resolution
-#' The number of bases per bin. Selects the appropriate interactions in the
-#' \code{.hic} files.
+#' The resolution (span of each position in number of bases) to select within
+#' the \code{.hic} files.
 #'
 #' @return
 #' A filled \code{\link{HiCDOCDataSet}}.

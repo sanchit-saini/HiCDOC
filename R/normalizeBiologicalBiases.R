@@ -176,7 +176,7 @@
 #' Remove biological biases on a HiCDOCDataSet object by normalizing
 #' with Knight-Ruiz matrix balancing.
 #'
-#' @rdname normalizeBiologicalBiases
+#' @name normalizeBiologicalBiases
 #'
 #' @param object A \code{HiCDOCDataSet} object.
 #'

@@ -1,6 +1,6 @@
 #' @description
-#' Computes the binSize (number of bases per bin) by finding the minimum
-#' distance between \code{position.1} and \code{position.2} that is not zero.
+#' Computes the number of bases per bin by finding the minimum distance between
+#' \code{position.1} and \code{position.2} that is not zero.
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.

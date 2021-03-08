@@ -13,8 +13,9 @@ HiCDOCDataSetFromCool(paths, replicates, conditions)
 
 \item{conditions}{A vector of condition names repeated along the replicates.}
 
-\item{resolution}{The number of bases per bin. Optionally provided to select the appropriate
-resolution in \code{.mcool} files. Defaults to NULL.}
+\item{resolution}{The resolution (span of each position in number of bases). Optionally
+provided to select the appropriate resolution in \code{.mcool} files.
+Defaults to NULL.}
 }
 \value{
 A \code{\link{HiCDOCDataSet}}.

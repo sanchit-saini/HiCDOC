@@ -20,18 +20,18 @@ detectCompartments(
 \item{kMeansDelta}{The convergence stop criterion for the clustering. When the centroids'
 distances between two iterations is lower than this value, the clustering
 stops. Defaults to \code{object$kMeansDelta} which is originally set to
-\code{defaultHiCDOCParameters$kMeansDelta}.}
+\code{defaultHiCDOCParameters$kMeansDelta} = 0.0001.}
 
 \item{kMeansIterations}{The maximum number of iterations during clustering. Defaults to
 \code{object$kMeansIterations} which is originally set to
-\code{defaultHiCDOCParameters$kMeansIterations}.}
+\code{defaultHiCDOCParameters$kMeansIterations} = 50.}
 
 \item{kMeansRestarts}{A numerical value.
 The amount of times the clustering is restarted. For each restart, the
 clustering iterates until convergence or reaching the maximum number of
 iterations. The clustering that minimizes inner-cluster variance is selected.
 Defaults to \code{object$kMeansRestarts} which is originally set to
-\code{defaultHiCDOCParameters$kMeansRestarts}.}
+\code{defaultHiCDOCParameters$kMeansRestarts} = 20.}
 }
 \value{
 A \code{\link{HiCDOCDataSet}}, with compartments, concordances, distances,

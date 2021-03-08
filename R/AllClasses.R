@@ -1,10 +1,11 @@
 #' @title
 #' \code{HiCDOCDataSet} S4 class.
 #'
+#' @name
+#' HiCDOCDataSet-class
+#'
 #' @aliases
-#' HiCDOCDataSet HiCDOCDataSet-class defaultHiCDOCParameters chromosomes
-#' conditions replicates interactions positions compartments concordances
-#' differences centroids show
+#' HiCDOCDataSet
 #'
 #' @description
 #' Data structure for a Hi-C experiment.
@@ -24,28 +25,29 @@
 #' @slot input
 #' A vector of path(s) to input file(s).
 #' @slot parameters
-#' A list of parameters for filtering and computation.
+#' A list of parameters used for filtering, normalization, and prediction of
+#' compartments.
 #' @slot interactions
 #' A tibble of interactions.
 #' @slot chromosomes
 #' A vector of names of chromosomes.
 #' @slot conditions
-#' A vector of names of conditions repeated along the replicates.
+#' A vector of names of conditions, repeated along the replicates.
 #' @slot replicates
-#' A vector of names of replicates repeated along the conditions.
+#' A vector of names of replicates, repeated along the conditions.
 #' @slot positions
-#' A tibble of the position of each bin.
+#' A tibble of positions and their corresponding bin.
 #' @slot binSize
-#' The resolution (number of bases per bin).
+#' The computed bin size (span of each bin in number of bases).
 #' @slot totalBins
 #' A list of the number of bins in each chromosome.
 #' @slot weakBins
 #' A list of weak bins that are filtered out in each chromosome.
 #' @slot sparseConditions
-#' A list of sparse conditions repeated along the sparse replicates in each
+#' A list of sparse conditions, repeated along the sparse replicates in each
 #' chromosome.
 #' @slot sparseReplicates
-#' A list of sparse replicates repeated along the sparse conditions in each
+#' A list of sparse replicates, repeated along the sparse conditions in each
 #' chromosome.
 #' @slot compartments
 #' A tibble of the A or B compartment of each bin in each condition.
@@ -96,7 +98,7 @@ setClass(
 
 #' @describeIn HiCDOCDataSet
 #' Provides default parameters, imported into a \code{HiCDOCDataSet} upon
-#' creation. The \code{HiCDOCDataSet} parameters are then used for the
+#' instantiation. The \code{HiCDOCDataSet} parameters are then used for the
 #' \code{\link{HiCDOC}} pipeline.
 #'
 #' @format
@@ -106,8 +108,8 @@ setClass(
 #' @export
 defaultHiCDOCParameters <- list(
     smallChromosomeThreshold = 100,
-    weakPositionThreshold = 1,
     sparseReplicateThreshold = 0.05,
+    weakPositionThreshold = 1,
     loessSampleSize = 20000,
     kMeansDelta = 0.0001,
     kMeansIterations = 50,
@@ -172,8 +174,9 @@ HiCDOCDataSetFromTabular <- function(path = NULL) {
 #' @param conditions
 #' A vector of condition names repeated along the replicates.
 #' @param resolution
-#' The number of bases per bin. Optionally provided to select the appropriate
-#' resolution in \code{.mcool} files. Defaults to NULL.
+#' The resolution (span of each position in number of bases). Optionally
+#' provided to select the appropriate resolution in \code{.mcool} files.
+#' Defaults to NULL.
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}}.

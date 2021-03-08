@@ -32,17 +32,9 @@ setGeneric(
 
 ## - positions
 setGeneric(
-    name = "positions",
+    name = "resolution",
     def = function(object) {
-        standardGeneric("positions")
-    }
-)
-
-## - differences
-setGeneric(
-    name = "differences",
-    def = function(object, pvalue) {
-        standardGeneric("differences")
+        standardGeneric("resolution")
     }
 )
 
@@ -54,19 +46,19 @@ setGeneric(
     }
 )
 
+## - differences
+setGeneric(
+    name = "differences",
+    def = function(object, threshold = 0.05) {
+        standardGeneric("differences")
+    }
+)
+
 ## - concordances
 setGeneric(
     name = "concordances",
     def = function(object) {
         standardGeneric("concordances")
-    }
-)
-
-## - centroids
-setGeneric(
-    name = "centroids",
-    def = function(object) {
-        standardGeneric("centroids")
     }
 )
 

@@ -35,7 +35,7 @@ plotConcordances <- function(
 ) {
 
     .validateSlots(object, slots = c("concordances", "differences"))
-    chromosomeName <- .validateNameOrId(object, chromosome, "chromosomes")
+    chromosomeName <- .validateNames(object, chromosome, "chromosomes")
     xlim <- .validateXlim(xlim, object, chromosomeName)
 
     concordance <-
@@ -58,7 +58,7 @@ plotConcordances <- function(
             by = c("chromosome", "bin")
         ) %>%
         dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
-        dplyr::filter(pvalue.adjusted < threshold) %>%
+        dplyr::filter(pvalue.adjusted <= threshold) %>%
         tidyr::pivot_longer(
             cols = tidyr::starts_with("condition"),
             values_to = "condition"
@@ -69,7 +69,7 @@ plotConcordances <- function(
     if (nrow(differences) == 0) caption <- "No change is significant"
     caption <- paste0(
         caption,
-        " (adjusted p-value < ",
+        " (adjusted p-value <= ",
         round(100 * threshold, 2),
         "%)"
     )

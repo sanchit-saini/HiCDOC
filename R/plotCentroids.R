@@ -18,7 +18,7 @@
 #' @export
 plotCentroids <- function(object, chromosome, size = 2) {
     .validateSlots(object, slots = c("centroids"))
-    chromosomeName <- .validateNameOrId(object, chromosome, "chromosomes")
+    chromosomeName <- .validateNames(object, chromosome, "chromosomes")
 
     df <-
         object@centroids %>%

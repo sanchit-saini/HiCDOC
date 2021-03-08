@@ -5,16 +5,6 @@
 \alias{HiCDOCDataSet-class}
 \alias{HiCDOCDataSet}
 \alias{defaultHiCDOCParameters}
-\alias{chromosomes}
-\alias{conditions}
-\alias{replicates}
-\alias{interactions}
-\alias{positions}
-\alias{compartments}
-\alias{concordances}
-\alias{differences}
-\alias{centroids}
-\alias{show}
 \title{\code{HiCDOCDataSet} S4 class.}
 \format{
 
@@ -42,7 +32,7 @@ An example \code{HiCDOCDataSet} is also available, see
 \section{Functions}{
 \itemize{
 \item \code{defaultHiCDOCParameters}: Provides default parameters, imported into a \code{HiCDOCDataSet} upon
-creation. The \code{HiCDOCDataSet} parameters are then used for the
+instantiation. The \code{HiCDOCDataSet} parameters are then used for the
 \code{\link{HiCDOC}} pipeline.
 }}
 
@@ -51,28 +41,29 @@ creation. The \code{HiCDOCDataSet} parameters are then used for the
 \describe{
 \item{\code{input}}{A vector of path(s) to input file(s).}
 
-\item{\code{parameters}}{A list of parameters for filtering and computation.}
+\item{\code{parameters}}{A list of parameters used for filtering, normalization, and prediction of
+compartments.}
 
 \item{\code{interactions}}{A tibble of interactions.}
 
 \item{\code{chromosomes}}{A vector of names of chromosomes.}
 
-\item{\code{conditions}}{A vector of names of conditions repeated along the replicates.}
+\item{\code{conditions}}{A vector of names of conditions, repeated along the replicates.}
 
-\item{\code{replicates}}{A vector of names of replicates repeated along the conditions.}
+\item{\code{replicates}}{A vector of names of replicates, repeated along the conditions.}
 
-\item{\code{positions}}{A tibble of the position of each bin.}
+\item{\code{positions}}{A tibble of positions and their corresponding bin.}
 
-\item{\code{binSize}}{The resolution (number of bases per bin).}
+\item{\code{binSize}}{The computed bin size (span of each bin in number of bases).}
 
 \item{\code{totalBins}}{A list of the number of bins in each chromosome.}
 
 \item{\code{weakBins}}{A list of weak bins that are filtered out in each chromosome.}
 
-\item{\code{sparseConditions}}{A list of sparse conditions repeated along the sparse replicates in each
+\item{\code{sparseConditions}}{A list of sparse conditions, repeated along the sparse replicates in each
 chromosome.}
 
-\item{\code{sparseReplicates}}{A list of sparse replicates repeated along the sparse conditions in each
+\item{\code{sparseReplicates}}{A list of sparse replicates, repeated along the sparse conditions in each
 chromosome.}
 
 \item{\code{compartments}}{A tibble of the A or B compartment of each bin in each condition.}

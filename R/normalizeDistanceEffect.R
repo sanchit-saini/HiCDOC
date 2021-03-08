@@ -126,7 +126,7 @@
 #' Normalize the distance effect on a HiCDOCDataSet object using a loess
 #' on the intensity vs distance to diagonal.
 #'
-#' @rdname normalizeDistanceEffect
+#' @name normalizeDistanceEffect
 #'
 #' @param object A \code{HiCDOCDataSet} object.
 #' @param loessSampleSize A numerical value. The number of bins used when sampling

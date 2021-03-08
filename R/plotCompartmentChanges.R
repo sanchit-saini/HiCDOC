@@ -39,7 +39,7 @@ plotCompartmentChanges <- function(
             "differences"
         )
     )
-    chromosomeName <- .validateNameOrId(object, chromosome, "chromosomes")
+    chromosomeName <- .validateNames(object, chromosome, "chromosomes")
 
     concordancesPlot <- plotConcordances(
         object,

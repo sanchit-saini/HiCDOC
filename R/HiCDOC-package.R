@@ -1,6 +1,6 @@
-#' @docType package
 #' @title
 #' A/B compartment detection and differential analysis
+#' @docType package
 #' @import methods
 #' @import ggplot2
 #' @importFrom GenomicRanges start end distance

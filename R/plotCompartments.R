@@ -31,7 +31,7 @@ plotCompartments <- function(
 ) {
 
     .validateSlots(object, slots = c("compartments", "positions"))
-    chromosomeName <- .validateNameOrId(object, chromosome, "chromosomes")
+    chromosomeName <- .validateNames(object, chromosome, "chromosomes")
     xlim <- .validateXlim(xlim, object, chromosomeName)
 
     compartments <-

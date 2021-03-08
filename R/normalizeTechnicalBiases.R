@@ -2,7 +2,7 @@
 ## --------------------------------------------------------------------------#
 #' Normalize the distance effect using a cyclic loess on all the matrices.
 #'
-#' @rdname normalizeTechnicalBiases
+#' @name normalizeTechnicalBiases
 #'
 #' @param object A \code{HiCDOCDataSet} object.
 #' @param parallel Logical, defautl to FALSE. Should parallel computing be

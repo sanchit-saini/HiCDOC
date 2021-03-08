@@ -115,9 +115,9 @@ reduceHiCDOCDataSet <- function(
             call. = FALSE
         )
     }
-    chromosomeNames <- .validateNameOrId(object, chromosomes, "chromosomes")
-    conditionNames <- .validateNameOrId(object, conditions, "conditions")
-    replicateNames <- .validateNameOrId(object, replicates, "replicates")
+    chromosomeNames <- .validateNames(object, chromosomes, "chromosomes")
+    conditionNames <- .validateNames(object, conditions, "conditions")
+    replicateNames <- .validateNames(object, replicates, "replicates")
 
     if (
         !is.null(chromosomeNames) &&

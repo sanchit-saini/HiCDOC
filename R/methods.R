@@ -1,66 +1,89 @@
-#### - chromosomes ------------------------------------------------------####
-## -------------------------------------------------------------------------#
-#' @rdname HiCDOCDataSet access and print the chromosomes
-#' @seealso
-#' \code{\link[HiCDOC]{parameters}} function to access the parameters of a
-#' HiCDOCDataSet object.
-#' @param object a HiCDOCDataSet object.
-#' @return For \code{chromosomes}: a character vector, with the name
-#' of chromosomes
-#' @examples
-#' object <- HiCDOCDataSetExample()
-#' ## Print the object
-#' object
+#' @title
+#' Methods to manipulate a \code{\link{HiCDOCDataSet}}.
 #'
-#' ## Accessors
+#' @docType methods
+#'
+#' @name
+#' HiCDOCDataSet-methods
+#'
+#' @aliases
+#' chromosomes conditions replicates resolution interactions compartments
+#' concordances differences show
+#'
+#' @description
+#' Retrieve information and results from a \code{\link{HiCDOCDataSet}}.
+#'
+#' @usage
 #' chromosomes(object)
 #' conditions(object)
 #' replicates(object)
+#' resolution(object)
 #' interactions(object)
-#' positions(object)
-#' parameters(object)
-#'
-#' ## Accessors after a run of detectCompartments
-#' object <- HiCDOC(object)
-#' differences(object)
-#' concordances(object)
 #' compartments(object)
-#' centroids(object)
+#' concordances(object)
+#' differences(object)
+#' show(object)
+NULL
+
+#' @describeIn HiCDOCDataSet-methods
+#' Retrieves the vector of chromosome names.
+#'
+#' @format
+#'
+#' @usage
+#'
 #' @export
 setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 
-#### - conditions -------------------------------------------------------####
-## --------------------------------------------------------------------------#
-#' @rdname HiCDOCDataSet access and print the conditions
+#' @describeIn HiCDOCDataSet-methods
+#' Retrieves the vector of condition names.
+#'
+#' @format
+#'
+#' @usage
+#'
 #' @export
-#' @return For \code{conditions}: a character vector, with the name of
-#' conditions, with repetition over the replicates.
 setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 
-#### - replicates -------------------------------------------------------####
-## -------------------------------------------------------------------------#
-#' @rdname HiCDOCDataSet access and print the replicates
+#' @describeIn HiCDOCDataSet-methods
+#' Retrieves the vector of replicate names.
+#'
+#' @format
+#'
+#' @usage
+#'
 #' @export
-#' @return For \code{replicates}: a character vector, with the name of
-#' conditions, with repetition over the conditions
 setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 
-#### - interactions ------------------------------------------------------####
-## --------------------------------------------------------------------------#
-#' @rdname HiCDOCDataSet access and print the interactions matrix
+#' @describeIn HiCDOCDataSet-methods
+#' Retrieves the resolution (span of each position in number of bases).
+#'
+#' @format
+#'
+#' @usage
+#'
 #' @export
-#' @return For \code{interactions}: a tibble of the interactions on all
-#' the choromosomes, conditions and replicates
+setMethod("resolution", "HiCDOCDataSet", function(object) object@binSize)
+
+#' @describeIn HiCDOCDataSet-methods
+#' Retrieves a tibble of the interactions.
+#'
+#' @format
+#'
+#' @usage
+#'
+#' @export
 setMethod("interactions", "HiCDOCDataSet", function(object) {
+
     if (is.null(object@interactions)) return(NULL)
+
     interactions <-
         object@interactions %>%
         dplyr::left_join(
             object@positions %>% dplyr::select(
                 chromosome,
                 bin.1 = bin,
-                position.1.start = start,
-                position.1.end = end,
+                position.1 = start,
             ),
             by = c("chromosome", "bin.1")
         ) %>%
@@ -68,53 +91,87 @@ setMethod("interactions", "HiCDOCDataSet", function(object) {
             object@positions %>% dplyr::select(
                 chromosome,
                 bin.2 = bin,
-                position.2.start = start,
-                position.2.end = end,
+                position.2 = start,
             ),
             by = c("chromosome", "bin.2")
         ) %>%
         dplyr::select(
             chromosome,
-            bin.1,
-            bin.2,
-            position.1.start,
-            position.1.end,
-            position.2.start,
-            position.2.end,
+            position.1,
+            position.2,
             condition,
             replicate,
             interaction
         )
+
     return(interactions)
 })
 
-#### - positions ---------------------------------------------------------####
-## --------------------------------------------------------------------------#
-#' @rdname HiCDOCDataSet access and print the positions
+#' @describeIn HiCDOCDataSet-methods
+#' Retrieves a \code{GenomicRange} of the compartment of every position in every
+#' condition.
+#'
+#' @format
+#'
+#' @usage
+#'
 #' @export
-#' @return For \code{positions}: a tibble of the positions corresponding
-#' to the bins, for each chromosome
-setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
+setMethod("compartments", "HiCDOCDataSet", function(object) {
 
+    if (is.null(object@compartments)) return(NULL)
 
-#### - differences -------------------------------------------------------####
-## --------------------------------------------------------------------------#
-#' @rdname HiCDOCDataSet access and print the differences
+    compartments <-
+        object@compartments %>%
+        dplyr::left_join(object@positions, by = c("chromosome", "bin")) %>%
+        dplyr::select(
+            chromosome,
+            start,
+            end,
+            condition,
+            compartment
+        ) %>%
+        GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE)
+
+    return(compartments)
+})
+
+#' @describeIn HiCDOCDataSet-methods
+#' Retrieves a \code{GenomicRange} of the significant compartment differences
+#' between conditions, and their p-values.
+#'
+#' @format
+#'
+#' @usage
+#'
 #' @export
-#' @return For \code{differences}: a tibble of the differences found by
-#' \code{detectCompartments}
-setMethod("differences", "HiCDOCDataSet", function(object) {
+setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
+
     if (is.null(object@differences)) return(NULL)
-    if (nrow(object@differences) == 0) {
-        message("No differences found.")
-        return(GenomicRanges::GRanges())
+
+    if (
+        !is.null(threshold) &&
+        (!is.numeric(threshold) || length(threshold) > 1)
+    ) {
+        stop(
+            "'threshold' must be a number.",
+            call. = FALSE
+        )
     }
 
-    genomicRange <-
+    differences <-
         object@differences %>%
         dplyr::left_join(
             object@positions,
             by = c("chromosome", "bin")
+        ) %>%
+        dplyr::mutate(
+            significance = dplyr::case_when(
+                pvalue.adjusted <= 0.0001 ~ "****",
+                pvalue.adjusted <= 0.001 ~ "***",
+                pvalue.adjusted <= 0.01 ~ "**",
+                pvalue.adjusted <= 0.05 ~ "*",
+                TRUE ~ ""
+            )
         ) %>%
         dplyr::select(
             chromosome,
@@ -124,23 +181,48 @@ setMethod("differences", "HiCDOCDataSet", function(object) {
             condition.2,
             pvalue,
             pvalue.adjusted,
-            direction
-        ) %>%
-        GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE)
+            direction,
+            significance
+        )
+
+    if (!is.null(threshold)) {
+        differences %<>% dplyr::filter(pvalue.adjusted <= threshold)
+    }
+
+    if (nrow(differences) == 0) {
+        message(
+            "No differences found",
+            if (!is.null(threshold)) " with adjusted p-value <= ",
+            threshold,
+            "."
+        )
+        return(GenomicRanges::GRanges())
+    }
+
+    genomicRange <-
+        GenomicRanges::makeGRangesFromDataFrame(
+            differences,
+            keep.extra.columns = TRUE
+        )
 
     return(genomicRange)
 })
 
-
-#### - concordances ------------------------------------------------------####
-## --------------------------------------------------------------------------#
-#' @rdname HiCDOCDataSet access and print the concordances
+#' @describeIn HiCDOCDataSet-methods
+#' Retrieves a \code{GenomicRange} of the concordance (confidence in assigned
+#' compartment) of every position in every replicate.
+#'
+#' @format
+#'
+#' @usage
+#'
 #' @export
-#' @return For \code{concordances}: a tibble of the concordances found by
-#' \code{detectCompartments}
 setMethod("concordances", "HiCDOCDataSet", function(object) {
+
     if (is.null(object@concordances)) return(NULL)
-    concordances <- object@concordances %>%
+
+    concordances <-
+        object@concordances %>%
         dplyr::left_join(object@positions, by = c("chromosome", "bin")) %>%
         dplyr::select(
             chromosome,
@@ -150,208 +232,237 @@ setMethod("concordances", "HiCDOCDataSet", function(object) {
             replicate,
             compartment,
             concordance
-        )
+        ) %>%
+        GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE)
+
     return(concordances)
 })
 
-
-#### - compartments ------------------------------------------------------####
-## --------------------------------------------------------------------------#
-#' @rdname HiCDOCDataSet access and print the compartments
-#' @export
-#' @return For \code{compartments}: a tibble of the compartments found by
-#' \code{detectCompartments}
-setMethod("compartments", "HiCDOCDataSet", function(object) {
-    if (is.null(object@compartments)) return(NULL)
-    grl <-
-        object@compartments %>%
-        dplyr::left_join(
-            object@positions,
-            by = c("chromosome", "bin")
-        ) %>%
-        dplyr::select(
-            chromosome,
-            bin,
-            start,
-            end,
-            condition,
-            compartment
-        )
-    return(grl)
-    # grl <- object@compartments %>%
-    #     mutate(start = position + 1) %>%
-    #     mutate(end = start + object@binSize - 1) %>%
-    #     select(-position) %>%
-    #     mutate(condition = factor(condition)) %>%
-    #     rename(compartment = value) %>%
-    #     GenomicRanges::makeGRangesListFromDataFrame(
-    #         keep.extra.columns = TRUE,
-    #         ignore.strand = TRUE,
-    #         split.field = "condition"
-    #     )
-    # grl2 <- lapply(grl, function(x) { split(x, ~ compartment) })
-    # grl3 <- as(lapply(grl2, function(x) {
-    #     unlist(as(lapply(names(x), function(y) {
-    #         z <- GenomicRanges::reduce(x[[y]])
-    #         z$compartment <- factor(y)
-    #         return(z)
-    #     }), "GRangesList"))
-    # }), "GRangesList")
-    # return(grl3)
-})
-
-#### - centroids --------------------------------------------------------#####
-## --------------------------------------------------------------------------#
-#' @rdname HiCDOCDataSet access and print the centroids
-#' @export
-#' @return For \code{centroids}: a tibble of the centroids found by
-#' \code{detectCompartments}
-setMethod("centroids", "HiCDOCDataSet", function(object) object@centroids)
-
-
-#### - show --------------------------------------------------------------####
-## --------------------------------------------------------------------------#
-#' @rdname HiCDOCDataSet access and print the object
+#' @describeIn HiCDOCDataSet-methods
+#' Describes the object and its methods.
+#'
+#' @format
+#'
+#' @usage
+#'
 #' @export
 setMethod("show", "HiCDOCDataSet", function(object) {
-    cat("Object of class HiCDOCDataSet with:\n")
     cat(
-        length(object@chromosomes),
-        " chromosome",
-        if (length(object@chromosomes) != 1) "s",
-        ": ",
+        "Object of class 'HiCDOCDataSet'\n\n",
+        "- Chromosomes:\n  ",
+        if (is.null(object@chromosomes) || length(object@chromosomes) == 0)
+        "  None"
+        else
         paste(object@chromosomes, collapse = ", "),
+        "\n\n",
+        "- Replicates:\n",
+        if (is.null(object@replicates) || length(object@replicates) == 0)
+        "  None"
+        else
+        paste0(
+            "  condition ",
+            object@conditions,
+            ", replicate ",
+            object@replicates,
+            "\n"
+        ),
         "\n",
-        sep = ""
-    )
-    cat(
-        length(object@replicates),
-        " replicate",
-        if (length(object@replicates) != 1) "s",
-        " in",
-        length(unique(object@conditions)),
-        "condition",
-        if (length(object@conditions) != 1) "s",
-        "\n",
+        "- Resolution:\n  ",
+        if (is.null(object@replicates) || length(object@replicates) == 0)
+        "  None"
+        else
+        object@binSize,
+        "\n\n",
+        "- Methods:\n",
+        "  chromosomes(", deparse(quote(object)), ")\n",
+        "  conditions(", deparse(quote(object)), ")\n",
+        "  replicates(", deparse(quote(object)), ")\n",
+        "  resolution(", deparse(quote(object)), ")\n",
+        "  interactions(", deparse(quote(object)), ")\n",
+        "  compartments(", deparse(quote(object)), ")\n",
+        "  differences(", deparse(quote(object)), ")\n",
+        "  concordances(", deparse(quote(object)), ")\n",
+        "  parameters(", deparse(quote(object)), ")\n",
+        "  parameters(", deparse(quote(object)), ") <- list()\n\n",
         sep = ""
     )
 })
 
-
-#### - parameters --------------------------------------------------------####
-## --------------------------------------------------------------------------#
-#' @details
-#' The \code{parameters} slot holds the parameter values
-#' used in an experiment as a named \code{list}.
+#' @title
+#' Access the parameters of a \code{\link{HiCDOCDataSet}}.
 #'
-#' Default values exist for parameters, but these can also be supplied
-#' as input values using the assignment function \code{parameters<-}
-#' or by changing the default parameters in the functions using the
-#' corresponding parameter, see below.
-#'
-#' \subsection{Parameters in a HiCDOC experiment:}{
-#'    \describe{
-#'        \item{\code{smallChromosomeThreshold}}{The minimum chromosome
-#'                size (in number of bins), to be kept by the function
-#'                \code{\link{filterSmallChromosomes}}. Default to 100.}
-#'        \item{\code{weakPositionThreshold}}{To be kept by the function
-#'                \code{\link{filterWeakPositions}}, the bins (positions)
-#'                of a chromosome must have a mean value greater than
-#'                \code{weakPositionThreshold}, on all replicates and all
-#'                conditions. The mean is computed on the row of the
-#'                reconstructed full interaction matrix for 1 chromosome,
-#'                1 condition and 1 replicate. Default to 0.}
-#'        \item{\code{sparseReplicateThreshold}}{To be kept by the function
-#'                \code{\link{filterSparseReplicates}}, the sparsity
-#'                (percentage of empty cells) of the interactions matrix
-#'                must be lower than the threshold, on all replicates and
-#'                all conditions. Default to 0.95.}
-#'       \item{\code{loessSampleSize}}{The number of bins used when sampling
-#'                all the bins in \code{\link{normalizeDistanceEffect}}.
-#'                Default to 20000.}
-#'       \item{\code{kMeansIterations}}{The maximum number of 2-means
-#'                iterations, used in \code{\link{detectCompartments}}
-#'                function.}
-#'       \item{\code{kMeansDelta}}{The stop criterion of convergence of
-#'                the 2-means method, used in \code{\link{detectCompartments}}
-#'                function.}
-#'       \item{\code{kMeansRestarts}}{The maximum number of restarts
-#'                for the 2-means, used in \code{\link{detectCompartments}}
-#'                function.}
-#'    }
-#' }
 #' @docType methods
-#' @name parameters
-#' @title Print or change the parameters of an HiCDOCDataSet object
-#' @description parameters Access and print the parameters.
-#' @aliases parameters defaultHiCDOCParameters parameters<-
-#' @export
-#' @usage
-#' ## S4 replacement method for signature 'HiCDOCDataSet'
-#' parameters(object)
-#' @param object a HiCDOCDataSet object
+#'
+#' @name
+#' HiCDOCDataSet-parameters
+#'
+#' @aliases
+#' parameters parameters<- defaultHiCDOCParameters
+#'
+#' @description
+#' Retrieves or sets parameters used for filtering, normalization, and
+#' prediciton of compartments.
+#'
+#' @details
+#' A \code{\link{HiCDOCDataSet}}'s parameters are automatically set to default
+#' values retrieved from \code{\link{defaultHiCDOCParameters}}. They are
+#' accessed by filtering, normalization, and compartment detection functions. If
+#' those functions are called with custom arguments, the object's parameters are
+#' updated to record the actual parameters used. If the object's parameters are
+#' customized before calling the functions, the custom parameters will be used.
+#'
+#' \subsection{All parameters are listed here:}{
+#'     \describe{
+#'         \item{\code{smallChromosomeThreshold}}{
+#'             The minimum length (number of positions) for a chromosome to be
+#'             kept when filtering with \code{\link{filterSmallChromosomes}}.
+#'             Defaults to
+#'             \code{defaultHiCDOCParameters$smallChromosomeThreshold} = 100.
+#'         }
+#'         \item{\code{sparseReplicateThreshold}}{
+#'             The minimum percentage of non-zero interactions for a chromosome
+#'             replicate to be kept when filtering with
+#'             \code{\link{filterSparseReplicates}}. If a chromosome replicate's
+#'             percentage of non-zero interactions is lower than this value, it
+#'             is removed. Defaults to
+#'             \code{defaultHiCDOCParameters$smallChromosomeThreshold} = 0.05.
+#'         }
+#'         \item{\code{weakPositionThreshold}}{
+#'             The minimum average interaction for a position to be kept when
+#'             filtering with \code{\link{filterWeakPositions}}. If a position's
+#'             average interaction with the entire chromosome is lower than this
+#'             value in any of the replicates, it is removed from all replicates
+#'             and conditions. Defaults to
+#'             \code{defaultHiCDOCParameters$smallChromosomeThreshold} = 1.
+#'         }
+#'         \item{\code{loessSampleSize}}{
+#'             The number of positions used as a sample to estimate the effect
+#'             of distance on proportion of interactions when normalizing with
+#'             \code{\link{normalizeDistanceEffect}} Defaults to
+#'             \code{defaultHiCDOCParameters$loessSampleSize} = 20000.
+#'         }
+#'         \item{\code{kMeansDelta}}{
+#'             The convergence stop criterion for the clustering when detecting
+#'             compartments with \code{\link{detectCompartments}}. When the
+#'             centroids' distances between two iterations is lower than this
+#'             value, the clustering stops. Defaults to
+#'             \code{defaultHiCDOCParameters$kMeansDelta} = 0.0001.
+#'         }
+#'         \item{\code{kMeansIterations}}{
+#'             The maximum number of iterations during clustering when detecting
+#'             compartments with \code{\link{detectCompartments}}. Defaults to
+#'             \code{defaultHiCDOCParameters$kMeansIterations} = 50.
+#'         }
+#'         \item{\code{kMeansRestarts}}{
+#'             The amount of times the clustering is restarted when detecting
+#'             compartments with \code{\link{detectCompartments}}. For each
+#'             restart, the clustering iterates until convergence or reaching
+#'             the maximum number of iterations. The clustering that minimizes
+#'             inner-cluster variance is selected. Defaults to
+#'             \code{defaultHiCDOCParameters$kMeansRestarts} = 20.
+#'         }
+#'     }
+#' }
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#'
 #' @examples
 #' object <- HiCDOCDataSetExample()
 #'
-#' # Default parameters - when object is constructed
+#' # Retrieve parameters
 #' parameters(object)
 #'
-#' # Changing a parameter
+#' # Set parameters
 #' parameters(object) <- list("smallChromosomeThreshold" = 50)
+#' parameters(object) <- list(
+#'     "weakPositionThreshold" = 10,
+#'     "kMeansRestarts" = 30
+#' )
+#'
+#' @usage
 #' parameters(object)
+#' parameters(object) <- list()
 NULL
 
-#' @rdname HiCDOCDataSet access and print the parameters
-#' @return For \code{paramters}: a named list of the parameters use in the
-#' the filters functions  and \code{detectCompartments}
+#' @describeIn HiCDOCDataSet-parameters
+#' Retrieves the parameters used for filtering, normalization, and prediction of
+#' compartments. See
+#' \code{\link{filterSmallChromosomes}},
+#' \code{\link{filterSparseReplicates}},
+#' \code{\link{filterWeakPositions}},
+#' \code{\link{normalizeDistanceEffect}}, and
+#' \code{\link{detectCompartments}},
+#' for details on how these parameters are used.
+#'
+#' @format
+#'
+#' @usage
+#'
 #' @export
 setMethod("parameters", "HiCDOCDataSet", function(object) object@parameters)
 
-# @rdname parameters Change the values of parameters.
-#' @rdname parameters
-#' @param value a named list with the new parameters values. The names should
-#' be in the \code{defaultHiCDOCParameters} names.
-#' @exportMethod "parameters<-"
-setReplaceMethod(
-    "parameters",
-    signature(object = "HiCDOCDataSet", value = "ANY"),
-    function(object, value) {
-        ## - checking input value ---------------------------------#
-        ## --------------------------------------------------------#
-        defaultParNames <- names(defaultHiCDOCParameters)
-        currentPar <- object@parameters
-        if (!is(value, "list")) {
-            stop(
-                "'value' must be a named list. See ",
-                "help(parameters) for details.",
-                call. = FALSE
-            )
-        }
+#' @describeIn HiCDOCDataSet-parameters
+#' Sets the parameters used for filtering, normalization, and prediciton of
+#' compartments. See
+#' \code{\link{filterSmallChromosomes}},
+#' \code{\link{filterSparseReplicates}},
+#' \code{\link{filterWeakPositions}},
+#' \code{\link{normalizeDistanceEffect}}, and
+#' \code{\link{detectCompartments}},
+#' for details on how these parameters are used.
+#'
+#' @format
+#'
+#' @usage
+#'
+#' @export
+setReplaceMethod("parameters", "HiCDOCDataSet", function(object, value) {
 
-        valueNames <- names(value)
+    defaultParameterNames <- names(defaultHiCDOCParameters)
 
-        if (any(duplicated(valueNames))) {
-            stop(
-                "duplicate name parameters in 'value'. See ",
-                "help(parameters) for details.",
-                call. = FALSE
-            )
-        }
-
-        if (!all(valueNames %in% defaultParNames)) {
-            stop(
-                "'value' must be a named list of valid ",
-                "parameters. See help(parameters) for details.",
-                call. = FALSE
-            )
-        }
-
-        ## - replacing individual parameters
-        currentPar[valueNames] <- value
-
-        ## - end check -------------------------------------------#
-
-        object@parameters <- currentPar
-        return(object)
+    if (!is(value, "list")) {
+        stop(
+            "'parameters' must be a named list.\n",
+            "No parameters were updated. ",
+            "See 'help(parameters)' for details.",
+            call. = FALSE
+        )
     }
-)
+
+    parameterNames <- names(value)
+
+    duplicatedParameterNames <-
+        unique(parameterNames[duplicated(parameterNames)])
+
+    if (length(duplicatedParameterNames) > 0) {
+        stop(
+            "Duplicate parameter",
+            if (length(duplicatedParameterNames) != 1) "s",
+            " provided: ",
+            paste(duplicatedParameterNames, collapse = ", "),
+            "\nNo parameters were updated. ",
+            "See 'help(parameters)' for details.",
+            call. = FALSE
+        )
+    }
+
+    invalidParameterNames <-
+        parameterNames[!(parameterNames %in% defaultParameterNames)]
+
+    if (length(invalidParameterNames) > 0) {
+        stop(
+            "Invalid parameter",
+            if (length(invalidParameterNames) != 1) "s",
+            " provided: ",
+            paste(invalidParameterNames, collapse = ", "),
+            "\nNo parameters were updated. ",
+            "See 'help(parameters)' for details.",
+            call. = FALSE
+        )
+    }
+
+    object@parameters[parameterNames] <- value
+
+    return(object)
+})

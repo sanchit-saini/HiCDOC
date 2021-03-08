@@ -32,7 +32,7 @@ plotInteractions <- function(
             "positions"
         )
     )
-    chromosomeName <- .validateNameOrId(object, chromosome, "chromosomes")
+    chromosomeName <- .validateNames(object, chromosome, "chromosomes")
     if (is.null(transform)) transform <- "Identity"
 
     positions <-
