@@ -32,6 +32,16 @@
 #' @export
 filterSmallChromosomes <- function(object, threshold = NULL) {
 
+    .validateSlots(
+        object,
+        slots = c(
+            "interactions",
+            "chromosomes",
+            "totalBins",
+            "parameters"
+        )
+    )
+
     if (!is.null(threshold)) {
         object@parameters$smallChromosomeThreshold <- threshold
     }

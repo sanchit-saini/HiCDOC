@@ -237,12 +237,15 @@
 
     dfCompartments <-
         dplyr::tibble(
-            chromosome = factor(chromosomeName, levels = object@chromosomes),
-            bin = positions,
+            chromosome = factor(
+                chromosomeName,
+                levels = gtools::mixedsort(unique(object@chromosomes))
+            ),
             condition = factor(
                 conditionName,
-                levels = unique(object@conditions)
+                levels = gtools::mixedsort(unique(object@conditions))
             ),
+            bin = positions,
             compartment = factor(clusters, levels = c(1, 2))
         )
 
@@ -250,13 +253,16 @@
         purrr::map_dfr(seq_len(length(replicateNames)), ~dfCompartments) %>%
         dplyr::mutate(
             replicate = rep(
-                factor(replicateNames, levels = unique(object@replicates)),
+                factor(
+                    replicateNames,
+                    levels = gtools::mixedsort(unique(object@replicates))
+                ),
                 each = ncol(interactions)
             ),
             concordance = concordances
         ) %>%
         dplyr::select(
-            chromosome, bin, condition, replicate, compartment, concordance
+            chromosome, condition, replicate, bin, compartment, concordance
         )
 
     dfDistances <-
@@ -264,7 +270,7 @@
         dplyr::select(-concordance) %>%
         dplyr::mutate(
             compartment = rep(
-                factor(c(1, 2)),
+                factor(c(1, 2), levels = c(1, 2)),
                 each = length(replicateNames) * ncol(interactions)
             ),
             distance = c(t(distances))
@@ -272,12 +278,15 @@
 
     dfCentroids <-
         dplyr::tibble(
-            chromosome = factor(chromosomeName, levels = object@chromosomes),
+            chromosome = factor(
+                chromosomeName,
+                levels = gtools::mixedsort(unique(object@chromosomes))
+            ),
             condition = factor(
                 conditionName,
-                levels = unique(object@conditions)
+                levels = gtools::mixedsort(unique((object@conditions)))
             ),
-            compartment = factor(c(1, 2)),
+            compartment = factor(c(1, 2), levels = c(1, 2)),
             centroid = centroids
         )
 
@@ -357,10 +366,40 @@
         # Idem than bpstart
     }
 
-    object@compartments <- purrr::map_dfr(result, "compartments")
-    object@concordances <- purrr::map_dfr(result, "concordances")
-    object@distances <- purrr::map_dfr(result, "distances")
-    object@centroids <- purrr::map_dfr(result, "centroids")
+    object@compartments <-
+        purrr::map_dfr(result, "compartments") %>%
+        dplyr::arrange(
+            chromosome,
+            condition,
+            bin
+        )
+
+    object@concordances <-
+        purrr::map_dfr(result, "concordances") %>%
+        dplyr::arrange(
+            chromosome,
+            condition,
+            replicate,
+            bin
+        )
+
+    object@distances <-
+        purrr::map_dfr(result, "distances") %>%
+        dplyr::arrange(
+            chromosome,
+            condition,
+            replicate,
+            bin,
+            compartment
+        )
+
+    object@centroids <-
+        purrr::map_dfr(result, "centroids") %>%
+        dplyr::arrange(
+            chromosome,
+            condition,
+            compartment
+        )
 
     object <- .tieCentroids(object)
 
@@ -523,7 +562,10 @@
     object@compartments %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
         dplyr::mutate(
-            compartment = factor(dplyr::if_else(compartment == A, "A", "B"))
+            compartment = factor(
+                dplyr::if_else(compartment == A, "A", "B"),
+                levels = c("A", "B")
+            )
         ) %>%
         dplyr::select(-c(A))
 
@@ -532,21 +574,30 @@
         dplyr::mutate(change = dplyr::if_else(A == 1, 1, -1)) %>%
         dplyr::mutate(concordance = change * concordance) %>%
         dplyr::mutate(
-            compartment = factor(dplyr::if_else(compartment == A, "A", "B"))
+            compartment = factor(
+                dplyr::if_else(compartment == A, "A", "B"),
+                levels = c("A", "B")
+            )
         ) %>%
         dplyr::select(-c(A, change))
 
     object@distances %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
         dplyr::mutate(
-            compartment = factor(dplyr::if_else(compartment == A, "A", "B"))
+            compartment = factor(
+                dplyr::if_else(compartment == A, "A", "B"),
+                levels = c("A", "B")
+            )
         ) %>%
         dplyr::select(-c(A))
 
     object@centroids %<>%
         dplyr::left_join(compartments, by = c("chromosome")) %>%
         dplyr::mutate(
-            compartment = factor(dplyr::if_else(compartment == A, "A", "B"))
+            compartment = factor(
+                dplyr::if_else(compartment == A, "A", "B"),
+                levels = c("A", "B")
+            )
         ) %>%
         dplyr::select(-c(A))
 
@@ -655,7 +706,8 @@
         dplyr::ungroup() %>%
         dplyr::mutate(
             direction = factor(
-                dplyr::if_else(compartment.1 == "A", "A->B", "B->A")
+                dplyr::if_else(compartment.1 == "A", "A->B", "B->A"),
+                levels = c("A->B", "B->A")
             )
         ) %>%
         dplyr::select(
@@ -668,7 +720,7 @@
             direction
         ) %>%
         dplyr::arrange(
-            order(gtools::mixedsort(chromosome)),
+            chromosome,
             bin,
             condition.1,
             condition.2

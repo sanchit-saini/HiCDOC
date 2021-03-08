@@ -10,12 +10,13 @@ normalizeBiologicalBiases(object)
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
 }
 \value{
-A \code{\link{HiCDOCDataSet}} with the normalized interactions.
+A \code{\link{HiCDOCDataSet}} with normalized interactions.
 }
 \description{
 Normalizes biological biases such as GC content and repeated regions. Uses
 the Knight-Ruiz balancing algorithm to transform interaction matrices into
-doubly stochastic matrices, with sum of rows and sum of columns equal to 1.
+doubly stochastic matrices, with sum of each row and sum of each column equal
+to 1.
 }
 \examples{
 object <- HiCDOCDataSetExample()
@@ -27,5 +28,7 @@ object <- normalizeBiologicalBiases(object)
 \seealso{
 \code{\link{filterSparseReplicates}},
 \code{\link{filterWeakPositions}},
+\code{\link{normalizeTechnicalBiases}},
+\code{\link{normalizeDistanceEffect}},
 \code{\link{HiCDOC}}
 }

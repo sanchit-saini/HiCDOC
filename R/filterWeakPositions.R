@@ -140,10 +140,7 @@ filterWeakPositions <- function(object, threshold = NULL) {
         object,
         slots = c(
             "interactions",
-            "binSize",
             "chromosomes",
-            "replicates",
-            "conditions",
             "totalBins",
             "parameters"
         )

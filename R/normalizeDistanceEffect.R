@@ -1,24 +1,17 @@
-## - .normalizeDistanceEffectOfChromosome ---------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Normalize the distance effect using a loess on the intensity vs distance
-#' to diagonal.
-#' @param object A \code{HiCDOCDataSet} object.
-#' @param chromosomeName The name or number of the chromosome to plot.
-#' If number, will be taken in \code{object@chromosomes[chromosomeName]}
+#' @description
+#' Normalizes the distance effect on the interactions of a given chromosome.
 #'
-#' @return the normalized interaction matrix for this chromosome.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosomeName
+#' The name of a chromosome to normalize.
+#'
+#' @return
+#' A tibble of normalized interactions.
+#'
 #' @keywords internal
 #' @noRd
 .normalizeDistanceEffectOfChromosome <- function(object, chromosomeName) {
-    .validateSlots(
-        object,
-        slots = c(
-            "interactions",
-            "binSize",
-            "weakBins",
-            "parameters"
-        )
-    )
 
     message("Chromosome ", chromosomeName, ": normalizing distance effect.")
 
@@ -119,36 +112,55 @@
     return(chromosomeInteractions)
 }
 
-
-
-## - normalizeDistanceEffect ------------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Normalize the distance effect on a HiCDOCDataSet object using a loess
-#' on the intensity vs distance to diagonal.
+#' @title
+#' Normalize distance effect.
 #'
-#' @name normalizeDistanceEffect
+#' @description
+#' Normalizes interactions by their "expected" value relative to the distance
+#' that separates their positions. The "expected" values are estimated with a
+#' loess regression on the proportion of interactions for each distance.
 #'
-#' @param object A \code{HiCDOCDataSet} object.
-#' @param loessSampleSize A numerical value. The number of bins used when sampling
-#' all the bins. If NULL, default to the first not NULL of
-#' \code{object$loessSampleSize} and \code{defaultHiCDOCParameters$loessSampleSize}.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param loessSampleSize
+#' The number of positions used as a sample to estimate the effect of distance
+#' on proportion of interactions. Defaults to
+#' \code{object$loessSampleSize} which is originally set to
+#' \code{defaultHiCDOCParameters$loessSampleSize} = 20000.
 #'
-#' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
+#' @return
+#' A \code{\link{HiCDOCDataSet}} with normalized interactions.
 #'
 #' @examples
 #' object <- HiCDOCDataSetExample()
 #' object <- normalizeDistanceEffect(object)
-#' @seealso \code{\link[HiCDOC]{normalizeTechnicalBiases}},
-#' \code{\link[HiCDOC]{normalizeBiologicalBiases}} and
-#' \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
+#'
+#' @seealso
+#' \code{\link{normalizeTechnicalBiases}},
+#' \code{\link{normalizeBiologicalBiases}},
+#' \code{\link{HiCDOC}}
+#'
+#' @usage
+#' normalizeDistanceEffect(object, loessSampleSize = 20000)
+#'
 #' @export
 normalizeDistanceEffect <- function(object, loessSampleSize = NULL) {
-    # Parameters
+
+    .validateSlots(
+        object,
+        slots = c(
+            "interactions",
+            "chromosomes",
+            "binSize",
+            "parameters"
+        )
+    )
+
     if (!is.null(loessSampleSize)) {
         object@parameters$loessSampleSize <- loessSampleSize
     }
     object@parameters <- .validateParameters(object@parameters)
-    # Normalization by chromosome
+
     normalizedInteractions <-
         purrr::map_dfr(
             object@chromosomes,
@@ -156,9 +168,12 @@ normalizeDistanceEffect <- function(object, loessSampleSize = NULL) {
                 .normalizeDistanceEffectOfChromosome(object, chromosomeName)
             }
         ) %>%
-        dplyr::mutate(
-            chromosome = factor(chromosome, levels = object@chromosomes)
+        .sortInteractions(
+            object@chromosomes,
+            object@conditions,
+            object@replicates
         )
+
     object@interactions <- normalizedInteractions
 
     return(object)

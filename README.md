@@ -1,4 +1,4 @@
-# HiCDOC: Detection of compartments and differential analysis with multiple replicates
+# HiCDOC: Compartments prediction and differential analysis with multiple replicates
 
 HiCDOC normalizes intrachromosomal Hi-C matrices, uses unsupervised learning to
 predict A/B compartments from multiple replicates, and detects significant

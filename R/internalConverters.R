@@ -116,7 +116,12 @@
             bin.2 = rep(seq(totalBins), times = totalBins),
             interaction = as.vector(t(m))
         ) %>%
-        dplyr::filter(bin.1 <= bin.2 & interaction > 0)
+        dplyr::filter(bin.1 <= bin.2 && interaction > 0) %>%
+        .sortInteractions(
+            object@chromosomes,
+            object@conditions,
+            object@replicates
+        )
 
     return(interactions)
 }

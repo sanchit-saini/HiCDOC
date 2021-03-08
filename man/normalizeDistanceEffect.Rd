@@ -2,31 +2,33 @@
 % Please edit documentation in R/normalizeDistanceEffect.R
 \name{normalizeDistanceEffect}
 \alias{normalizeDistanceEffect}
-\title{Normalize the distance effect on a HiCDOCDataSet object using a loess
-on the intensity vs distance to diagonal.}
+\title{Normalize distance effect.}
 \usage{
-normalizeDistanceEffect(object, loessSampleSize = NULL)
+normalizeDistanceEffect(object, loessSampleSize = 20000)
 }
 \arguments{
-\item{object}{A \code{HiCDOCDataSet} object.}
+\item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{loessSampleSize}{A numerical value. The number of bins used when sampling
-all the bins. If NULL, default to the first not NULL of
-\code{object$loessSampleSize} and \code{defaultHiCDOCParameters$loessSampleSize}.}
+\item{loessSampleSize}{The number of positions used as a sample to estimate the effect of distance
+on proportion of interactions. Defaults to
+\code{object$loessSampleSize} which is originally set to
+\code{defaultHiCDOCParameters$loessSampleSize} = 20000.}
 }
 \value{
-A \code{HiCDOCDataSet} object, with the normalized matrices.
+A \code{\link{HiCDOCDataSet}} with normalized interactions.
 }
 \description{
-Normalize the distance effect on a HiCDOCDataSet object using a loess
-on the intensity vs distance to diagonal.
+Normalizes interactions by their "expected" value relative to the distance
+that separates their positions. The "expected" values are estimated with a
+loess regression on the proportion of interactions for each distance.
 }
 \examples{
 object <- HiCDOCDataSetExample()
 object <- normalizeDistanceEffect(object)
+
 }
 \seealso{
-\code{\link[HiCDOC]{normalizeTechnicalBiases}},
-\code{\link[HiCDOC]{normalizeBiologicalBiases}} and
-\code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
+\code{\link{normalizeTechnicalBiases}},
+\code{\link{normalizeBiologicalBiases}},
+\code{\link{HiCDOC}}
 }

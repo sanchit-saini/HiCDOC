@@ -100,9 +100,9 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
             value = "interaction"
         ) %>%
         dplyr::mutate(index = factor(as.integer(index))) %>%
-        dplyr::mutate(condition = factor(object@conditions[index])) %>%
-        dplyr::mutate(replicate = factor(object@replicates[index])) %>%
-        dplyr::mutate(chromosome = factor(object@chromosomes[chromosome])) %>%
+        dplyr::mutate(condition = object@conditions[index]) %>%
+        dplyr::mutate(replicate = object@replicates[index]) %>%
+        dplyr::mutate(chromosome = object@chromosomes[chromosome]) %>%
         dplyr::select(
             chromosome,
             condition,
@@ -110,6 +110,11 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
             bin.1,
             bin.2,
             interaction
+        ) %>%
+        .sortInteractions(
+            object@chromosomes,
+            object@conditions,
+            object@replicates
         )
 
     return(object)

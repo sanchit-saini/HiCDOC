@@ -102,9 +102,6 @@
 
     interactions <-
         object@interactions %>%
-        dplyr::mutate(
-            chromosome = factor(chromosome, levels = object@chromosomes)
-        ) %>%
         dplyr::left_join(
             object@positions %>% dplyr::select(
                 chromosome,
@@ -211,6 +208,77 @@
 }
 
 #' @description
+#' Sorts interactions and factorizes chromosomes, conditions, and replicates.
+#'
+#' @param interactions
+#' A tibble of interactions.
+#' @param chromosomeNames
+#' The names of chromosomes to sort with.
+#' @param conditionNames
+#' The names of conditions to sort with.
+#' @param replicateNames
+#' The names of replicates to sort with.
+#'
+#' @return
+#' A sorted tibble of interactions.
+#'
+#' @keywords internal
+#' @noRd
+.sortInteractions <- function(
+    interactions,
+    chromosomeNames,
+    conditionNames,
+    replicateNames
+) {
+
+    interactions %<>%
+        dplyr::mutate(
+            chromosome = factor(
+                chromosome,
+                levels = gtools::mixedsort(unique(chromosomeNames))
+            ),
+            condition = factor(
+                condition,
+                levels = gtools::mixedsort(unique(conditionNames))
+            ),
+            replicate = factor(
+                replicate,
+                levels = gtools::mixedsort(unique(replicateNames))
+            ),
+            interaction = as.numeric(interaction)
+        )
+
+    if ("bin.1" %in% colnames(interactions)) {
+        interactions %<>%
+            dplyr::arrange(
+                chromosome,
+                condition,
+                replicate,
+                bin.1,
+                bin.2
+            )
+    } else if ("position.1" %in% colnames(interactions)) {
+        interactions %<>%
+            dplyr::arrange(
+                chromosome,
+                condition,
+                replicate,
+                position.1,
+                position.2
+            )
+    } else {
+        interactions %<>%
+            dplyr::arrange(
+                chromosome,
+                condition,
+                replicate
+            )
+    }
+
+    return(interactions)
+}
+
+#' @description
 #' Fills parameters and slots describing the data. Called by a
 #' \code{\link{HiCDOCDataSet}} constructor.
 #'
@@ -228,6 +296,13 @@
 
     object@chromosomes <-
         gtools::mixedsort(unique(as.character(object@interactions$chromosome)))
+
+    object@interactions %<>%
+        .sortInteractions(
+            object@chromosomes,
+            object@conditions,
+            object@replicates
+        )
 
     if ('position.1' %in% colnames(object@interactions)) {
         object@binSize <- .determineBinSize(object)

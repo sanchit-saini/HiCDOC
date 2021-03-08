@@ -151,6 +151,17 @@
 #' @export
 filterSparseReplicates <- function(object, threshold = NULL) {
 
+    .validateSlots(
+        object,
+        slots = c(
+            "interactions",
+            "chromosomes",
+            "conditions",
+            "replicates",
+            "parameters"
+        )
+    )
+
     if (!is.null(threshold)) {
         object@parameters$sparseReplicateThreshold <- threshold
     }
@@ -188,7 +199,14 @@ filterSparseReplicates <- function(object, threshold = NULL) {
     validConditions[badChromosomes] <- list(NULL)
     validReplicates[badChromosomes] <- list(NULL)
 
-    interactions <- results %>% purrr::map_dfr("interactions")
+    interactions <-
+        results %>%
+        purrr::map_dfr("interactions") %>%
+        .sortInteractions(
+            object@chromosomes,
+            object@conditions,
+            object@replicates
+        )
 
     object@validConditions <- validConditions
     object@validReplicates <- validReplicates

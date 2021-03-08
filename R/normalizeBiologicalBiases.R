@@ -2,9 +2,9 @@
 #" https://github.com/dozmorovlab/HiCcompare/blob/master/R/KRnormalization.R
 #"
 #' @description
-#' Applies the Knight-Ruiz balancing algorithm on the provided matrix. The
-#' matrix is transformed such that the sum of each row equals 1 and the sum of
-#' each column equals 1.
+#' Applies the Knight-Ruiz balancing algorithm to transform the provided
+#' matrix into a doubly stochastic matrix, with sum of each row and sum of each
+#' column equal to 1.
 #'
 #' @param m
 #' A matrix.
@@ -91,8 +91,8 @@
 }
 
 #' @description
-#' Normalizes the biological biases in the interactions of a given chromosome.
-#' Calls \code{.normalizeKnightRuiz} internally.
+#' Normalizes biological biases in the interactions of a given chromosome. Calls
+#' \code{.normalizeKnightRuiz} internally.
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
@@ -145,6 +145,7 @@
                 )
             }
         )
+
     return(interactions)
 }
 
@@ -154,13 +155,14 @@
 #' @description
 #' Normalizes biological biases such as GC content and repeated regions. Uses
 #' the Knight-Ruiz balancing algorithm to transform interaction matrices into
-#' doubly stochastic matrices, with sum of rows and sum of columns equal to 1.
+#' doubly stochastic matrices, with sum of each row and sum of each column equal
+#' to 1.
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @return
-#' A \code{\link{HiCDOCDataSet}} with the normalized interactions.
+#' A \code{\link{HiCDOCDataSet}} with normalized interactions.
 #'
 #' @examples
 #' object <- HiCDOCDataSetExample()
@@ -171,6 +173,8 @@
 #' @seealso
 #' \code{\link{filterSparseReplicates}},
 #' \code{\link{filterWeakPositions}},
+#' \code{\link{normalizeTechnicalBiases}},
+#' \code{\link{normalizeDistanceEffect}},
 #' \code{\link{HiCDOC}}
 #'
 #' @export
@@ -180,6 +184,7 @@ normalizeBiologicalBiases <- function(object) {
         object,
         slots = c(
             "interactions",
+            "chromosomes",
             "totalBins",
             "weakBins",
             "validReplicates",
@@ -194,11 +199,11 @@ normalizeBiologicalBiases <- function(object) {
                 .normalizeBiologicalBiasesOfChromosome(object, chromosomeName)
             }
         ) %>%
-        dplyr::mutate(
-            chromosome = factor(chromosome, levels = object@chromosomes)
-        ) %>%
-        dplyr::mutate(condition = factor(condition)) %>%
-        dplyr::mutate(replicate = factor(replicate))
+        .sortInteractions(
+            object@chromosomes,
+            object@conditions,
+            object@replicates
+        )
 
     object@interactions <- normalizedInteractions
 

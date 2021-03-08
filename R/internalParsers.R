@@ -72,12 +72,7 @@
         dplyr::select(-condition.replicate) %>%
         dplyr::rename(position.1 = `position 1`) %>%
         dplyr::rename(position.2 = `position 2`) %>%
-        dplyr::mutate(
-            chromosome = factor(chromosome),
-            condition = factor(condition),
-            replicate = factor(replicate),
-            interaction = as.numeric(interaction)
-        )
+        dplyr::as_tibble()
 
     return(object)
 }
@@ -188,12 +183,7 @@
 
     object@interactions <-
         dplyr::bind_rows(interactions) %>%
-        dplyr::mutate(
-            chromosome = factor(chromosome),
-            condition = factor(condition),
-            replicate = factor(replicate),
-            interaction = as.numeric(interaction)
-        )
+        dplyr::as_tibble()
 
     return(object)
 }
@@ -252,13 +242,7 @@
 
     object@interactions <-
         dplyr::bind_rows(interactions) %>%
-        dplyr::as_tibble() %>%
-        dplyr::mutate(
-            chromosome = factor(chromosome),
-            condition = factor(condition),
-            replicate = factor(replicate),
-            interaction = as.numeric(interaction)
-        )
+        dplyr::as_tibble()
 
     return(object)
 }
@@ -357,13 +341,7 @@
 
     object@interactions <-
         dplyr::bind_rows(interactions) %>%
-        dplyr::as_tibble() %>%
-        dplyr::mutate(
-            chromosome = factor(chromosome),
-            condition = factor(condition),
-            replicate = factor(replicate),
-            interaction = as.numeric(interaction)
-        )
+        dplyr::as_tibble()
 
     return(object)
 }
