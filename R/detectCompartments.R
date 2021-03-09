@@ -53,14 +53,7 @@
 #' @noRd
 .tieCentroids <- function(object) {
 
-    selectedChromosomeNames <-
-        object@validConditions[
-            lapply(
-                object@validConditions,
-                function(conditionNames) length(unique(conditionNames))
-            ) > 1
-        ] %>%
-        names()
+    selectedChromosomeNames <- names(object@validConditions)
 
     referenceConditionNames <-
         lapply(
@@ -114,8 +107,6 @@
 
     object@compartments %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
-        dplyr::mutate(cluster.1 = tidyr::replace_na(cluster.1, 1)) %>%
-        dplyr::mutate(cluster.2 = tidyr::replace_na(cluster.2, 2)) %>%
         dplyr::mutate(
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
@@ -123,8 +114,6 @@
 
     object@concordances %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
-        dplyr::mutate(cluster.1 = tidyr::replace_na(cluster.1, 1)) %>%
-        dplyr::mutate(cluster.2 = tidyr::replace_na(cluster.2, 2)) %>%
         dplyr::mutate(
             change = dplyr::if_else(
                 compartment == 1,
@@ -140,8 +129,6 @@
 
     object@distances %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
-        dplyr::mutate(cluster.1 = tidyr::replace_na(cluster.1, 1)) %>%
-        dplyr::mutate(cluster.2 = tidyr::replace_na(cluster.2, 2)) %>%
         dplyr::mutate(
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
@@ -149,8 +136,6 @@
 
     object@centroids %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
-        dplyr::mutate(cluster.1 = tidyr::replace_na(cluster.1, 1)) %>%
-        dplyr::mutate(cluster.2 = tidyr::replace_na(cluster.2, 2)) %>%
         dplyr::mutate(
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
