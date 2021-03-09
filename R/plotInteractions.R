@@ -40,7 +40,8 @@ plotInteractions <- function(
         dplyr::filter(chromosome == chromosomeName)
     interactions <-
         object@interactions %>%
-        dplyr::filter(chromosome == chromosomeName & interaction > 0) %>%
+        dplyr::filter(chromosome == chromosomeName) %>%
+        dplyr::filter(interaction > 0) %>%
         dplyr::left_join(
             positions %>% dplyr::select(
                 bin.1 = bin,

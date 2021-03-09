@@ -53,27 +53,50 @@
 #' @noRd
 .tieCentroids <- function(object) {
 
-    totalConditions <- length(unique(object@conditions))
-    referenceCondition <- object@conditions[[1]]
+    selectedChromosomeNames <-
+        object@validConditions[
+            lapply(
+                object@validConditions,
+                function(conditionNames) length(unique(conditionNames))
+            ) > 1
+        ] %>%
+        names()
+
+    referenceConditionNames <-
+        lapply(
+            object@validConditions[selectedChromosomeNames],
+            function(conditionNames) conditionNames[1]
+        ) %>%
+        unlist() %>%
+        as.vector()
+
+    referenceCentroids <-
+        dplyr::tibble(
+            chromosome = selectedChromosomeNames,
+            condition = referenceConditionNames
+        ) %>%
+        dplyr::left_join(
+            object@centroids,
+            by = c("chromosome", "condition")
+        )
 
     clusters <-
-        object@centroids %>%
-        dplyr::filter(condition == referenceCondition) %>%
+        referenceCentroids %>%
         tidyr::pivot_wider(
             names_from = compartment,
             values_from = centroid,
             names_prefix = "reference."
         ) %>%
         dplyr::select(-c(condition)) %>%
-        tidyr::uncount(totalConditions) %>%
-        dplyr::bind_cols(
+        dplyr::full_join(
             object@centroids %>%
+            dplyr::filter(chromosome %in% selectedChromosomeNames) %>%
             tidyr::pivot_wider(
                 names_from = compartment,
                 values_from = centroid,
                 names_prefix = "centroid."
-            ) %>%
-            dplyr::select(-c(chromosome))
+            ),
+            by = "chromosome"
         ) %>%
         dplyr::rowwise() %>%
         dplyr::mutate(
@@ -91,6 +114,8 @@
 
     object@compartments %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
+        dplyr::mutate(cluster.1 = tidyr::replace_na(cluster.1, 1)) %>%
+        dplyr::mutate(cluster.2 = tidyr::replace_na(cluster.2, 2)) %>%
         dplyr::mutate(
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
@@ -98,6 +123,8 @@
 
     object@concordances %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
+        dplyr::mutate(cluster.1 = tidyr::replace_na(cluster.1, 1)) %>%
+        dplyr::mutate(cluster.2 = tidyr::replace_na(cluster.2, 2)) %>%
         dplyr::mutate(
             change = dplyr::if_else(
                 compartment == 1,
@@ -113,6 +140,8 @@
 
     object@distances %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
+        dplyr::mutate(cluster.1 = tidyr::replace_na(cluster.1, 1)) %>%
+        dplyr::mutate(cluster.2 = tidyr::replace_na(cluster.2, 2)) %>%
         dplyr::mutate(
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
@@ -120,6 +149,8 @@
 
     object@centroids %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
+        dplyr::mutate(cluster.1 = tidyr::replace_na(cluster.1, 1)) %>%
+        dplyr::mutate(cluster.2 = tidyr::replace_na(cluster.2, 2)) %>%
         dplyr::mutate(
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
@@ -181,17 +212,19 @@
 ) {
 
     totalBins <- object@totalBins[[chromosomeName]]
-    if (totalBins == -Inf) return(NULL)
-    positions <- seq.int(totalBins)
-
-    # Substract filtered positions
+    bins <- seq.int(totalBins)
     if (!is.null(object@weakBins[[chromosomeName]])) {
-        positions <- positions[-object@weakBins[[chromosomeName]]]
+        bins <- bins[-object@weakBins[[chromosomeName]]]
         totalBins <- totalBins - length(object@weakBins[[chromosomeName]])
     }
+    if (totalBins <= 0) return(NULL)
 
     replicateNames <-
-        object@replicates[which(object@conditions == conditionName)]
+        object@validReplicates[[chromosomeName]][
+            which(object@validConditions[[chromosomeName]] == conditionName)
+        ]
+    if (length(replicateNames) == 0) return(NULL)
+
     interactions <-
         purrr::map(
             replicateNames,
@@ -245,7 +278,7 @@
                 conditionName,
                 levels = gtools::mixedsort(unique(object@conditions))
             ),
-            bin = positions,
+            bin = bins,
             compartment = factor(clusters, levels = c(1, 2))
         )
 
@@ -845,12 +878,15 @@ detectCompartments <- function(
     .validateSlots(
         object,
         slots = c(
+            "interactions",
             "chromosomes",
             "conditions",
+            "replicates",
             "totalBins",
             "binSize",
             "weakBins",
-            "interactions",
+            "validConditions",
+            "validReplicates",
             "parameters"
         )
     )

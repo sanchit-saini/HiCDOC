@@ -1,23 +1,47 @@
-## - normalizeTechnicalBiases -----------------------------------------------#
-## --------------------------------------------------------------------------#
-#' Normalize the distance effect using a cyclic loess on all the matrices.
+#' @title
+#' Normalize technical biases.
 #'
-#' @name normalizeTechnicalBiases
+#' @description
+#' Normalizes technical biases such as sequencing depth by using a cyclic loess
+#' to recursively normalize each pair of interaction matrices. Depends on
+#' \code{multiHiCcompare}.
 #'
-#' @param object A \code{HiCDOCDataSet} object.
-#' @param parallel Logical, defautl to FALSE. Should parallel computing be
-#' used in \code{\link[multiHiCcompare]{cyclic_loess}} ?
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
 #'
-#' @return A \code{HiCDOCDataSet} object, with the normalized matrices.
+#' @param parallel
+#' Whether or not to parallelize the processing. Defaults to FALSE.
+#'
+#' @return
+#' A \code{\link{HiCDOCDataSet}} with normalized interactions.
 #'
 #' @examples
 #' object <- HiCDOCDataSetExample()
+#' object <- filterSparseReplicates(object)
+#' object <- filterWeakPositions(object)
 #' object <- normalizeTechnicalBiases(object)
-#' @seealso \code{\link[HiCDOC]{normalizeBiologicalBiases}},
-#' \code{\link[HiCDOC]{normalizeDistanceEffect}} and
-#' \code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
+#'
+#' @seealso
+#' \code{\link{filterSparseReplicates}},
+#' \code{\link{filterWeakPositions}},
+#' \code{\link{normalizeBiologicalBiases}},
+#' \code{\link{normalizeDistanceEffect}},
+#' \code{\link{HiCDOC}}
+#'
 #' @export
 normalizeTechnicalBiases <- function(object, parallel = FALSE) {
+
+    .validateSlots(
+        object,
+        slots = c(
+            "interactions",
+            "chromosomes",
+            "binSize",
+            "weakBins",
+            "validReplicates",
+            "validConditions"
+        )
+    )
 
     message("Normalizing technical biases.")
 
@@ -32,11 +56,25 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
             bin.1 = (bin.1 - 1) * object@binSize,
             bin.2 = (bin.2 - 1) * object@binSize
         ) %>%
-        dplyr::group_split(condition, replicate) %>%
-        purrr::map(function(x) dplyr::select(x, -c(condition, replicate)))
+        dplyr::group_split(condition, replicate)
 
-    # Regions to remove
-    remove.regions <-
+    groups <-
+        matrices %>%
+        purrr::map(
+            function(group) {
+                dplyr::select(group, c(condition, replicate)) %>%
+                dplyr::slice(1)
+            }
+        ) %>%
+        purrr::reduce(rbind)
+
+    matrices %<>%
+        purrr::map(
+            function(group) dplyr::select(group, -c(condition, replicate))
+        )
+
+    # Regions to ignore during normalization
+    weakRegions <-
         data.frame(
             "chromosome" = unlist(mapply(
                 function(bins, chromosomeName) {
@@ -48,9 +86,9 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
             "bin" = unlist(object@weakBins)
         )
 
-    # Regions to remove in Granges format
-    if (nrow(remove.regions) > 0) {
-        remove.regions %<>%
+    if (nrow(weakRegions) > 0) {
+
+        weakRegions %<>%
             dplyr::mutate(
                 start = (bin - 1) * object@binSize,
                 end = (bin * object@binSize) - 1
@@ -63,29 +101,30 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
                 ))
             ) %>%
             GenomicRanges::makeGRangesFromDataFrame()
+
     } else {
-        remove.regions <- NULL
+        weakRegions <- NULL
     }
 
-    hicexp <-
+    # Cyclic loess normalization
+    experiment <-
         multiHiCcompare::make_hicexp(
             data_list = matrices,
-            groups = object@conditions,
-            remove.regions = remove.regions,
+            groups = groups$condition,
+            remove.regions = weakRegions,
             remove_zeros = FALSE,
             filter = TRUE,
             zero.p = 1,
             A.min = 0
         )
+    normalized <- multiHiCcompare::cyclic_loess(experiment, parallel = parallel)
 
-    normalized <- multiHiCcompare::cyclic_loess(hicexp, parallel = parallel)
     result <-
         multiHiCcompare::hic_table(normalized) %>%
         dplyr::as_tibble() %>%
         dplyr::select(-D)
-
     colnames(result) <-
-        c("chromosome", "bin.1", "bin.2", seq_along(object@replicates))
+        c("chromosome", "bin.1", "bin.2", seq_along(groups$replicate))
     result %<>%
         dplyr::mutate(
             bin.1 = as.integer(bin.1 / object@binSize + 1),
@@ -95,13 +134,13 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     object@interactions <-
         result %>%
         tidyr::gather(
-            as.character(seq_along(object@replicates)),
+            as.character(seq_along(groups$replicate)),
             key = "index",
             value = "interaction"
         ) %>%
         dplyr::mutate(index = factor(as.integer(index))) %>%
-        dplyr::mutate(condition = object@conditions[index]) %>%
-        dplyr::mutate(replicate = object@replicates[index]) %>%
+        dplyr::mutate(condition = groups$condition[index]) %>%
+        dplyr::mutate(replicate = groups$replicate[index]) %>%
         dplyr::mutate(chromosome = object@chromosomes[chromosome]) %>%
         dplyr::select(
             chromosome,

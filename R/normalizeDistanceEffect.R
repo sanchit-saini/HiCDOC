@@ -17,7 +17,8 @@
 
     chromosomeInteractions <-
         object@interactions %>%
-        dplyr::filter(chromosome == chromosomeName & interaction > 0) %>%
+        dplyr::filter(chromosome == chromosomeName) %>%
+        dplyr::filter(interaction > 0) %>%
         dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize)
 
     sample <-

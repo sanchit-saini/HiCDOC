@@ -246,7 +246,8 @@
                 levels = gtools::mixedsort(unique(replicateNames))
             ),
             interaction = as.numeric(interaction)
-        )
+        ) %>%
+        dplyr::filter(interaction > 0)
 
     if ("bin.1" %in% colnames(interactions)) {
         interactions %<>%

@@ -38,7 +38,7 @@
     totalRemovedBins <- 0
 
     # Recursive removal of bins - deleting a bin can create a new weak bin.
-    while (totalNewWeakBins > 0 & totalRemovedBins <= totalBins) {
+    while (totalNewWeakBins > 0 && totalRemovedBins <= totalBins) {
         diagonalInteractions <-
             interactions %>%
             dplyr::filter(bin.1 == bin.2) %>%
