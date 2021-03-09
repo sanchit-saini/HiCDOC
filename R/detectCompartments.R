@@ -758,48 +758,80 @@
 #' @details
 #' \subsection{Genomic positions clustering}{
 #' To clusterize genomic positions, the algorithm follows these steps:
-#' 1. For each chromosome and condition, get the interaction vectors of each
-#'    genomic position. Each genomic position can have multiple interaction
-#'    vectors, corresponding to the multiple replicates in that condition.
-#' 2. For each chromosome and condition, use constrained K-means to clusterize
-#'    the interaction vectors, forcing replicate interaction vectors into the
-#'    same cluster. The euclidean distance between interaction vectors
-#'    determines their similarity.
-#' 3. For each interaction vector, compute its concordance, which is the
-#'    confidence in its assigned cluster. Mathematically, it is the log
-#'    ratio of its distance to each centroid, normalized by the distance between
-#'    both centroids, and min-maxed to a \[-1,1\] interval.
-#' 4. For each chromosome, compute the distance between all centroids and the
-#'    centroids of the first condition. The cross-condition clusters whose
-#'    centroids are closest are given the same cluster label. This effectively
-#'    results in having two clusters per chromosome, spanning all conditions.
+#'     \enumerate{
+#'         \item{
+#'             For each chromosome and condition, get the interaction vectors of
+#'             each genomic position. Each genomic position can have multiple
+#'             interaction vectors, corresponding to the multiple replicates in
+#'             that condition.
+#'         }
+#'         \item{
+#'             For each chromosome and condition, use constrained K-means to
+#'             clusterize the interaction vectors, forcing replicate interaction
+#'             vectors into the same cluster. The euclidean distance between
+#'             interaction vectors determines their similarity.
+#'         }
+#'         \item{
+#'             For each interaction vector, compute its concordance, which is
+#'             the confidence in its assigned cluster. Mathematically, it is the
+#'             log ratio of its distance to each centroid, normalized by the
+#'             distance between both centroids, and min-maxed to a \[-1,1\]
+#'             interval.
+#'         }
+#'         \item{
+#'             For each chromosome, compute the distance between all centroids
+#'             and the centroids of the first condition. The cross-condition
+#'             clusters whose centroids are closest are given the same cluster
+#'             label. This results in two clusters per chromosome, spanning all
+#'             conditions.
+#'         }
+#'     }
 #' }
 #' \subsection{A/B compartments prediction}{
 #' To match each cluster with an A or B compartment, the algorithm follows these
 #' steps:
-#' 1. For each genomic position, compute its self interaction ratio, which is
-#'    the difference between its self interaction and the median of its other
-#'    interactions.
-#' 2. For each chromosome, for each cluster, get the median self interaction
-#'    ratio of the genomic positions in that cluster.
-#' 3. For each chromosome, the cluster with the smallest median self interaction
-#'    ratio is matched with compartment A, and the cluster with the greatest
-#'    median self interaction ratio is matched with compartment B. Compartment
-#'    A being open, there are more overall interactions between distant genomic
-#'    positions, so it is assumed that there is a lower difference between self
-#'    interactions and other interactions than in compartment B.
+#'     \enumerate{
+#'         \item{
+#'             For each genomic position, compute its self interaction ratio,
+#'             which is the difference between its self interaction and the
+#'             median of its other interactions.
+#'         }
+#'         \item{
+#'             For each chromosome, for each cluster, get the median self
+#'             interaction ratio of the genomic positions in that cluster.
+#'         }
+#'         \item{
+#'             For each chromosome, the cluster with the smallest median self
+#'             interaction ratio is matched with compartment A, and the cluster
+#'             with the greatest median self interaction ratio is matched with
+#'             compartment B. Compartment A being open, there are more overall
+#'             interactions between distant genomic positions, so it is assumed
+#'             that the difference between self interactions and other
+#'             interactions is lower than in compartment B.
+#'         }
+#'     }
 #' }
 #' \subsection{Significant differences detection}{
 #' To find significant compartment differences across conditions, and compute
 #' their p-values, the algorithm follows three steps:
-#' 1. For each pair of replicates in different conditions, for each genomic
-#'    position, compute the absolute difference between its concordances.
-#' 2. For each pair of conditions, for each genomic position, compute the
-#'    median of its concordance differences.
-#' 3. For each pair of conditions, for each genomic position whose assigned
-#'    compartment switches, rank its median against the empirical cumulative
-#'    distribution of medians of all non-switching positions in that condition
-#'    pair. Adjust the resulting p-value with the Benjamini–Hochberg procedure.
+#'     \enumerate{
+#'         \item{
+#'             For each pair of replicates in different conditions, for each
+#'             genomic position, compute the absolute difference between its
+#'             concordances.
+#'         }
+#'         \item{
+#'             For each pair of conditions, for each genomic position, compute
+#'             the median of its concordance differences.
+#'         }
+#'         \item{
+#'             For each pair of conditions, for each genomic position whose
+#'             assigned compartment switches, rank its median against the
+#'             empirical cumulative distribution of medians of all non-switching
+#'             positions in that condition pair. Adjust the resulting p-value
+#'             with the Benjamini–Hochberg procedure.
+#'         }
+#'     }
 #' }
 #'
 #' @param object
@@ -851,7 +883,6 @@
 #'     kMeansRestarts = 20
 #' )
 #'
-#' @md
 #' @export
 detectCompartments <- function(
     object,

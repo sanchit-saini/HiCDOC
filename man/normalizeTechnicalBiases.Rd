@@ -2,28 +2,34 @@
 % Please edit documentation in R/normalizeTechnicalBiases.R
 \name{normalizeTechnicalBiases}
 \alias{normalizeTechnicalBiases}
-\title{Normalize the distance effect using a cyclic loess on all the matrices.}
+\title{Normalize technical biases.}
 \usage{
-normalizeTechnicalBiases(object, parallel = FALSE)
+normalizeTechnicalBiases(object, parallel = TRUE)
 }
 \arguments{
-\item{object}{A \code{HiCDOCDataSet} object.}
+\item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{parallel}{Logical, defautl to FALSE. Should parallel computing be
-used in \code{\link[multiHiCcompare]{cyclic_loess}} ?}
+\item{parallel}{Whether or not to parallelize the processing. Defaults to TRUE.}
 }
 \value{
-A \code{HiCDOCDataSet} object, with the normalized matrices.
+A \code{\link{HiCDOCDataSet}} with normalized interactions.
 }
 \description{
-Normalize the distance effect using a cyclic loess on all the matrices.
+Normalizes technical biases such as sequencing depth by using a cyclic loess
+to recursively normalize each pair of interaction matrices. Depends on
+\code{multiHiCcompare}.
 }
 \examples{
 object <- HiCDOCDataSetExample()
+object <- filterSparseReplicates(object)
+object <- filterWeakPositions(object)
 object <- normalizeTechnicalBiases(object)
+
 }
 \seealso{
-\code{\link[HiCDOC]{normalizeBiologicalBiases}},
-\code{\link[HiCDOC]{normalizeDistanceEffect}} and
-\code{\link[HiCDOC]{HiCDOC}} for the recommended pipeline.
+\code{\link{filterSparseReplicates}},
+\code{\link{filterWeakPositions}},
+\code{\link{normalizeBiologicalBiases}},
+\code{\link{normalizeDistanceEffect}},
+\code{\link{HiCDOC}}
 }
