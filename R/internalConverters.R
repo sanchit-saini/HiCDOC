@@ -86,7 +86,7 @@
 #' The name of a replicate.
 #'
 #' @return
-#' An interactions tibble.
+#' A tibble of interactions.
 #'
 #' @keywords internal
 #' @noRd

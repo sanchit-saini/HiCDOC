@@ -209,8 +209,8 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
     if (nrow(differences) == 0) {
         message(
             "No differences found",
-            if (!is.null(threshold)) " with adjusted p-value <= ",
-            threshold,
+            if (!is.null(threshold))
+            paste0(" with adjusted p-value ≤ ", threshold),
             "."
         )
         return(GenomicRanges::GRanges())
@@ -268,13 +268,13 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         "Object of class 'HiCDOCDataSet'\n\n",
         "- Chromosomes:\n  ",
         if (is.null(object@chromosomes) || length(object@chromosomes) == 0)
-        "  None"
+        "None"
         else
         paste(object@chromosomes, collapse = ", "),
         "\n\n",
         "- Replicates:\n",
         if (is.null(object@replicates) || length(object@replicates) == 0)
-        "  None"
+        "  None\n"
         else
         paste0(
             "  condition ",
@@ -285,8 +285,8 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         ),
         "\n",
         "- Resolution:\n  ",
-        if (is.null(object@replicates) || length(object@replicates) == 0)
-        "  None"
+        if (is.null(object@binSize))
+        "None"
         else
         object@binSize,
         "\n\n",
