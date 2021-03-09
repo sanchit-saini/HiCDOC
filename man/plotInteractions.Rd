@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotInteractions.R
 \name{plotInteractions}
 \alias{plotInteractions}
-\title{Plot the interaction matrix (as heatmap).}
+\title{Plot interaction matrices.}
 \usage{
 plotInteractions(
   object,
@@ -12,26 +12,26 @@ plotInteractions(
 )
 }
 \arguments{
-\item{object}{an \code{HiCDOCDataSet} object}
+\item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{chromosome}{The name or number of the chromosome to plot.
-If number, will be taken in \code{object@chromosomes[chromosome]}}
+\item{chromosome}{A chromosome name or index in \code{chromosomes(object)}.}
 
-\item{transform}{character: transformation of the color scale. Default to "log2".
-See \code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.
-Set to NULL for no transformation.}
+\item{transform}{Transformation of the color scale. Set to NULL for no transformation. See
+\code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.
+Defaults to "log2".}
 
-\item{colours}{character vector, vector of colours to use for n-colour
-gradient.
-Default to \code{c("#000066", "#ffffbf", "#990000")}.}
+\item{colours}{A character vector of colours to use for the gradient. See
+\code{\link[ggplot2]{scale_fill_gradientn}} for more info. Defaults to
+\code{c("#000066", "#ffffbf", "#990000")}.}
 }
 \value{
-A \code{ggplot} object.
+A \code{ggplot}.
 }
 \description{
-Plot the interaction matrix (as heatmap).
+Plots the interaction matrices as heatmaps.
 }
 \examples{
 object <- HiCDOCDataSetExample()
-p <- plotInteractions(object, chromosome = 1, transform = "log2")
+p <- plotInteractions(object, chromosome = 1)
+
 }

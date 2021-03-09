@@ -775,7 +775,7 @@
 #'             For each interaction vector, compute its concordance, which is
 #'             the confidence in its assigned cluster. Mathematically, it is the
 #'             log ratio of its distance to each centroid, normalized by the
-#'             distance between both centroids, and min-maxed to a \[-1,1\]
+#'             distance between both centroids, and min-maxed to a [-1,1]
 #'             interval.
 #'         }
 #'         \item{

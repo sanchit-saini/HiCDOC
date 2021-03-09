@@ -2,20 +2,21 @@
 % Please edit documentation in R/plotDistanceEffect.R
 \name{plotDistanceEffect}
 \alias{plotDistanceEffect}
-\title{Plot the distance vs intensity matrix.}
+\title{Plot the distance effect.}
 \usage{
 plotDistanceEffect(object)
 }
 \arguments{
-\item{object}{an \code{HiCDOCDataSet} object}
+\item{object}{A \code{\link{HiCDOCDataSet}}.}
 }
 \value{
 A \code{ggplot}.
 }
 \description{
-Plot the distance vs intensity matrix.
+Plots the distance effect on proportion of interactions.
 }
 \examples{
 object <- HiCDOCDataSetExample()
 plotDistanceEffect(object)
+
 }

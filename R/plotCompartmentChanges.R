@@ -1,27 +1,30 @@
-#' Run plotCompartments() and plotConcordances() and assemble them on the
-#' same plot
+#' @title
+#' Plot compartment changes.
 #'
-#' @param object An HiCDOCDataSet object, after a detectCompartments() run
-#' @param chromosomeId Name or number of the chromosome, like in
-#' object@chromosome
-#' @param threshold Significance threshold for the changes. Default to 0.05.
-#' @param xlim A numeric-value pair, indicating the interval of positions
-#' to represent.
-#' Default to NULL = all positions.
-#' @param points Logical (default to FALSE). If TRUE, points will be added
-#' on the concordance lines.
+#' @description
+#' Plots the predicted compartments, along with their concordance in each
+#' replicate, and significant changes between experiment conditions.
 #'
-#' @return A ggplot object.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosome
+#' A chromosome name or index in \code{chromosomes(object)}.
+#' @param threshold
+#' Significance threshold for the compartment changes. Defaults to 0.05.
+#' @param xlim
+#' A vector of the minimum and maximum positions to display. If NULL, displays
+#' all positions. Defaults to NULL.
+#' @param points
+#' Whether or not to add points to the concordances. Defaults to FALSE.
+#'
+#' @return
+#' A \code{ggplot}.
 #'
 #' @examples
 #' object <- HiCDOCDataSetExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- detectCompartments(object)
-#' plotCompartmentChanges(object, 1)
+#' object <- HiCDOC(object)
+#' plotCompartmentChanges(object, chromosome = 1)
+#'
 #' @export
 plotCompartmentChanges <- function(
     object,
@@ -90,7 +93,10 @@ plotCompartmentChanges <- function(
                     ncol = 2
                 ),
                 heights = c(10, 1),
-                top = paste0("Chromosome ", chromosomeName)
+                top = paste0(
+                    "Compartments and concordances of chromosome ",
+                    chromosomeName
+                )
             )
         )
     return(plot)

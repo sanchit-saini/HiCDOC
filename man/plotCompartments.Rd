@@ -2,35 +2,27 @@
 % Please edit documentation in R/plotCompartments.R
 \name{plotCompartments}
 \alias{plotCompartments}
-\title{Plot the A & B compartments}
+\title{Plot A/B compartments.}
 \usage{
 plotCompartments(object, chromosome, xlim = NULL)
 }
 \arguments{
-\item{object}{A \code{HiCDOCDataSet} object on which
-\code{detectCompartments()} has run.}
+\item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{xlim}{A numeric-value pair, indicating the interval of positions
-to represent.
-Default to NULL = all positions.}
+\item{chromosome}{A chromosome name or index in \code{chromosomes(object)}.}
 
-\item{chromosomeId}{The name or number of the chromosome to plot.
-If number, will be taken in \code{object@chromosomes[chromosomeId]}}
+\item{xlim}{A vector of the minimum and maximum positions to display. If NULL, displays
+all positions. Defaults to NULL.}
 }
 \value{
-A ggplot.
+A \code{ggplot}.
 }
 \description{
-Plot the A and B compartments after \code{detectCompartments()} on
-a HiCDOCDataSet object, for a chromosome.
+Plots the predicted compartments in each experiment condition.
 }
 \examples{
 object <- HiCDOCDataSetExample()
-object <- filterSmallChromosomes(object)
-object <- filterWeakPositions(object)
-object <- normalizeTechnicalBiases(object)
-object <- normalizeBiologicalBiases(object)
-object <- normalizeDistanceEffect(object)
-object <- detectCompartments(object)
-plotCompartments(object, 1)
+object <- HiCDOC(object)
+plotCompartments(object, chromosome = 1)
+
 }

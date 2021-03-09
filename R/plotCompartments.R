@@ -1,28 +1,25 @@
-#' Plot the A & B compartments
+#' @title
+#' Plot A/B compartments.
 #'
-#' Plot the A and B compartments after \code{detectCompartments()} on
-#' a HiCDOCDataSet object, for a chromosome.
+#' @description
+#' Plots the predicted compartments in each experiment condition.
 #'
-#' @param object A \code{HiCDOCDataSet} object on which
-#' \code{detectCompartments()} has run.
-#' @param chromosomeId The name or number of the chromosome to plot.
-#' If number, will be taken in \code{object@chromosomes[chromosomeId]}
-#' @param xlim A numeric-value pair, indicating the interval of positions
-#' to represent.
-#' Default to NULL = all positions.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosome
+#' A chromosome name or index in \code{chromosomes(object)}.
+#' @param xlim
+#' A vector of the minimum and maximum positions to display. If NULL, displays
+#' all positions. Defaults to NULL.
 #'
-#' @return A ggplot.
-#' @export
+#' @return
+#' A \code{ggplot}.
 #'
 #' @examples
 #' object <- HiCDOCDataSetExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- detectCompartments(object)
-#' plotCompartments(object, 1)
+#' object <- HiCDOC(object)
+#' plotCompartments(object, chromosome = 1)
+#'
 #' @export
 plotCompartments <- function(
     object,

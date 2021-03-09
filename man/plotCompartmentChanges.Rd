@@ -2,8 +2,7 @@
 % Please edit documentation in R/plotCompartmentChanges.R
 \name{plotCompartmentChanges}
 \alias{plotCompartmentChanges}
-\title{Run plotCompartments() and plotConcordances() and assemble them on the
-same plot}
+\title{Plot compartment changes.}
 \usage{
 plotCompartmentChanges(
   object,
@@ -14,34 +13,27 @@ plotCompartmentChanges(
 )
 }
 \arguments{
-\item{object}{An HiCDOCDataSet object, after a detectCompartments() run}
+\item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{threshold}{Significance threshold for the changes. Default to 0.05.}
+\item{chromosome}{A chromosome name or index in \code{chromosomes(object)}.}
 
-\item{xlim}{A numeric-value pair, indicating the interval of positions
-to represent.
-Default to NULL = all positions.}
+\item{threshold}{Significance threshold for the compartment changes. Defaults to 0.05.}
 
-\item{points}{Logical (default to FALSE). If TRUE, points will be added
-on the concordance lines.}
+\item{xlim}{A vector of the minimum and maximum positions to display. If NULL, displays
+all positions. Defaults to NULL.}
 
-\item{chromosomeId}{Name or number of the chromosome, like in
-object@chromosome}
+\item{points}{Whether or not to add points to the concordances. Defaults to FALSE.}
 }
 \value{
-A ggplot object.
+A \code{ggplot}.
 }
 \description{
-Run plotCompartments() and plotConcordances() and assemble them on the
-same plot
+Plots the predicted compartments, along with their concordance in each
+replicate, and significant changes between experiment conditions.
 }
 \examples{
 object <- HiCDOCDataSetExample()
-object <- filterSmallChromosomes(object)
-object <- filterWeakPositions(object)
-object <- normalizeTechnicalBiases(object)
-object <- normalizeBiologicalBiases(object)
-object <- normalizeDistanceEffect(object)
-object <- detectCompartments(object)
-plotCompartmentChanges(object, 1)
+object <- HiCDOC(object)
+plotCompartmentChanges(object, chromosome = 1)
+
 }

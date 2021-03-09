@@ -2,7 +2,7 @@
 % Please edit documentation in R/reduceDataSet.R
 \name{reduceHiCDOCDataSet}
 \alias{reduceHiCDOCDataSet}
-\title{reduce a HiCDOCDataSet}
+\title{Reduce a \code{\link{HiCDOCDataSet}}.}
 \usage{
 reduceHiCDOCDataSet(
   object,
@@ -13,27 +13,28 @@ reduceHiCDOCDataSet(
 )
 }
 \arguments{
-\item{object}{and HiCDOCDataSet object}
+\item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{chromosomes}{default to NULL, chromosomes ID to keep}
+\item{chromosomes}{The chromosome names or indices in \code{chromosomes(object)} to keep.
+Defaults to NULL.}
 
-\item{conditions}{default to NULL, conditions ID to keep}
+\item{conditions}{The condition names in \code{conditions(object)} to keep. Defaults to NULL.}
 
-\item{replicates}{default to NULL, replicates ID to keep}
+\item{replicates}{The replicate names in \code{replicates(object)} to keep. Defaults to NULL.}
 
-\item{dropLevels}{Logical, default to TRUE. Chromosomes, conditions and
-replicates are in factor format, should the unused levels be removed ?
-It should be set to FALSE if reduced objects are meant to be re-combined
-later.}
+\item{dropLevels}{Whether or not to also remove unused factor levels after filtering. Should
+be set to FALSE if the reduced objects are meant to be re-combined later.
+Defaults to TRUE.}
 }
 \value{
-a HiCDOCDataSET object, reduced by keeping only the chromosomes,
-conditions or replicates given in parameters
+A reduced \code{\link{HiCDOCDataSet}}.
 }
 \description{
-reduce a HiCDOCDataSet
+Reduces a \code{\link{HiCDOCDataSet}} by keeping only given chromosomes,
+conditions, or replicates.
 }
 \examples{
 object <- HiCDOCDataSetExample()
-small <- reduceHiCDOCDataSet(object, chromosomes = "17", replicates = "1")
+reduced <- reduceHiCDOCDataSet(object, chromosomes = c(1, 2))
+
 }

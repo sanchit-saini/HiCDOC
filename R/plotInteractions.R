@@ -1,19 +1,29 @@
-#' Plot the interaction matrix (as heatmap).
+#' @title
+#' Plot interaction matrices.
 #'
-#' @param object an \code{HiCDOCDataSet} object
-#' @param chromosome The name or number of the chromosome to plot.
-#' If number, will be taken in \code{object@chromosomes[chromosome]}
-#' @param transform character: transformation of the color scale. Default to "log2".
-#' See \code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.
-#' Set to NULL for no transformation.
-#' @param colours character vector, vector of colours to use for n-colour
-#' gradient.
-#' Default to \code{c("#000066", "#ffffbf", "#990000")}.
+#' @description
+#' Plots the interaction matrices as heatmaps.
 #'
-#' @return A \code{ggplot} object.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosome
+#' A chromosome name or index in \code{chromosomes(object)}.
+#' @param transform
+#' Transformation of the color scale. Set to NULL for no transformation. See
+#' \code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.
+#' Defaults to "log2".
+#' @param colours
+#' A character vector of colours to use for the gradient. See
+#' \code{\link[ggplot2]{scale_fill_gradientn}} for more info. Defaults to
+#' \code{c("#000066", "#ffffbf", "#990000")}.
+#'
+#' @return
+#' A \code{ggplot}.
+#'
 #' @examples
 #' object <- HiCDOCDataSetExample()
-#' p <- plotInteractions(object, chromosome = 1, transform = "log2")
+#' p <- plotInteractions(object, chromosome = 1)
+#'
 #' @export
 plotInteractions <- function(
     object,
@@ -89,7 +99,7 @@ plotInteractions <- function(
             nrow = totalRows,
             labeller = label_wrap_gen(multi_line = FALSE)
         ) +
-        labs(title = paste("Chromosome:", chromosomeName), x = "", y = "") +
+        labs(title = paste("Chromosome ", chromosomeName), x = "", y = "") +
         scale_fill_gradientn(
             colours = colours,
             trans = transform,

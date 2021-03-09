@@ -1,3 +1,20 @@
+#' @description
+#' Reduces a \code{\link{HiCDOCDataSet}} by keeping only given chromosomes.
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosomeNames
+#' The names of chromosomes to keep.
+#' @param dropLevels
+#' Whether or not to also remove unused factor levels after filtering. Should
+#' be set to FALSE if the reduced objects are meant to be re-combined later.
+#' Defaults to TRUE.
+#'
+#' @return
+#' A reduced \code{\link{HiCDOCDataSet}}.
+#'
+#' @keywords internal
+#' @noRd
 .reduceHiCDOCChromosomes <- function(object, chromosomeNames, dropLevels) {
     chromosomeIds <- which(object@chromosomes %in% chromosomeNames)
     object@chromosomes <- object@chromosomes[chromosomeIds]
@@ -32,6 +49,23 @@
     return(object)
 }
 
+#' @description
+#' Reduces a \code{\link{HiCDOCDataSet}} by keeping only given conditions.
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param conditionNames
+#' The names of conditions to keep.
+#' @param dropLevels
+#' Whether or not to also remove unused factor levels after filtering. Should
+#' be set to FALSE if the reduced objects are meant to be re-combined later.
+#' Defaults to TRUE.
+#'
+#' @return
+#' A reduced \code{\link{HiCDOCDataSet}}.
+#'
+#' @keywords internal
+#' @noRd
 .reduceHiCDOCConditions <- function(object, conditionNames, dropLevels) {
     conditionIds <- which(object@conditions %in% conditionNames)
     object@conditions <- object@conditions[conditionIds]
@@ -58,6 +92,23 @@
     return(object)
 }
 
+#' @description
+#' Reduces a \code{\link{HiCDOCDataSet}} by keeping only given replicates.
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param replicateNames
+#' The names of replicates to keep.
+#' @param dropLevels
+#' Whether or not to also remove unused factor levels after filtering. Should
+#' be set to FALSE if the reduced objects are meant to be re-combined later.
+#' Defaults to TRUE.
+#'
+#' @return
+#' A reduced \code{\link{HiCDOCDataSet}}.
+#'
+#' @keywords internal
+#' @noRd
 .reduceHiCDOCReplicates <- function(object, replicateNames, dropLevels) {
     replicateIds <- which(object@replicates %in% replicateNames)
     object@conditions <- object@conditions[replicateIds]
@@ -82,24 +133,35 @@
     return(object)
 }
 
-#' reduce a HiCDOCDataSet
+#' @title
+#' Reduce a \code{\link{HiCDOCDataSet}}.
 #'
-#' @param object and HiCDOCDataSet object
-#' @param chromosomes default to NULL, chromosomes ID to keep
-#' @param conditions default to NULL, conditions ID to keep
-#' @param replicates default to NULL, replicates ID to keep
-#' @param dropLevels Logical, default to TRUE. Chromosomes, conditions and
-#' replicates are in factor format, should the unused levels be removed ?
-#' It should be set to FALSE if reduced objects are meant to be re-combined
-#' later.
+#' @description
+#' Reduces a \code{\link{HiCDOCDataSet}} by keeping only given chromosomes,
+#' conditions, or replicates.
 #'
-#' @return a HiCDOCDataSET object, reduced by keeping only the chromosomes,
-#' conditions or replicates given in parameters
-#' @export
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosomes
+#' The chromosome names or indices in \code{chromosomes(object)} to keep.
+#' Defaults to NULL.
+#' @param conditions
+#' The condition names in \code{conditions(object)} to keep. Defaults to NULL.
+#' @param replicates
+#' The replicate names in \code{replicates(object)} to keep. Defaults to NULL.
+#' @param dropLevels
+#' Whether or not to also remove unused factor levels after filtering. Should
+#' be set to FALSE if the reduced objects are meant to be re-combined later.
+#' Defaults to TRUE.
+#'
+#' @return
+#' A reduced \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
 #' object <- HiCDOCDataSetExample()
-#' small <- reduceHiCDOCDataSet(object, chromosomes = "17", replicates = "1")
+#' reduced <- reduceHiCDOCDataSet(object, chromosomes = c(1, 2))
+#'
+#' @export
 reduceHiCDOCDataSet <- function(
     object,
     chromosomes = NULL,

@@ -1,20 +1,24 @@
-#' Plot the centroids PCA for a given chromosome.
+#' @title
+#' Plot centroids.
 #'
-#' @param object an \code{HiCDOCDataSet} object
-#' @param chromosomeId Character or numeric value. Name or number of
-#' the chromosome, like in chromosomes(object)
-#' @param size Numeric. Size of the points in geom_point.
+#' @description
+#' Plots the result of the PCA on the compartments' centroids.
 #'
-#' @return A \code{ggplot} object
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosome
+#' A chromosome name or index in \code{chromosomes(object)}.
+#' @param size
+#' Size of each point. Defaults to 2.
+#'
+#' @return
+#' A \code{ggplot}.
+#'
 #' @examples
 #' object <- HiCDOCDataSetExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- detectCompartments(object)
-#' plotCentroids(object, 1)
+#' object <- HiCDOC(object)
+#' plotCentroids(object, chromosome = 1)
+#'
 #' @export
 plotCentroids <- function(object, chromosome, size = 2) {
     .validateSlots(object, slots = c("centroids"))
@@ -50,7 +54,7 @@ plotCentroids <- function(object, chromosome, size = 2) {
         ) +
         geom_point(size = size) +
         labs(
-            title = paste0("Centroids of chromosome ", chromosomeName),
+            title = paste0("PCA on centroids of chromosome ", chromosomeName),
             x = paste("PC1 ", propvar[1]),
             y = paste("PC2 ", propvar[2])
         )

@@ -52,8 +52,8 @@ It provides a collection of functions assembled into a pipeline:
     3. Plot the compartments in each chromosome, along with their concordance
        (confidence measure) in each replicate, and significant changes between
        experiment conditions.
-    4. Plot the overall distribution of concordances.
-    5. Plot the result of the PCA on centroids of predicted compartments.
+    4. Plot the overall distribution of concordance differences.
+    5. Plot the result of the PCA on the compartments' centroids.
     6. Plot the boxplots of self interaction ratios (differences between self
        interactions and the medians of other interactions) of each compartment.
 
@@ -330,13 +330,13 @@ differences(hic.experiment)
 plotCompartmentChanges(hic.experiment, chromosome = '3')
 ```
 
-Plot the overall distribution of concordances:
+Plot the overall distribution of concordance differences:
 
 ```r
-plotConcordanceDistribution(hic.experiment)
+plotConcordanceDifferences(hic.experiment)
 ```
 
-Plot the result of the PCA on centroids of predicted compartments:
+Plot the result of the PCA on the compartments' centroids:
 
 ```r
 plotSelfInteractionRatios(hic.experiment, chromosome = '3')

@@ -1,19 +1,26 @@
-#' Plot the concordance, i.e. the relative distance of the genomic positions
-#' with respect to the centroids.
+#' @title
+#' Plot the distribution of concordance differences.
 #'
-#' @param object an \code{HiCDOCDataSet} object
-#' @return A list of \code{ggplot}, one for each chromosome.
+#' @description
+#' Plots the distribution of concordance differences, which are the differences
+#' between concordances of each pair of replicates from different conditions. A
+#' concordance can be understood as a confidence in a genomic position's
+#' assigned compartment. Mathematically, it is the log ratio of a genomic
+#' position's distance to each compartment's centroid, normalized by the
+#' distance between both centroids, and min-maxed to a [-1,1] interval.
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @return
+#' A \code{ggplot}.
+#'
 #' @examples
 #' object <- HiCDOCDataSetExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- detectCompartments(object)
-#' plotConcordanceDistribution(object)
+#' object <- HiCDOC(object)
+#' plotConcordanceDifferences(object)
+#'
 #' @export
-plotConcordanceDistribution <- function(object) {
+plotConcordanceDifferences <- function(object) {
     .validateSlots(
         object,
         slots = c(
@@ -39,12 +46,12 @@ plotConcordanceDistribution <- function(object) {
         dplyr::left_join(changed, by = c("chromosome", "bin")) %>%
         dplyr::mutate(changed = tidyr::replace_na(changed, "F"))
 
-    p <-
+    plot <-
         ggplot(differences, aes(x = difference, fill = changed)) +
         geom_histogram() +
         labs(
             x = "Concordance",
-            title = "Distribution of the differences of concordances"
+            title = "Distribution of concordance differences"
         )
-    return(p)
+    return(plot)
 }

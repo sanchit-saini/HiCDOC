@@ -1,18 +1,26 @@
-#' Plot boxplots of the diagonal ratios in each compartment,
-#' for a given chromosome.
+#' @title
+#' Plot boxplots of self interaction ratios.
 #'
-#' @param object an \code{HiCDOCDataSet} object
-#' @param chromosome character or numeric value, name or number of chromosome
-#' @return A list of \code{ggplot}, one for each chromosome.
+#' @description
+#' Plots the boxplots of self interaction ratios, which are the differences
+#' between self interaction and median of other interactions for each genomic
+#' position. Since the A compartment is open with more interactions overall, it
+#' is assumed that self interaction ratios in compartment A are smaller than in
+#' compartment B.
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosome
+#' A chromosome name or index in \code{chromosomes(object)}.
+#'
+#' @return
+#' A \code{ggplot}.
+#'
 #' @examples
 #' object <- HiCDOCDataSetExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- detectCompartments(object)
-#' plotSelfInteractionRatios(object, 1)
+#' object <- HiCDOC(object)
+#' plotSelfInteractionRatios(object, chromosome = 1)
+#'
 #' @export
 plotSelfInteractionRatios <- function(object, chromosome) {
     .validateSlots(object, slots = c("selfInteractionRatios", "compartments"))

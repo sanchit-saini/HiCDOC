@@ -1,10 +1,19 @@
-#' Plot the distance vs intensity matrix.
+#' @title
+#' Plot the distance effect.
 #'
-#' @param object an \code{HiCDOCDataSet} object
-#' @return A \code{ggplot}.
+#' @description
+#' Plots the distance effect on proportion of interactions.
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#'
+#' @return
+#' A \code{ggplot}.
+#'
 #' @examples
 #' object <- HiCDOCDataSetExample()
 #' plotDistanceEffect(object)
+#'
 #' @export
 plotDistanceEffect <- function(object) {
     .validateSlots(object, slots = c("interactions", "binSize"))

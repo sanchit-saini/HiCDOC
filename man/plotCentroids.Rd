@@ -2,31 +2,26 @@
 % Please edit documentation in R/plotCentroids.R
 \name{plotCentroids}
 \alias{plotCentroids}
-\title{Plot the centroids PCA for a given chromosome.}
+\title{Plot centroids.}
 \usage{
 plotCentroids(object, chromosome, size = 2)
 }
 \arguments{
-\item{object}{an \code{HiCDOCDataSet} object}
+\item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{size}{Numeric. Size of the points in geom_point.}
+\item{chromosome}{A chromosome name or index in \code{chromosomes(object)}.}
 
-\item{chromosomeId}{Character or numeric value. Name or number of
-the chromosome, like in chromosomes(object)}
+\item{size}{Size of each point. Defaults to 2.}
 }
 \value{
-A \code{ggplot} object
+A \code{ggplot}.
 }
 \description{
-Plot the centroids PCA for a given chromosome.
+Plots the result of the PCA on the compartments' centroids.
 }
 \examples{
 object <- HiCDOCDataSetExample()
-object <- filterSmallChromosomes(object)
-object <- filterWeakPositions(object)
-object <- normalizeTechnicalBiases(object)
-object <- normalizeBiologicalBiases(object)
-object <- normalizeDistanceEffect(object)
-object <- detectCompartments(object)
-plotCentroids(object, 1)
+object <- HiCDOC(object)
+plotCentroids(object, chromosome = 1)
+
 }

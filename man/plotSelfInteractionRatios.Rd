@@ -2,30 +2,28 @@
 % Please edit documentation in R/plotSelfInteractionRatios.R
 \name{plotSelfInteractionRatios}
 \alias{plotSelfInteractionRatios}
-\title{Plot boxplots of the diagonal ratios in each compartment,
-for a given chromosome.}
+\title{Plot boxplots of self interaction ratios.}
 \usage{
 plotSelfInteractionRatios(object, chromosome)
 }
 \arguments{
-\item{object}{an \code{HiCDOCDataSet} object}
+\item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{chromosome}{character or numeric value, name or number of chromosome}
+\item{chromosome}{A chromosome name or index in \code{chromosomes(object)}.}
 }
 \value{
-A list of \code{ggplot}, one for each chromosome.
+A \code{ggplot}.
 }
 \description{
-Plot boxplots of the diagonal ratios in each compartment,
-for a given chromosome.
+Plots the boxplots of self interaction ratios, which are the differences
+between self interaction and median of other interactions for each genomic
+position. Since the A compartment is open with more interactions overall, it
+is assumed that self interaction ratios in compartment A are smaller than in
+compartment B.
 }
 \examples{
 object <- HiCDOCDataSetExample()
-object <- filterSmallChromosomes(object)
-object <- filterWeakPositions(object)
-object <- normalizeTechnicalBiases(object)
-object <- normalizeBiologicalBiases(object)
-object <- normalizeDistanceEffect(object)
-object <- detectCompartments(object)
-plotSelfInteractionRatios(object, 1)
+object <- HiCDOC(object)
+plotSelfInteractionRatios(object, chromosome = 1)
+
 }

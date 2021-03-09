@@ -1,30 +1,33 @@
-#' Plot the concordance
+#' @title
+#' Plot concordances.
 #'
-#' Plot the concordance of all the replicates for one chromosome.
+#' @description
+#' Plots the concordances of each replicate in each experiment condition. A
+#' concordance can be understood as a confidence in a genomic position's
+#' assigned compartment. Mathematically, it is the log ratio of a genomic
+#' position's distance to each compartment's centroid, normalized by the
+#' distance between both centroids, and min-maxed to a [-1,1] interval.
 #'
-#' @param object A \code{HiCDOCDataSet} object on which
-#' \code{detectCompartments()} has run.
-#' @param chromosomeId The name or number of the chromosome to plot.
-#' If number, will be taken in \code{object@chromosomes[chromosomeId]}
-#' @param xlim A numeric-value pair, indicating the interval of positions
-#' to represent.
-#' Default to NULL = all positions.
-#' @param threshold Significance threshold for the changes. Default to 0.05.
-#' @param points Logical (default to FALSE). If TRUE, points will be added
-#' on the concordance lines.
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosome
+#' A chromosome name or index in \code{chromosomes(object)}.
+#' @param xlim
+#' A vector of the minimum and maximum positions to display. If NULL, displays
+#' all positions. Defaults to NULL.
+#' @param threshold
+#' Significance threshold for the compartment changes. Defaults to 0.05.
+#' @param points
+#' Whether or not to add points to the concordances. Defaults to FALSE.
 #'
-#' @return A ggplot.
-#' @export
+#' @return
+#' A \code{ggplot}.
 #'
 #' @examples
 #' object <- HiCDOCDataSetExample()
-#' object <- filterSmallChromosomes(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- detectCompartments(object)
-#' plotConcordances(object, 1)
+#' object <- HiCDOC(object)
+#' plotConcordances(object, chromosome = 1)
+#'
 #' @export
 plotConcordances <- function(
     object,
@@ -46,7 +49,7 @@ plotConcordances <- function(
             by = c("chromosome", "bin")
         ) %>%
         dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
-        dplyr::mutate(condition = paste0("confidence, cond. ", condition)) %>%
+        dplyr::mutate(condition = paste0("Concordances\n", condition)) %>%
         dplyr::mutate(position = start + 0.5 * object@binSize)
 
     # Significant differences
@@ -63,13 +66,13 @@ plotConcordances <- function(
             cols = tidyr::starts_with("condition"),
             values_to = "condition"
         ) %>%
-        dplyr::mutate(condition = paste0("confidence, cond. ", condition))
+        dplyr::mutate(condition = paste0("Concordances\n", condition))
 
     caption <- "The grey areas are significant changes"
     if (nrow(differences) == 0) caption <- "No change is significant"
     caption <- paste0(
         caption,
-        " (adjusted p-value <= ",
+        " (adjusted p-value ≤ ",
         round(100 * threshold, 2),
         "%)"
     )
