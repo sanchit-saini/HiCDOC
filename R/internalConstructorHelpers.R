@@ -305,7 +305,7 @@
             object@replicates
         )
 
-    if ('position.1' %in% colnames(object@interactions)) {
+    if ("position.1" %in% colnames(object@interactions)) {
         object@binSize <- .determineBinSize(object)
         object@positions <- .determinePositions(object)
         object@interactions <- .replacePositionsByBins(object)

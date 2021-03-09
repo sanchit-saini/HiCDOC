@@ -87,7 +87,7 @@
             values_from = centroid,
             names_prefix = "reference."
         ) %>%
-        dplyr::select(-c(condition)) %>%
+        dplyr::select(-condition) %>%
         dplyr::full_join(
             object@centroids %>%
             dplyr::filter(chromosome %in% selectedChromosomeNames) %>%
@@ -110,7 +110,7 @@
             )
         ) %>%
         dplyr::mutate(cluster.2 = dplyr::if_else(cluster.1 == 1, 2, 1)) %>%
-        dplyr::select(-c(centroid.1, centroid.2, reference.1, reference.2))
+        dplyr::select(-centroid.1, -centroid.2, -reference.1, -reference.2)
 
     object@compartments %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
@@ -119,7 +119,7 @@
         dplyr::mutate(
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
-        dplyr::select(-c(cluster.1, cluster.2))
+        dplyr::select(-cluster.1, -cluster.2)
 
     object@concordances %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
@@ -136,7 +136,7 @@
         dplyr::mutate(
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
-        dplyr::select(-c(cluster.1, cluster.2, change))
+        dplyr::select(-cluster.1, -cluster.2, -change)
 
     object@distances %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
@@ -145,7 +145,7 @@
         dplyr::mutate(
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
-        dplyr::select(-c(cluster.1, cluster.2))
+        dplyr::select(-cluster.1, -cluster.2)
 
     object@centroids %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
@@ -154,7 +154,7 @@
         dplyr::mutate(
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
-        dplyr::select(-c(cluster.1, cluster.2))
+        dplyr::select(-cluster.1, -cluster.2)
 
     return(object)
 }
@@ -503,7 +503,7 @@
         ) %>%
         tidyr::replace_na(list(diagonal = 0, offDiagonal = 0)) %>%
         dplyr::mutate(ratio = diagonal - offDiagonal) %>%
-        dplyr::select(-c(diagonal, offDiagonal))
+        dplyr::select(-diagonal, -offDiagonal)
 
     return(selfInteractionRatios)
 }
@@ -571,7 +571,8 @@
                 SIMPLIFY = FALSE,
                 BPPARAM = BiocParallel::bpparam()
             )
-        object@selfInteractionRatios <- do.call("rbind", object@selfInteractionRatios)
+        object@selfInteractionRatios <-
+            do.call("rbind", object@selfInteractionRatios)
     }
 
     compartments <-
@@ -590,20 +591,20 @@
             names_prefix = "ratio."
         ) %>%
         dplyr::mutate(A = dplyr::if_else(ratio.1 >= ratio.2, 2, 1)) %>%
-        dplyr::select(-c(ratio.1, ratio.2))
+        dplyr::select(-ratio.1, -ratio.2)
 
     object@compartments %<>%
-        dplyr::left_join(compartments, by = c("chromosome")) %>%
+        dplyr::left_join(compartments, by = "chromosome") %>%
         dplyr::mutate(
             compartment = factor(
                 dplyr::if_else(compartment == A, "A", "B"),
                 levels = c("A", "B")
             )
         ) %>%
-        dplyr::select(-c(A))
+        dplyr::select(-A)
 
     object@concordances %<>%
-        dplyr::left_join(compartments, by = c("chromosome")) %>%
+        dplyr::left_join(compartments, by = "chromosome") %>%
         dplyr::mutate(change = dplyr::if_else(A == 1, 1, -1)) %>%
         dplyr::mutate(concordance = change * concordance) %>%
         dplyr::mutate(
@@ -612,27 +613,27 @@
                 levels = c("A", "B")
             )
         ) %>%
-        dplyr::select(-c(A, change))
+        dplyr::select(-A, -change)
 
     object@distances %<>%
-        dplyr::left_join(compartments, by = c("chromosome")) %>%
+        dplyr::left_join(compartments, by = "chromosome") %>%
         dplyr::mutate(
             compartment = factor(
                 dplyr::if_else(compartment == A, "A", "B"),
                 levels = c("A", "B")
             )
         ) %>%
-        dplyr::select(-c(A))
+        dplyr::select(-A)
 
     object@centroids %<>%
-        dplyr::left_join(compartments, by = c("chromosome")) %>%
+        dplyr::left_join(compartments, by = "chromosome") %>%
         dplyr::mutate(
             compartment = factor(
                 dplyr::if_else(compartment == A, "A", "B"),
                 levels = c("A", "B")
             )
         ) %>%
-        dplyr::select(-c(A))
+        dplyr::select(-A)
 
     return(object)
 }
@@ -672,8 +673,8 @@
             # Arrange by chromosome and position
             # to join with the duplicated rows
             dplyr::arrange(chromosome, bin) %>%
-            dplyr::rename_with(function(old_colnames) {
-                paste(old_colnames, 2, sep = ".")
+            dplyr::rename_with(function(column) {
+                paste(column, 2, sep = ".")
             })
         ) %>%
         dplyr::select(-chromosome.2, -bin.2) %>%
@@ -704,8 +705,8 @@
             # Arrange by chromosome and position
             # to join with the duplicated rows
             dplyr::arrange(chromosome, bin) %>%
-            dplyr::rename_with(function(old_colnames) {
-                paste(old_colnames, 2, sep = ".")
+            dplyr::rename_with(function(column) {
+                paste(column, 2, sep = ".")
             })
         ) %>%
         dplyr::select(-chromosome.2, -bin.2) %>%

@@ -43,9 +43,9 @@
         )
     }
 
-    conditions.replicates <- colnames(interactions)[4:ncol(interactions)]
+    columns <- colnames(interactions)[4:ncol(interactions)]
 
-    if (!all(grepl("^.+?\\..+$", conditions.replicates))) {
+    if (!all(grepl("^.+?\\..+$", columns))) {
         stop(
             "Fourth to last column of the input file must be named 'C.R', ",
             "with C the condition number/name and R the replicate number/name.",
@@ -53,13 +53,13 @@
         )
     }
 
-    object@conditions <- gsub("^(.+?)\\..+$", "\\1", conditions.replicates)
-    object@replicates <- gsub("^.+?\\.(.+)$", "\\1", conditions.replicates)
+    object@conditions <- gsub("^(.+?)\\..+$", "\\1", columns)
+    object@replicates <- gsub("^.+?\\.(.+)$", "\\1", columns)
 
     object@interactions <-
         tidyr::gather(
             interactions,
-            conditions.replicates,
+            columns,
             key = condition.replicate,
             value = interaction
         ) %>%
@@ -124,7 +124,7 @@
     step <- max(step)
 
     bins %<>%
-        dplyr::select(-(end)) %>%
+        dplyr::select(-end) %>%
         dplyr::rename(position = start) %>%
         dplyr::mutate(ide = seq_len(nrow(bins)) - 1) %>%
         dplyr::select(ide, chromosome, position)

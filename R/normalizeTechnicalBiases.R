@@ -70,7 +70,7 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
 
     matrices %<>%
         purrr::map(
-            function(group) dplyr::select(group, -c(condition, replicate))
+            function(group) dplyr::select(group, -condition, -replicate)
         )
 
     # Regions to ignore during normalization
