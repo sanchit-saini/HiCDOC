@@ -30,7 +30,7 @@ setGeneric(
     }
 )
 
-## - positions
+## - resolution
 setGeneric(
     name = "resolution",
     def = function(object) {

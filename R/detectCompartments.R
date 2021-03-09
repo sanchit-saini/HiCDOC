@@ -633,7 +633,6 @@
 #' @return
 #' A \code{\link{HiCDOCDataSet}}, with differences and their p-values.
 #'
-#' @md
 #' @keywords internal
 #' @noRd
 .computePValues <- function(object) {
@@ -851,7 +850,7 @@
 #' \code{object$kMeansIterations} which is originally set to
 #' \code{defaultHiCDOCParameters$kMeansIterations} = 50.
 #'
-#' @param kMeansRestarts A numerical value.
+#' @param kMeansRestarts
 #' The amount of times the clustering is restarted. For each restart, the
 #' clustering iterates until convergence or reaching the maximum number of
 #' iterations. The clustering that minimizes inner-cluster variance is selected.

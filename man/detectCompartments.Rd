@@ -26,8 +26,7 @@ stops. Defaults to \code{object$kMeansDelta} which is originally set to
 \code{object$kMeansIterations} which is originally set to
 \code{defaultHiCDOCParameters$kMeansIterations} = 50.}
 
-\item{kMeansRestarts}{A numerical value.
-The amount of times the clustering is restarted. For each restart, the
+\item{kMeansRestarts}{The amount of times the clustering is restarted. For each restart, the
 clustering iterates until convergence or reaching the maximum number of
 iterations. The clustering that minimizes inner-cluster variance is selected.
 Defaults to \code{object$kMeansRestarts} which is originally set to
