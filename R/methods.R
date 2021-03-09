@@ -130,6 +130,23 @@ setMethod("compartments", "HiCDOCDataSet", function(object) {
             condition,
             compartment
         ) %>%
+        dplyr::arrange(chromosome, condition, start, end) %>%
+        dplyr::mutate(
+            consecutive = (
+                start - dplyr::lag(end) == 1 &
+                dplyr::lag(chromosome) == chromosome &
+                dplyr::lag(condition) == condition &
+                dplyr::lag(compartment) == compartment
+            ),
+            consecutive = tidyr::replace_na(consecutive, TRUE),
+            switching = dplyr::if_else(consecutive, 0, 1),
+            group = cumsum(switching)
+        ) %>%
+        dplyr::group_by(group) %>%
+        dplyr::mutate(start = min(start), end = max(end)) %>%
+        dplyr::slice(1) %>%
+        dplyr::ungroup() %>%
+        dplyr::select(-consecutive, -switching, -group) %>%
         GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE)
 
     return(compartments)
