@@ -45,7 +45,7 @@ It provides a collection of functions assembled into a pipeline:
 3. [Predict](#predicting-compartments-and-differences):
     1. Predict compartments using
        [constrained K-means][constrained-k-means-publication], and detect
-       significant differences between experiment condition pairs.
+       significant differences between experiment conditions.
 4. [Visualize](#visualizing-data-and-results):
     1. Plot the interaction matrices of every replicate.
     2. Plot the overall distance effect on the proportion of interactions.
@@ -131,7 +131,7 @@ A tabular file is a tab-separated multi-replicate sparse matrix with a header:
     3             1500000       7500000       145      184      72       ...
     ...
 
-The interaction proportions between `position 1` and `position 2` of chromosome
+The interaction proportions between `position 1` and `position 2` of
 `chromosome` are reported in each `condition.replicate` column. There is no
 limit to the number of conditions and replicates.
 
@@ -339,14 +339,14 @@ plotConcordanceDifferences(hic.experiment)
 Plot the result of the PCA on the compartments' centroids:
 
 ```r
-plotSelfInteractionRatios(hic.experiment, chromosome = '3')
+plotCentroids(hic.experiment, chromosome = '3')
 ```
 
 Plot the boxplots of self interaction ratios (differences between self
 interactions and the median of other interactions) of each compartment:
 
 ```r
-plotCentroids(hic.experiment, chromosome = '3')
+plotSelfInteractionRatios(hic.experiment, chromosome = '3')
 ```
 
 
