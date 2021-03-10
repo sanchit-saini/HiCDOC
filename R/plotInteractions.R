@@ -8,21 +8,21 @@
 #' character : transformation to be passed to \code{scale_fill_gradientn}
 #' @param colours
 #' vector of colors to be passed to \code{scale_fill_gradientn}
-#' @param chromosomeName 
+#' @param chromosomeName
 #' Character, name of the chromosome
 #' @return
 #' a ggplot object
-#' 
+#'
 #' @keywords internal
 #' @noRd
 .plotInteractionsGrid <- function(
-    interactions, 
-    xylim, 
-    transform, 
-    colours, 
+    interactions,
+    xylim,
+    transform,
+    colours,
     chromosomeName
-){
-    plot <- 
+) {
+    plot <-
         ggplot(
             data = interactions,
             aes(x = position.1, y = position.2, z = interaction)
@@ -62,28 +62,28 @@
 #' character : transformation to be passed to \code{scale_fill_gradientn}
 #' @param colours
 #' vector of colors to be passed to \code{scale_fill_gradientn}
-#' @param chromosomeName 
+#' @param chromosomeName
 #' Character, name of the chromosome
 #' @param totalRows
-#' Integer, number of rows in facet_wrap 
-#' @param totalCols 
+#' Integer, number of rows in facet_wrap
+#' @param totalCols
 #' Integer, number of colums in facet_wrap
 #'
 #' @return
 #' a ggplot object
-#' 
+#'
 #' @keywords internal
 #' @noRd
 .plotInteractionsWrap <- function(
-    interactions, 
-    xylim, 
-    transform, 
-    colours, 
+    interactions,
+    xylim,
+    transform,
+    colours,
     chromosomeName,
     totalRows,
     totalCols
-){
-    plot <- 
+) {
+    plot <-
         ggplot(
             data = interactions,
             aes(x = position.1, y = position.2, z = interaction)
@@ -118,9 +118,9 @@
 #'
 #' @param replicates
 #' Vector of replicates for one conditino
-#' @param expectedLength 
+#' @param expectedLength
 #' Expected length of replicates levels
-#' @param condition 
+#' @param condition
 #' Name of the condition
 #'
 #' @return
@@ -128,10 +128,10 @@
 #'
 #' @keywords internal
 #' @noRd
-.completeLevels <- function(replicates, expectedLength, condition){
-    if(length(replicates) < expectedLength){
-        complete <- paste0("R.", seq_len(expectedLength))
-        complete[1:length(replicates)] <- replicates
+.completeLevels <- function(replicates, expectedLength, condition) {
+    if(length(replicates) < expectedLength) {
+        complete <- paste0("R.", seq(expectedLength))
+        complete[seq_len(replicates)] <- replicates
     } else {
         complete <- replicates
     }
@@ -184,7 +184,7 @@ plotInteractions <- function(
         )
     )
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
-    if (is.null(transform)) transform <- "Identity"
+    if (is.null(transform)) transform <- "identity"
 
     positions <-
         object@positions %>%
@@ -212,29 +212,34 @@ plotInteractions <- function(
         message("No interaction data to plot.")
         return(NULL)
     }
-    
+
     xylim <- c(min(positions$start), max(positions$start))
-    
+
     if(prod(dim(table(interactions$condition, interactions$replicate))) <=
-       sum(table(object@conditions))){
+       sum(table(object@conditions))) {
         plot <- .plotInteractionsGrid(interactions, xylim, transform, colours,
                                       chromosomeName)
     } else {
         totalLevels <- table(object@conditions)
         totalCols <- max(totalLevels)
         totalRows <- length(unique(object@conditions))
-        
+
         existing <- by(interactions$replicate, interactions$condition, unique)
         existing <- lapply(existing, as.character)
         existing <- lapply(existing, .completeLevels, totalCols)
-        existing <- mapply(paste, unique(object@conditions), existing, sep="_", SIMPLIFY = FALSE)
+        existing <- mapply(
+            paste,
+            unique(object@conditions),
+            existing,
+            sep = "_",
+            SIMPLIFY = FALSE)
         allLevels <- unlist(existing, use.names = FALSE)
-        
+
         # Construct facet variable
-        interactions %<>% 
-            dplyr::mutate(facet = paste(condition ,replicate, sep="_")) %>%
+        interactions %<>%
+            dplyr::mutate(facet = paste(condition, replicate, sep = "_")) %>%
             dplyr::mutate(facet = factor(facet, levels = allLevels))
-        
+
         plot <- .plotInteractionsWrap(interactions, xylim, transform, colours,
                                       chromosomeName, totalRows, totalCols)
     }
