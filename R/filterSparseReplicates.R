@@ -69,7 +69,7 @@
         allInteractions %>%
         dplyr::group_by(condition, replicate) %>%
         dplyr::summarise(
-            fill = sum(total.interactions) / totalCells,
+            fillPct = sum(total.interactions) / totalCells,
             .groups = "keep"
         ) %>%
         dplyr::ungroup() %>%
@@ -82,11 +82,11 @@
             fillPercentages,
             by = c("chromosome", "condition", "replicate")
         ) %>%
-        dplyr::filter(fill >= threshold) %>%
+        dplyr::filter(fillPct >= threshold) %>%
         dplyr::filter(interaction > 0) %>%
-        dplyr::select(-fill)
+        dplyr::select(-fillPct)
 
-    removed <- fillPercentages %>% dplyr::filter(fill < threshold)
+    removed <- fillPercentages %>% dplyr::filter(fillPct < threshold)
 
     if (nrow(removed) > 0) {
         message(
@@ -98,14 +98,14 @@
                 ", replicate ",
                 removed$replicate,
                 " filled at ",
-                round(removed$fill, digits = 5) * 100,
+                round(removed$fillPct, digits = 5) * 100,
                 "%.",
                 collapse = "\n"
             )
         )
     }
 
-    valid <- fillPercentages %>% dplyr::filter(fill >= threshold)
+    valid <- fillPercentages %>% dplyr::filter(fillPct >= threshold)
 
     validConditions <- valid %>% dplyr::pull(condition)
     validReplicates <- valid %>% dplyr::pull(replicate)

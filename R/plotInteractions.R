@@ -99,7 +99,7 @@
         xlim(xylim) +
         scale_y_reverse(limits = rev(xylim)) +
         facet_wrap(
-            . ~ facet,
+            . ~ facetVar,
             ncol = totalCols,
             nrow = totalRows,
             drop = FALSE
@@ -237,8 +237,8 @@ plotInteractions <- function(
 
         # Construct facet variable
         interactions %<>%
-            dplyr::mutate(facet = paste(condition, replicate, sep = "_")) %>%
-            dplyr::mutate(facet = factor(facet, levels = allLevels))
+            dplyr::mutate(facetVar = paste(condition, replicate, sep = "_")) %>%
+            dplyr::mutate(facetVar = factor(facetVar, levels = allLevels))
 
         plot <- .plotInteractionsWrap(interactions, xylim, transform, colours,
                                       chromosomeName, totalRows, totalCols)
