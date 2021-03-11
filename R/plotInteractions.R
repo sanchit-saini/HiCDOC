@@ -131,7 +131,7 @@
 .completeLevels <- function(replicates, expectedLength, condition) {
     if(length(replicates) < expectedLength) {
         complete <- paste0("R.", seq(expectedLength))
-        complete[seq_len(replicates)] <- replicates
+        complete[seq(length(replicates))] <- replicates
     } else {
         complete <- replicates
     }
@@ -215,8 +215,8 @@ plotInteractions <- function(
 
     xylim <- c(min(positions$start), max(positions$start))
 
-    if(prod(dim(table(interactions$condition, interactions$replicate))) <=
-       sum(table(object@conditions))) {
+    if(length(unique(interactions$replicate)) <=
+       max(table(object@conditions))) {
         plot <- .plotInteractionsGrid(interactions, xylim, transform, colours,
                                       chromosomeName)
     } else {
