@@ -25,6 +25,8 @@
 
     object@weakBins <- object@weakBins[chromosomeIds]
     object@totalBins <- object@totalBins[chromosomeIds]
+    object@validReplicates <- object@validReplicates[chromosomeIds]
+    object@validConditions <- object@validConditions[chromosomeIds]
     for (
         slotName in c(
             "interactions",
@@ -70,6 +72,18 @@
     conditionIds <- which(object@conditions %in% conditionNames)
     object@conditions <- object@conditions[conditionIds]
     object@replicates <- object@replicates[conditionIds]
+
+    selection <- lapply(object@validConditions,
+                        FUN = function(x)
+                            which(x %in% conditionNames))
+    object@validConditions <- mapply(FUN = function(x, y) x[y],
+                                     object@validConditions,
+                                     selection,
+                                     SIMPLIFY = FALSE)
+    object@validReplicates <- mapply(FUN = function(x, y) x[y],
+                                     object@validReplicates,
+                                     selection,
+                                     SIMPLIFY = FALSE)
     for (
         slotName in c(
             "interactions",
@@ -113,6 +127,18 @@
     replicateIds <- which(object@replicates %in% replicateNames)
     object@conditions <- object@conditions[replicateIds]
     object@replicates <- object@replicates[replicateIds]
+
+    selection <- lapply(object@validReplicates,
+                        FUN = function(x)
+                            which(x %in% replicateNames))
+    object@validConditions <- mapply(FUN = function(x, y) x[y],
+                                     object@validConditions,
+                                     selection,
+                                     SIMPLIFY = FALSE)
+    object@validReplicates <- mapply(FUN = function(x, y) x[y],
+                                     object@validReplicates,
+                                     selection,
+                                     SIMPLIFY = FALSE)
     for (
         slotName in c(
             "interactions",
@@ -183,16 +209,15 @@ reduceHiCDOCDataSet <- function(
 
     if (!is.null(chromosomeNames)) {
         object <- .reduceHiCDOCChromosomes(object, chromosomeNames, dropLevels)
-        return(object)
     }
 
     if (!is.null(conditionNames)) {
         object <- .reduceHiCDOCConditions(object, conditionNames, dropLevels)
-        return(object)
     }
 
     if (!is.null(replicateNames)) {
         object <- .reduceHiCDOCReplicates(object, replicateNames, dropLevels)
-        return(object)
     }
+
+    return(object)
 }
