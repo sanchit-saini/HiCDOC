@@ -23,15 +23,25 @@
 #' concordances(object)
 #' differences(object)
 #' show(object)
+#' @param object
+#' a HiCDOCDataSet object
+#' @examples
+#' object <- HiCDOCDataSetExample()
+#' chromosomes(object)
+#' conditions(object)
+#' object <- HiCDOC(object)
+#' differences(object)
+#' @return
+#' A character vector (for \code{chromosomes}, \code{conditions},
+#' \code{replicates}), an integer(for \code{resolution}), a tibble
+#' (for \code{interactions}), or a GRanges object (for \code{compartments},
+#' \code{concordances}, \code{differences}).
 NULL
 
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the vector of chromosome names.
-#'
-#' @format
-#'
 #' @usage
-#'
+#' NULL
 #' @export
 setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 
@@ -41,7 +51,7 @@ setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 #' @format
 #'
 #' @usage
-#'
+#' NULL
 #' @export
 setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 
@@ -51,7 +61,7 @@ setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 #' @format
 #'
 #' @usage
-#'
+#' NULL
 #' @export
 setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 
@@ -61,7 +71,7 @@ setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 #' @format
 #'
 #' @usage
-#'
+#' NULL
 #' @export
 setMethod("resolution", "HiCDOCDataSet", function(object) object@binSize)
 
@@ -71,7 +81,7 @@ setMethod("resolution", "HiCDOCDataSet", function(object) object@binSize)
 #' @format
 #'
 #' @usage
-#'
+#' NULL
 #' @export
 setMethod("interactions", "HiCDOCDataSet", function(object) {
 
@@ -108,13 +118,13 @@ setMethod("interactions", "HiCDOCDataSet", function(object) {
 })
 
 #' @describeIn HiCDOCDataSet-methods
-#' Retrieves a \code{GenomicRange} of the compartment of every position in every
-#' condition.
+#' Retrieves a \code{GenomicRange} of the compartment of every position
+#' in every condition.
 #'
 #' @format
 #'
 #' @usage
-#'
+#' NULL
 #' @export
 setMethod("compartments", "HiCDOCDataSet", function(object) {
 
@@ -159,7 +169,7 @@ setMethod("compartments", "HiCDOCDataSet", function(object) {
 #' @format
 #'
 #' @usage
-#'
+#' NULL
 #' @export
 setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 
@@ -210,7 +220,7 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
         message(
             "No differences found",
             if (!is.null(threshold))
-            paste0(" with adjusted p-value ≤ ", threshold),
+            paste0(" with adjusted p-value <= ", threshold),
             "."
         )
         return(GenomicRanges::GRanges())
@@ -232,7 +242,7 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 #' @format
 #'
 #' @usage
-#'
+#' NULL
 #' @export
 setMethod("concordances", "HiCDOCDataSet", function(object) {
 
@@ -261,7 +271,7 @@ setMethod("concordances", "HiCDOCDataSet", function(object) {
 #' @format
 #'
 #' @usage
-#'
+#' NULL
 #' @export
 setMethod("show", "HiCDOCDataSet", function(object) {
     cat(
@@ -323,10 +333,11 @@ setMethod("show", "HiCDOCDataSet", function(object) {
 #' @details
 #' A \code{\link{HiCDOCDataSet}}'s parameters are automatically set to default
 #' values retrieved from \code{\link{defaultHiCDOCParameters}}. They are
-#' accessed by filtering, normalization, and compartment detection functions. If
-#' those functions are called with custom arguments, the object's parameters are
-#' updated to record the actual parameters used. If the object's parameters are
-#' customized before calling the functions, the custom parameters will be used.
+#' accessed by filtering, normalization, and compartment detection functions.
+#' If those functions are called with custom arguments, the object's
+#' parameters are updated to record the actual parameters used. If the
+#' object's parameters are customized before calling the functions, the
+#' custom parameters will be used.
 #'
 #' \subsection{All parameters are listed here:}{
 #'     \describe{
@@ -415,7 +426,7 @@ NULL
 #' @format
 #'
 #' @usage
-#'
+#' NULL
 #' @export
 setMethod("parameters", "HiCDOCDataSet", function(object) object@parameters)
 
@@ -432,7 +443,7 @@ setMethod("parameters", "HiCDOCDataSet", function(object) object@parameters)
 #' @format
 #'
 #' @usage
-#'
+#' NULL
 #' @export
 setReplaceMethod("parameters", "HiCDOCDataSet", function(object, value) {
 

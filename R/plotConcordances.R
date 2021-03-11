@@ -72,7 +72,7 @@ plotConcordances <- function(
     if (nrow(differences) == 0) caption <- "No change is significant"
     caption <- paste0(
         caption,
-        " (adjusted p-value ≤ ",
+        " (adjusted p-value <= ",
         round(100 * threshold, 2),
         "%)"
     )

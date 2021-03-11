@@ -231,22 +231,25 @@ hic.experiment <- HiCDOC(hic.experiment)
 This one-liner runs all the steps detailed below.
 
 ### Filtering data
+```{r reloadExample, echo = FALSE}
+hic.experiment <- HiCDOCDataSetExample()
+```
 
 Remove small chromosomes of length smaller than 100 positions:
 
-```{r filterSmallChromosomes, eval = FALSE}
+```{r filterSmallChromosomes}
 hic.experiment <- filterSmallChromosomes(hic.experiment, threshold = 100)
 ```
 
 Remove sparse replicates filled with less than 5% non-zero interactions:
 
-```{r filterSparseReplicates, eval = FALSE}
+```{r filterSparseReplicates}
 hic.experiment <- filterSparseReplicates(hic.experiment, threshold = 0.05)
 ```
 
 Remove weak positions with less than 1 interaction in average:
 
-```{r filterWeakPositions, eval = FALSE}
+```{r filterWeakPositions}
 hic.experiment <- filterWeakPositions(hic.experiment, threshold = 1)
 ```
 
@@ -254,20 +257,20 @@ hic.experiment <- filterWeakPositions(hic.experiment, threshold = 1)
 
 Normalize technical biases such as sequencing depth:
 
-```{r normalizeTechnicalBiases, eval = FALSE}
+```{r normalizeTechnicalBiases}
 hic.experiment <- normalizeTechnicalBiases(hic.experiment)
 ```
 
 Normalize biological biases such as GC content:
 
-```{r normalizeBiologicalBiases, eval = FALSE}
+```{r normalizeBiologicalBiases}
 hic.experiment <- normalizeBiologicalBiases(hic.experiment)
 ```
 
 Normalize the distance effect resulting from higher interaction proportions
 between closer regions:
 
-```{r normalizeDistanceEffect, eval = FALSE}
+```{r normalizeDistanceEffect}
 hic.experiment <- normalizeDistanceEffect(hic.experiment, loessSampleSize = 20000)
 ```
 
@@ -275,7 +278,7 @@ hic.experiment <- normalizeDistanceEffect(hic.experiment, loessSampleSize = 2000
 
 Predict A and B compartments and detect significant differences:
 
-```{r detectCompartments, eval = FALSE}
+```{r detectCompartments}
 hic.experiment <- detectCompartments(
   hic.experiment,
   kMeansDelta = 0.0001,
