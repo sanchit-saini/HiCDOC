@@ -56,12 +56,11 @@
     selectedChromosomeNames <- names(object@validConditions)
 
     referenceConditionNames <-
-        lapply(
+        vapply(
             object@validConditions[selectedChromosomeNames],
-            function(conditionNames) conditionNames[1]
-        ) %>%
-        unlist() %>%
-        as.vector()
+            function(conditionNames) conditionNames[1],
+            FUN.VALUE = ""
+        )
 
     referenceCentroids <-
         dplyr::tibble(
@@ -203,7 +202,6 @@
     chromosomeName,
     conditionName
 ) {
-
     totalBins <- object@totalBins[[chromosomeName]]
     bins <- seq.int(totalBins)
     if (!is.null(object@weakBins[[chromosomeName]])) {
@@ -216,7 +214,7 @@
         object@validReplicates[[chromosomeName]][
             which(object@validConditions[[chromosomeName]] == conditionName)
         ]
-    if (length(replicateNames) == 0) return(NULL)
+    if(length(replicateNames) == 0) return(NULL)
 
     interactions <-
         purrr::map(
@@ -362,7 +360,6 @@
             )
 
     } else {
-
         reducedObjects <-
             purrr::map2(
                 chromosomeNames,
@@ -908,12 +905,24 @@ detectCompartments <- function(
             "totalBins",
             "binSize",
             "weakBins",
-            "validConditions",
-            "validReplicates",
             "parameters"
         )
     )
-
+    if (is.null(object@validConditions) | is.null(object@validReplicates)) {
+        valid <- lapply(object@chromosomes,
+                        FUN = function(x)
+                            object@interactions %>%
+                            dplyr::filter(chromosome == x &
+                                              interaction > 0) %>%
+                            dplyr::select(condition, replicate) %>%
+                            unique())
+        object@validConditions <-
+            lapply(valid, function(x) as.character(x$condition))
+        object@validReplicates <-
+            lapply(valid, function(x) as.character(x$replicate))
+        names(object@validConditions) <- object@chromosomes
+        names(object@validReplicates) <- object@chromosomes
+    }
     if (!is.null(kMeansDelta)) {
         object@parameters$kMeansDelta <- kMeansDelta
     }
