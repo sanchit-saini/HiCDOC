@@ -215,7 +215,7 @@ plotInteractions <- function(
 
     xylim <- c(min(positions$start), max(positions$start))
 
-    if(length(unique(interactions$replicate)) <=
+    if(length(unique(object@replicates)) <=
        max(table(object@conditions))) {
         plot <- .plotInteractionsGrid(interactions, xylim, transform, colours,
                                       chromosomeName)
@@ -224,7 +224,7 @@ plotInteractions <- function(
         totalCols <- max(totalLevels)
         totalRows <- length(unique(object@conditions))
 
-        existing <- by(interactions$replicate, interactions$condition, unique)
+        existing <- by(object@replicates, object@conditions, unique)
         existing <- lapply(existing, as.character)
         existing <- lapply(existing, .completeLevels, totalCols)
         existing <- mapply(
