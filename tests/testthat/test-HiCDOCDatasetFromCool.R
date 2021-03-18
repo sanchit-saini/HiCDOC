@@ -18,32 +18,20 @@ test_that("HiCDOCDataSetFromCool produce correct format", {
     expect_is(object, "HiCDOCDataSet")
     expect_identical(
         slotNames(object),
-        c(
-            "path",
-            "interactions",
-            "weakBins",
-            "chromosomes",
-            "replicates",
-            "conditions",
-            "totalBins",
-            "binSize",
-            "distances",
-            "selfInteractionRatios",
-            "compartments",
-            "concordances",
-            "differences",
-            "centroids",
-            "parameters",
-            "positions"
+        c("input", "parameters", "interactions", "chromosomes", "conditions",
+          "replicates", "positions", "binSize", "totalBins", "weakBins",
+          "validConditions", "validReplicates", "compartments",
+          "concordances", "differences", "distances", "centroids",
+          "selfInteractionRatios"
         )
     )
     # Class of slots
     expect_is(object@input, "character")
     expect_is(object@interactions, "tbl_df")
-    expect_is(object@weakBins, "list")
+    # expect_is(object@weakBins, "list")
     expect_is(object@chromosomes, "character")
     expect_is(object@replicates, "character")
-    expect_is(object@conditions, "integer")
+    expect_is(object@conditions, "numeric")
     expect_is(object@totalBins, "numeric")
     expect_is(object@binSize, "integer")
     expect_is(object@distances, "NULL")
@@ -60,7 +48,7 @@ test_that("HiCDOCDataSetFromCool produce correct format", {
     expect_is(object@interactions$bin.2, "integer")
     expect_is(object@interactions$condition, "factor")
     expect_is(object@interactions$replicate, "factor")
-    expect_true(is.numeric(object@interactions$value))
+    expect_true(is.numeric(object@interactions$interaction))
     # Positions
     expect_is(object@positions$chromosome, "factor")
     expect_is(object@positions$bin, "integer")

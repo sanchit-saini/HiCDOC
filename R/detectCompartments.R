@@ -65,8 +65,13 @@
 
     referenceCentroids <-
         dplyr::tibble(
-            chromosome = selectedChromosomeNames,
-            condition = referenceConditionNames
+            chromosome = factor(
+                selectedChromosomeNames,
+                levels =
+                    gtools::mixedsort(unique(object@chromosomes))),
+            condition = factor(
+                referenceConditionNames,
+                levels = gtools::mixedsort(unique(object@conditions)))
         ) %>%
         dplyr::left_join(
             object@centroids,
@@ -132,7 +137,10 @@
         dplyr::mutate(
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
-        dplyr::select(-cluster.1, -cluster.2)
+        dplyr::select(-cluster.1, -cluster.2) %>%
+        dplyr::mutate(condition = factor(
+            condition,
+            levels = gtools::mixedsort(unique(object@conditions))))
 
     object@centroids %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%

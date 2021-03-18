@@ -41,7 +41,7 @@
             condition ~ replicate,
             drop = FALSE
         ) +
-        labs(title = paste("Chromosome ", chromosomeName), x = "", y = "") +
+        labs(title = paste0("Chromosome ", chromosomeName), x = "", y = "") +
         scale_fill_gradientn(
             colours = colours,
             trans = transform,

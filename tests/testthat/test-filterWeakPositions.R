@@ -1,22 +1,25 @@
+object <- HiCDOCDataSetExample()
 test_that("filterWeakPositions behaves as expected", {
-    object <- HiCDOCDataSetExample()
     # Filter the 0 values in interactions
     expect_message(
         object <- filterWeakPositions(object),
-        "Removed 0 positions"
+        "Removed 6 positions in total."
     )
-    expect_equal(nrow(object@interactions), 86734)
-    expect_identical(object@weakBins, list("17" = NULL, "18" = NULL))
-
+    expect_equal(nrow(object@interactions), 181180)
+    expect_identical(object@weakBins,
+                     list("W" = NULL,
+                          "X" = c(32L, 91L, 120L),
+                          "Y" = c(1L, 122L, 146L),
+                          "Z" = NULL))
+})
+test_that("filterWeakPositions behaves as expected, custom param", {
     # Filter values with 50 threshold
     expect_message(
         object <- filterWeakPositions(object, threshold = 50),
-        "Removed 3 positions"
+        "Removed 123 positions in total."
     )
-    expect_equal(nrow(object@interactions), 84466)
-    expect_identical(
-        object@weakBins,
-        list("17" = c(124L, 125L, 126L), "18" = NULL)
-    )
+    expect_equal(nrow(object@interactions), 146467)
+    expect_identical(sapply(object@weakBins, length),
+                     c("W" = 0L, "X" = 120L, "Y" = 3L, "Z" = 0L))
     expect_identical(object@parameters$weakPositionThreshold, 50)
 })

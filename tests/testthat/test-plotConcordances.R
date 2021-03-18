@@ -1,20 +1,24 @@
+object <- HiCDOCDataSetExample()
+object <- reduceHiCDOCDataSet(object, replicates = c("R1", "R2"), conditions = c("1", "2"))
+object <- filterSparseReplicates(object)
+object <- filterWeakPositions(object)
+
 test_that("plotConcordances behaves as expected", {
-    object <- HiCDOCDataSetExample()
     expect_error(
         pp <- plotConcordances(object),
-        "Please run 'detectCompartments' first."
+        "No compartments found."
     )
     set.seed(3215)
-    object <- detectCompartments(object)
-    expect_error(plotConcordances(object), '"chromosomeId"')
-    expect_error(plotConcordances(object, 3), "Unknown")
+    object <- detectCompartments(object, parallel=FALSE)
+    expect_error(plotConcordances(object), '"chromosome"')
+    expect_error(plotConcordances(object, 6), "Unknown")
 
     pp <- plotConcordances(object, 1)
     expect_is(pp, "ggplot")
     expect_identical(
         pp$labels,
         list(
-            "caption" = "No change is significant (pAdj < 5 %)",
+            "caption" = "No change is significant (adjusted p-value <= 5%)",
             "x" = "position",
             "y" = "concordance",
             "colour" = "replicate",

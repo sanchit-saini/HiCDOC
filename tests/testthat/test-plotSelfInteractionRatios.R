@@ -1,12 +1,16 @@
+object <- HiCDOCDataSetExample()
+object <- reduceHiCDOCDataSet(object, chromosomes = c("X", "Y"))
+object <- filterSparseReplicates(object)
+object <- filterWeakPositions(object)
+
 test_that("plotSelfInteractionRatios behaves as expected", {
-    object <- HiCDOCDataSetExample()
     expect_error(
         pp <- plotSelfInteractionRatios(object),
-        "Please run 'detectCompartments' first."
+        "No compartments found."
     )
     set.seed(3215)
     object <- detectCompartments(object)
-    expect_error(plotSelfInteractionRatios(object), '"chromosomeId"')
+    expect_error(plotSelfInteractionRatios(object), '"chromosome"')
     expect_error(plotSelfInteractionRatios(object, 3), "Unknown")
 
     pp <- plotSelfInteractionRatios(object, 1)
@@ -16,12 +20,15 @@ test_that("plotSelfInteractionRatios behaves as expected", {
         list(
             "colour" = "Compartment",
             "x" = "Compartment",
-            "y" = "Difference of int.",
-            "title" = "Chromosome: 17"
+            "y" = "Interaction difference",
+            "title" = paste0("Differences between self-interactions ",
+                             "and other interactions"),
+            "subtitle" = "Chromosome X"
         )
     )
     expect_is(pp$layers[[1]]$geom, "GeomPoint")
     expect_is(pp$layers[[2]]$geom, "GeomBoxplot")
+    print(pp$labels)
     # No error when printed
     expect_error(print(pp), NA)
 })

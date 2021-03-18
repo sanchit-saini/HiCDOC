@@ -1,13 +1,17 @@
+object <- HiCDOCDataSetExample()
+object <- filterSparseReplicates(object)
+object <- filterWeakPositions(object)
+
 test_that("plotCompartments behaves as expected", {
-    object <- HiCDOCDataSetExample()
     expect_error(
         pp <- plotCompartments(object),
         "Please run 'detectCompartments' first."
     )
     set.seed(3215)
-    object <- detectCompartments(object)
-    expect_error(plotCompartments(object), '"chromosomeId"')
-    expect_error(plotCompartments(object, 3), "Unknown")
+    object <- detectCompartments(object, parallel = FALSE)
+    expect_error(plotCompartments(object),
+        "l'argument \"chromosome\" est manquant, avec aucune valeur par défaut")
+    expect_error(plotCompartments(object, 5), "Unknown")
 
     pp <- plotCompartments(object, 1)
     expect_is(pp, "ggplot")

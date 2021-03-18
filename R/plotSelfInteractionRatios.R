@@ -48,9 +48,9 @@ plotSelfInteractionRatios <- function(object, chromosome) {
             y = "Interaction difference",
             title = paste0(
                 "Differences between self-interactions ",
-                "and other interactions in chromosome ",
-                chromosomeName
-            )
+                "and other interactions"
+            ),
+            subtitle = paste0("Chromosome ", chromosomeName)
         )
     return(plot)
 }
