@@ -319,5 +319,8 @@
 
     object@parameters <- defaultHiCDOCParameters
 
+    object@weakBins <- vector("list", length(object@chromosomes))
+    names(object@weakBins) <- object@chromosomes
+
     return(object)
 }

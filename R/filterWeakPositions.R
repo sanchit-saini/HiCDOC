@@ -173,13 +173,6 @@ filterWeakPositions <- function(object, threshold = NULL) {
     names(results) <- object@chromosomes
 
     weakBins <- results %>% purrr::map("removedBins")
-    intactChromosomes <-
-        vapply(
-            weakBins,
-            function(x) length(x) == 0,
-            FUN.VALUE = TRUE
-        )
-    weakBins[intactChromosomes] <- list(NULL)
 
     interactions <- results %>% purrr::map_dfr("interactions")
 
