@@ -24,6 +24,8 @@ conditions(object)
 
 replicates(object)
 
+interactions(object)
+
 resolution(object)
 
 compartments(object)

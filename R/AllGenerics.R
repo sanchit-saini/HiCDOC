@@ -74,11 +74,6 @@ setGeneric(
 #### interactions ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a tibble of the interactions.
-#' @usage
-#' NULL
-#' @export
-#' @describeIn HiCDOCDataSet-methods
-#' Retrieves the resolution (span of each position in number of bases).
 #' @export
 setGeneric(
     name = "interactions",

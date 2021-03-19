@@ -15,7 +15,8 @@ detectCompartments(
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{parallel}{Whether or not to parallelize the processing. Defaults to TRUE.}
+\item{parallel}{Whether or not to parallelize the processing. Defaults to TRUE.
+See 'Details'.}
 
 \item{kMeansDelta}{The convergence stop criterion for the clustering. When the centroids'
 distances between two iterations is lower than this value, the clustering
@@ -115,6 +116,23 @@ their p-values, the algorithm follows three steps:
             empirical cumulative distribution of medians of all non-switching
             positions in that condition pair. Adjust the resulting p-value
             with the Benjamini–Hochberg procedure.
+        }
+    }
+}
+\subsection{Parallel processing}{
+The parallel version of detectCompartments uses the
+\code{\link{BiocParallel}{bpmapply}} function. Before to call the
+function in parallel you should specify the parallel parameters such as:
+    \itemize{
+        \item{On linux:
+
+             \code{multiParam <- BiocParallel::MulticoreParam(workers = 10)}
+             \code{BiocParallel::register(multiParam, default = TRUE)}
+         }
+         \item{On windows:
+
+             \code{multiParam <- BiocParallel::SnowParam(workers = 10)}
+             \code{BiocParallel::register(multiParam, default = TRUE)}
         }
     }
 }

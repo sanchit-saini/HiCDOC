@@ -841,12 +841,30 @@
 #'         }
 #'     }
 #' }
+#' \subsection{Parallel processing}{
+#' The parallel version of detectCompartments uses the
+#' \code{\link{BiocParallel}{bpmapply}} function. Before to call the
+#' function in parallel you should specify the parallel parameters such as:
+#'     \itemize{
+#'         \item{On Linux:
+#'
+#'              \code{multiParam <- BiocParallel::MulticoreParam(workers = 10)}
+#'              \code{BiocParallel::register(multiParam, default = TRUE)}
+#'          }
+#'          \item{On Windows:
+#'
+#'              \code{multiParam <- BiocParallel::SnowParam(workers = 10)}
+#'              \code{BiocParallel::register(multiParam, default = TRUE)}
+#'         }
+#'     }
+#' }
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @param parallel
 #' Whether or not to parallelize the processing. Defaults to TRUE.
+#' See 'Details'.
 #'
 #' @param kMeansDelta
 #' The convergence stop criterion for the clustering. When the centroids'
