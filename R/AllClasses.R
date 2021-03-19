@@ -1,3 +1,4 @@
+#### HiCDOCDataSet class definition ####
 #' @title
 #' \code{HiCDOCDataSet} S4 class.
 #'

@@ -121,14 +121,13 @@ their p-values, the algorithm follows three steps:
 }
 \examples{
 object <- HiCDOCDataSetExample()
-\dontrun{
+# Run all steps f=of filter and normalization
 object <- filterSmallChromosomes(object)
 object <- filterSparseReplicates(object)
 object <- filterWeakPositions(object)
 object <- normalizeTechnicalBiases(object)
 object <- normalizeBiologicalBiases(object)
 object <- normalizeDistanceEffect(object)
-}
 object <- detectCompartments(object)
 
 }

@@ -16,11 +16,11 @@ A \code{\link{HiCDOCDataSet}}.
 Constructs a \code{\link{HiCDOCDataSet}} from a tabular file.
 }
 \details{
-Accepts a tabular file with \code{chromosome}, \code{posiiton 1},
+Accepts a tabular file with \code{chromosome}, \code{position 1},
 \code{position 2}, and multiple replicate columns listing interaction counts.
 Null interactions do not have to be listed. Values must be separated by
 tabulations. The header must be
-\code{chromosome	position 1	position 2	x.y	x.y	x.y	...} with \code{x}
+\code{chromosome position 1 position 2 x.y x.y x.y ...} with \code{x}
 replaced by condition names and \code{y} replaced by replicate names.
 }
 \examples{

@@ -114,6 +114,10 @@ setGeneric(
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a \code{GenomicRange} of the significant compartment differences
 #' between conditions, and their p-values.
+#' @param threshold
+#' a numeric value between 0 and 1. If no threshold, all the differences will
+#' be printed even the non significant ones. Otherwise the differences printed
+#' are filtered to show the ones with an adjusted p-value <= \code{threshold}.
 #' @export
 setGeneric(
     name = "differences",

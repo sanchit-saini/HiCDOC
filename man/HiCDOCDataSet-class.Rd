@@ -82,6 +82,7 @@ each bin in each replicate.}
 }}
 
 \seealso{
+\code{\link{HiCDOC}}
 \code{\link{HiCDOCDataSetExample}},
 \code{\link{HiCDOCDataSetFromTabular}},
 \code{\link{HiCDOCDataSetFromCool}},
