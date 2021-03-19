@@ -76,8 +76,10 @@
         dplyr::left_join(
             object@centroids,
             by = c("chromosome", "condition")
-        ) %>%
-        filter(!is.na(compartment))
+        )
+
+    referenceCentroids <-
+        referenceCentroids[!is.na(referenceCentroids$compartment),]
 
     clusters <-
         referenceCentroids %>%
