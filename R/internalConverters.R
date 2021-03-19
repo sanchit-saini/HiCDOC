@@ -43,7 +43,9 @@
     }
     result <- matrix(0, nrow = totalBins, ncol = totalBins)
     result[interactions[, c(1, 2)]] <- interactions[, 3]
-    result <- result + t(result) - diag(diag(result))
+    if(!identical(dim(result), c(1L,1L))){
+        result <- result + t(result) - diag(diag(result))
+    }
     if (!isSymmetric(result)) {
         stop("Matrix is not symmetric.", call. = FALSE)
     }

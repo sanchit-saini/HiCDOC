@@ -56,11 +56,12 @@
     selectedChromosomeNames <- names(object@validConditions)
 
     referenceConditionNames <-
-        vapply(
+        lapply(
             object@validConditions[selectedChromosomeNames],
-            function(conditionNames) conditionNames[1],
-            FUN.VALUE = ""
-        )
+            function(conditionNames) conditionNames[1]
+            ) %>%
+        unlist() %>%
+        as.vector()
 
     referenceCentroids <-
         dplyr::tibble(
@@ -75,7 +76,8 @@
         dplyr::left_join(
             object@centroids,
             by = c("chromosome", "condition")
-        )
+        ) %>%
+        filter(!is.na(compartment))
 
     clusters <-
         referenceCentroids %>%
@@ -208,7 +210,7 @@
         bins <- bins[-object@weakBins[[chromosomeName]]]
         totalBins <- totalBins - length(object@weakBins[[chromosomeName]])
     }
-    if (totalBins <= 0) return(NULL)
+    if (totalBins <= 1) return(NULL)
 
     replicateNames <-
         object@validReplicates[[chromosomeName]][
@@ -344,7 +346,6 @@
         rep(unique(object@conditions), length(object@chromosomes))
 
     if (!parallel) {
-
         result <-
             pbapply::pbmapply(
                 FUN = function(chromosomeName, conditionName) {
@@ -358,7 +359,6 @@
                 conditionNames,
                 SIMPLIFY = FALSE
             )
-
     } else {
         reducedObjects <-
             purrr::map2(
@@ -373,7 +373,8 @@
                     )
                 }
             )
-        BiocParallel::bpstart(BiocParallel::bpparam())
+        if(!is.null(BiocParallel::bpparam()$RNGseed))
+            BiocParallel::bpstart(BiocParallel::bpparam())
         # bpstart to address this issue (and ensure reproducibility):
         # https://github.com/Bioconductor/BiocParallel/issues/122
         result <-
@@ -385,7 +386,8 @@
                 SIMPLIFY = FALSE,
                 BPPARAM = BiocParallel::bpparam()
             )
-        BiocParallel::bpstop(BiocParallel::bpparam())
+        if(!is.null(BiocParallel::bpparam()$RNGseed))
+            BiocParallel::bpstop(BiocParallel::bpparam())
         # Idem than bpstart
     }
 
@@ -917,11 +919,11 @@ detectCompartments <- function(
                             dplyr::select(condition, replicate) %>%
                             unique())
         object@validConditions <-
-            lapply(valid, function(x) as.character(x$condition))
+            lapply(valid, function(x) x$condition)
         object@validReplicates <-
-            lapply(valid, function(x) as.character(x$replicate))
-        names(object@validConditions) <- object@chromosomes
-        names(object@validReplicates) <- object@chromosomes
+            lapply(valid, function(x) x$replicate)
+        names(object@validConditions) <- as.vector(object@chromosomes)
+        names(object@validReplicates) <- as.vector(object@chromosomes)
     }
     if (!is.null(kMeansDelta)) {
         object@parameters$kMeansDelta <- kMeansDelta
