@@ -15,6 +15,7 @@
 #'
 #' @usage
 #' chromosomes(object)
+#' positions(object)
 #' conditions(object)
 #' replicates(object)
 #' resolution(object)
@@ -46,10 +47,14 @@ NULL
 setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 
 #' @describeIn HiCDOCDataSet-methods
+#' Retrieves the genomic positions corresponding to bins for each chromosome.
+#' @usage
+#' NULL
+#' @export
+setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
+
+#' @describeIn HiCDOCDataSet-methods
 #' Retrieves the vector of condition names.
-#'
-#' @format
-#'
 #' @usage
 #' NULL
 #' @export
@@ -57,9 +62,6 @@ setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the vector of replicate names.
-#'
-#' @format
-#'
 #' @usage
 #' NULL
 #' @export
@@ -67,9 +69,6 @@ setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the resolution (span of each position in number of bases).
-#'
-#' @format
-#'
 #' @usage
 #' NULL
 #' @export
@@ -77,9 +76,6 @@ setMethod("resolution", "HiCDOCDataSet", function(object) object@binSize)
 
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a tibble of the interactions.
-#'
-#' @format
-#'
 #' @usage
 #' NULL
 #' @export
@@ -120,9 +116,6 @@ setMethod("interactions", "HiCDOCDataSet", function(object) {
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a \code{GenomicRange} of the compartment of every position
 #' in every condition.
-#'
-#' @format
-#'
 #' @usage
 #' NULL
 #' @export
@@ -165,9 +158,6 @@ setMethod("compartments", "HiCDOCDataSet", function(object) {
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a \code{GenomicRange} of the significant compartment differences
 #' between conditions, and their p-values.
-#'
-#' @format
-#'
 #' @usage
 #' NULL
 #' @export
@@ -238,9 +228,6 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a \code{GenomicRange} of the concordance (confidence in assigned
 #' compartment) of every position in every replicate.
-#'
-#' @format
-#'
 #' @usage
 #' NULL
 #' @export
@@ -267,9 +254,6 @@ setMethod("concordances", "HiCDOCDataSet", function(object) {
 
 #' @describeIn HiCDOCDataSet-methods
 #' Describes the object and its methods.
-#'
-#' @format
-#'
 #' @usage
 #' NULL
 #' @export
@@ -422,9 +406,6 @@ NULL
 #' \code{\link{normalizeDistanceEffect}}, and
 #' \code{\link{detectCompartments}},
 #' for details on how these parameters are used.
-#'
-#' @format
-#'
 #' @usage
 #' NULL
 #' @export
@@ -439,9 +420,6 @@ setMethod("parameters", "HiCDOCDataSet", function(object) object@parameters)
 #' \code{\link{normalizeDistanceEffect}}, and
 #' \code{\link{detectCompartments}},
 #' for details on how these parameters are used.
-#'
-#' @format
-#'
 #' @usage
 #' NULL
 #' @export

@@ -6,6 +6,14 @@ setGeneric(
     }
 )
 
+## - positions
+setGeneric(
+    name = "positions",
+    def = function(object) {
+        standardGeneric("positions")
+    }
+)
+
 ## - conditions
 setGeneric(
     name = "conditions",
