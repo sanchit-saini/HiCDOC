@@ -85,7 +85,7 @@ hic.experiment <- HiCDOCDataSetExample()
 Then run the default pipeline on the created object:
 
 ```{r pipeline}
-hic.experiment <- HiCDOC(hic.experiment)
+hic.experiment <- HiCDOC(hic.experiment, parallel=FALSE)
 ```
 
 And plot some results:
