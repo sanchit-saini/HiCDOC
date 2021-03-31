@@ -53,7 +53,8 @@
 #' @noRd
 .tieCentroids <- function(object) {
 
-    selectedChromosomeNames <- names(object@validConditions)
+    selectedChromosomeNames <- names(base::Filter(function(x) !is.null(x),
+                                                  object@validConditions))
 
     referenceConditionNames <-
         lapply(
