@@ -124,12 +124,12 @@ The parallel version of detectCompartments uses the
 \code{\link{BiocParallel}{bpmapply}} function. Before to call the
 function in parallel you should specify the parallel parameters such as:
     \itemize{
-        \item{On linux:
+        \item{On Linux:
 
              \code{multiParam <- BiocParallel::MulticoreParam(workers = 10)}
              \code{BiocParallel::register(multiParam, default = TRUE)}
          }
-         \item{On windows:
+         \item{On Windows:
 
              \code{multiParam <- BiocParallel::SnowParam(workers = 10)}
              \code{BiocParallel::register(multiParam, default = TRUE)}

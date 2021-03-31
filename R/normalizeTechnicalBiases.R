@@ -36,7 +36,7 @@ normalizeTechnicalBiases <- function(object, parallel = TRUE) {
         slots = c(
             "interactions",
             "chromosomes",
-            "binSize",
+            "resolution",
             "weakBins",
             "validReplicates",
             "validConditions"
@@ -53,8 +53,8 @@ normalizeTechnicalBiases <- function(object, parallel = TRUE) {
                 chromosome,
                 levels = object@chromosomes
             )),
-            bin.1 = (bin.1 - 1) * object@binSize,
-            bin.2 = (bin.2 - 1) * object@binSize
+            bin.1 = (bin.1 - 1) * object@resolution,
+            bin.2 = (bin.2 - 1) * object@resolution
         ) %>%
         dplyr::group_split(condition, replicate)
 
@@ -90,8 +90,8 @@ normalizeTechnicalBiases <- function(object, parallel = TRUE) {
 
         weakRegions %<>%
             dplyr::mutate(
-                start = (bin - 1) * object@binSize,
-                end = (bin * object@binSize) - 1
+                start = (bin - 1) * object@resolution,
+                end = (bin * object@resolution) - 1
             ) %>%
             dplyr::select(-bin) %>%
             dplyr::mutate(
@@ -127,8 +127,8 @@ normalizeTechnicalBiases <- function(object, parallel = TRUE) {
         c("chromosome", "bin.1", "bin.2", seq_along(groups$replicate))
     result %<>%
         dplyr::mutate(
-            bin.1 = as.integer(bin.1 / object@binSize + 1),
-            bin.2 = as.integer(bin.2 / object@binSize + 1)
+            bin.1 = as.integer(bin.1 / object@resolution + 1),
+            bin.2 = as.integer(bin.2 / object@resolution + 1)
         )
 
     object@interactions <-

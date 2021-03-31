@@ -10,9 +10,9 @@
 #'
 #' @keywords internal
 #' @noRd
-.determineBinSize <- function(object) {
+.determineResolution <- function(object) {
 
-    binSize <-
+    resolution <-
         min(abs(
             object@interactions$position.2[
                 object@interactions$position.1 != object@interactions$position.2
@@ -22,7 +22,7 @@
             ]
         ))
 
-    return(binSize)
+    return(resolution)
 }
 
 #' @description
@@ -63,7 +63,7 @@
                         maxPositions[
                             maxPositions$chromosome == chromosomeName,
                         ]$maxPosition,
-                        by = object@binSize
+                        by = object@resolution
                     )
                 ))
             }
@@ -80,7 +80,7 @@
 
     positions %<>%
         dplyr::mutate(
-            end = ifelse(is.na(end), start + object@binSize - 1, end)
+            end = ifelse(is.na(end), start + object@resolution - 1, end)
         ) %>%
         dplyr::select(chromosome, bin, start, end)
 
@@ -306,7 +306,7 @@
         )
 
     if ("position.1" %in% colnames(object@interactions)) {
-        object@binSize <- .determineBinSize(object)
+        object@resolution <- .determineResolution(object)
         object@positions <- .determinePositions(object)
         object@interactions <- .replacePositionsByBins(object)
     }

@@ -11,7 +11,7 @@ setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 
 #### resolution ####
-setMethod("resolution", "HiCDOCDataSet", function(object) object@binSize)
+setMethod("resolution", "HiCDOCDataSet", function(object) object@resolution)
 
 #### interactions ####
 setMethod("interactions", "HiCDOCDataSet", function(object) {
@@ -199,10 +199,10 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         ),
         "\n",
         "- Resolution:\n  ",
-        if (is.null(object@binSize))
+        if (is.null(object@resolution))
         "None"
         else
-        object@binSize,
+        object@resolution,
         "\n\n",
         "- Methods:\n",
         "  chromosomes(object)\n",

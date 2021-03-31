@@ -19,7 +19,7 @@
         object@interactions %>%
         dplyr::filter(chromosome == chromosomeName) %>%
         dplyr::filter(interaction > 0) %>%
-        dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize)
+        dplyr::mutate(distance = (bin.2 - bin.1) * object@resolution)
 
     sample <-
         chromosomeInteractions %>%
@@ -152,7 +152,7 @@ normalizeDistanceEffect <- function(object, loessSampleSize = NULL) {
         slots = c(
             "interactions",
             "chromosomes",
-            "binSize",
+            "resolution",
             "parameters"
         )
     )

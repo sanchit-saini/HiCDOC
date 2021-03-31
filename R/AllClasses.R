@@ -38,7 +38,7 @@
 #' A vector of names of replicates, repeated along the conditions.
 #' @slot positions
 #' A tibble of positions and their corresponding bin.
-#' @slot binSize
+#' @slot resolution
 #' The computed bin size (span of each bin in number of bases).
 #' @slot totalBins
 #' A list of the number of bins in each chromosome.
@@ -85,7 +85,7 @@ setClass(
         conditions = "ANY",
         replicates = "ANY",
         positions = "ANY",
-        binSize = "ANY",
+        resolution = "ANY",
         totalBins = "ANY",
         weakBins = "ANY",
         validConditions = "ANY",

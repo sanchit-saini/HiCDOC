@@ -5,7 +5,7 @@ test_that("HiCDOCDataSetExample produce object with correct format", {
     expect_identical(
         slotNames(object),
         c("input", "parameters", "interactions", "chromosomes", "conditions",
-          "replicates", "positions", "binSize", "totalBins", "weakBins",
+          "replicates", "positions", "resolution", "totalBins", "weakBins",
           "validConditions", "validReplicates", "compartments",
           "concordances", "differences", "distances", "centroids",
           "selfInteractionRatios"
@@ -19,7 +19,7 @@ test_that("HiCDOCDataSetExample produce object with correct format", {
     expect_is(object@replicates, "character")
     expect_is(object@conditions, "character")
     expect_is(object@totalBins, "numeric")
-    expect_is(object@binSize, "integer")
+    expect_is(object@resolution, "integer")
     expect_is(object@distances, "NULL")
     expect_is(object@selfInteractionRatios, "NULL")
     expect_is(object@compartments, "NULL")
@@ -60,7 +60,7 @@ test_that("HiCDOCDataSetExample produce object with correct format", {
 #     expect_identical(object@conditions, c("1", "1", "1", "2", "2", "2"))
 #     # bins
 #     expect_identical(object@totalBins, c("17" = 127, "18" = 112))
-#     expect_identical(object@binSize, 500000L)
+#     expect_identical(object@resolution, 500000L)
 #     # Parameters
 #     expect_identical(object@parameters, defaultHiCDOCParameters)
 #     # Positions

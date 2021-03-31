@@ -926,7 +926,7 @@ detectCompartments <- function(
             "conditions",
             "replicates",
             "totalBins",
-            "binSize",
+            "resolution",
             "weakBins",
             "parameters"
         )

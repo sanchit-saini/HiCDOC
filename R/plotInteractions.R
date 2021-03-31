@@ -179,7 +179,7 @@ plotInteractions <- function(
             "interactions",
             "conditions",
             "totalBins",
-            "binSize",
+            "resolution",
             "positions"
         )
     )
