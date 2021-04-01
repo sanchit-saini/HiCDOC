@@ -34,7 +34,7 @@
         dplyr::filter(condition == conditionName) %>%
         dplyr::filter(replicate == replicateName) %>%
         dplyr::select(bin.1, bin.2, interaction) %>%
-        dplyr::filter(interaction != 0) %>%
+        dplyr::filter(interaction > 0) %>%
         as.matrix()
 
     if (nrow(interactions) == 0) return(matrix(0, nrow = 0, ncol = 0))

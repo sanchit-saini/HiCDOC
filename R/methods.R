@@ -185,7 +185,7 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
             paste0(" with adjusted p-value <= ", threshold),
             "."
         )
-        return(GenomicRanges::GRanges())
+        return(NULL)
     }
 
     genomicRange <-

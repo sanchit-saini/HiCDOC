@@ -53,14 +53,14 @@
 #' @noRd
 .tieCentroids <- function(object) {
 
-    selectedChromosomeNames <- names(base::Filter(function(x) !is.null(x),
-                                                  object@validConditions))
+    selectedChromosomeNames <-
+        names(base::Filter(function(x) !is.null(x), object@validConditions))
 
     referenceConditionNames <-
         lapply(
             object@validConditions[selectedChromosomeNames],
             function(conditionNames) conditionNames[1]
-            ) %>%
+        ) %>%
         unlist() %>%
         as.vector()
 
@@ -68,11 +68,12 @@
         dplyr::tibble(
             chromosome = factor(
                 selectedChromosomeNames,
-                levels =
-                    gtools::mixedsort(unique(object@chromosomes))),
+                levels = gtools::mixedsort(unique(object@chromosomes))
+            ),
             condition = factor(
                 referenceConditionNames,
-                levels = gtools::mixedsort(unique(object@conditions)))
+                levels = gtools::mixedsort(unique(object@conditions))
+            )
         ) %>%
         dplyr::left_join(
             object@centroids,
@@ -142,9 +143,12 @@
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
         dplyr::select(-cluster.1, -cluster.2) %>%
-        dplyr::mutate(condition = factor(
-            condition,
-            levels = gtools::mixedsort(unique(object@conditions))))
+        dplyr::mutate(
+            condition = factor(
+                condition,
+                levels = gtools::mixedsort(unique(object@conditions))
+            )
+        )
 
     object@centroids %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
