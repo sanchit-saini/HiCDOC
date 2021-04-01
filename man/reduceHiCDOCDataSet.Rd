@@ -34,7 +34,7 @@ Reduces a \code{\link{HiCDOCDataSet}} by keeping only given chromosomes,
 conditions, or replicates.
 }
 \examples{
-data(HiCDOCDataSetExample)
-reduced <- reduceHiCDOCDataSet(HiCDOCDataSetExample, chromosomes = c(1, 2))
+data(exampleHiCDOCDataSet)
+reduced <- reduceHiCDOCDataSet(exampleHiCDOCDataSet, chromosomes = c(1, 2))
 
 }

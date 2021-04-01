@@ -19,8 +19,9 @@ doubly stochastic matrices, with sum of each row and sum of each column equal
 to 1.
 }
 \examples{
-data(HiCDOCDataSetExample)
-object <- filterSparseReplicates(HiCDOCDataSetExample)
+data(exampleHiCDOCDataSet)
+object <- exampleHiCDOCDataSet
+object <- filterSparseReplicates(object)
 object <- filterWeakPositions(object)
 object <- normalizeBiologicalBiases(object)
 

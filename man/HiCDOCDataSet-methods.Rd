@@ -87,9 +87,8 @@ compartment) of every position in every replicate.
 }}
 
 \examples{
-data(HiCDOCDataSetExample)
-chromosomes(HiCDOCDataSetExample)
-conditions(HiCDOCDataSetExample)
-object <- HiCDOC(HiCDOCDataSetExample)
-differences(object)
+data(exampleHiCDOCDataSet)
+chromosomes(exampleHiCDOCDataSet)
+conditions(exampleHiCDOCDataSet)
+resolution(exampleHiCDOCDataSet)
 }

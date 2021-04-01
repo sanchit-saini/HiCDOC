@@ -19,7 +19,7 @@ constructed from 4 different types of data:
 \item HiC files: see \code{\link{HiCDOCDataSetFromHiC}}
 \item HiC-Pro matrices and bed files: see \code{\link{HiCDOCDataSetFromHiCPro}}
 An example \code{HiCDOCDataSet} is also available, see
-\code{\link{HiCDOCDataSetExample}}.
+\code{\link{exampleHiCDOCDataSet}}.
 }
 }
 \section{Slots}{
@@ -69,7 +69,7 @@ each bin in each replicate.}
 
 \seealso{
 \code{\link{HiCDOC}}
-\code{\link{HiCDOCDataSetExample}},
+\code{\link{exampleHiCDOCDataSet}},
 \code{\link{HiCDOCDataSetFromTabular}},
 \code{\link{HiCDOCDataSetFromCool}},
 \code{\link{HiCDOCDataSetFromHiC}},

@@ -79,8 +79,11 @@ Runs the default filtering, normalization, and computational steps on a
 }
 }
 \examples{
-data(HiCDOCDataSetExample)
-object <- HiCDOC(HiCDOCDataSetExample)
+data(exampleHiCDOCDataSet)
+object <- exampleHiCDOCDataSet
+
+# Default HiCDOC pipeline
+object <- HiCDOC(object)
 
 # Equivalent to
 \dontrun{
