@@ -1,9 +1,10 @@
+data(HiCDOCDataSetExample)
+
 test_that("detectCompartments behaves as expected", {
-    object <- HiCDOCDataSetExample()
     # Detect Compartments
     set.seed(3215) # Test with 123 : no significant differences
     expect_message(
-        object <- detectCompartments(object, parallel = FALSE),
+        object <- detectCompartments(HiCDOCDataSetExample, parallel = FALSE),
         "Detecting significant differences."
     )
     # Keep object format
@@ -104,7 +105,7 @@ test_that("detectCompartments behaves as expected", {
 })
 
 test_that("detectCompartments behaves as expected in parallel", {
-    object <- HiCDOCDataSetExample()
+    data(HiCDOCDataSetExample)
     # Detect Compartments
     multiParam <- BiocParallel::MulticoreParam(
         workers = 3,
@@ -113,7 +114,7 @@ test_that("detectCompartments behaves as expected in parallel", {
     )
     BiocParallel::register(multiParam, default = TRUE)
     expect_message(
-        object <- detectCompartments(object, parallel = TRUE),
+        object <- detectCompartments(HiCDOCDataSetExample, parallel = TRUE),
         "Detecting significant differences."
     )
     # Keep object format

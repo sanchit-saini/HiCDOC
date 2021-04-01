@@ -1,5 +1,5 @@
-object <- HiCDOCDataSetExample()
-object <- filterSparseReplicates(object)
+data(HiCDOCDataSetExample)
+object <- filterSparseReplicates(HiCDOCDataSetExample)
 object <- filterWeakPositions(object)
 
 test_that("normalizeDistanceEffect behaves as expected", {

@@ -138,9 +138,9 @@ function in parallel you should specify the parallel parameters such as:
 }
 }
 \examples{
-object <- HiCDOCDataSetExample()
+data(HiCDOCDataSetExample)
 # Run all steps f=of filter and normalization
-object <- filterSmallChromosomes(object)
+object <- filterSmallChromosomes(HiCDOCDataSetExample)
 object <- filterSparseReplicates(object)
 object <- filterWeakPositions(object)
 object <- normalizeTechnicalBiases(object)

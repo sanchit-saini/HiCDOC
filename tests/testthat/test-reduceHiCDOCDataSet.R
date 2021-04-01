@@ -1,38 +1,38 @@
-object <- HiCDOCDataSetExample()
+data(HiCDOCDataSetExample)
 
 test_that("reduceHiCDOCDataSet return correct errors", {
     # On chromosomes
     expect_error(
-        reduceHiCDOCDataSet(object, chromosomes = c(5, 6)),
+        reduceHiCDOCDataSet(HiCDOCDataSetExample, chromosomes = c(5, 6)),
         "Unknown chromosomes"
     )
     expect_error(
-        reduceHiCDOCDataSet(object, chromosomes = "chr1"),
+        reduceHiCDOCDataSet(HiCDOCDataSetExample, chromosomes = "chr1"),
         "Unknown chromosome"
     )
     # On conditions
     expect_error(
-        reduceHiCDOCDataSet(object, conditions = c(3, 4)),
+        reduceHiCDOCDataSet(HiCDOCDataSetExample, conditions = c(3, 4)),
         "Unknown condition: 4"
     )
     expect_error(
-        reduceHiCDOCDataSet(object, conditions = "cond1"),
+        reduceHiCDOCDataSet(HiCDOCDataSetExample, conditions = "cond1"),
         "Unknown condition"
     )
     # On replicates
     expect_error(
-        reduceHiCDOCDataSet(object, replicates = c(3, 4)),
+        reduceHiCDOCDataSet(HiCDOCDataSetExample, replicates = c(3, 4)),
         "Unknown replicates"
     )
     expect_error(
-        reduceHiCDOCDataSet(object, replicates = "rep1"),
+        reduceHiCDOCDataSet(HiCDOCDataSetExample, replicates = "rep1"),
         "Unknown replicate"
     )
 })
 
 test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
     # Run a detectCompartments
-    object <- filterSparseReplicates(object)
+    object <- filterSparseReplicates(HiCDOCDataSetExample)
     object <- filterWeakPositions(object)
     object <- detectCompartments(object)
     expect_warning(
@@ -76,8 +76,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
 })
 
 test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
-    object <- HiCDOCDataSetExample()
-    object <- filterSparseReplicates(object)
+    object <- filterSparseReplicates(HiCDOCDataSetExample)
     object <- filterWeakPositions(object)
     # Run a detectCompartments
     object <- detectCompartments(object)
@@ -139,8 +138,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
 })
 
 test_that("reduceHiCDOCDataSet works if select condition, drop levels", {
-    object <- HiCDOCDataSetExample()
-    object <- filterSparseReplicates(object)
+    object <- filterSparseReplicates(HiCDOCDataSetExample)
     object <- filterWeakPositions(object)
     # Run a detectCompartments
     object <- detectCompartments(object, parallel=FALSE)
@@ -201,8 +199,7 @@ test_that("reduceHiCDOCDataSet works if select condition, drop levels", {
 })
 
 test_that("reduceHiCDOCDataSet works if select replicate, drop levels", {
-    object <- HiCDOCDataSetExample()
-    object <- filterSparseReplicates(object)
+    object <- filterSparseReplicates(HiCDOCDataSetExample)
     object <- filterWeakPositions(object)
     # Run a detectCompartments
     object <- detectCompartments(object, parallel=FALSE)
@@ -263,8 +260,7 @@ test_that("reduceHiCDOCDataSet works if select replicate, drop levels", {
 
 test_that("reduceHiCDOCDataSet works if select chr, cond & rep, keep levels", {
     # case used in detectCompartments
-    object <- HiCDOCDataSetExample()
-    object <- filterSparseReplicates(object)
+    object <- filterSparseReplicates(HiCDOCDataSetExample)
     object <- filterWeakPositions(object)
     # Run a detectCompartments
     object <- detectCompartments(object, parallel=FALSE)

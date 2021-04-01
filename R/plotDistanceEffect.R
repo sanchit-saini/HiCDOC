@@ -11,8 +11,8 @@
 #' A \code{ggplot}.
 #'
 #' @examples
-#' object <- HiCDOCDataSetExample()
-#' plotDistanceEffect(object)
+#' data(HiCDOCDataSetExample)
+#' plotDistanceEffect(HiCDOCDataSetExample)
 #'
 #' @export
 plotDistanceEffect <- function(object) {

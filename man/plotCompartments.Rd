@@ -21,8 +21,8 @@ A \code{ggplot}.
 Plots the predicted compartments in each experiment condition.
 }
 \examples{
-object <- HiCDOCDataSetExample()
-object <- HiCDOC(object)
+data(HiCDOCDataSetExample)
+object <- HiCDOC(HiCDOCDataSetExample)
 plotCompartments(object, chromosome = 1)
 
 }

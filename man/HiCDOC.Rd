@@ -79,8 +79,8 @@ Runs the default filtering, normalization, and computational steps on a
 }
 }
 \examples{
-object <- HiCDOCDataSetExample()
-object <- HiCDOC(object)
+data(HiCDOCDataSetExample)
+object <- HiCDOC(HiCDOCDataSetExample)
 
 # Equivalent to
 \dontrun{

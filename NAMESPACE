@@ -3,7 +3,6 @@
 export("%>%")
 export("parameters<-")
 export(HiCDOC)
-export(HiCDOCDataSetExample)
 export(HiCDOCDataSetFromCool)
 export(HiCDOCDataSetFromHiC)
 export(HiCDOCDataSetFromHiCPro)

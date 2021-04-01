@@ -23,8 +23,8 @@ Removes chromosome replicates whose percentage of non-zero interactions is
 smaller than the threshold.
 }
 \examples{
-object <- HiCDOCDataSetExample()
-object <- filterSparseReplicates(object)
+data(HiCDOCDataSetExample)
+object <- filterSparseReplicates(HiCDOCDataSetExample)
 
 }
 \seealso{

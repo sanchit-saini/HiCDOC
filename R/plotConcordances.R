@@ -24,8 +24,8 @@
 #' A \code{ggplot}.
 #'
 #' @examples
-#' object <- HiCDOCDataSetExample()
-#' object <- HiCDOC(object)
+#' data(HiCDOCDataSetExample)
+#' object <- HiCDOC(HiCDOCDataSetExample)
 #' plotConcordances(object, chromosome = 1)
 #'
 #' @export

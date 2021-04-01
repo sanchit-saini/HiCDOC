@@ -723,7 +723,9 @@
                 dplyr::if_else(compartment.1 == compartment.2, value, NA_real_)
         ) %>%
         dplyr::group_by(condition.1, condition.2) %>%
-        dplyr::mutate(quantile = stats::ecdf(H0_value)(value)) %>%
+        dplyr::mutate(quantile = ifelse(value > 0,
+                                        stats::ecdf(H0_value)(value),
+                                        NA)) %>%
         dplyr::filter(compartment.1 != compartment.2) %>%
         dplyr::mutate(pvalue = 1 - quantile) %>%
         dplyr::mutate(pvalue = dplyr::if_else(pvalue < 0, 0, pvalue)) %>%
@@ -890,9 +892,9 @@
 #' centroids, and differences.
 #'
 #' @examples
-#' object <- HiCDOCDataSetExample()
+#' data(HiCDOCDataSetExample)
 #' # Run all steps f=of filter and normalization
-#' object <- filterSmallChromosomes(object)
+#' object <- filterSmallChromosomes(HiCDOCDataSetExample)
 #' object <- filterSparseReplicates(object)
 #' object <- filterWeakPositions(object)
 #' object <- normalizeTechnicalBiases(object)
@@ -904,9 +906,9 @@
 #' detectCompartments(
 #'     object,
 #'     parallel = TRUE,
-#'     kMeansDelta = 0.0001,
-#'     kMeansIterations = 50,
-#'     kMeansRestarts = 20
+#'     kMeansDelta = NULL,
+#'     kMeansIterations = NULL,
+#'     kMeansRestarts = NULL
 #' )
 #'
 #' @export

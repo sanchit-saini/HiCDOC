@@ -20,8 +20,8 @@ to recursively normalize each pair of interaction matrices. Depends on
 \code{multiHiCcompare}.
 }
 \examples{
-object <- HiCDOCDataSetExample()
-object <- filterSparseReplicates(object)
+data(HiCDOCDataSetExample)
+object <- filterSparseReplicates(HiCDOCDataSetExample)
 object <- filterWeakPositions(object)
 object <- normalizeTechnicalBiases(object)
 

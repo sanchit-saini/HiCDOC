@@ -23,8 +23,8 @@ that separates their positions. The "expected" values are estimated with a
 loess regression on the proportion of interactions for each distance.
 }
 \examples{
-object <- HiCDOCDataSetExample()
-object <- normalizeDistanceEffect(object)
+data(HiCDOCDataSetExample)
+object <- normalizeDistanceEffect(HiCDOCDataSetExample)
 
 }
 \seealso{

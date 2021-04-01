@@ -142,8 +142,8 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @examples
-#' object <- HiCDOCDataSetExample()
-#' object <- filterSparseReplicates(object)
+#' data(HiCDOCDataSetExample)
+#' object <- filterSparseReplicates(HiCDOCDataSetExample)
 #'
 #' @usage
 #' filterSparseReplicates(object, threshold = 0.05)

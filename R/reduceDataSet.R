@@ -184,8 +184,8 @@
 #' A reduced \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
-#' object <- HiCDOCDataSetExample()
-#' reduced <- reduceHiCDOCDataSet(object, chromosomes = c(1, 2))
+#' data(HiCDOCDataSetExample)
+#' reduced <- reduceHiCDOCDataSet(HiCDOCDataSetExample, chromosomes = c(1, 2))
 #'
 #' @export
 reduceHiCDOCDataSet <- function(

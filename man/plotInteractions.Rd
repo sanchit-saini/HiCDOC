@@ -31,7 +31,7 @@ A \code{ggplot}.
 Plots the interaction matrices as heatmaps.
 }
 \examples{
-object <- HiCDOCDataSetExample()
-p <- plotInteractions(object, chromosome = 1)
+data(HiCDOCDataSetExample)
+plotInteractions(HiCDOCDataSetExample, chromosome = 1)
 
 }

@@ -79,13 +79,13 @@ It provides a collection of functions assembled into a pipeline:
 To try out HiCDOC, load the simulated toy data set:
 
 ```{r example}
-hic.experiment <- HiCDOCDataSetExample()
+data(HiCDOCDataSetExample)
 ```
 
 Then run the default pipeline on the created object:
 
 ```{r pipeline}
-hic.experiment <- HiCDOC(hic.experiment, parallel=FALSE)
+hic.experiment <- HiCDOC(HiCDOCDataSetExample, parallel=FALSE)
 ```
 
 And plot some results:
@@ -225,20 +225,20 @@ Once your data is loaded, you can run all the filtering, normalization, and
 prediction steps with:
 
 ```{r HiCDOC, eval = FALSE}
-hic.experiment <- HiCDOC(hic.experiment)
+hic.experiment <- HiCDOC(HiCDOCDataSetExample)
 ```
 
 This one-liner runs all the steps detailed below.
 
 ### Filtering data
 ```{r reloadExample, echo = FALSE}
-hic.experiment <- HiCDOCDataSetExample()
+data(HiCDOCDataSetExample)
 ```
 
 Remove small chromosomes of length smaller than 100 positions:
 
 ```{r filterSmallChromosomes}
-hic.experiment <- filterSmallChromosomes(hic.experiment, threshold = 100)
+hic.experiment <- filterSmallChromosomes(HiCDOCDataSetExample, threshold = 100)
 ```
 
 Remove sparse replicates filled with less than 5% non-zero interactions:

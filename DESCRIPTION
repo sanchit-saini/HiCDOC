@@ -37,7 +37,7 @@ Imports:
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 biocViews:
-    TODO
+    HiC, DNA3DStructure, Normalization, Sequencing, Software
 Suggests:
     knitr,
     rmarkdown,
@@ -47,3 +47,5 @@ Suggests:
 VignetteBuilder: knitr
 URL: https://github.com/mzytnicki/HiCDOC
 BugReports: https://github.com/mzytnicki/HiCDOC/issues
+Depends: 
+    R (>= 2.10)

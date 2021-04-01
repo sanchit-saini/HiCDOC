@@ -1,5 +1,5 @@
-object <- HiCDOCDataSetExample()
-object <- reduceHiCDOCDataSet(object, chromosomes = c("X", "Y"))
+data(HiCDOCDataSetExample)
+object <- reduceHiCDOCDataSet(HiCDOCDataSetExample, chromosomes = c("X", "Y"))
 object <- filterSparseReplicates(object)
 object <- filterWeakPositions(object)
 

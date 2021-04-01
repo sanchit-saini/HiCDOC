@@ -106,14 +106,14 @@ for details on how these parameters are used.
 }}
 
 \examples{
-object <- HiCDOCDataSetExample()
+data(HiCDOCDataSetExample)
 
 # Retrieve parameters
-parameters(object)
+parameters(HiCDOCDataSetExample)
 
 # Set parameters
-parameters(object) <- list("smallChromosomeThreshold" = 50)
-parameters(object) <- list(
+parameters(HiCDOCDataSetExample) <- list("smallChromosomeThreshold" = 50)
+parameters(HiCDOCDataSetExample) <- list(
     "weakPositionThreshold" = 10,
     "kMeansRestarts" = 30
 )

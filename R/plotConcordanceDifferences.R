@@ -15,8 +15,8 @@
 #' A \code{ggplot}.
 #'
 #' @examples
-#' object <- HiCDOCDataSetExample()
-#' object <- HiCDOC(object)
+#' data(HiCDOCDataSetExample)
+#' object <- HiCDOC(HiCDOCDataSetExample)
 #' plotConcordanceDifferences(object)
 #'
 #' @export

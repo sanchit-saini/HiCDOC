@@ -127,8 +127,8 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @examples
-#' object <- HiCDOCDataSetExample()
-#' object <- filterWeakPositions(exp)
+#' data(HiCDOCDataSetExample)
+#' object <- filterWeakPositions(HiCDOCDataSetExample)
 #'
 #' @usage
 #' filterWeakPositions(object, threshold = 1)

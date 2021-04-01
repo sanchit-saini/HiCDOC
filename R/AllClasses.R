@@ -212,13 +212,14 @@ HiCDOCDataSetFromTabular <- function(path = NULL) {
 #' }
 #'
 #' @usage
-#' HiCDOCDataSetFromCool(paths, replicates, conditions)
+#' HiCDOCDataSetFromCool(paths,
+#' replicates, conditions)
 #'
 #' @export
 HiCDOCDataSetFromCool <- function(
-    paths = NULL,
-    replicates = NULL,
-    conditions = NULL,
+    paths,
+    replicates,
+    conditions,
     resolution = NULL
 ) {
 
@@ -461,27 +462,6 @@ HiCDOCDataSetFromHiCPro <- function(
 }
 
 #' @title
-#' Example \code{\link{HiCDOCDataSet}} constructor.
-#'
-#' @description
-#' Constructs a toy \code{\link{HiCDOCDataSet}} from simulated data.
-#'
-#' @return
-#' A \code{\link{HiCDOCDataSet}}.
-#'
-#' @examples
-#' object <- HiCDOCDataSetExample()
-#'
-#' @export
-HiCDOCDataSetExample <- function() {
-    object <- NULL
-    directory <- system.file("extdata", package = "HiCDOC", mustWork = TRUE)
-    path <- file.path(directory, "example.tsv")
-    object <- HiCDOCDataSetFromTabular(path)
-    return(invisible(object))
-}
-
-#' @title
 #' Default pipeline to run on a \code{\link{HiCDOCDataSet}}.
 #'
 #' @description
@@ -560,8 +540,8 @@ HiCDOCDataSetExample <- function() {
 #' \code{\link{HiCDOCDataSet}}
 #'
 #' @examples
-#' object <- HiCDOCDataSetExample()
-#' object <- HiCDOC(object)
+#' data(HiCDOCDataSetExample)
+#' object <- HiCDOC(HiCDOCDataSetExample)
 #'
 #' # Equivalent to
 #' \dontrun{
