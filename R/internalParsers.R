@@ -57,19 +57,18 @@
     object@replicates <- gsub("^.+?\\.(.+)$", "\\1", columns)
 
     object@interactions <-
-        tidyr::gather(
+        tidyr::pivot_longer(
             interactions,
             columns,
-            key = condition.replicate,
-            value = interaction
+            names_to = "condition.replicate",
+            values_to = "interaction"
         ) %>%
         tidyr::separate(
             condition.replicate,
             c("condition", "replicate"),
             sep = "\\.",
-            remove = FALSE
+            remove = TRUE
         ) %>%
-        dplyr::select(-condition.replicate) %>%
         dplyr::rename(position.1 = `position 1`) %>%
         dplyr::rename(position.2 = `position 2`) %>%
         dplyr::as_tibble()

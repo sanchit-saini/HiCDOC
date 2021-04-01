@@ -26,9 +26,6 @@
 #' object <- filterSmallChromosomes(HiCDOCDataSetExample)
 #' chromosomes(object)
 #'
-#' @usage
-#' filterSmallChromosomes(object, threshold = 100)
-#'
 #' @export
 filterSmallChromosomes <- function(object, threshold = NULL) {
 

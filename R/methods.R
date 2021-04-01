@@ -1,19 +1,55 @@
 #### chromosomes ####
+#' Retrieves the vector of chromosome names.
+#' @rdname HiCDOCDataSet-methods
+#' @usage
+#' NULL
+#' @param object
+#' a HiCDOCDataSet object
 setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 
 #### positions ####
+#' Retrieves the genomic positions corresponding to bins for each chromosome.
+#' @rdname HiCDOCDataSet-methods
+#' @usage
+#' NULL
+#' @param object
+#' a HiCDOCDataSet object
 setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
 
 #### conditions ####
+#' Retrieves the vector of condition names.
+#' @rdname HiCDOCDataSet-methods
+#' @usage
+#' NULL
+#' @param object
+#' a HiCDOCDataSet object
 setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 
 #### replicates ####
+#' Retrieves the vector of replicate names.
+#' @rdname HiCDOCDataSet-methods'
+#' @usage
+#' NULL
+#' @param object
+#' a HiCDOCDataSet object
 setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 
 #### resolution ####
+#' Retrieves the resolution (span of each position in number of bases).
+#' @rdname HiCDOCDataSet-methods
+#' @usage
+#' NULL
+#' @param object
+#' a HiCDOCDataSet object
 setMethod("resolution", "HiCDOCDataSet", function(object) object@resolution)
 
 #### interactions ####
+#' Retrieves a tibble of the interactions.
+#' @rdname HiCDOCDataSet-methods
+#' @usage
+#' NULL
+#' @param object
+#' a HiCDOCDataSet object
 setMethod("interactions", "HiCDOCDataSet", function(object) {
     if (is.null(object@interactions)) return(NULL)
 
@@ -48,6 +84,12 @@ setMethod("interactions", "HiCDOCDataSet", function(object) {
 })
 
 #### compartments ####
+#' Retrieves a \code{GenomicRange} of the compartment of every position
+#' @rdname HiCDOCDataSet-methods
+#' @usage
+#' NULL
+#' @param object
+#' a HiCDOCDataSet object
 setMethod("compartments", "HiCDOCDataSet", function(object) {
 
     if (is.null(object@compartments)) return(NULL)
@@ -85,6 +127,12 @@ setMethod("compartments", "HiCDOCDataSet", function(object) {
 })
 
 #### differences ####
+#' Retrieves a \code{GenomicRange} of the significant compartment differences
+#' @rdname HiCDOCDataSet-methods
+#' @usage
+#' NULL
+#' @param object
+#' a HiCDOCDataSet object
 setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 
     if (is.null(object@differences)) return(NULL)
@@ -150,6 +198,13 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 })
 
 #### concordances ####
+#' Retrieves a \code{GenomicRange} of the concordance (confidence in assigned
+#' compartment) of every position in every replicate.
+#' @rdname HiCDOCDataSet-methods
+#' @usage
+#' NULL
+#' @param object
+#' a HiCDOCDataSet object
 setMethod("concordances", "HiCDOCDataSet", function(object) {
 
     if (is.null(object@concordances)) return(NULL)
@@ -176,6 +231,8 @@ setMethod("concordances", "HiCDOCDataSet", function(object) {
 #' Describes the object and its methods.
 #' @usage
 #' object
+#' @param object
+#' a HiCDOCDataSet object
 #' @export
 setMethod("show", "HiCDOCDataSet", function(object) {
     cat(
@@ -220,9 +277,17 @@ setMethod("show", "HiCDOCDataSet", function(object) {
 })
 
 #### parameters ####
+#' Access the parameters of a \code{\link{HiCDOCDataSet}}.
+#' @rdname HiCDOCDataSet-parameters
+#' @usage
+#' NULL
 setMethod("parameters", "HiCDOCDataSet", function(object) object@parameters)
 
 #### parameters<- ####
+#' Change the parameters of a \code{\link{HiCDOCDataSet}}.
+#' @rdname HiCDOCDataSet-parameters
+#' @usage
+#' NULL
 setReplaceMethod("parameters", "HiCDOCDataSet", function(object, value) {
 
     defaultParameterNames <- names(defaultHiCDOCParameters)

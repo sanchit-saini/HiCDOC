@@ -2,8 +2,8 @@
 % Please edit documentation in R/HiCDOC-package.R
 \docType{package}
 \name{HiCDOC-package}
-\alias{HiCDOC}
 \alias{HiCDOC-package}
+\alias{_PACKAGE}
 \title{A/B compartment detection and differential analysis}
 \description{
 HiCDOC normalizes intrachromosomal Hi-C matrices, uses unsupervised learning

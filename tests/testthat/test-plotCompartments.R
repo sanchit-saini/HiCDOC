@@ -5,12 +5,12 @@ object <- filterWeakPositions(object)
 test_that("plotCompartments behaves as expected", {
     expect_error(
         pp <- plotCompartments(object),
-        "Please run 'detectCompartments' first."
+        "No compartments found."
     )
     set.seed(3215)
     object <- detectCompartments(object, parallel = FALSE)
     expect_error(plotCompartments(object),
-        "l'argument \"chromosome\" est manquant, avec aucune valeur par défaut")
+        "argument \"chromosome\"")
     expect_error(plotCompartments(object, 5), "Unknown")
 
     pp <- plotCompartments(object, 1)

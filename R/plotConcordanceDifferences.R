@@ -44,7 +44,8 @@ plotConcordanceDifferences <- function(object) {
         dplyr::mutate(difference = `2` - `1`) %>%
         dplyr::select(-c(`1`, `2`)) %>%
         dplyr::left_join(changed, by = c("chromosome", "bin")) %>%
-        dplyr::mutate(changed = tidyr::replace_na(changed, "F"))
+        dplyr::mutate(changed = tidyr::replace_na(changed, "F")) %>%
+        dplyr::filter(!is.na(difference))
 
     plot <-
         ggplot(differences, aes(x = difference, fill = changed)) +

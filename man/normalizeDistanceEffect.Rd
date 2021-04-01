@@ -4,7 +4,7 @@
 \alias{normalizeDistanceEffect}
 \title{Normalize distance effect.}
 \usage{
-normalizeDistanceEffect(object, loessSampleSize = 20000)
+normalizeDistanceEffect(object, loessSampleSize = NULL)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}

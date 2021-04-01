@@ -4,8 +4,8 @@ test_that("defaultHiCDOCParameters has the expected format", {
         names(defaultHiCDOCParameters),
         c(
             "smallChromosomeThreshold",
-            "weakPositionThreshold",
             "sparseReplicateThreshold",
+            "weakPositionThreshold",
             "loessSampleSize",
             "kMeansDelta",
             "kMeansIterations",

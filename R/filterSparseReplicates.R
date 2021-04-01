@@ -14,7 +14,6 @@
 #' - The sparse replicate names repeated along the sparse conditions.
 #' - The filtered interactions.
 #'
-#' @md
 #' @keywords internal
 #' @noRd
 .filterSparseReplicatesOfChromosome <- function(
@@ -144,9 +143,6 @@
 #' @examples
 #' data(HiCDOCDataSetExample)
 #' object <- filterSparseReplicates(HiCDOCDataSetExample)
-#'
-#' @usage
-#' filterSparseReplicates(object, threshold = 0.05)
 #'
 #' @export
 filterSparseReplicates <- function(object, threshold = NULL) {

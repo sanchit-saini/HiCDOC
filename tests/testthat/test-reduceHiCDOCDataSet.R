@@ -1,4 +1,8 @@
 data(HiCDOCDataSetExample)
+object <- filterSmallChromosomes(HiCDOCDataSetExample)
+object <- filterWeakPositions(object)
+object <- filterSparseReplicates(object)
+object <- detectCompartments(object)
 
 test_that("reduceHiCDOCDataSet return correct errors", {
     # On chromosomes
@@ -31,55 +35,49 @@ test_that("reduceHiCDOCDataSet return correct errors", {
 })
 
 test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
-    # Run a detectCompartments
-    object <- filterSparseReplicates(HiCDOCDataSetExample)
-    object <- filterWeakPositions(object)
-    object <- detectCompartments(object)
     expect_warning(
-        object <- reduceHiCDOCDataSet(object, chromosomes = c("X")),
+        objectRed <- reduceHiCDOCDataSet(object, chromosomes = c("X")),
         "You should not reduce a HiCDOCDataSet after"
     )
     # Chromosomes
-    expect_identical(object@chromosomes, "X")
-    expect_identical(object@totalBins, c("X" = 120))
-    expect_identical(object@weakBins, list("X" = c(91L, 120L)))
+    expect_identical(objectRed@chromosomes, "X")
+    expect_identical(objectRed@totalBins, c("X" = 120))
+    expect_identical(objectRed@weakBins, list("X" = c(32L, 91L, 120L)))
     # Doesn't remove replicates & conditions
-    expect_identical(object@replicates,
+    expect_identical(objectRed@replicates,
                      c("R2", "R1", "R1", "R2", "R2", "R1", "R3"))
-    expect_identical(object@conditions, c("2", "1", "2", "1", "3", "3", "1"))
+    expect_identical(objectRed@conditions, c("2", "1", "2", "1", "3", "3", "1"))
     # Interactions
-    expect_identical(levels(object@interactions$chromosome), "X")
-    expect_identical(levels(object@interactions$condition), c("1", "2", "3"))
-    expect_identical(levels(object@interactions$replicate), c("R1", "R2", "R3"))
-    expect_equal(nrow(object@interactions), 35105)
+    expect_identical(levels(objectRed@interactions$chromosome), "X")
+    expect_identical(levels(objectRed@interactions$condition), c("1", "2", "3"))
+    expect_identical(levels(objectRed@interactions$replicate), c("R1", "R2", "R3"))
+    expect_equal(nrow(objectRed@interactions), 34515)
     # Objects produced by detectCompartments
-    expect_identical(levels(object@distances$chromosome), "X")
-    expect_identical(levels(object@selfInteractionRatios$chromosome), "X")
-    expect_identical(levels(object@compartments$chromosome), "X")
-    expect_identical(levels(object@concordances$chromosome), "X")
-    expect_identical(levels(object@differences$chromosome), "X")
-    expect_identical(levels(object@centroids$chromosome), "X")
-    expect_identical(levels(object@positions$chromosome), "X")
+    expect_identical(levels(objectRed@distances$chromosome), "X")
+    expect_identical(levels(objectRed@selfInteractionRatios$chromosome), "X")
+    expect_identical(levels(objectRed@compartments$chromosome), "X")
+    expect_identical(levels(objectRed@concordances$chromosome), "X")
+    expect_identical(levels(objectRed@differences$chromosome), "X")
+    expect_identical(levels(objectRed@centroids$chromosome), "X")
+    expect_identical(levels(objectRed@positions$chromosome), "X")
 
-    expect_identical(levels(object@distances$condition), c("1", "2", "3"))
-    expect_identical(levels(object@selfInteractionRatios$condition),
-                     c("1", "2", "3"))
-    expect_identical(levels(object@compartments$condition), c("1", "2", "3"))
-    expect_identical(levels(object@concordances$condition), c("1", "2", "3"))
-    expect_identical(levels(object@centroids$condition), c("1", "2", "3"))
+    expectedLevels <- levels(object@interactions$condition)
+    expect_identical(levels(objectRed@distances$condition), expectedLevels)
+    expect_identical(levels(objectRed@selfInteractionRatios$condition),
+                     expectedLevels)
+    expect_identical(levels(objectRed@compartments$condition), expectedLevels)
+    expect_identical(levels(objectRed@concordances$condition), expectedLevels)
+    expect_identical(levels(objectRed@centroids$condition), expectedLevels)
 
-    expect_identical(levels(object@distances$replicate), c("R1", "R2", "R3"))
-    expect_identical(levels(object@selfInteractionRatios$replicate),
-                     c("R1", "R2", "R3"))
-    expect_identical(levels(object@concordances$replicate),
-                     c("R1", "R2", "R3"))
+    expectedLevels <- levels(object@interactions$replicate)
+    expect_identical(levels(objectRed@distances$replicate), expectedLevels)
+    expect_identical(levels(objectRed@selfInteractionRatios$replicate),
+                     expectedLevels)
+    expect_identical(levels(objectRed@concordances$replicate),
+                     expectedLevels)
 })
 
 test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
-    object <- filterSparseReplicates(HiCDOCDataSetExample)
-    object <- filterWeakPositions(object)
-    # Run a detectCompartments
-    object <- detectCompartments(object)
     expect_warning(
         objectRed <- reduceHiCDOCDataSet(
             object,
@@ -91,7 +89,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
     # Chromosomes
     expect_identical(objectRed@chromosomes, "X")
     expect_identical(objectRed@totalBins, c("X" = 120))
-    expect_identical(objectRed@weakBins, list("X" = c(91L, 120L)))
+    expect_identical(objectRed@weakBins, list("X" = c(32L, 91L, 120L)))
     # Doesn't remove replicates & conditions
     expect_identical(objectRed@replicates, object@replicates)
     expect_identical(objectRed@conditions, object@conditions)
@@ -103,7 +101,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
                      levels(object@interactions$condition))
     expect_identical(levels(objectRed@interactions$replicate),
                      levels(object@interactions$replicate))
-    expect_equal(nrow(objectRed@interactions), 35105)
+    expect_equal(nrow(objectRed@interactions), 34515)
 
     expectedLevels <- levels(object@interactions$chromosome)
     # Objects prduced by detectCompartments
@@ -199,10 +197,6 @@ test_that("reduceHiCDOCDataSet works if select condition, drop levels", {
 })
 
 test_that("reduceHiCDOCDataSet works if select replicate, drop levels", {
-    object <- filterSparseReplicates(HiCDOCDataSetExample)
-    object <- filterWeakPositions(object)
-    # Run a detectCompartments
-    object <- detectCompartments(object, parallel=FALSE)
     expect_warning(
         objectRed <- reduceHiCDOCDataSet(
             object,
@@ -222,10 +216,10 @@ test_that("reduceHiCDOCDataSet works if select replicate, drop levels", {
     expect_identical(levels(objectRed@interactions$chromosome),
                      levels(object@interactions$chromosome))
     expect_identical(levels(objectRed@interactions$condition),
-                     levels(object@conditions))
+                     levels(object@interactions$condition))
     expect_identical(levels(objectRed@interactions$replicate),
                      c("R1"))
-    expect_equal(nrow(objectRed@interactions), 57731)
+    expect_equal(nrow(objectRed@interactions), 51015)
 
     expectedLevels <- levels(object@interactions$chromosome)
     # Objects prduced by detectCompartments
@@ -259,11 +253,6 @@ test_that("reduceHiCDOCDataSet works if select replicate, drop levels", {
 })
 
 test_that("reduceHiCDOCDataSet works if select chr, cond & rep, keep levels", {
-    # case used in detectCompartments
-    object <- filterSparseReplicates(HiCDOCDataSetExample)
-    object <- filterWeakPositions(object)
-    # Run a detectCompartments
-    object <- detectCompartments(object, parallel=FALSE)
     expect_warning(
         objectRed <- reduceHiCDOCDataSet(
             object,
@@ -277,7 +266,7 @@ test_that("reduceHiCDOCDataSet works if select chr, cond & rep, keep levels", {
     # Chromosomes
     expect_identical(objectRed@chromosomes, "X")
     expect_identical(objectRed@totalBins, c("X" = 120))
-    expect_identical(objectRed@weakBins,  list("X" = c(91L, 120L)))
+    expect_identical(objectRed@weakBins,  list("X" = c(32L, 91L, 120L)))
     expect_identical(objectRed@replicates, "R1")
     expect_identical(objectRed@conditions, "1")
 
@@ -288,7 +277,7 @@ test_that("reduceHiCDOCDataSet works if select chr, cond & rep, keep levels", {
                      levels(object@interactions$condition))
     expect_identical(levels(objectRed@interactions$replicate),
                      levels(object@interactions$replicate))
-    expect_equal(nrow(objectRed@interactions), 7021)
+    expect_equal(nrow(objectRed@interactions), 6903)
 
     expectedLevels <- levels(object@interactions$chromosome)
     # Objects prduced by detectCompartments

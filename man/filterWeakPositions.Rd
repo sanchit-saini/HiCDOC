@@ -4,7 +4,7 @@
 \alias{filterWeakPositions}
 \title{Filter weak positions.}
 \usage{
-filterWeakPositions(object, threshold = 1)
+filterWeakPositions(object, threshold = NULL)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}

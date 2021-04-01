@@ -99,15 +99,13 @@ setClass(
     )
 )
 
-#' @describeIn HiCDOCDataSet
+#' @describeIn HiCDOCDataSet-parameters
 #' Provides default parameters, imported into a \code{HiCDOCDataSet} upon
 #' instantiation. The \code{HiCDOCDataSet} parameters are then used for the
 #' \code{\link{HiCDOC}} pipeline.
 #'
-#' @format
-#'
 #' @usage
-#'
+#' defaultHiCDOCParameters
 #' @export
 defaultHiCDOCParameters <- list(
     smallChromosomeThreshold = 100,
@@ -210,10 +208,6 @@ HiCDOCDataSetFromTabular <- function(path = NULL) {
 #'   resolution = resolution # Specified for .mcool files.
 #' )
 #' }
-#'
-#' @usage
-#' HiCDOCDataSetFromCool(paths,
-#' replicates, conditions)
 #'
 #' @export
 HiCDOCDataSetFromCool <- function(

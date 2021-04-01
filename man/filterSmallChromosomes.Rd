@@ -4,7 +4,7 @@
 \alias{filterSmallChromosomes}
 \title{Filter small chromosomes.}
 \usage{
-filterSmallChromosomes(object, threshold = 100)
+filterSmallChromosomes(object, threshold = NULL)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}

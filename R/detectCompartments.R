@@ -346,7 +346,8 @@
     chromosomeNames <-
         rep(object@chromosomes, each = length(unique(object@conditions)))
     conditionNames <-
-        rep(unique(object@conditions), length(object@chromosomes))
+            rep(gtools::mixedsort(unique(object@conditions)),
+                length(object@chromosomes))
 
     if (!parallel) {
         result <-

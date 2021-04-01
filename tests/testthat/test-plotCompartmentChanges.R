@@ -11,7 +11,7 @@ test_that("plotCompartmentChanges behaves as expected", {
     set.seed(3215)
     object <- detectCompartments(object, parallel=FALSE)
     expect_error(plotCompartmentChanges(object),
-        "l'argument \"chromosome\" est manquant, avec aucune valeur par défaut")
+        "argument \"chromosome\"")
     expect_error(plotCompartmentChanges(object, 5), "Unknown")
 
     pp <- plotCompartmentChanges(object, 1)

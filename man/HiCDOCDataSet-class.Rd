@@ -4,14 +4,7 @@
 \name{HiCDOCDataSet-class}
 \alias{HiCDOCDataSet-class}
 \alias{HiCDOCDataSet}
-\alias{defaultHiCDOCParameters}
 \title{\code{HiCDOCDataSet} S4 class.}
-\format{
-
-}
-\usage{
-
-}
 \description{
 Data structure for a Hi-C experiment.
 }
@@ -29,13 +22,6 @@ An example \code{HiCDOCDataSet} is also available, see
 \code{\link{HiCDOCDataSetExample}}.
 }
 }
-\section{Functions}{
-\itemize{
-\item \code{defaultHiCDOCParameters}: Provides default parameters, imported into a \code{HiCDOCDataSet} upon
-instantiation. The \code{HiCDOCDataSet} parameters are then used for the
-\code{\link{HiCDOC}} pipeline.
-}}
-
 \section{Slots}{
 
 \describe{
@@ -89,4 +75,3 @@ each bin in each replicate.}
 \code{\link{HiCDOCDataSetFromHiC}},
 \code{\link{HiCDOCDataSetFromHiCPro}}
 }
-\keyword{datasets}

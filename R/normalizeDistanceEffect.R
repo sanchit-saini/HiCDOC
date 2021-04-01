@@ -141,9 +141,6 @@
 #' \code{\link{normalizeBiologicalBiases}},
 #' \code{\link{HiCDOC}}
 #'
-#' @usage
-#' normalizeDistanceEffect(object, loessSampleSize = 20000)
-#'
 #' @export
 normalizeDistanceEffect <- function(object, loessSampleSize = NULL) {
 

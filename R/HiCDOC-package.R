@@ -9,4 +9,5 @@
 #' @importFrom Rcpp evalCpp sourceCpp
 #' @importFrom stats D loess median quantile
 #' @useDynLib HiCDOC
+#' @aliases HiCDOC-package
 "_PACKAGE"

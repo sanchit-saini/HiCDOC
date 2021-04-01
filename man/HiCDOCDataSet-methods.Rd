@@ -13,6 +13,14 @@
 \alias{concordances}
 \alias{differences}
 \alias{show}
+\alias{chromosomes,HiCDOCDataSet-method}
+\alias{positions,HiCDOCDataSet-method}
+\alias{conditions,HiCDOCDataSet-method}
+\alias{resolution,HiCDOCDataSet-method}
+\alias{interactions,HiCDOCDataSet-method}
+\alias{compartments,HiCDOCDataSet-method}
+\alias{differences,HiCDOCDataSet-method}
+\alias{concordances,HiCDOCDataSet-method}
 \alias{show,HiCDOCDataSet-method}
 \title{Methods to access a \code{\link{HiCDOCDataSet}} components.}
 \usage{

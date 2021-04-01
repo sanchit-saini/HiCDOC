@@ -30,6 +30,8 @@ NULL
 #### chromosomes ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the vector of chromosome names.
+#' @param object
+#' a HiCDOCDataSet object
 #' @export
 setGeneric(
     name = "chromosomes",
@@ -41,6 +43,8 @@ setGeneric(
 #### positions ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the genomic positions corresponding to bins for each chromosome.
+#' @param object
+#' a HiCDOCDataSet object
 #' @export
 setGeneric(
     name = "positions",
@@ -52,6 +56,8 @@ setGeneric(
 #### conditions ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the vector of condition names.
+#' @param object
+#' a HiCDOCDataSet object
 #' @export
 setGeneric(
     name = "conditions",
@@ -63,6 +69,8 @@ setGeneric(
 #### replicates ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the vector of replicate names.
+#' @param object
+#' a HiCDOCDataSet object
 #' @export
 setGeneric(
     name = "replicates",
@@ -74,6 +82,8 @@ setGeneric(
 #### interactions ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a tibble of the interactions.
+#' @param object
+#' a HiCDOCDataSet object
 #' @export
 setGeneric(
     name = "interactions",
@@ -85,6 +95,8 @@ setGeneric(
 #### resolution ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the resolution (span of each position in number of bases).
+#' @param object
+#' a HiCDOCDataSet object
 #' @export
 setGeneric(
     name = "resolution",
@@ -97,6 +109,8 @@ setGeneric(
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a \code{GenomicRange} of the compartment of every position
 #' in every condition.
+#' @param object
+#' a HiCDOCDataSet object
 #' @export
 setGeneric(
     name = "compartments",
@@ -109,6 +123,8 @@ setGeneric(
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a \code{GenomicRange} of the significant compartment differences
 #' between conditions, and their p-values.
+#' @param object
+#' a HiCDOCDataSet object
 #' @param threshold
 #' a numeric value between 0 and 1. If no threshold, all the differences will
 #' be printed even the non significant ones. Otherwise the differences printed
@@ -125,6 +141,8 @@ setGeneric(
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a \code{GenomicRange} of the concordance (confidence in assigned
 #' compartment) of every position in every replicate.
+#' @param object
+#' a HiCDOCDataSet object
 #' @export
 setGeneric(
     name = "concordances",

@@ -13,7 +13,6 @@
 #' - The weak positions.
 #' - The filtered interactions.
 #'
-#' @md
 #' @keywords internal
 #' @noRd
 .filterWeakPositionsOfChromosome <- function(
@@ -129,9 +128,6 @@
 #' @examples
 #' data(HiCDOCDataSetExample)
 #' object <- filterWeakPositions(HiCDOCDataSetExample)
-#'
-#' @usage
-#' filterWeakPositions(object, threshold = 1)
 #'
 #' @export
 filterWeakPositions <- function(object, threshold = NULL) {

@@ -5,7 +5,6 @@ object <- reduceHiCDOCDataSet(HiCDOCDataSetExample,
 object <- filterSparseReplicates(object)
 object <- filterWeakPositions(object)
 
-
 test_that("plotConcordanceDifferences behaves as expected", {
     expect_error(
         pp <- plotConcordanceDifferences(object),

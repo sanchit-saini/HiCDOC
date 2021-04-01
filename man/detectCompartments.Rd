@@ -7,9 +7,9 @@
 detectCompartments(
     object,
     parallel = TRUE,
-    kMeansDelta = 0.0001,
-    kMeansIterations = 50,
-    kMeansRestarts = 20
+    kMeansDelta = NULL,
+    kMeansIterations = NULL,
+    kMeansRestarts = NULL
 )
 }
 \arguments{

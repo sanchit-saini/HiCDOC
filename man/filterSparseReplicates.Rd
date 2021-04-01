@@ -4,7 +4,7 @@
 \alias{filterSparseReplicates}
 \title{Filter sparse replicates.}
 \usage{
-filterSparseReplicates(object, threshold = 0.05)
+filterSparseReplicates(object, threshold = NULL)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}

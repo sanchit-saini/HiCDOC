@@ -4,7 +4,7 @@
 \alias{HiCDOCDataSetFromCool}
 \title{\code{\link{HiCDOCDataSet}} constructor from Cool files.}
 \usage{
-HiCDOCDataSetFromCool(paths, replicates, conditions)
+HiCDOCDataSetFromCool(paths, replicates, conditions, resolution = NULL)
 }
 \arguments{
 \item{paths}{A vector of paths to \code{.cool} or \code{.mcool} files.}

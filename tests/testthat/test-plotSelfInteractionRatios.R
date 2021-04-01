@@ -28,7 +28,6 @@ test_that("plotSelfInteractionRatios behaves as expected", {
     )
     expect_is(pp$layers[[1]]$geom, "GeomPoint")
     expect_is(pp$layers[[2]]$geom, "GeomBoxplot")
-    print(pp$labels)
     # No error when printed
     expect_error(print(pp), NA)
 })
