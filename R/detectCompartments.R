@@ -939,24 +939,12 @@ detectCompartments <- function(
             "totalBins",
             "resolution",
             "weakBins",
+            "validReplicates",
+            "validConditions",
             "parameters"
         )
     )
-    if (is.null(object@validConditions) | is.null(object@validReplicates)) {
-        valid <- lapply(object@chromosomes,
-                        FUN = function(x)
-                            object@interactions %>%
-                            dplyr::filter(chromosome == x &
-                                              interaction > 0) %>%
-                            dplyr::select(condition, replicate) %>%
-                            unique())
-        object@validConditions <-
-            lapply(valid, function(x) x$condition)
-        object@validReplicates <-
-            lapply(valid, function(x) x$replicate)
-        names(object@validConditions) <- as.vector(object@chromosomes)
-        names(object@validReplicates) <- as.vector(object@chromosomes)
-    }
+
     if (!is.null(kMeansDelta)) {
         object@parameters$kMeansDelta <- kMeansDelta
     }
