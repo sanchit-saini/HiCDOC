@@ -1,5 +1,5 @@
-data(HiCDOCDataSetExample)
-object <- filterSparseReplicates(HiCDOCDataSetExample)
+data(exampleHiCDOCDataSet)
+object <- filterSparseReplicates(exampleHiCDOCDataSet)
 object <- filterWeakPositions(object)
 
 test_that("plotCentroids behaves as expected", {

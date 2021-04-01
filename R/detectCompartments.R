@@ -893,14 +893,18 @@
 #' centroids, and differences.
 #'
 #' @examples
-#' data(HiCDOCDataSetExample)
-#' # Run all steps f=of filter and normalization
-#' object <- filterSmallChromosomes(HiCDOCDataSetExample)
+#' data(exampleHiCDOCDataSet)
+#' object <- exampleHiCDOCDataSet
+#'
+#' # Run all filtering and normalization steps
+#' object <- filterSmallChromosomes(object)
 #' object <- filterSparseReplicates(object)
 #' object <- filterWeakPositions(object)
 #' object <- normalizeTechnicalBiases(object)
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
+#'
+#' # Detect compartments and differences across conditions
 #' object <- detectCompartments(object)
 #'
 #' @usage

@@ -1,5 +1,5 @@
-data(HiCDOCDataSetExample)
-object <- reduceHiCDOCDataSet(HiCDOCDataSetExample, chromosomes = c("X", "Y"))
+data(exampleHiCDOCDataSet)
+object <- reduceHiCDOCDataSet(exampleHiCDOCDataSet, chromosomes = c("X", "Y"))
 
 test_that("plotInteractions behaves as expected", {
     expect_error(plotInteractions(object, 3), "Unknown chromosome")

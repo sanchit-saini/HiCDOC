@@ -165,8 +165,9 @@
 #' A \code{\link{HiCDOCDataSet}} with normalized interactions.
 #'
 #' @examples
-#' data(HiCDOCDataSetExample)
-#' object <- filterSparseReplicates(HiCDOCDataSetExample)
+#' data(exampleHiCDOCDataSet)
+#' object <- exampleHiCDOCDataSet
+#' object <- filterSparseReplicates(object)
 #' object <- filterWeakPositions(object)
 #' object <- normalizeBiologicalBiases(object)
 #'

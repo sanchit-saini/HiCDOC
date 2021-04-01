@@ -17,8 +17,8 @@
 #' A \code{ggplot}.
 #'
 #' @examples
-#' data(HiCDOCDataSetExample)
-#' object <- HiCDOC(HiCDOCDataSetExample)
+#' data(exampleHiCDOCDataSet)
+#' object <- HiCDOC(exampleHiCDOCDataSet)
 #' plotSelfInteractionRatios(object, chromosome = 1)
 #'
 #' @export

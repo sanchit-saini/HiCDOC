@@ -1,5 +1,5 @@
-data(HiCDOCDataSetExample)
-object <- reduceHiCDOCDataSet(HiCDOCDataSetExample,
+data(exampleHiCDOCDataSet)
+object <- reduceHiCDOCDataSet(exampleHiCDOCDataSet,
                               replicates = c("R1", "R2"),
                               conditions = c("1", "2"))
 object <- filterSparseReplicates(object)

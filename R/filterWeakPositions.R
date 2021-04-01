@@ -126,8 +126,10 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @examples
-#' data(HiCDOCDataSetExample)
-#' object <- filterWeakPositions(HiCDOCDataSetExample)
+#' data(exampleHiCDOCDataSet)
+#' object <- exampleHiCDOCDataSet
+#'
+#' object <- filterWeakPositions(object)
 #'
 #' @export
 filterWeakPositions <- function(object, threshold = NULL) {

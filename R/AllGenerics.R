@@ -15,11 +15,10 @@
 #' @param object
 #' a HiCDOCDataSet object
 #' @examples
-#' data(HiCDOCDataSetExample)
-#' chromosomes(HiCDOCDataSetExample)
-#' conditions(HiCDOCDataSetExample)
-#' object <- HiCDOC(HiCDOCDataSetExample)
-#' differences(object)
+#' data(exampleHiCDOCDataSet)
+#' chromosomes(exampleHiCDOCDataSet)
+#' conditions(exampleHiCDOCDataSet)
+#' resolution(exampleHiCDOCDataSet)
 #' @return
 #' A character vector (for \code{chromosomes}, \code{conditions},
 #' \code{replicates}), an integer(for \code{resolution}), a tibble
@@ -232,14 +231,14 @@ setGeneric(
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
-#' data(HiCDOCDataSetExample)
+#' data(exampleHiCDOCDataSet)
 #'
 #' # Retrieve parameters
-#' parameters(HiCDOCDataSetExample)
+#' parameters(exampleHiCDOCDataSet)
 #'
 #' # Set parameters
-#' parameters(HiCDOCDataSetExample) <- list("smallChromosomeThreshold" = 50)
-#' parameters(HiCDOCDataSetExample) <- list(
+#' parameters(exampleHiCDOCDataSet) <- list("smallChromosomeThreshold" = 50)
+#' parameters(exampleHiCDOCDataSet) <- list(
 #'     "weakPositionThreshold" = 10,
 #'     "kMeansRestarts" = 30
 #' )

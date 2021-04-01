@@ -1,8 +1,8 @@
-data(HiCDOCDataSetExample)
+data(exampleHiCDOCDataSet)
 test_that("filterWeakPositions behaves as expected", {
     # Filter the 0 values in interactions
     expect_message(
-        object <- filterWeakPositions(HiCDOCDataSetExample),
+        object <- filterWeakPositions(exampleHiCDOCDataSet),
         "Removed 6 positions in total."
     )
     expect_equal(nrow(object@interactions), 181180)
@@ -15,7 +15,7 @@ test_that("filterWeakPositions behaves as expected", {
 test_that("filterWeakPositions behaves as expected, custom param", {
     # Filter values with 50 threshold
     expect_message(
-        object <- filterWeakPositions(HiCDOCDataSetExample, threshold = 50),
+        object <- filterWeakPositions(exampleHiCDOCDataSet, threshold = 50),
         "Removed 123 positions in total."
     )
     expect_equal(nrow(object@interactions), 146467)
