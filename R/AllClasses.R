@@ -21,7 +21,7 @@
 #' - HiC files: see \code{\link{HiCDOCDataSetFromHiC}}
 #' - HiC-Pro matrices and bed files: see \code{\link{HiCDOCDataSetFromHiCPro}}
 #' An example \code{HiCDOCDataSet} is also available, see
-#' \code{\link{HiCDOCDataSetExample}}.
+#' \code{\link{exampleHiCDOCDataSet}}.
 #'
 #' @slot input
 #' A vector of path(s) to input file(s).
@@ -67,7 +67,7 @@
 #'
 #' @seealso
 #' \code{\link{HiCDOC}}
-#' \code{\link{HiCDOCDataSetExample}},
+#' \code{\link{exampleHiCDOCDataSet}},
 #' \code{\link{HiCDOCDataSetFromTabular}},
 #' \code{\link{HiCDOCDataSetFromCool}},
 #' \code{\link{HiCDOCDataSetFromHiC}},
@@ -534,8 +534,11 @@ HiCDOCDataSetFromHiCPro <- function(
 #' \code{\link{HiCDOCDataSet}}
 #'
 #' @examples
-#' data(HiCDOCDataSetExample)
-#' object <- HiCDOC(HiCDOCDataSetExample)
+#' data(exampleHiCDOCDataSet)
+#' object <- exampleHiCDOCDataSet
+#'
+#' # Default HiCDOC pipeline
+#' object <- HiCDOC(object)
 #'
 #' # Equivalent to
 #' \dontrun{

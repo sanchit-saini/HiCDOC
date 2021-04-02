@@ -73,13 +73,14 @@ library("HiCDOC")
 To try out HiCDOC, load the simulated toy data set:
 
 ```r
-data(HiCDOCDataSetExample)
+data(exampleHiCDOCDataSet)
+hic.experiment <- exampleHiCDOCDataSet
 ```
 
 Then run the default pipeline on the created object:
 
 ```r
-hic.experiment <- HiCDOC(HiCDOCDataSetExample)
+hic.experiment <- HiCDOC(hic.experiment)
 ```
 
 And plot some results:

@@ -133,8 +133,9 @@
 #' A \code{\link{HiCDOCDataSet}} with normalized interactions.
 #'
 #' @examples
-#' data(HiCDOCDataSetExample)
-#' object <- normalizeDistanceEffect(HiCDOCDataSetExample)
+#' data(exampleHiCDOCDataSet)
+#' object <- exampleHiCDOCDataSet
+#' object <- normalizeDistanceEffect(object)
 #'
 #' @seealso
 #' \code{\link{normalizeTechnicalBiases}},

@@ -53,14 +53,14 @@
 #' @noRd
 .tieCentroids <- function(object) {
 
-    selectedChromosomeNames <- names(base::Filter(function(x) !is.null(x),
-                                                  object@validConditions))
+    selectedChromosomeNames <-
+        names(base::Filter(function(x) !is.null(x), object@validConditions))
 
     referenceConditionNames <-
         lapply(
             object@validConditions[selectedChromosomeNames],
             function(conditionNames) conditionNames[1]
-            ) %>%
+        ) %>%
         unlist() %>%
         as.vector()
 
@@ -68,11 +68,12 @@
         dplyr::tibble(
             chromosome = factor(
                 selectedChromosomeNames,
-                levels =
-                    gtools::mixedsort(unique(object@chromosomes))),
+                levels = gtools::mixedsort(unique(object@chromosomes))
+            ),
             condition = factor(
                 referenceConditionNames,
-                levels = gtools::mixedsort(unique(object@conditions)))
+                levels = gtools::mixedsort(unique(object@conditions))
+            )
         ) %>%
         dplyr::left_join(
             object@centroids,
@@ -142,9 +143,12 @@
             compartment = dplyr::if_else(compartment == 1, cluster.1, cluster.2)
         ) %>%
         dplyr::select(-cluster.1, -cluster.2) %>%
-        dplyr::mutate(condition = factor(
-            condition,
-            levels = gtools::mixedsort(unique(object@conditions))))
+        dplyr::mutate(
+            condition = factor(
+                condition,
+                levels = gtools::mixedsort(unique(object@conditions))
+            )
+        )
 
     object@centroids %<>%
         dplyr::left_join(clusters, by = c("chromosome", "condition")) %>%
@@ -893,14 +897,18 @@
 #' centroids, and differences.
 #'
 #' @examples
-#' data(HiCDOCDataSetExample)
-#' # Run all steps f=of filter and normalization
-#' object <- filterSmallChromosomes(HiCDOCDataSetExample)
+#' data(exampleHiCDOCDataSet)
+#' object <- exampleHiCDOCDataSet
+#'
+#' # Run all filtering and normalization steps
+#' object <- filterSmallChromosomes(object)
 #' object <- filterSparseReplicates(object)
 #' object <- filterWeakPositions(object)
 #' object <- normalizeTechnicalBiases(object)
 #' object <- normalizeBiologicalBiases(object)
 #' object <- normalizeDistanceEffect(object)
+#'
+#' # Detect compartments and differences across conditions
 #' object <- detectCompartments(object)
 #'
 #' @usage
@@ -931,24 +939,12 @@ detectCompartments <- function(
             "totalBins",
             "resolution",
             "weakBins",
+            "validReplicates",
+            "validConditions",
             "parameters"
         )
     )
-    if (is.null(object@validConditions) | is.null(object@validReplicates)) {
-        valid <- lapply(object@chromosomes,
-                        FUN = function(x)
-                            object@interactions %>%
-                            dplyr::filter(chromosome == x &
-                                              interaction > 0) %>%
-                            dplyr::select(condition, replicate) %>%
-                            unique())
-        object@validConditions <-
-            lapply(valid, function(x) x$condition)
-        object@validReplicates <-
-            lapply(valid, function(x) x$replicate)
-        names(object@validConditions) <- as.vector(object@chromosomes)
-        names(object@validReplicates) <- as.vector(object@chromosomes)
-    }
+
     if (!is.null(kMeansDelta)) {
         object@parameters$kMeansDelta <- kMeansDelta
     }

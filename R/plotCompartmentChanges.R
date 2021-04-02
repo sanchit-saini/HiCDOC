@@ -21,8 +21,8 @@
 #' A \code{ggplot}.
 #'
 #' @examples
-#' data(HiCDOCDataSetExample)
-#' object <- HiCDOC(HiCDOCDataSetExample)
+#' data(exampleHiCDOCDataSet)
+#' object <- HiCDOC(exampleHiCDOCDataSet)
 #' plotCompartmentChanges(object, chromosome = 1)
 #'
 #' @export

@@ -1,9 +1,9 @@
-data(HiCDOCDataSetExample)
+data(exampleHiCDOCDataSet)
 
 test_that("filterSmallChromosomes behave as expected with default filter", {
     # No filter on the example dataset
     expect_message(
-        object <- filterSmallChromosomes(HiCDOCDataSetExample),
+        object <- filterSmallChromosomes(exampleHiCDOCDataSet),
         "Keeping chromosomes with at least 100 positions."
     )
     expect_equal(length(object@chromosomes), 3)
@@ -13,7 +13,7 @@ test_that("filterSmallChromosomes behave as expected with default filter", {
 test_that("filterSmallChromosomes behave as expected with custom filter", {
     # Filter on 1 chromosome
     expect_message(
-        object <- filterSmallChromosomes(HiCDOCDataSetExample, 161),
+        object <- filterSmallChromosomes(exampleHiCDOCDataSet, 161),
         "Keeping chromosomes with at least 161 positions."
     )
     expect_equal(length(object@chromosomes), 1)

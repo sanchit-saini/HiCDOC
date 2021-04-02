@@ -162,8 +162,8 @@
 #' A \code{ggplot}.
 #'
 #' @examples
-#' data(HiCDOCDataSetExample)
-#' plotInteractions(HiCDOCDataSetExample, chromosome = 1)
+#' data(exampleHiCDOCDataSet)
+#' plotInteractions(exampleHiCDOCDataSet, chromosome = 1)
 #'
 #' @export
 plotInteractions <- function(

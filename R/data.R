@@ -1,13 +1,18 @@
-#' Example of HiCDOCDataSet data.
+#' @title
+#' Example HiCDOCDataSet.
 #'
-#' A S4 HiCDOCDataSet object with 4 chromosomes, 2 conditions and 3 replicates.
+#' @description
+#' A S4 HiCDOCDataSet object with 4 chromosomes, 3 conditions and 3 replicates.
 #'
-#' @format S4 HiCDOCDataSet object with the following characteristics :
+#' @format
+#' S4 HiCDOCDataSet object with the following characteristics:
 #' \describe{
-#'   \item{chromosomes}{4 chromosomes : "W", "X", "Y" and "Z"}
-#'   \item{replicates}{3 differents replicates : R1, R2 and R3}
-#'   \item{conditions}{3 differents conditions : 1, 2, 3}
-#'   \item{resolution}{the computed resolution is 137.}
+#'   \item{chromosomes}{4 chromosomes: W, X, Y, Z}
+#'   \item{conditions}{3 conditions: 1, 2, 3}
+#'   \item{replicates}{3 replicates: R1, R2, R3}
+#'   \item{resolution}{A resolution of 137 bases}
 #' }
-#' @return A HiCDOCDataSet object
-"HiCDOCDataSetExample"
+#'
+#' @return
+#' A \code{\link{HiCDOCDataSet}}.
+"exampleHiCDOCDataSet"

@@ -22,8 +22,8 @@ is assumed that self interaction ratios in compartment A are smaller than in
 compartment B.
 }
 \examples{
-data(HiCDOCDataSetExample)
-object <- HiCDOC(HiCDOCDataSetExample)
+data(exampleHiCDOCDataSet)
+object <- HiCDOC(exampleHiCDOCDataSet)
 plotSelfInteractionRatios(object, chromosome = 1)
 
 }

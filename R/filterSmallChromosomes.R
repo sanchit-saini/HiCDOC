@@ -21,9 +21,11 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @examples
-#' data(HiCDOCDataSetExample)
-#' chromosomes(HiCDOCDataSetExample)
-#' object <- filterSmallChromosomes(HiCDOCDataSetExample)
+#' data(exampleHiCDOCDataSet)
+#' object <- exampleHiCDOCDataSet
+#'
+#' chromosomes(object)
+#' object <- filterSmallChromosomes(object)
 #' chromosomes(object)
 #'
 #' @export

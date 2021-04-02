@@ -1,5 +1,5 @@
-data(HiCDOCDataSetExample)
-object <- filterSmallChromosomes(HiCDOCDataSetExample)
+data(exampleHiCDOCDataSet)
+object <- filterSmallChromosomes(exampleHiCDOCDataSet)
 object <- filterWeakPositions(object)
 object <- filterSparseReplicates(object)
 object <- detectCompartments(object)
@@ -7,29 +7,29 @@ object <- detectCompartments(object)
 test_that("reduceHiCDOCDataSet return correct errors", {
     # On chromosomes
     expect_error(
-        reduceHiCDOCDataSet(HiCDOCDataSetExample, chromosomes = c(5, 6)),
+        reduceHiCDOCDataSet(exampleHiCDOCDataSet, chromosomes = c(5, 6)),
         "Unknown chromosomes"
     )
     expect_error(
-        reduceHiCDOCDataSet(HiCDOCDataSetExample, chromosomes = "chr1"),
+        reduceHiCDOCDataSet(exampleHiCDOCDataSet, chromosomes = "chr1"),
         "Unknown chromosome"
     )
     # On conditions
     expect_error(
-        reduceHiCDOCDataSet(HiCDOCDataSetExample, conditions = c(3, 4)),
+        reduceHiCDOCDataSet(exampleHiCDOCDataSet, conditions = c(3, 4)),
         "Unknown condition: 4"
     )
     expect_error(
-        reduceHiCDOCDataSet(HiCDOCDataSetExample, conditions = "cond1"),
+        reduceHiCDOCDataSet(exampleHiCDOCDataSet, conditions = "cond1"),
         "Unknown condition"
     )
     # On replicates
     expect_error(
-        reduceHiCDOCDataSet(HiCDOCDataSetExample, replicates = c(3, 4)),
+        reduceHiCDOCDataSet(exampleHiCDOCDataSet, replicates = c(3, 4)),
         "Unknown replicates"
     )
     expect_error(
-        reduceHiCDOCDataSet(HiCDOCDataSetExample, replicates = "rep1"),
+        reduceHiCDOCDataSet(exampleHiCDOCDataSet, replicates = "rep1"),
         "Unknown replicate"
     )
 })
@@ -136,7 +136,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
 })
 
 test_that("reduceHiCDOCDataSet works if select condition, drop levels", {
-    object <- filterSparseReplicates(HiCDOCDataSetExample)
+    object <- filterSparseReplicates(exampleHiCDOCDataSet)
     object <- filterWeakPositions(object)
     # Run a detectCompartments
     object <- detectCompartments(object, parallel=FALSE)

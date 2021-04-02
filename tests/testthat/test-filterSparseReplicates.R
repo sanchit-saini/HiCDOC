@@ -1,8 +1,8 @@
-data(HiCDOCDataSetExample)
+data(exampleHiCDOCDataSet)
 test_that("filterSparseReplicates behaves as expected", {
     # default filtering on the example dataset
     expect_message(
-        object <- filterSparseReplicates(HiCDOCDataSetExample),
+        object <- filterSparseReplicates(exampleHiCDOCDataSet),
         "Removed 8 replicates in total",
         fixed = TRUE
     )
@@ -32,7 +32,7 @@ test_that("filterSparseReplicates behaves as expected", {
 test_that("filterSparseReplicates behaves as expected with custom param", {
     # Filter 1 chromosome on the example dataset
     expect_message(
-        object <- filterSparseReplicates(HiCDOCDataSetExample, 0.9995),
+        object <- filterSparseReplicates(exampleHiCDOCDataSet, 0.9995),
         "Removed 11 replicates in total.",
         fixed = TRUE
     )

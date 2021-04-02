@@ -15,8 +15,8 @@
 #' A \code{ggplot}.
 #'
 #' @examples
-#' data(HiCDOCDataSetExample)
-#' object <- HiCDOC(HiCDOCDataSetExample)
+#' data(exampleHiCDOCDataSet)
+#' object <- HiCDOC(exampleHiCDOCDataSet)
 #' plotCentroids(object, chromosome = 1)
 #'
 #' @export

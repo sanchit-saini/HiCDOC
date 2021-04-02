@@ -28,8 +28,10 @@ replicates to guarantee comparability across conditions when calling
 \code{\link{detectCompartments}}.
 }
 \examples{
-data(HiCDOCDataSetExample)
-object <- filterWeakPositions(HiCDOCDataSetExample)
+data(exampleHiCDOCDataSet)
+object <- exampleHiCDOCDataSet
+
+object <- filterWeakPositions(object)
 
 }
 \seealso{

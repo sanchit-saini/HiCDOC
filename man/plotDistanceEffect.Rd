@@ -16,7 +16,7 @@ A \code{ggplot}.
 Plots the distance effect on proportion of interactions.
 }
 \examples{
-data(HiCDOCDataSetExample)
-plotDistanceEffect(HiCDOCDataSetExample)
+data(exampleHiCDOCDataSet)
+plotDistanceEffect(exampleHiCDOCDataSet)
 
 }

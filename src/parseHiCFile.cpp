@@ -288,41 +288,43 @@ void readMatrix(
     fin.read((char*) &chromosomeId1, sizeof(int));
     fin.read((char*) &chromosomeId2, sizeof(int));
     if (chromosomeId1 == chromosomeId2) {
-      fin.read((char*) &totalResolutions, sizeof(int));
-      for (
-        int resolutionId = 0;
-        resolutionId < totalResolutions;
-        ++resolutionId
-      ) {
-        std::string unit;
-        int resIdx;
-        float tmp2;
-        int binSize;
-        int totalBlockBins;
-        int totalBlockColumns;
-        int totalBlocks;
-        getline(fin, unit, '\0');
-        fin.read((char*) &resIdx, sizeof(int));
-        fin.read((char*) &tmp2, sizeof(float)); // sumCounts
-        fin.read((char*) &tmp2, sizeof(float)); // occupiedCellCount
-        fin.read((char*) &tmp2, sizeof(float)); // stdDev
-        fin.read((char*) &tmp2, sizeof(float)); // percent95
-        fin.read((char*) &binSize, sizeof(int));
-        fin.read((char*) &totalBlockBins, sizeof(int));
-        fin.read((char*) &totalBlockColumns, sizeof(int));
-        fin.read((char*) &totalBlocks, sizeof(int));
-        for (int i = 0; i < totalBlocks; i++) {
-          int blockId, blockSize;
-          long blockPosition;
-          fin.read((char*) &blockId, sizeof(int));
-          fin.read((char*) &blockPosition, sizeof(long));
-          fin.read((char*) &blockSize, sizeof(int));
-          if (resolutionId == info.selectedResolutionId) {
-            pos = fin.tellg();
-            readBlock(
-              fin, blockPosition, blockSize, chromosomeId1, info, output
-            );
-            fin.seekg(pos, std::ios::beg);
+      if ((! info.firstChromosomeIsAll) || (chromosomeId1 != 0)) {
+        fin.read((char*) &totalResolutions, sizeof(int));
+        for (
+          int resolutionId = 0;
+          resolutionId < totalResolutions;
+          ++resolutionId
+        ) {
+          std::string unit;
+          int resIdx;
+          float tmp2;
+          int binSize;
+          int totalBlockBins;
+          int totalBlockColumns;
+          int totalBlocks;
+          getline(fin, unit, '\0');
+          fin.read((char*) &resIdx, sizeof(int));
+          fin.read((char*) &tmp2, sizeof(float)); // sumCounts
+          fin.read((char*) &tmp2, sizeof(float)); // occupiedCellCount
+          fin.read((char*) &tmp2, sizeof(float)); // stdDev
+          fin.read((char*) &tmp2, sizeof(float)); // percent95
+          fin.read((char*) &binSize, sizeof(int));
+          fin.read((char*) &totalBlockBins, sizeof(int));
+          fin.read((char*) &totalBlockColumns, sizeof(int));
+          fin.read((char*) &totalBlocks, sizeof(int));
+          for (int i = 0; i < totalBlocks; i++) {
+            int blockId, blockSize;
+            long blockPosition;
+            fin.read((char*) &blockId, sizeof(int));
+            fin.read((char*) &blockPosition, sizeof(long));
+            fin.read((char*) &blockSize, sizeof(int));
+            if (resolutionId == info.selectedResolutionId) {
+              pos = fin.tellg();
+              readBlock(
+                fin, blockPosition, blockSize, chromosomeId1, info, output
+              );
+              fin.seekg(pos, std::ios::beg);
+            }
           }
         }
       }
@@ -383,9 +385,8 @@ DataFrame parseHiCFile(std::string &fname, int resolution) {
   counts = wrap(output.count);
   if (info.firstChromosomeIsAll) info.chromosomes.erase(0);
   else {
-    // factors start with in R
-    bins1 = bins1 - 1;
-    bins2 = bins2 - 1;
+    // factors start with 1 in R
+    chromosomes = chromosomes + 1;
   }
   chromosomes.attr("class") = "factor";
   chromosomes.attr("levels") = info.chromosomes;
