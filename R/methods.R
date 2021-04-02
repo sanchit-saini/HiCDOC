@@ -3,8 +3,6 @@
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
-#' @param object
-#' a HiCDOCDataSet object
 #' @export
 setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 
@@ -13,8 +11,6 @@ setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
-#' @param object
-#' a HiCDOCDataSet object
 #' @export
 setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
 
@@ -23,18 +19,14 @@ setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
-#' @param object
-#' a HiCDOCDataSet object
 #' @export
 setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 
 #### replicates ####
 #' Retrieves the vector of replicate names.
-#' @rdname HiCDOCDataSet-methods'
+#' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
-#' @param object
-#' a HiCDOCDataSet object
 #' @export
 setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 
@@ -43,8 +35,6 @@ setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
-#' @param object
-#' a HiCDOCDataSet object
 #' @export
 setMethod("resolution", "HiCDOCDataSet", function(object) object@resolution)
 
@@ -53,8 +43,6 @@ setMethod("resolution", "HiCDOCDataSet", function(object) object@resolution)
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
-#' @param object
-#' a HiCDOCDataSet object
 #' @export
 setMethod("interactions", "HiCDOCDataSet", function(object) {
     if (is.null(object@interactions)) return(NULL)
@@ -94,8 +82,6 @@ setMethod("interactions", "HiCDOCDataSet", function(object) {
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
-#' @param object
-#' a HiCDOCDataSet object
 #' @export
 setMethod("compartments", "HiCDOCDataSet", function(object) {
 
@@ -138,8 +124,6 @@ setMethod("compartments", "HiCDOCDataSet", function(object) {
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
-#' @param object
-#' a HiCDOCDataSet object
 #' @export
 setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 
@@ -211,8 +195,6 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
-#' @param object
-#' a HiCDOCDataSet object
 #' @export
 setMethod("concordances", "HiCDOCDataSet", function(object) {
 
@@ -240,8 +222,6 @@ setMethod("concordances", "HiCDOCDataSet", function(object) {
 #' Describes the object and its methods.
 #' @usage
 #' object
-#' @param object
-#' a HiCDOCDataSet object
 #' @export
 setMethod("show", "HiCDOCDataSet", function(object) {
     cat(

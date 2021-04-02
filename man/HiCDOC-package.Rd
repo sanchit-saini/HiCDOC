@@ -25,7 +25,7 @@ Authors:
 \itemize{
   \item Kurylo Cyril \email{cyril.kurylo@inrae.fr}
   \item Foissac Sylvain \email{sylvain.foissac@inrae.fr}
-  \item Maign<U+00E9> <U+00C9>lise \email{elise.maigne@inrae.fr}
+  \item Maigné Élise \email{elise.maigne@inrae.fr}
 }
 
 }

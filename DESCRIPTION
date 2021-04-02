@@ -48,4 +48,4 @@ VignetteBuilder: knitr
 URL: https://github.com/mzytnicki/HiCDOC
 BugReports: https://github.com/mzytnicki/HiCDOC/issues
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5.0)

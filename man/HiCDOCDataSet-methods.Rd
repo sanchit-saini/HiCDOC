@@ -16,6 +16,7 @@
 \alias{chromosomes,HiCDOCDataSet-method}
 \alias{positions,HiCDOCDataSet-method}
 \alias{conditions,HiCDOCDataSet-method}
+\alias{replicates,HiCDOCDataSet-method}
 \alias{resolution,HiCDOCDataSet-method}
 \alias{interactions,HiCDOCDataSet-method}
 \alias{compartments,HiCDOCDataSet-method}
