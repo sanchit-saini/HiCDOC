@@ -5,6 +5,7 @@
 #' NULL
 #' @param object
 #' a HiCDOCDataSet object
+#' @export
 setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 
 #### positions ####
@@ -14,6 +15,7 @@ setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 #' NULL
 #' @param object
 #' a HiCDOCDataSet object
+#' @export
 setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
 
 #### conditions ####
@@ -23,6 +25,7 @@ setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
 #' NULL
 #' @param object
 #' a HiCDOCDataSet object
+#' @export
 setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 
 #### replicates ####
@@ -32,6 +35,7 @@ setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 #' NULL
 #' @param object
 #' a HiCDOCDataSet object
+#' @export
 setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 
 #### resolution ####
@@ -41,6 +45,7 @@ setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 #' NULL
 #' @param object
 #' a HiCDOCDataSet object
+#' @export
 setMethod("resolution", "HiCDOCDataSet", function(object) object@resolution)
 
 #### interactions ####
@@ -50,6 +55,7 @@ setMethod("resolution", "HiCDOCDataSet", function(object) object@resolution)
 #' NULL
 #' @param object
 #' a HiCDOCDataSet object
+#' @export
 setMethod("interactions", "HiCDOCDataSet", function(object) {
     if (is.null(object@interactions)) return(NULL)
 
@@ -90,6 +96,7 @@ setMethod("interactions", "HiCDOCDataSet", function(object) {
 #' NULL
 #' @param object
 #' a HiCDOCDataSet object
+#' @export
 setMethod("compartments", "HiCDOCDataSet", function(object) {
 
     if (is.null(object@compartments)) return(NULL)
@@ -133,6 +140,7 @@ setMethod("compartments", "HiCDOCDataSet", function(object) {
 #' NULL
 #' @param object
 #' a HiCDOCDataSet object
+#' @export
 setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 
     if (is.null(object@differences)) return(NULL)
@@ -205,6 +213,7 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 #' NULL
 #' @param object
 #' a HiCDOCDataSet object
+#' @export
 setMethod("concordances", "HiCDOCDataSet", function(object) {
 
     if (is.null(object@concordances)) return(NULL)
@@ -281,6 +290,7 @@ setMethod("show", "HiCDOCDataSet", function(object) {
 #' @rdname HiCDOCDataSet-parameters
 #' @usage
 #' NULL
+#' @export
 setMethod("parameters", "HiCDOCDataSet", function(object) object@parameters)
 
 #### parameters<- ####
@@ -288,6 +298,7 @@ setMethod("parameters", "HiCDOCDataSet", function(object) object@parameters)
 #' @rdname HiCDOCDataSet-parameters
 #' @usage
 #' NULL
+#' @export
 setReplaceMethod("parameters", "HiCDOCDataSet", function(object, value) {
 
     defaultParameterNames <- names(defaultHiCDOCParameters)
