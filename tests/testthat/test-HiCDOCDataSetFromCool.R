@@ -18,7 +18,7 @@ test_that("HiCDOCDataSetFromCool works as expected", {
     expect_identical(object@chromosomes, "18")
     expect_identical(object@conditions, 1)
     expect_identical(object@replicates, 1)
-    expect_identical(object@resolution, 500000L)
+    expect_identical(object@binSize, 500000L)
 })
 
 
@@ -31,7 +31,7 @@ test_that("HiCDOCDataSetFromCool works as expected if mcool", {
     conditions <- c(1)
 
     # Resolution to select in .mcool files
-    resolution = 500000
+    binSize = 500000
 
     # Instantiation of data set
     expect_message(
@@ -39,7 +39,7 @@ test_that("HiCDOCDataSetFromCool works as expected if mcool", {
             paths,
             replicates = replicates,
             conditions = conditions,
-            resolution = resolution
+            binSize = binSize
         ),
         "liver_18_10M.mcool")
 
@@ -47,5 +47,5 @@ test_that("HiCDOCDataSetFromCool works as expected if mcool", {
     expect_identical(object@chromosomes, "18")
     expect_identical(object@conditions, 1)
     expect_identical(object@replicates, 1)
-    expect_identical(object@resolution, 500000L)
+    expect_identical(object@binSize, 500000L)
 })

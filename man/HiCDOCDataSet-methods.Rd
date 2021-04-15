@@ -7,7 +7,7 @@
 \alias{positions}
 \alias{conditions}
 \alias{replicates}
-\alias{resolution}
+\alias{binSize}
 \alias{interactions}
 \alias{compartments}
 \alias{concordances}
@@ -17,7 +17,7 @@
 \alias{positions,HiCDOCDataSet-method}
 \alias{conditions,HiCDOCDataSet-method}
 \alias{replicates,HiCDOCDataSet-method}
-\alias{resolution,HiCDOCDataSet-method}
+\alias{binSize,HiCDOCDataSet-method}
 \alias{interactions,HiCDOCDataSet-method}
 \alias{compartments,HiCDOCDataSet-method}
 \alias{differences,HiCDOCDataSet-method}
@@ -35,15 +35,13 @@ replicates(object)
 
 interactions(object)
 
-resolution(object)
+binSize(object)
 
 compartments(object)
 
 differences(object, threshold = 0.05)
 
 concordances(object)
-
-object
 }
 \arguments{
 \item{object}{a HiCDOCDataSet object}
@@ -54,7 +52,7 @@ are filtered to show the ones with an adjusted p-value <= \code{threshold}.}
 }
 \value{
 A character vector (for \code{chromosomes}, \code{conditions},
-\code{replicates}), an integer(for \code{resolution}), a tibble
+\code{replicates}), an integer(for \code{binSize}), a tibble
 (for \code{interactions} and \code{positions}), or a GRanges object
 (for \code{compartments}, \code{concordances}, \code{differences}).
 }
@@ -73,7 +71,7 @@ Retrieve information and results from a \code{\link{HiCDOCDataSet}}.
 
 \item \code{interactions}: Retrieves a tibble of the interactions.
 
-\item \code{resolution}: Retrieves the resolution (span of each position in number of bases).
+\item \code{binSize}: Retrieves the resolution (span of each position in number of bases).
 
 \item \code{compartments}: Retrieves a \code{GenomicRange} of the compartment of every position
 in every condition.
@@ -91,5 +89,5 @@ compartment) of every position in every replicate.
 data(exampleHiCDOCDataSet)
 chromosomes(exampleHiCDOCDataSet)
 conditions(exampleHiCDOCDataSet)
-resolution(exampleHiCDOCDataSet)
+binSize(exampleHiCDOCDataSet)
 }

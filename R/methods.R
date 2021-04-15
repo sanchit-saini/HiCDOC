@@ -30,13 +30,13 @@ setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 #' @export
 setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 
-#### resolution ####
+#### binSize ####
 #' Retrieves the resolution (span of each position in number of bases).
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
 #' @export
-setMethod("resolution", "HiCDOCDataSet", function(object) object@resolution)
+setMethod("binSize", "HiCDOCDataSet", function(object) object@binSize)
 
 #### interactions ####
 #' Retrieves a tibble of the interactions.
@@ -221,7 +221,7 @@ setMethod("concordances", "HiCDOCDataSet", function(object) {
 #' @describeIn HiCDOCDataSet-methods
 #' Describes the object and its methods.
 #' @usage
-#' object
+#' NULL
 #' @export
 setMethod("show", "HiCDOCDataSet", function(object) {
     cat(
@@ -244,17 +244,17 @@ setMethod("show", "HiCDOCDataSet", function(object) {
             "\n"
         ),
         "\n",
-        "- Resolution:\n  ",
-        if (is.null(object@resolution))
+        "- Resolution (binSize):\n  ",
+        if (is.null(object@binSize))
         "None"
         else
-        object@resolution,
+        object@binSize,
         "\n\n",
         "- Methods:\n",
         "  chromosomes(object)\n",
         "  conditions(object)\n",
         "  replicates(object)\n",
-        "  resolution(object)\n",
+        "  binSize(object)\n",
         "  interactions(object)\n",
         "  compartments(object)\n",
         "  differences(object)\n",

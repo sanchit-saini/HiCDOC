@@ -40,7 +40,7 @@ compartments.}
 
 \item{\code{positions}}{A tibble of positions and their corresponding bin.}
 
-\item{\code{resolution}}{The computed bin size (span of each bin in number of bases).}
+\item{\code{binSize}}{The resolution: computed bin size (span of each bin in number of bases).}
 
 \item{\code{totalBins}}{A list of the number of bins in each chromosome.}
 

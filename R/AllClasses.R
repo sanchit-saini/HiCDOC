@@ -38,8 +38,8 @@
 #' A vector of names of replicates, repeated along the conditions.
 #' @slot positions
 #' A tibble of positions and their corresponding bin.
-#' @slot resolution
-#' The computed bin size (span of each bin in number of bases).
+#' @slot binSize
+#' The resolution: computed bin size (span of each bin in number of bases).
 #' @slot totalBins
 #' A list of the number of bins in each chromosome.
 #' @slot weakBins
@@ -85,7 +85,7 @@ setClass(
         conditions = "ANY",
         replicates = "ANY",
         positions = "ANY",
-        resolution = "ANY",
+        binSize = "ANY",
         totalBins = "ANY",
         weakBins = "ANY",
         validConditions = "ANY",
@@ -138,7 +138,7 @@ defaultHiCDOCParameters <- list(
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
-#' path <- system.file("extdata", "example.tsv", package = "HiCDOC")
+#' path <- system.file("extdata", "liver_18_10M_500000.tsv", package = "HiCDOC")
 #' object <- HiCDOCDataSetFromTabular(path)
 #'
 #' @usage
@@ -174,7 +174,7 @@ HiCDOCDataSetFromTabular <- function(path = NULL) {
 #' A vector of replicate names repeated along the conditions.
 #' @param conditions
 #' A vector of condition names repeated along the replicates.
-#' @param resolution
+#' @param binSize
 #' The resolution (span of each position in number of bases). Optionally
 #' provided to select the appropriate resolution in \code{.mcool} files.
 #' Defaults to NULL.
@@ -198,14 +198,14 @@ HiCDOCDataSetFromTabular <- function(path = NULL) {
 #' conditions <- c(1, 1, 2, 2, 3)
 #'
 #' # Resolution to select in .mcool files
-#' resolution = 500000
+#' binSize = 500000
 #'
 #' # Instantiation of data set
 #' object <- HiCDOCDataSetFromCool(
 #'   paths,
 #'   replicates = replicates,
 #'   conditions = conditions,
-#'   resolution = resolution # Specified for .mcool files.
+#'   binSize = binSize # Specified for .mcool files.
 #' )
 #' }
 #'
@@ -214,7 +214,7 @@ HiCDOCDataSetFromCool <- function(
     paths,
     replicates,
     conditions,
-    resolution = NULL
+    binSize = NULL
 ) {
 
     if (is.factor(paths)) paths <- as.vector(paths)
@@ -238,17 +238,17 @@ HiCDOCDataSetFromCool <- function(
     }
 
     if (
-        !is.null(resolution) &&
-        (!is.numeric(resolution) || length(resolution) != 1)
+        !is.null(binSize) &&
+        (!is.numeric(binSize) || length(binSize) != 1)
     ) {
-        stop("'resolution' must be an integer.", call. = FALSE)
+        stop("'binSize' must be an integer.", call. = FALSE)
     }
 
     object <- new("HiCDOCDataSet")
     object@input <- paths
     object@replicates <- replicates
     object@conditions <- conditions
-    object <- .parseCool(object, resolution)
+    object <- .parseCool(object, binSize)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
@@ -266,7 +266,7 @@ HiCDOCDataSetFromCool <- function(
 #' A vector of replicate names repeated along the conditions.
 #' @param conditions
 #' A vector of condition names repeated along the replicates.
-#' @param resolution
+#' @param binSize
 #' The resolution (span of each position in number of bases) to select within
 #' the \code{.hic} files.
 #'
@@ -289,26 +289,26 @@ HiCDOCDataSetFromCool <- function(
 #' conditions <- c(1, 1, 2, 2, 3)
 #'
 #' # Resolution to select
-#' resolution <- 500000
+#' binSize <- 500000
 #'
 #' # Instantiation of data set
 #' hic.experiment <- HiCDOCDataSetFromHiC(
 #'   paths,
 #'   replicates = replicates,
 #'   conditions = conditions,
-#'   resolution = resolution
+#'   binSize = binSize
 #' )
 #' }
 #'
 #' @usage
-#' HiCDOCDataSetFromHiC(paths, replicates, conditions, resolution)
+#' HiCDOCDataSetFromHiC(paths, replicates, conditions, binSize)
 #'
 #' @export
 HiCDOCDataSetFromHiC <- function(
     paths = NULL,
     replicates = NULL,
     conditions = NULL,
-    resolution = NULL
+    binSize = NULL
 ) {
 
     if (is.factor(paths)) paths <- as.vector(paths)
@@ -331,15 +331,15 @@ HiCDOCDataSetFromHiC <- function(
         stop("'conditions' must be a vector of conditions.", call. = FALSE)
     }
 
-    if (!is.numeric(resolution) || length(resolution) != 1) {
-        stop("'resolution' must be an integer.", call. = FALSE)
+    if (!is.numeric(binSize) || length(binSize) != 1) {
+        stop("'binSize' must be an integer.", call. = FALSE)
     }
 
     object <- new("HiCDOCDataSet")
     object@input <- paths
     object@replicates <- replicates
     object@conditions <- conditions
-    object <- .parseHiC(object, resolution)
+    object <- .parseHiC(object, binSize)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }

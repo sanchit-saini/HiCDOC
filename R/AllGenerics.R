@@ -7,7 +7,7 @@
 #' HiCDOCDataSet-methods
 #'
 #' @aliases
-#' chromosomes positions conditions replicates resolution interactions
+#' chromosomes positions conditions replicates binSize interactions
 #' compartments concordances differences show
 #'
 #' @description
@@ -16,10 +16,10 @@
 #' data(exampleHiCDOCDataSet)
 #' chromosomes(exampleHiCDOCDataSet)
 #' conditions(exampleHiCDOCDataSet)
-#' resolution(exampleHiCDOCDataSet)
+#' binSize(exampleHiCDOCDataSet)
 #' @return
 #' A character vector (for \code{chromosomes}, \code{conditions},
-#' \code{replicates}), an integer(for \code{resolution}), a tibble
+#' \code{replicates}), an integer(for \code{binSize}), a tibble
 #' (for \code{interactions} and \code{positions}), or a GRanges object
 #' (for \code{compartments}, \code{concordances}, \code{differences}).
 NULL
@@ -79,14 +79,14 @@ setGeneric(
     }
 )
 
-#### resolution ####
+#### binSize ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the resolution (span of each position in number of bases).
 #' @export
 setGeneric(
-    name = "resolution",
+    name = "binSize",
     def = function(object) {
-        standardGeneric("resolution")
+        standardGeneric("binSize")
     }
 )
 

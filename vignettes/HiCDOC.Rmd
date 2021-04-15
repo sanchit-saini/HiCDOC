@@ -16,7 +16,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  warning = FALSE
 )
 ```
 
@@ -58,43 +59,21 @@ It provides a collection of functions assembled into a pipeline:
        interactions and the medians of other interactions) of each compartment.
 
 
-# Table of contents
+<!-- # Table of contents -->
 
-* [Quick Start](#quick-start)
-* [Usage](#quick-start)
-    * [Importing Hi-C data](#importing-hi-c-data)
-        * [Tabular files](#tabular-files)
-        * [Cooler files](#cooler-files)
-        * [Juicer files](#juicer-files)
-        * [HiC-Pro files](#hic-pro-files)
-    * [Running the HiCDOC pipeline](#running-the-hicdoc-pipeline)
-        * [Filtering data](#filtering-data)
-        * [Normalizing biases](#normalizing-biases)
-        * [Predicting compartments and differences](#predicting-compartments-and-differences)
-    * [Visualizing data and results](#visualizing-data-and-results)
-* [References](#references)
-
-# Quick Start
-
-To try out HiCDOC, load the simulated toy data set:
-
-```{r example}
-data(exampleHiCDOCDataSet)
-hic.experiment <- exampleHiCDOCDataSet
-```
-
-Then run the default pipeline on the created object:
-
-```{r pipeline}
-hic.experiment <- HiCDOC(hic.experiment, parallel=FALSE)
-```
-
-And plot some results:
-
-```{r plots}
-plotCompartmentChanges(hic.experiment, chromosome = 'Y')
-```
-
+<!-- * [Quick Start](#quick-start) -->
+<!-- * [Usage](#quick-start) -->
+<!--     * [Importing Hi-C data](#importing-hi-c-data) -->
+<!--         * [Tabular files](#tabular-files) -->
+<!--         * [Cooler files](#cooler-files) -->
+<!--         * [Juicer files](#juicer-files) -->
+<!--         * [HiC-Pro files](#hic-pro-files) -->
+<!--     * [Running the HiCDOC pipeline](#running-the-hicdoc-pipeline) -->
+<!--         * [Filtering data](#filtering-data) -->
+<!--         * [Normalizing biases](#normalizing-biases) -->
+<!--         * [Predicting compartments and differences](#predicting-compartments-and-differences) -->
+<!--     * [Visualizing data and results](#visualizing-data-and-results) -->
+<!-- * [References](#references) -->
 
 # Usage
 
@@ -143,14 +122,14 @@ replicates <- c(1, 2, 1, 2, 1)
 conditions <- c(1, 1, 2, 2, 3)
 
 # Resolution to select in .mcool files
-resolution = 500000
+binSize = 500000
 
 # Instantiation of data set
 hic.experiment <- HiCDOCDataSetFromCool(
   paths,
   replicates = replicates,
   conditions = conditions,
-  resolution = resolution # Specified for .mcool files.
+  binSize = binSize # Specified for .mcool files.
 )
 ```
 
@@ -173,14 +152,14 @@ replicates <- c(1, 2, 1, 2, 1)
 conditions <- c(1, 1, 2, 2, 3)
 
 # Resolution to select
-resolution <- 500000
+binSize <- 500000
 
 # Instantiation of data set
 hic.experiment <- HiCDOCDataSetFromHiC(
   paths,
   replicates = replicates,
   conditions = conditions,
-  resolution = resolution
+  binSize = binSize
 )
 ```
 

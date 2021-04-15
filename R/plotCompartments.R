@@ -41,7 +41,7 @@ plotCompartments <- function(
         ) %>%
         dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
         dplyr::mutate(compartment = factor(compartment)) %>%
-        dplyr::mutate(position = start + 0.5 * object@resolution)
+        dplyr::mutate(position = start + 0.5 * object@binSize)
 
     plot <-
         ggplot(
@@ -49,12 +49,12 @@ plotCompartments <- function(
             aes(x = position, fill = compartment)
         ) +
         geom_histogram(
-            binwidth = object@resolution,
+            binwidth = object@binSize,
             colour = "gray90",
             size = 0.05
         ) +
-        xlim(xlim[1] - 0.5 * object@resolution,
-             xlim[2] + 0.5 * object@resolution) +
+        xlim(xlim[1] - 0.5 * object@binSize,
+             xlim[2] + 0.5 * object@binSize) +
         facet_grid(rows = vars(condition), margins = FALSE, switch = "y") +
         theme_minimal() +
         theme(

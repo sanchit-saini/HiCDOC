@@ -10,7 +10,7 @@
 #'   \item{chromosomes}{4 chromosomes: W, X, Y, Z}
 #'   \item{conditions}{3 conditions: 1, 2, 3}
 #'   \item{replicates}{3 replicates: R1, R2, R3}
-#'   \item{resolution}{A resolution of 137 bases}
+#'   \item{binSize}{A resolution of 137 bases}
 #' }
 #'
 #' @return

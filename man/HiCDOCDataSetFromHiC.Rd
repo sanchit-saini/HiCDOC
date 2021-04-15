@@ -4,7 +4,7 @@
 \alias{HiCDOCDataSetFromHiC}
 \title{\code{\link{HiCDOCDataSet}} constructor from HiC files.}
 \usage{
-HiCDOCDataSetFromHiC(paths, replicates, conditions, resolution)
+HiCDOCDataSetFromHiC(paths, replicates, conditions, binSize)
 }
 \arguments{
 \item{paths}{A vector of paths to \code{.hic} files.}
@@ -13,7 +13,7 @@ HiCDOCDataSetFromHiC(paths, replicates, conditions, resolution)
 
 \item{conditions}{A vector of condition names repeated along the replicates.}
 
-\item{resolution}{The resolution (span of each position in number of bases) to select within
+\item{binSize}{The resolution (span of each position in number of bases) to select within
 the \code{.hic} files.}
 }
 \value{
@@ -39,14 +39,14 @@ replicates <- c(1, 2, 1, 2, 1)
 conditions <- c(1, 1, 2, 2, 3)
 
 # Resolution to select
-resolution <- 500000
+binSize <- 500000
 
 # Instantiation of data set
 hic.experiment <- HiCDOCDataSetFromHiC(
   paths,
   replicates = replicates,
   conditions = conditions,
-  resolution = resolution
+  binSize = binSize
 )
 }
 

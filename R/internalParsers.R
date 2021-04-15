@@ -81,7 +81,7 @@
 #'
 #' @param path
 #' The path to the interactions file.
-#' @param resolution
+#' @param binSize
 #' The resolution (span of each position in number of bases). Optionally
 #' provided to select the appropriate resolution in \code{.mcool} files.
 #' Defaults to NULL.
@@ -91,16 +91,16 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseOneCool <- function(path, resolution = NULL) {
+.parseOneCool <- function(path, binSize = NULL) {
 
     message(paste0("\nParsing '", path, "'."))
 
     uri <- function(path) {
-        if (!is.numeric(resolution)) return(path)
+        if (!is.numeric(binSize)) return(path)
         return(
             paste(
                 "resolutions",
-                format(resolution, scientific = FALSE),
+                format(binSize, scientific = FALSE),
                 path,
                 sep = "/"
             )
@@ -156,7 +156,7 @@
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
-#' @param resolution
+#' @param binSize
 #' The resolution (span of each position in number of bases). Optionally
 #' provided to select the appropriate resolution in \code{.mcool} files.
 #' Defaults to NULL.
@@ -166,13 +166,13 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseCool <- function(object, resolution = NULL) {
+.parseCool <- function(object, binSize = NULL) {
 
     interactions <-
         pbapply::pblapply(
             object@input,
             .parseOneCool,
-            resolution = resolution
+            binSize = binSize
         )
 
     for (i in seq_along(interactions)) {
@@ -193,7 +193,7 @@
 #'
 #' @param path
 #' The path to the interactions file.
-#' @param resolution
+#' @param binSize
 #' The resolution (span of each position in number of bases) to select within
 #' the \code{.hic} file.
 #'
@@ -202,9 +202,9 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseOneHiC <- function(path, resolution) {
+.parseOneHiC <- function(path, binSize) {
     message(paste0("\nParsing '", path, "'."))
-    return(parseHiCFile(path, resolution))
+    return(parseHiCFile(path, binSize))
 }
 
 #' @description
@@ -213,7 +213,7 @@
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
-#' @param resolution
+#' @param binSize
 #' The resolution (span of each position in number of bases) to select within
 #' the \code{.hic} files.
 #'
@@ -222,13 +222,13 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseHiC <- function(object, resolution) {
+.parseHiC <- function(object, binSize) {
 
     interactions <-
         pbapply::pblapply(
             object@input,
             .parseOneHiC,
-            resolution = resolution
+            binSize = binSize
         ) %>%
         purrr::map2(
             object@replicates,

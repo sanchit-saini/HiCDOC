@@ -25,5 +25,5 @@ test_that("HiCDOCDataSetFromPro works as expected", {
     expect_identical(object@chromosomes, "18")
     expect_identical(object@conditions, 1)
     expect_identical(object@replicates, 1)
-    expect_identical(object@resolution, 500000L)
+    expect_identical(object@binSize, 500000L)
 })

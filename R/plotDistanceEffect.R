@@ -16,10 +16,10 @@
 #'
 #' @export
 plotDistanceEffect <- function(object) {
-    .validateSlots(object, slots = c("interactions", "resolution"))
+    .validateSlots(object, slots = c("interactions", "binSize"))
     data <-
         object@interactions %>%
-        dplyr::mutate(distance = (bin.2 - bin.1) * object@resolution)
+        dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize)
     plot <-
         ggplot(data, aes(x = distance, y = interaction)) +
         geom_bin2d() +

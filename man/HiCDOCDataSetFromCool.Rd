@@ -4,7 +4,7 @@
 \alias{HiCDOCDataSetFromCool}
 \title{\code{\link{HiCDOCDataSet}} constructor from Cool files.}
 \usage{
-HiCDOCDataSetFromCool(paths, replicates, conditions, resolution = NULL)
+HiCDOCDataSetFromCool(paths, replicates, conditions, binSize = NULL)
 }
 \arguments{
 \item{paths}{A vector of paths to \code{.cool} or \code{.mcool} files.}
@@ -13,7 +13,7 @@ HiCDOCDataSetFromCool(paths, replicates, conditions, resolution = NULL)
 
 \item{conditions}{A vector of condition names repeated along the replicates.}
 
-\item{resolution}{The resolution (span of each position in number of bases). Optionally
+\item{binSize}{The resolution (span of each position in number of bases). Optionally
 provided to select the appropriate resolution in \code{.mcool} files.
 Defaults to NULL.}
 }
@@ -40,14 +40,14 @@ replicates <- c(1, 2, 1, 2, 1)
 conditions <- c(1, 1, 2, 2, 3)
 
 # Resolution to select in .mcool files
-resolution = 500000
+binSize = 500000
 
 # Instantiation of data set
 object <- HiCDOCDataSetFromCool(
   paths,
   replicates = replicates,
   conditions = conditions,
-  resolution = resolution # Specified for .mcool files.
+  binSize = binSize # Specified for .mcool files.
 )
 }
 

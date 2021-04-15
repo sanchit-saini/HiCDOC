@@ -50,7 +50,7 @@ plotConcordances <- function(
         ) %>%
         dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
         dplyr::mutate(condition = paste0("Concordances\n", condition)) %>%
-        dplyr::mutate(position = start + 0.5 * object@resolution)
+        dplyr::mutate(position = start + 0.5 * object@binSize)
 
     # Significant differences
     differences <-
@@ -120,7 +120,7 @@ plotConcordances <- function(
     plot <-
         plot +
         labs(caption = caption) +
-        xlim(xlim[1], xlim[2] + object@resolution) +
+        xlim(xlim[1], xlim[2] + object@binSize) +
         ylim(ylim) +
         geom_hline(yintercept = 0.0, size = 0.1) +
         facet_grid(rows = vars(condition), margins = FALSE, switch = "y") +

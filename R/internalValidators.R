@@ -185,7 +185,7 @@
 
         missingSlots <- slots[!(slots %in% presentSlots)]
 
-        if ("resolution" %in% missingSlots) {
+        if ("binSize" %in% missingSlots) {
             stop(
                 "Resolution is unknown.\n",
                 "This 'HiCDOCDataSet' wasn't built properly.",

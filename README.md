@@ -137,14 +137,14 @@ replicates <- c(1, 2, 1, 2, 1)
 conditions <- c(1, 1, 2, 2, 3)
 
 # Resolution to select in .mcool files
-resolution = 500000
+binSize = 500000
 
 # Instantiation of data set
 hic.experiment <- HiCDOCDataSetFromCool(
   paths,
   replicates = replicates,
   conditions = conditions,
-  resolution = resolution # Specified for .mcool files.
+  binSize = binSize # Specified for .mcool files.
 )
 ```
 
@@ -167,14 +167,14 @@ replicates <- c(1, 2, 1, 2, 1)
 conditions <- c(1, 1, 2, 2, 3)
 
 # Resolution to select
-resolution <- 500000
+binSize <- 500000
 
 # Instantiation of data set
 hic.experiment <- HiCDOCDataSetFromHiC(
   paths,
   replicates = replicates,
   conditions = conditions,
-  resolution = resolution
+  binSize = binSize
 )
 ```
 
