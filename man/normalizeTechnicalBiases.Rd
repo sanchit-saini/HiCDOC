@@ -19,6 +19,27 @@ Normalizes technical biases such as sequencing depth by using a cyclic loess
 to recursively normalize each pair of interaction matrices. Depends on
 \code{multiHiCcompare}.
 }
+\details{
+\subsection{Parallel processing}{
+If \code{parallel=TRUE}, the function
+\code{\link[multiHiCcompare]{cyclic_loess}}
+is launched in parallel mode, using \code{\link[BiocParallel]{bplapply}}
+function. Before to call the function in parallel you should specify
+the parallel parameters such as:
+    \itemize{
+        \item{On Linux:
+
+             \code{multiParam <- BiocParallel::MulticoreParam(workers = 10)}
+             \code{BiocParallel::register(multiParam, default = TRUE)}
+         }
+         \item{On Windows:
+
+             \code{multiParam <- BiocParallel::SnowParam(workers = 10)}
+             \code{BiocParallel::register(multiParam, default = TRUE)}
+        }
+    }
+}
+}
 \examples{
 data(exampleHiCDOCDataSet)
 object <- exampleHiCDOCDataSet

@@ -851,7 +851,7 @@
 #' }
 #' \subsection{Parallel processing}{
 #' The parallel version of detectCompartments uses the
-#' \code{\link{BiocParallel}{bpmapply}} function. Before to call the
+#' \code{\link[BiocParallel]{bpmapply}} function. Before to call the
 #' function in parallel you should specify the parallel parameters such as:
 #'     \itemize{
 #'         \item{On Linux:
