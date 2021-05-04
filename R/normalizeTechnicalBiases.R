@@ -50,7 +50,6 @@
 #'
 #' @export
 normalizeTechnicalBiases <- function(object, parallel = TRUE) {
-
     .validateSlots(
         object,
         slots = c(
@@ -69,10 +68,8 @@ normalizeTechnicalBiases <- function(object, parallel = TRUE) {
     matrices <-
         object@interactions %>%
         dplyr::mutate(
-            chromosome = as.integer(factor(
-                chromosome,
-                levels = object@chromosomes
-            )),
+            chromosome =
+                as.integer(factor(chromosome, levels = object@chromosomes)),
             bin.1 = (bin.1 - 1) * object@binSize,
             bin.2 = (bin.2 - 1) * object@binSize
         ) %>%
@@ -80,48 +77,37 @@ normalizeTechnicalBiases <- function(object, parallel = TRUE) {
 
     groups <-
         matrices %>%
-        purrr::map(
-            function(group) {
-                dplyr::select(group, c(condition, replicate)) %>%
+        purrr::map(function(group) {
+            dplyr::select(group, c(condition, replicate)) %>%
                 dplyr::slice(1)
-            }
-        ) %>%
+        }) %>%
         purrr::reduce(rbind)
 
     matrices %<>%
-        purrr::map(
-            function(group) dplyr::select(group, -condition, -replicate)
-        )
+        purrr::map(function(group)
+            dplyr::select(group,-condition,-replicate))
 
     # Regions to ignore during normalization
     weakRegions <-
-        data.frame(
-            "chromosome" = unlist(mapply(
-                function(bins, chromosomeName) {
-                    rep(chromosomeName, length(bins))
-                },
-                object@weakBins,
-                names(object@weakBins)
-            )),
-            "bin" = unlist(object@weakBins)
-        )
+        data.frame("chromosome" = unlist(mapply(
+            function(bins, chromosomeName) {
+                rep(chromosomeName, length(bins))
+            },
+            object@weakBins,
+            names(object@weakBins)
+        )),
+        "bin" = unlist(object@weakBins))
 
     if (nrow(weakRegions) > 0) {
-
         weakRegions %<>%
             dplyr::mutate(
                 start = (bin - 1) * object@binSize,
                 end = (bin * object@binSize) - 1
             ) %>%
             dplyr::select(-bin) %>%
-            dplyr::mutate(
-                chromosome = as.integer(factor(
-                    chromosome,
-                    levels = object@chromosomes
-                ))
-            ) %>%
+            dplyr::mutate(chromosome =
+                as.integer(factor(chromosome, levels = object@chromosomes))) %>%
             GenomicRanges::makeGRangesFromDataFrame()
-
     } else {
         weakRegions <- NULL
     }
@@ -137,14 +123,18 @@ normalizeTechnicalBiases <- function(object, parallel = TRUE) {
             zero.p = 1,
             A.min = 0
         )
-    normalized <- multiHiCcompare::cyclic_loess(experiment, parallel = parallel)
+    normalized <-
+        multiHiCcompare::cyclic_loess(experiment, parallel = parallel)
 
     result <-
         multiHiCcompare::hic_table(normalized) %>%
         dplyr::as_tibble() %>%
         dplyr::select(-D)
     colnames(result) <-
-        c("chromosome", "bin.1", "bin.2", seq_along(groups$replicate))
+        c("chromosome",
+          "bin.1",
+          "bin.2",
+          seq_along(groups$replicate))
     result %<>%
         dplyr::mutate(
             bin.1 = as.integer(bin.1 / object@binSize + 1),
@@ -153,28 +143,22 @@ normalizeTechnicalBiases <- function(object, parallel = TRUE) {
 
     object@interactions <-
         result %>%
-        tidyr::gather(
-            as.character(seq_along(groups$replicate)),
-            key = "index",
-            value = "interaction"
-        ) %>%
+        tidyr::gather(as.character(seq_along(groups$replicate)),
+                      key = "index",
+                      value = "interaction") %>%
         dplyr::mutate(index = factor(as.integer(index))) %>%
         dplyr::mutate(condition = groups$condition[index]) %>%
         dplyr::mutate(replicate = groups$replicate[index]) %>%
         dplyr::mutate(chromosome = object@chromosomes[chromosome]) %>%
-        dplyr::select(
-            chromosome,
-            condition,
-            replicate,
-            bin.1,
-            bin.2,
-            interaction
-        ) %>%
-        .sortInteractions(
-            object@chromosomes,
-            object@conditions,
-            object@replicates
-        )
+        dplyr::select(chromosome,
+                      condition,
+                      replicate,
+                      bin.1,
+                      bin.2,
+                      interaction) %>%
+        .sortInteractions(object@chromosomes,
+                          object@conditions,
+                          object@replicates)
 
     return(object)
 }
