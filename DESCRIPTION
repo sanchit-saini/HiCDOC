@@ -6,11 +6,15 @@ Authors@R: c(
     person("Kurylo", "Cyril", email = "cyril.kurylo@inrae.fr", role = c("aut")),
     person("Zytnicki", "Matthias", email = "matthias.zytnicki@inrae.fr", role = c("aut", "cre")),
     person("Foissac", "Sylvain", email = "sylvain.foissac@inrae.fr", role = c("aut")),
-    person("Maigné", "Élise", email = "elise.maigne@inrae.fr", role = c("aut")))
+    person("Maigné", "Élise", email = "elise.maigne@inrae.fr", role = c("aut", "cre")))
 Description:
     HiCDOC normalizes intrachromosomal Hi-C matrices, uses unsupervised learning
     to predict A/B compartments from multiple replicates, and detects
     significant compartment changes between experiment conditions.
+    It provides a collection of functions assembled into a pipeline to filter 
+    and normalize the data, predict the compartments and visualize the results. 
+    It accepts several type of data: tabular `.tsv` files, Cooler `.cool` or 
+    `.mcool` files, Juicer `.hic` files or HiC-Pro `.matrix` and `.bed` files.
 License: LGPL (>= 3) + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -37,7 +41,7 @@ Imports:
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 biocViews:
-    HiC, DNA3DStructure, Normalization, Sequencing, Software
+    HiC, DNA3DStructure, Normalization, Sequencing, Software, Clustering
 Suggests:
     knitr,
     rmarkdown,
@@ -48,4 +52,4 @@ VignetteBuilder: knitr
 URL: https://github.com/mzytnicki/HiCDOC
 BugReports: https://github.com/mzytnicki/HiCDOC/issues
 Depends: 
-    R (>= 3.5.0)
+    R (>= 4.0.0)
