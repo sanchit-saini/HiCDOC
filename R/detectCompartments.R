@@ -81,7 +81,7 @@
         )
 
     referenceCentroids <-
-        referenceCentroids[!is.na(referenceCentroids$compartment),]
+        referenceCentroids[!is.na(referenceCentroids$compartment), ]
 
     clusters <-
         referenceCentroids %>%
@@ -223,7 +223,7 @@
         object@validReplicates[[chromosomeName]][
             which(object@validConditions[[chromosomeName]] == conditionName)
         ]
-    if(length(replicateNames) == 0) return(NULL)
+    if (length(replicateNames) == 0) return(NULL)
 
     interactions <-
         purrr::map(
@@ -381,7 +381,7 @@
                     )
                 }
             )
-        if(!is.null(BiocParallel::bpparam()$RNGseed))
+        if (!is.null(BiocParallel::bpparam()$RNGseed))
             BiocParallel::bpstart(BiocParallel::bpparam())
         # bpstart to address this issue (and ensure reproducibility):
         # https://github.com/Bioconductor/BiocParallel/issues/122
@@ -394,7 +394,7 @@
                 SIMPLIFY = FALSE,
                 BPPARAM = BiocParallel::bpparam()
             )
-        if(!is.null(BiocParallel::bpparam()$RNGseed))
+        if (!is.null(BiocParallel::bpparam()$RNGseed))
             BiocParallel::bpstop(BiocParallel::bpparam())
         # Idem than bpstart
     }

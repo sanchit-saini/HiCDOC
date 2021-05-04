@@ -171,7 +171,7 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
     }
 
     if (nrow(differences) == 0) {
-        if(is.null(threshold)){
+        if (is.null(threshold)){
             message("No differences found.")
         } else {
             message(
