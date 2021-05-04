@@ -12,7 +12,7 @@
 #' @noRd
 .parseTabular <- function(object) {
 
-    message(paste0("Parsing '", object@input, "'."))
+    message("Parsing '", object@input, "'.")
 
     interactions <-
         utils::read.table(
@@ -93,7 +93,7 @@
 #' @noRd
 .parseOneCool <- function(path, binSize = NULL) {
 
-    message(paste0("\nParsing '", path, "'."))
+    message("\nParsing '", path, "'.")
 
     uri <- function(path) {
         if (!is.numeric(binSize)) return(path)
@@ -203,7 +203,7 @@
 #' @keywords internal
 #' @noRd
 .parseOneHiC <- function(path, binSize) {
-    message(paste0("\nParsing '", path, "'."))
+    message("\nParsing '", path, "'.")
     return(parseHiCFile(path, binSize))
 }
 
@@ -261,7 +261,7 @@
 #' @noRd
 .parseOneHiCPro <- function(matrixPath, bedPath) {
 
-    message(paste0("\nParsing '", matrixPath, "' and '", bedPath, "'."))
+    message("\nParsing '", matrixPath, "' and '", bedPath, "'.")
 
     interactions <-
         utils::read.table(

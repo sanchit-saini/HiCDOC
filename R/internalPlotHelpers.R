@@ -18,11 +18,9 @@
     if (!is.null(xlim)) {
         if (length(xlim) != 2) {
             message(
-                paste0(c(
-                    "Expected a vector of two numbers but received '",
-                    paste(xlim, collapse = " "),
-                    "'. Setting xlim to NULL."
-                ))
+                "Expected a vector of two numbers but received '",
+                paste(xlim, collapse = " "),
+                "'. Setting xlim to NULL."
             )
             xlim <- NULL
         } else {

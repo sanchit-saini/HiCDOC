@@ -171,12 +171,15 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
     }
 
     if (nrow(differences) == 0) {
-        message(
-            "No differences found",
-            if (!is.null(threshold))
-            paste0(" with adjusted p-value <= ", threshold),
-            "."
-        )
+        if(is.null(threshold)){
+            message("No differences found.")
+        } else {
+            message(
+                "No differences found with adjusted p-value <= ",
+                threshold,
+                "."
+            )
+        }
         return(NULL)
     }
 

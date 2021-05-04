@@ -89,7 +89,7 @@
 
     if (nrow(removed) > 0) {
         message(
-            paste0(
+            paste(
                 "Removed interactions matrix of chromosome ",
                 removed$chromosome,
                 ", condition ",
@@ -99,7 +99,7 @@
                 " filled at ",
                 round(removed$fillPct, digits = 5) * 100,
                 "%.",
-                collapse = "\n"
+                collapse = "\n", sep=""
             )
         )
     }
