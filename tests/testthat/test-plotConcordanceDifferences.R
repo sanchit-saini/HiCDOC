@@ -11,7 +11,7 @@ test_that("plotConcordanceDifferences behaves as expected", {
         "No compartments found."
     )
     set.seed(3215)
-    object <- detectCompartments(object, parallel=FALSE)
+    object <- detectCompartments(object, parallel = FALSE)
     expect_error(
         pp <- plotConcordanceDifferences(object),
         NA

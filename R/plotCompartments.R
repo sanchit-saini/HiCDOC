@@ -53,8 +53,7 @@ plotCompartments <- function(
             colour = "gray90",
             size = 0.05
         ) +
-        xlim(xlim[1] - 0.5 * object@binSize,
-             xlim[2] + 0.5 * object@binSize) +
+        xlim(xlim[1] - 0.5 * object@binSize, xlim[2] + 0.5 * object@binSize) +
         facet_grid(rows = vars(condition), margins = FALSE, switch = "y") +
         theme_minimal() +
         theme(

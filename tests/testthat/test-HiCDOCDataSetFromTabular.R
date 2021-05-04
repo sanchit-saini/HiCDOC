@@ -61,13 +61,11 @@ test_that("HiCDOCDalinkToMatrixtaSetFromTabular produce correct values", {
     expect_equal(mean(object@interactions$bin.2), 13.66667, tolerance = 1e-5)
     expect_equal(mean(object@interactions$interaction), 484.019,
                  tolerance = 1e-5)
-    # weakBins
-    # expect_identical(names(object@weakBins), c("17", "18"))
     # chromosomes
-    expect_identical(object@chromosomes, c("18"))
+    expect_identical(object@chromosomes, "18")
     # replicates & conditions
-    expect_identical(object@replicates, c("R1"))
-    expect_identical(object@conditions, c("1"))
+    expect_identical(object@replicates, "R1")
+    expect_identical(object@conditions, "1")
     # bins
     expect_identical(object@totalBins, c("18" = 20))
     expect_identical(object@binSize, 500000L)

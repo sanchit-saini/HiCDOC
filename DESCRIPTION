@@ -4,7 +4,7 @@ Version: 0.99.0
 Date: 2019-07-29
 Authors@R: c(
     person("Kurylo", "Cyril", email = "cyril.kurylo@inrae.fr", role = c("aut")),
-    person("Zytnicki", "Matthias", email = "matthias.zytnicki@inrae.fr", role = c("aut", "cre")),
+    person("Zytnicki", "Matthias", email = "matthias.zytnicki@inrae.fr", role = c("aut"")),
     person("Foissac", "Sylvain", email = "sylvain.foissac@inrae.fr", role = c("aut")),
     person("Maigné", "Élise", email = "elise.maigne@inrae.fr", role = c("aut", "cre")))
 Description:

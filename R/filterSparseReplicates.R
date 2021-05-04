@@ -99,7 +99,7 @@
                 " filled at ",
                 round(removed$fillPct, digits = 5) * 100,
                 "%.",
-                collapse = "\n", sep=""
+                collapse = "\n", sep = ""
             )
         )
     }

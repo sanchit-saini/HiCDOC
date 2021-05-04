@@ -11,22 +11,22 @@ test_that("filterSparseReplicates behaves as expected", {
     expect_identical(object@parameters$sparseReplicateThreshold, 0.05)
     expect_is(object@validConditions, "list")
     expect_identical(object@validConditions$W,
-                     c('1', '1', '1', '2', '3', '3'))
+                     c("1", "1", "1", "2", "3", "3"))
     expect_identical(object@validConditions$X,
-                     c('1', '1', '2', '3', '3'))
+                     c("1", "1", "2", "3", "3"))
     expect_identical(object@validConditions$Y,
-                     c('1', '1', '1', '2', '2', '3', '3'))
+                     c("1", "1", "1", "2", "2", "3", "3"))
     expect_identical(object@validConditions$Z,
-                     c('1', '1'))
+                     c("1", "1"))
     expect_is(object@validReplicates, "list")
     expect_identical(object@validReplicates$W,
-                     c('R1','R2','R3','R2','R1','R2'))
+                     c("R1", "R2", "R3", "R2", "R1", "R2"))
     expect_identical(object@validReplicates$X,
-                     c('R1','R3','R2','R1','R2'))
+                     c("R1", "R3", "R2", "R1", "R2"))
     expect_identical(object@validReplicates$Y,
-                     c('R1','R2','R3','R1','R2','R1','R2'))
+                     c("R1", "R2", "R3", "R1", "R2", "R1", "R2"))
     expect_identical(object@validReplicates$Z,
-                     c('R2','R3'))
+                     c("R2", "R3"))
 })
 
 test_that("filterSparseReplicates behaves as expected with custom param", {

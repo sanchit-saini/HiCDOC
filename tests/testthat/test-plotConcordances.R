@@ -11,7 +11,7 @@ test_that("plotConcordances behaves as expected", {
         "No compartments found."
     )
     set.seed(3215)
-    object <- detectCompartments(object, parallel=FALSE)
+    object <- detectCompartments(object, parallel = FALSE)
     expect_error(plotConcordances(object), '"chromosome"')
     expect_error(plotConcordances(object, 6), "Unknown")
 

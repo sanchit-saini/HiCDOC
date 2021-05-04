@@ -36,7 +36,7 @@ test_that("reduceHiCDOCDataSet return correct errors", {
 
 test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
     expect_warning(
-        objectRed <- reduceHiCDOCDataSet(object, chromosomes = c("X")),
+        objectRed <- reduceHiCDOCDataSet(object, chromosomes = "X"),
         "You should not reduce a HiCDOCDataSet after"
     )
     # Chromosomes
@@ -50,7 +50,8 @@ test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
     # Interactions
     expect_identical(levels(objectRed@interactions$chromosome), "X")
     expect_identical(levels(objectRed@interactions$condition), c("1", "2", "3"))
-    expect_identical(levels(objectRed@interactions$replicate), c("R1", "R2", "R3"))
+    expect_identical(levels(objectRed@interactions$replicate),
+                     c("R1", "R2", "R3"))
     expect_equal(nrow(objectRed@interactions), 34515)
     # Objects produced by detectCompartments
     expect_identical(levels(objectRed@distances$chromosome), "X")
@@ -81,7 +82,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
     expect_warning(
         objectRed <- reduceHiCDOCDataSet(
             object,
-            chromosomes = c("X"),
+            chromosomes = "X",
             dropLevels = FALSE
         ),
         "You should not reduce a HiCDOCDataSet after"
@@ -139,7 +140,7 @@ test_that("reduceHiCDOCDataSet works if select condition, drop levels", {
     object <- filterSparseReplicates(exampleHiCDOCDataSet)
     object <- filterWeakPositions(object)
     # Run a detectCompartments
-    object <- detectCompartments(object, parallel=FALSE)
+    object <- detectCompartments(object, parallel = FALSE)
     expect_warning(
         objectRed <- reduceHiCDOCDataSet(
             object,
@@ -200,7 +201,7 @@ test_that("reduceHiCDOCDataSet works if select replicate, drop levels", {
     expect_warning(
         objectRed <- reduceHiCDOCDataSet(
             object,
-            replicate = c("R1"),
+            replicate = "R1",
             dropLevels = TRUE
         ),
         "You should not reduce a HiCDOCDataSet after"
@@ -217,8 +218,7 @@ test_that("reduceHiCDOCDataSet works if select replicate, drop levels", {
                      levels(object@interactions$chromosome))
     expect_identical(levels(objectRed@interactions$condition),
                      levels(object@interactions$condition))
-    expect_identical(levels(objectRed@interactions$replicate),
-                     c("R1"))
+    expect_identical(levels(objectRed@interactions$replicate), "R1")
     expect_equal(nrow(objectRed@interactions), 51015)
 
     expectedLevels <- levels(object@interactions$chromosome)
@@ -246,9 +246,10 @@ test_that("reduceHiCDOCDataSet works if select replicate, drop levels", {
     expect_identical(levels(objectRed@concordances$condition), expectedLevels)
     expect_identical(levels(objectRed@centroids$condition), expectedLevels)
 
-    expectedLevels <- c("R1")
+    expectedLevels <- "R1"
     expect_identical(levels(objectRed@distances$replicate), expectedLevels)
-    expect_identical(levels(objectRed@selfInteractionRatios$replicate), expectedLevels)
+    expect_identical(levels(objectRed@selfInteractionRatios$replicate),
+                     expectedLevels)
     expect_identical(levels(objectRed@concordances$replicate), expectedLevels)
 })
 
@@ -256,9 +257,9 @@ test_that("reduceHiCDOCDataSet works if select chr, cond & rep, keep levels", {
     expect_warning(
         objectRed <- reduceHiCDOCDataSet(
             object,
-            chromosome = c("X"),
-            replicate = c("R1"),
-            condition = c("1"),
+            chromosome = "X",
+            replicate = "R1",
+            condition = "1",
             dropLevels = FALSE
         ),
         "You should not reduce a HiCDOCDataSet after"

@@ -36,7 +36,7 @@ test_that("detectCompartments behaves as expected", {
     expect_equal(nrow(object@centroids), 20)
     expect_equal(
         sapply(object@centroids$centroid, length),
-        c(rep(80, 6), rep(120,6), rep(160, 6), rep(200,2))
+        c(rep(80, 6), rep(120, 6), rep(160, 6), rep(200, 2))
     )
     expect_equal(
         sapply(object@centroids$centroid, mean),
@@ -147,7 +147,7 @@ test_that("detectCompartments behaves as expected in parallel", {
     expect_equal(nrow(object@centroids), 20)
     expect_equal(
       sapply(object@centroids$centroid, length),
-      c(rep(80, 6), rep(120,6), rep(160, 6), rep(200,2))
+      c(rep(80, 6), rep(120, 6), rep(160, 6), rep(200, 2))
     )
     expect_equal(
       sapply(object@centroids$centroid, mean),

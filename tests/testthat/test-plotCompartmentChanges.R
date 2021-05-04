@@ -1,7 +1,9 @@
 data(exampleHiCDOCDataSet)
 object <- filterSparseReplicates(exampleHiCDOCDataSet)
 object <- filterWeakPositions(object)
-object <- reduceHiCDOCDataSet(object, replicates = c("R1", "R2"), conditions = c("1", "2"))
+object <- reduceHiCDOCDataSet(object,
+              replicates = c("R1", "R2"),
+              conditions = c("1", "2"))
 
 test_that("plotCompartmentChanges behaves as expected", {
     expect_error(
@@ -9,7 +11,7 @@ test_that("plotCompartmentChanges behaves as expected", {
         "No compartments found."
     )
     set.seed(3215)
-    object <- detectCompartments(object, parallel=FALSE)
+    object <- detectCompartments(object, parallel = FALSE)
     expect_error(plotCompartmentChanges(object),
         "argument \"chromosome\"")
     expect_error(plotCompartmentChanges(object, 5), "Unknown")

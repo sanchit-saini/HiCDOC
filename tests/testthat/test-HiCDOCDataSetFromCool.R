@@ -1,10 +1,10 @@
 test_that("HiCDOCDataSetFromCool works as expected", {
     paths <-
-        system.file("extdata", "liver_18_10M_500000.cool", package="HiCDOC")
+        system.file("extdata", "liver_18_10M_500000.cool", package = "HiCDOC")
 
     # Replicate and condition of each file. Can be names instead of numbers.
-    replicates <- c(1)
-    conditions <- c(1)
+    replicates <- 1
+    conditions <- 1
 
     # Instantiation of data set
     expect_message(
@@ -24,14 +24,14 @@ test_that("HiCDOCDataSetFromCool works as expected", {
 
 test_that("HiCDOCDataSetFromCool works as expected if mcool", {
     paths <-
-        system.file("extdata", "liver_18_10M.mcool", package="HiCDOC")
+        system.file("extdata", "liver_18_10M.mcool", package = "HiCDOC")
 
     # Replicate and condition of each file. Can be names instead of numbers.
-    replicates <- c(1)
-    conditions <- c(1)
+    replicates <- 1
+    conditions <- 1
 
     # Resolution to select in .mcool files
-    binSize = 500000
+    binSize <- 500000
 
     # Instantiation of data set
     expect_message(

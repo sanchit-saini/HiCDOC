@@ -215,10 +215,9 @@ plotInteractions <- function(
 
     xylim <- c(min(positions$start), max(positions$start))
 
-    if(length(unique(object@replicates)) <=
-       max(table(object@conditions))) {
+    if(length(unique(object@replicates)) <= max(table(object@conditions))) {
         plot <- .plotInteractionsGrid(interactions, xylim, transform, colours,
-                                      chromosomeName)
+                    chromosomeName)
     } else {
         totalLevels <- table(object@conditions)
         totalCols <- max(totalLevels)
@@ -241,7 +240,7 @@ plotInteractions <- function(
             dplyr::mutate(facetVar = factor(facetVar, levels = allLevels))
 
         plot <- .plotInteractionsWrap(interactions, xylim, transform, colours,
-                                      chromosomeName, totalRows, totalCols)
+                    chromosomeName, totalRows, totalCols)
     }
     return(plot)
 }
