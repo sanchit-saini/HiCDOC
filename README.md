@@ -7,23 +7,25 @@ compartment changes between experiment conditions.
 It provides a collection of functions assembled into a pipeline:
 
 1. [Filter](#filtering-data):
-    1. Filter small chromosomes to remove irrelevant scaffolds.
+    1. Remove chromosomes which are too small to be useful.
     2. Filter sparse replicates to remove uninformative replicates with few
        interactions.
-    3. Filter weak positions to remove hollow regions with few interactions.
+    3. Filter positions (*bins*) which have too few interactions.
 2. [Normalize](#normalizing-biases):
     1. Normalize technical biases using
-       [cyclic loess normalization][multihiccompare-publication].
+       [cyclic loess normalization][multihiccompare-publication], so that
+       matrices are comparable.
     2. Normalize biological biases using
-       [Knight-Ruiz matrix balancing][knight-ruiz-publication].
+       [Knight-Ruiz matrix balancing][knight-ruiz-publication], so that
+       all the bins are comparable.
     3. Normalize the distance effect, which results from higher interaction
        proportions between closer regions, with a MD loess.
 3. [Predict](#predicting-compartments-and-differences):
     1. Predict compartments using
-       [constrained K-means][constrained-k-means-publication], and detect
-       significant differences between experiment conditions.
+       [constrained K-means][constrained-k-means-publication].
+    2. Detect significant differences between experiment conditions.
 4. [Visualize](#visualizing-data-and-results):
-    1. Plot the interaction matrices of every replicate.
+    1. Plot the interaction matrices of each replicate.
     2. Plot the overall distance effect on the proportion of interactions.
     3. Plot the compartments in each chromosome, along with their concordance
        (confidence measure) in each replicate, and significant changes between
@@ -31,7 +33,8 @@ It provides a collection of functions assembled into a pipeline:
     4. Plot the overall distribution of concordance differences.
     5. Plot the result of the PCA on the compartments' centroids.
     6. Plot the boxplots of self interaction ratios (differences between self
-       interactions and the medians of other interactions) of each compartment.
+       interactions and the medians of other interactions) of each compartment,
+       which is used for the A/B classification.
 
 
 # Table of contents
@@ -253,7 +256,8 @@ Normalize technical biases such as sequencing depth:
 hic.experiment <- normalizeTechnicalBiases(hic.experiment)
 ```
 
-Normalize biological biases such as GC content:
+Normalize biological biases (such as GC content, number of restriction sites,
+etc.):
 
 ```r
 hic.experiment <- normalizeBiologicalBiases(hic.experiment)
