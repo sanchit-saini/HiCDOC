@@ -5,6 +5,7 @@
 #' Normalizes technical biases such as sequencing depth by using a cyclic loess
 #' to recursively normalize each pair of interaction matrices. Depends on
 #' \code{multiHiCcompare}.
+#'
 #' @details
 #' \subsection{Parallel processing}{
 #' If \code{parallel=TRUE}, the function
@@ -25,6 +26,7 @@
 #'         }
 #'     }
 #' }
+#'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
 #'

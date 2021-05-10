@@ -184,29 +184,29 @@ HiCDOCDataSetFromTabular <- function(path = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' # Path to each file
-#' paths = c(
-#'   'path/to/condition-1.replicate-1.cool',
-#'   'path/to/condition-1.replicate-2.cool',
-#'   'path/to/condition-2.replicate-1.cool',
-#'   'path/to/condition-2.replicate-2.cool',
-#'   'path/to/condition-3.replicate-1.cool'
-#' )
+#'     # Path to each file
+#'     paths = c(
+#'       'path/to/condition-1.replicate-1.cool',
+#'       'path/to/condition-1.replicate-2.cool',
+#'       'path/to/condition-2.replicate-1.cool',
+#'       'path/to/condition-2.replicate-2.cool',
+#'       'path/to/condition-3.replicate-1.cool'
+#'     )
 #'
-#' # Replicate and condition of each file. Can be names instead of numbers.
-#' replicates <- c(1, 2, 1, 2, 1)
-#' conditions <- c(1, 1, 2, 2, 3)
+#'     # Replicate and condition of each file. Can be names instead of numbers.
+#'     replicates <- c(1, 2, 1, 2, 1)
+#'     conditions <- c(1, 1, 2, 2, 3)
 #'
-#' # Resolution to select in .mcool files
-#' binSize = 500000
+#'     # Resolution to select in .mcool files
+#'     binSize = 500000
 #'
-#' # Instantiation of data set
-#' object <- HiCDOCDataSetFromCool(
-#'   paths,
-#'   replicates = replicates,
-#'   conditions = conditions,
-#'   binSize = binSize # Specified for .mcool files.
-#' )
+#'     # Instantiation of data set
+#'     object <- HiCDOCDataSetFromCool(
+#'       paths,
+#'       replicates = replicates,
+#'       conditions = conditions,
+#'       binSize = binSize # Specified for .mcool files.
+#'     )
 #' }
 #'
 #' @export
@@ -275,29 +275,29 @@ HiCDOCDataSetFromCool <- function(
 #'
 #' @examples
 #' \dontrun{
-#' # Path to each file
-#' paths = c(
-#'   'path/to/condition-1.replicate-1.hic',
-#'   'path/to/condition-1.replicate-2.hic',
-#'   'path/to/condition-2.replicate-1.hic',
-#'   'path/to/condition-2.replicate-2.hic',
-#'   'path/to/condition-3.replicate-1.hic'
-#' )
+#'     #' # Path to each file
+#'     paths = c(
+#'       'path/to/condition-1.replicate-1.hic',
+#'       'path/to/condition-1.replicate-2.hic',
+#'       'path/to/condition-2.replicate-1.hic',
+#'       'path/to/condition-2.replicate-2.hic',
+#'       'path/to/condition-3.replicate-1.hic'
+#'     )
 #'
-#' # Replicate and condition of each file. Can be names instead of numbers.
-#' replicates <- c(1, 2, 1, 2, 1)
-#' conditions <- c(1, 1, 2, 2, 3)
+#'     # Replicate and condition of each file. Can be names instead of numbers.
+#'     replicates <- c(1, 2, 1, 2, 1)
+#'     conditions <- c(1, 1, 2, 2, 3)
 #'
-#' # Resolution to select
-#' binSize <- 500000
+#'     # Resolution to select
+#'     binSize <- 500000
 #'
-#' # Instantiation of data set
-#' hic.experiment <- HiCDOCDataSetFromHiC(
-#'   paths,
-#'   replicates = replicates,
-#'   conditions = conditions,
-#'   binSize = binSize
-#' )
+#'     # Instantiation of data set
+#'     hic.experiment <- HiCDOCDataSetFromHiC(
+#'       paths,
+#'       replicates = replicates,
+#'       conditions = conditions,
+#'       binSize = binSize
+#'     )
 #' }
 #'
 #' @usage
@@ -365,35 +365,35 @@ HiCDOCDataSetFromHiC <- function(
 #'
 #' @examples
 #' \dontrun{
-#' # Path to each matrix file
-#' matrixPaths = c(
-#'   'path/to/condition-1.replicate-1.matrix',
-#'   'path/to/condition-1.replicate-2.matrix',
-#'   'path/to/condition-2.replicate-1.matrix',
-#'   'path/to/condition-2.replicate-2.matrix',
-#'   'path/to/condition-3.replicate-1.matrix'
-#' )
+#'     # Path to each matrix file
+#'     matrixPaths = c(
+#'       'path/to/condition-1.replicate-1.matrix',
+#'       'path/to/condition-1.replicate-2.matrix',
+#'       'path/to/condition-2.replicate-1.matrix',
+#'       'path/to/condition-2.replicate-2.matrix',
+#'       'path/to/condition-3.replicate-1.matrix'
+#'     )
 #'
-#' # Path to each bed file
-#' bedPaths = c(
-#'   'path/to/condition-1.replicate-1.bed',
-#'   'path/to/condition-1.replicate-2.bed',
-#'   'path/to/condition-2.replicate-1.bed',
-#'   'path/to/condition-2.replicate-2.bed',
-#'   'path/to/condition-3.replicate-1.bed'
-#' )
+#'     # Path to each bed file
+#'     bedPaths = c(
+#'       'path/to/condition-1.replicate-1.bed',
+#'       'path/to/condition-1.replicate-2.bed',
+#'       'path/to/condition-2.replicate-1.bed',
+#'       'path/to/condition-2.replicate-2.bed',
+#'       'path/to/condition-3.replicate-1.bed'
+#'     )
 #'
-#' # Replicate and condition of each file. Can be names instead of numbers.
-#' replicates <- c(1, 2, 1, 2, 1)
-#' conditions <- c(1, 1, 2, 2, 3)
+#'     # Replicate and condition of each file. Can be names instead of numbers.
+#'     replicates <- c(1, 2, 1, 2, 1)
+#'     conditions <- c(1, 1, 2, 2, 3)
 #'
-#' # Instantiation of data set
-#' hic.experiment <- HiCDOCDataSetFromHiCPro(
-#'   matrixPaths = matrixPaths,
-#'   bedPaths = bedPaths,
-#'   replicates = replicates,
-#'   conditions = conditions
-#' )
+#'     # Instantiation of data set
+#'     hic.experiment <- HiCDOCDataSetFromHiCPro(
+#'       matrixPaths = matrixPaths,
+#'       bedPaths = bedPaths,
+#'       replicates = replicates,
+#'       conditions = conditions
+#'     )
 #' }
 #'
 #' @usage
@@ -456,31 +456,14 @@ HiCDOCDataSetFromHiCPro <- function(
 }
 
 #' @title
-#' Default pipeline to run on a \code{\link{HiCDOCDataSet}}.
+#' Default pipeline to run on the HiCDOC analysis.
 #'
 #' @description
 #' Runs the default filtering, normalization, and computational steps on a
-#' \code{\link{HiCDOCDataSet}}. To learn more about HiCDOC, browse the vignette:
+#' \code{HiCDOCDataSet}. To learn more about HiCDOC, browse the vignette:
 #' \code{browseVignettes(package = "HiCDOC")}.
 #'
 #' @details
-#' \subsection{\code{HiCDOCDataSet} object}{
-#'     A \code{\link{HiCDOCDataSet}} object can be created from different files:
-#'     \itemize{
-#'         \item{Tabular files: }{
-#'             see \code{\link{HiCDOCDataSetFromTabular}}
-#'         }
-#'         \item{(m)Cool files: }{
-#'             see \code{\link{HiCDOCDataSetFromCool}}
-#'         }
-#'         \item{HiC files: }{
-#'             see \code{\link{HiCDOCDataSetFromHiC}}
-#'         }
-#'         \item{HiC-Pro matrices and bed files: }{
-#'             see \code{\link{HiCDOCDataSetFromHiCPro}}
-#'         }
-#'     }
-#' }
 #' \subsection{\code{HiCDOC} pipeline}{
 #'     The HiCDOC pipeline has seven steps:
 #'     \describe{
@@ -540,15 +523,20 @@ HiCDOCDataSetFromHiCPro <- function(
 #' }
 #'
 #' @param object
-#' A \code{\link{HiCDOCDataSet}}.
+#' A \code{HiCDOCDataSet}.
 #' @param parallel
 #' Whether or not to parallelize each step. Defaults to TRUE.
 #'
 #' @return
-#' A \code{\link{HiCDOCDataSet}} with all slots filled.
+#' A HiCDOCDataSet with all slots filled.
 #'
 #' @seealso
-#' \code{\link{HiCDOCDataSet}}
+#' \code{\link{HiCDOCDataSet}}, \code{\link{filterSmallChromosomes}},
+#' \code{\link{filterWeakPositions}}, \code{\link{filterSparseReplicates}},
+#' \code{\link{normalizeTechnicalBiases}},
+#' \code{\link{normalizeBiologicalBiases}},
+#' \code{\link{normalizeDistanceEffect}},
+#' \code{\link{detectCompartments}}
 #'
 #' @examples
 #' data(exampleHiCDOCDataSet)
@@ -558,14 +546,15 @@ HiCDOCDataSetFromHiCPro <- function(
 #' object <- HiCDOC(object)
 #'
 #' # Equivalent to
-#' \dontrun{
-#' object <- filterSmallChromosomes(object)
-#' object <- filterSparseReplicates(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
-#' object <- detectCompartments(object)
+#' if(FALSE){
+#'     object <- filterSmallChromosomes(object)
+#'     object <- filterSparseReplicates(object)
+#'     object <- filterWeakPositions(object)
+#'     object <- normalizeTechnicalBiases(object)
+#'     object <- normalizeBiologicalBiases(object)
+#'     object <- normalizeDistanceEffect(object)
+#'     object <- detectCompartments(object)
+#' }
 #' }
 #'
 #' @export

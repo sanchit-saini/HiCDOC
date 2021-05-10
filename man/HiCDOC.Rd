@@ -2,41 +2,24 @@
 % Please edit documentation in R/AllClasses.R
 \name{HiCDOC}
 \alias{HiCDOC}
-\title{Default pipeline to run on a \code{\link{HiCDOCDataSet}}.}
+\title{Default pipeline to run on the HiCDOC analysis.}
 \usage{
 HiCDOC(object, parallel = TRUE)
 }
 \arguments{
-\item{object}{A \code{\link{HiCDOCDataSet}}.}
+\item{object}{A \code{HiCDOCDataSet}.}
 
 \item{parallel}{Whether or not to parallelize each step. Defaults to TRUE.}
 }
 \value{
-A \code{\link{HiCDOCDataSet}} with all slots filled.
+A HiCDOCDataSet with all slots filled.
 }
 \description{
 Runs the default filtering, normalization, and computational steps on a
-\code{\link{HiCDOCDataSet}}. To learn more about HiCDOC, browse the vignette:
+\code{HiCDOCDataSet}. To learn more about HiCDOC, browse the vignette:
 \code{browseVignettes(package = "HiCDOC")}.
 }
 \details{
-\subsection{\code{HiCDOCDataSet} object}{
-    A \code{\link{HiCDOCDataSet}} object can be created from different files:
-    \itemize{
-        \item{Tabular files: }{
-            see \code{\link{HiCDOCDataSetFromTabular}}
-        }
-        \item{(m)Cool files: }{
-            see \code{\link{HiCDOCDataSetFromCool}}
-        }
-        \item{HiC files: }{
-            see \code{\link{HiCDOCDataSetFromHiC}}
-        }
-        \item{HiC-Pro matrices and bed files: }{
-            see \code{\link{HiCDOCDataSetFromHiCPro}}
-        }
-    }
-}
 \subsection{\code{HiCDOC} pipeline}{
     The HiCDOC pipeline has seven steps:
     \describe{
@@ -95,25 +78,11 @@ function in parallel you should specify the parallel parameters such as:
     }
 }
 }
-\examples{
-data(exampleHiCDOCDataSet)
-object <- exampleHiCDOCDataSet
-
-# Default HiCDOC pipeline
-object <- HiCDOC(object)
-
-# Equivalent to
-\dontrun{
-object <- filterSmallChromosomes(object)
-object <- filterSparseReplicates(object)
-object <- filterWeakPositions(object)
-object <- normalizeTechnicalBiases(object)
-object <- normalizeBiologicalBiases(object)
-object <- normalizeDistanceEffect(object)
-object <- detectCompartments(object)
-}
-
-}
 \seealso{
-\code{\link{HiCDOCDataSet}}
+\code{\link{HiCDOCDataSet}}, \code{\link{filterSmallChromosomes}},
+\code{\link{filterWeakPositions}}, \code{\link{filterSparseReplicates}},
+\code{\link{normalizeTechnicalBiases}},
+\code{\link{normalizeBiologicalBiases}},
+\code{\link{normalizeDistanceEffect}},
+\code{\link{detectCompartments}}
 }

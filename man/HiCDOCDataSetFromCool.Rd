@@ -26,29 +26,29 @@ Constructs a \code{\link{HiCDOCDataSet}} from a set of \code{.cool} or
 }
 \examples{
 \dontrun{
-# Path to each file
-paths = c(
-  'path/to/condition-1.replicate-1.cool',
-  'path/to/condition-1.replicate-2.cool',
-  'path/to/condition-2.replicate-1.cool',
-  'path/to/condition-2.replicate-2.cool',
-  'path/to/condition-3.replicate-1.cool'
-)
+    # Path to each file
+    paths = c(
+      'path/to/condition-1.replicate-1.cool',
+      'path/to/condition-1.replicate-2.cool',
+      'path/to/condition-2.replicate-1.cool',
+      'path/to/condition-2.replicate-2.cool',
+      'path/to/condition-3.replicate-1.cool'
+    )
 
-# Replicate and condition of each file. Can be names instead of numbers.
-replicates <- c(1, 2, 1, 2, 1)
-conditions <- c(1, 1, 2, 2, 3)
+    # Replicate and condition of each file. Can be names instead of numbers.
+    replicates <- c(1, 2, 1, 2, 1)
+    conditions <- c(1, 1, 2, 2, 3)
 
-# Resolution to select in .mcool files
-binSize = 500000
+    # Resolution to select in .mcool files
+    binSize = 500000
 
-# Instantiation of data set
-object <- HiCDOCDataSetFromCool(
-  paths,
-  replicates = replicates,
-  conditions = conditions,
-  binSize = binSize # Specified for .mcool files.
-)
+    # Instantiation of data set
+    object <- HiCDOCDataSetFromCool(
+      paths,
+      replicates = replicates,
+      conditions = conditions,
+      binSize = binSize # Specified for .mcool files.
+    )
 }
 
 }

@@ -9,6 +9,10 @@
 HiCDOC normalizes intrachromosomal Hi-C matrices, uses unsupervised learning
     to predict A/B compartments from multiple replicates, and detects
     significant compartment changes between experiment conditions.
+    It provides a collection of functions assembled into a pipeline to filter 
+    and normalize the data, predict the compartments and visualize the results. 
+    It accepts several type of data: tabular `.tsv` files, Cooler `.cool` or 
+    `.mcool` files, Juicer `.hic` files or HiC-Pro `.matrix` and `.bed` files.
 }
 \seealso{
 Useful links:
@@ -19,13 +23,13 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Zytnicki Matthias \email{matthias.zytnicki@inrae.fr}
+\strong{Maintainer}: Maigné Élise \email{elise.maigne@inrae.fr}
 
 Authors:
 \itemize{
   \item Kurylo Cyril \email{cyril.kurylo@inrae.fr}
+  \item Zytnicki Matthias \email{matthias.zytnicki@inrae.fr}
   \item Foissac Sylvain \email{sylvain.foissac@inrae.fr}
-  \item Maigné Élise \email{elise.maigne@inrae.fr}
 }
 
 }

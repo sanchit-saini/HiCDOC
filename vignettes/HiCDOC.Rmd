@@ -21,10 +21,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library("HiCDOC")
-```
-
 HiCDOC normalizes intrachromosomal Hi-C matrices, uses unsupervised learning to
 predict A/B compartments from multiple replicates, and detects significant
 compartment changes between experiment conditions.
@@ -65,6 +61,22 @@ It provides a collection of functions assembled into a pipeline:
 
 # Usage
 
+## Installation
+
+HiCDOC can be installed from Bioconductor:
+
+```{r, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("HiCDOC")
+```
+
+The package can then be loaded:
+
+```{r}
+library(HiCDOC)
+```
+
 ## Importing Hi-C data
 
 HiCDOC can import Hi-C data sets in various different formats:
@@ -78,7 +90,7 @@ HiCDOC can import Hi-C data sets in various different formats:
 A tabular file is a tab-separated multi-replicate sparse matrix with a header:
 
     chromosome    position 1    position 2    C1.R1    C1.R2    C2.R1    ...
-    3             1500000       7500000       145      184      72       ...
+    Y             1500000       7500000       145      184      72       ...
     ...
 
 The interaction proportions between `position 1` and `position 2` of
@@ -189,18 +201,14 @@ hic.experiment <- HiCDOCDataSetFromHiCPro(
 
 ## Running the HiCDOC pipeline
 
-Once your data is loaded, you can run all the filtering, normalization, and
-prediction steps with:
+An example dataset can be loaded from the HiCDOC package:
 
 ```{r reloadExample, echo = FALSE}
 data(exampleHiCDOCDataSet)
-hic.experiment <- exampleHiCDOCDataSet
 ```
 
-```{r HiCDOC, eval = FALSE}
-hic.experiment <- HiCDOC(hic.experiment)
-```
-
+Once your data is loaded, you can run all the filtering, normalization, and
+prediction steps with the command : **`HiCDOC(exampleHiCDOCDataSet)`**.
 This one-liner runs all the steps detailed below.
 
 ### Filtering data
@@ -208,7 +216,7 @@ This one-liner runs all the steps detailed below.
 Remove small chromosomes of length smaller than 100 positions:
 
 ```{r filterSmallChromosomes}
-hic.experiment <- filterSmallChromosomes(hic.experiment, threshold = 100)
+hic.experiment <- filterSmallChromosomes(exampleHiCDOCDataSet, threshold = 100)
 ```
 
 Remove sparse replicates filled with less than 5% non-zero interactions:
@@ -242,7 +250,8 @@ Normalize the distance effect resulting from higher interaction proportions
 between closer regions:
 
 ```{r normalizeDistanceEffect}
-hic.experiment <- normalizeDistanceEffect(hic.experiment, loessSampleSize = 20000)
+hic.experiment <- 
+    normalizeDistanceEffect(hic.experiment, loessSampleSize = 20000)
 ```
 
 ### Predicting compartments and differences
@@ -251,10 +260,10 @@ Predict A and B compartments and detect significant differences:
 
 ```{r detectCompartments}
 hic.experiment <- detectCompartments(
-  hic.experiment,
-  kMeansDelta = 0.0001,
-  kMeansIterations = 50,
-  kMeansRestarts = 20
+    hic.experiment,
+    kMeansDelta = 0.0001,
+    kMeansIterations = 50,
+    kMeansRestarts = 20
 )
 ```
 
@@ -264,7 +273,7 @@ hic.experiment <- detectCompartments(
 Plot the interaction matrix of each replicate:
 
 ```{r plotInteractions}
-plotInteractions(hic.experiment, chromosome = '3')
+plotInteractions(hic.experiment, chromosome = "Y")
 ```
 
 Plot the overall distance effect on the proportion of interactions:
@@ -278,12 +287,9 @@ replicate, and significant changes between experiment conditions:
 
 ```{r extractcomponents}
 compartments(hic.experiment)
-
 concordances(hic.experiment)
-
 differences(hic.experiment)
-
-plotCompartmentChanges(hic.experiment, chromosome = '3')
+plotCompartmentChanges(hic.experiment, chromosome = "Y")
 ```
 
 Plot the overall distribution of concordance differences:
@@ -295,14 +301,14 @@ plotConcordanceDifferences(hic.experiment)
 Plot the result of the PCA on the compartments' centroids:
 
 ```{r plotCentroids}
-plotCentroids(hic.experiment, chromosome = '3')
+plotCentroids(hic.experiment, chromosome = "Y")
 ```
 
 Plot the boxplots of self interaction ratios (differences between self
 interactions and the median of other interactions) of each compartment:
 
 ```{r plotSelfInteractionRatios}
-plotSelfInteractionRatios(hic.experiment, chromosome = '3')
+plotSelfInteractionRatios(hic.experiment, chromosome = "Y")
 ```
 
 
