@@ -109,7 +109,7 @@ setClass(
 #' @export
 defaultHiCDOCParameters <- list(
     smallChromosomeThreshold = 100,
-    sparseReplicateThreshold = 0.05,
+    sparseReplicateThreshold = 0.3,
     weakPositionThreshold = 1,
     loessSampleSize = 20000,
     kMeansDelta = 0.0001,

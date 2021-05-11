@@ -236,10 +236,10 @@ Remove small chromosomes of length smaller than 100 positions:
 hic.experiment <- filterSmallChromosomes(hic.experiment, threshold = 100)
 ```
 
-Remove sparse replicates filled with less than 5% non-zero interactions:
+Remove sparse replicates filled with less than 30% non-zero interactions:
 
 ```r
-hic.experiment <- filterSparseReplicates(hic.experiment, threshold = 0.05)
+hic.experiment <- filterSparseReplicates(hic.experiment, threshold = 0.3)
 ```
 
 Remove weak positions with less than 1 interaction in average:

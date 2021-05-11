@@ -8,7 +8,7 @@ test_that("filterSparseReplicates behaves as expected", {
     )
     expect_equal(nrow(object@interactions), 185382)
     expect_identical(object@chromosomes, c("W", "X", "Y", "Z"))
-    expect_identical(object@parameters$sparseReplicateThreshold, 0.05)
+    expect_identical(object@parameters$sparseReplicateThreshold, 0.3)
     expect_is(object@validConditions, "list")
     expect_identical(object@validConditions$W,
                      c("1", "1", "1", "2", "3", "3"))

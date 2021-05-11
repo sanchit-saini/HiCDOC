@@ -139,7 +139,7 @@
 #' be kept. If a chromosome replicate's percentage of non-zero interactions is
 #' lower than this value, it is removed. Defaults to
 #' \code{object$smallChromosomeThreshold} which is originally set to
-#' \code{defaultHiCDOCParameters$smallChromosomeThreshold} = 0.05.
+#' \code{defaultHiCDOCParameters$smallChromosomeThreshold} = 30%.
 #'
 #' @return
 #' A filtered \code{\link{HiCDOCDataSet}}.

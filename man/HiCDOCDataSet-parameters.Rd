@@ -52,7 +52,7 @@ custom parameters will be used.
             \code{\link{filterSparseReplicates}}. If a chromosome replicate's
             percentage of non-zero interactions is lower than this value, it
             is removed. Defaults to
-            \code{defaultHiCDOCParameters$smallChromosomeThreshold} = 0.05.
+            \code{defaultHiCDOCParameters$smallChromosomeThreshold} = 30%.
         }
         \item{\code{weakPositionThreshold}}{
             The minimum average interaction for a position to be kept when
