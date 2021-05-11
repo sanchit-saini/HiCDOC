@@ -227,8 +227,16 @@ setMethod("concordances", "HiCDOCDataSet", function(object) {
 #' NULL
 #' @export
 setMethod("show", "HiCDOCDataSet", function(object) {
+
     cat(
         "Object of class 'HiCDOCDataSet'\n\n",
+        "- Inputs:\n",
+        paste0(
+            "  ",
+            sapply(object@input, function(x) paste0(x)),
+            "\n"
+        ),
+        "\n",
         "- Chromosomes:\n  ",
         if (is.null(object@chromosomes) || length(object@chromosomes) == 0)
         "None"
@@ -247,12 +255,28 @@ setMethod("show", "HiCDOCDataSet", function(object) {
             "\n"
         ),
         "\n",
-        "- Resolution (binSize):\n  ",
+        "- Resolution (bin size):\n  ",
         if (is.null(object@binSize))
         "None"
         else
         object@binSize,
         "\n\n",
+        "- Parameters:\n",
+        paste0(
+          "  ",
+          sapply(
+            1:length(parameters(object)),
+            function(x) {
+              paste(
+                names(parameters(object))[x],
+                '=',
+                parameters(object)[x]
+              )
+            }
+          ),
+          "\n"
+        ),
+        "\n",
         "- Methods:\n",
         "  chromosomes(object)\n",
         "  conditions(object)\n",
