@@ -37,9 +37,18 @@
 
     allInteractions <-
         dplyr::tibble(
-            chromosome = factor(chromosomeName, levels = object@chromosomes),
-            condition = rep(object@conditions, each = totalCells),
-            replicate = rep(object@replicates, each = totalCells),
+            chromosome = factor(
+                chromosomeName,
+                levels = object@chromosomes
+            ),
+            condition = factor(
+                rep(object@conditions, each = totalCells),
+                levels = gtools::mixedsort(unique(object@conditions))
+            ),
+            replicate = factor(
+                rep(object@replicates, each = totalCells),
+                levels = gtools::mixedsort(unique(object@replicates))
+            ),
             bin.1 = rep(
                 seq(totalBins),
                 each = totalBins,

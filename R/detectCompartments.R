@@ -68,7 +68,7 @@
         dplyr::tibble(
             chromosome = factor(
                 selectedChromosomeNames,
-                levels = gtools::mixedsort(unique(object@chromosomes))
+                levels = object@chromosomes
             ),
             condition = factor(
                 referenceConditionNames,
@@ -272,7 +272,7 @@
         dplyr::tibble(
             chromosome = factor(
                 chromosomeName,
-                levels = gtools::mixedsort(unique(object@chromosomes))
+                levels = object@chromosomes
             ),
             condition = factor(
                 conditionName,
@@ -313,11 +313,11 @@
         dplyr::tibble(
             chromosome = factor(
                 chromosomeName,
-                levels = gtools::mixedsort(unique(object@chromosomes))
+                levels = object@chromosomes
             ),
             condition = factor(
                 conditionName,
-                levels = gtools::mixedsort(unique((object@conditions)))
+                levels = gtools::mixedsort(unique(object@conditions))
             ),
             compartment = factor(c(1, 2), levels = c(1, 2)),
             centroid = centroids
