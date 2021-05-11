@@ -331,6 +331,19 @@ Clustering with Background Knowledge, _Proceedings of 18th International
 Conference on Machine Learning_, 2001, Pages 577-584,
 https://pdfs.semanticscholar.org/0bac/ca0993a3f51649a6bb8dbb093fc8d8481ad4.pdf
 
+Neva C Durand, Muhammad S Shamim, Ido Machol, Suhas SP Rao, 
+Miriam H Huntley, Eric S Lander, Erez Lieberman Aiden,
+Juicer provides a one-click system for analyzing loop-resolution 
+Hi-C experiments, Cell systems, 2016, vol. 3, no 1, Pages 95-98,
+https://doi.org/10.1016/j.cels.2016.07.002
+
+Nicolas Servant, Nelle Varoquaux, Bryan R Lajoie, Eric Viara, Chong-Jian Chen,
+Jean-Philippe Vert, Edith Heard, Job Dekker, Emmanuel Barillot, HiC-Pro: 
+an optimized and flexible pipeline for Hi-C data processing. Genome 
+biology, 2015, vol. 16, no 1, Pages 1-11. 
+https://doi.org/10.1186/s13059-015-0831-x
+
+
 [multihiccompare-publication]: https://doi.org/10.1093/bioinformatics/btz048
 [knight-ruiz-publication]: https://doi.org/10.1093/imanum/drs019
 [constrained-k-means-publication]: https://pdfs.semanticscholar.org/0bac/ca0993a3f51649a6bb8dbb093fc8d8481ad4.pdf
