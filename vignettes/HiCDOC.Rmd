@@ -33,10 +33,10 @@ It provides a collection of functions assembled into a pipeline:
        interactions.
     3. Filter positions (*bins*) which have too few interactions.
 2. [Normalize](#normalizing-biases):
-    1. Normalize technical biases using
+    1. Normalize technical biases (inter-matrix normalization) using
        [cyclic loess normalization][multihiccompare-publication], so that
        matrices are comparable.
-    2. Normalize biological biases using
+    2. Normalize biological biases (intra-matrix normalization) using
        [Knight-Ruiz matrix balancing][knight-ruiz-publication], so that
        all the bins are comparable.
     3. Normalize the distance effect, which results from higher interaction
@@ -93,7 +93,7 @@ A tabular file is a tab-separated multi-replicate sparse matrix with a header:
     Y             1500000       7500000       145      184      72       ...
     ...
 
-The interaction proportions between `position 1` and `position 2` of
+The number of interactions between `position 1` and `position 2` of
 `chromosome` are reported in each `condition.replicate` column. There is no
 limit to the number of conditions and replicates.
 
@@ -203,7 +203,7 @@ hic.experiment <- HiCDOCDataSetFromHiCPro(
 
 An example dataset can be loaded from the HiCDOC package:
 
-```{r reloadExample, echo = FALSE}
+```{r reloadExample}
 data(exampleHiCDOCDataSet)
 ```
 
@@ -213,19 +213,22 @@ This one-liner runs all the steps detailed below.
 
 ### Filtering data
 
-Remove small chromosomes of length smaller than 100 positions:
+Remove small chromosomes of length smaller than 100 positions 
+(100 is the default value):
 
 ```{r filterSmallChromosomes}
 hic.experiment <- filterSmallChromosomes(exampleHiCDOCDataSet, threshold = 100)
 ```
 
-Remove sparse replicates filled with less than 5% non-zero interactions:
+Remove sparse replicates filled with less than 5% non-zero interactions 
+(5% is the default value):
 
 ```{r filterSparseReplicates}
 hic.experiment <- filterSparseReplicates(hic.experiment, threshold = 0.05)
 ```
 
-Remove weak positions with less than 1 interaction in average:
+Remove weak positions with less than 1 interaction in average 
+(1 is the default value):
 
 ```{r filterWeakPositions}
 hic.experiment <- filterWeakPositions(hic.experiment, threshold = 1)
@@ -233,21 +236,21 @@ hic.experiment <- filterWeakPositions(hic.experiment, threshold = 1)
 
 ### Normalizing biases
 
-Normalize technical biases such as sequencing depth:
+Normalize technical biases such as sequencing depth (inter-matrix normalization):
 
 ```{r normalizeTechnicalBiases}
 hic.experiment <- normalizeTechnicalBiases(hic.experiment)
 ```
 
-Normalize biological biases (such as GC content, number of restriction sites,
-etc.):
+Normalize biological biases, such as GC content, number of restriction sites,
+etc. (intra-matrix normalization):
 
 ```{r normalizeBiologicalBiases}
 hic.experiment <- normalizeBiologicalBiases(hic.experiment)
 ```
 
-Normalize the distance effect resulting from higher interaction proportions
-between closer regions:
+Normalize the linear distance effect resulting from more interactions between 
+closer genomic regions (20000 is the default value for `loessSampleSize`):
 
 ```{r normalizeDistanceEffect}
 hic.experiment <- 
@@ -256,7 +259,8 @@ hic.experiment <-
 
 ### Predicting compartments and differences
 
-Predict A and B compartments and detect significant differences:
+Predict A and B compartments and detect significant differences, here using 
+the default values as parameters:
 
 ```{r detectCompartments}
 hic.experiment <- detectCompartments(
