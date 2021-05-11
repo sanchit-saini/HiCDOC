@@ -23,29 +23,18 @@
 plotConcordanceDifferences <- function(object) {
     .validateSlots(
         object,
-        slots = c(
-            "interactions",
-            "differences",
-            "concordances"
-        )
+        slots = c("comparisons")
     )
 
-    changed <-
-        object@differences %>%
-        dplyr::select(-pvalue.adjusted) %>%
-        dplyr::mutate(changed = "T")
-
     differences <-
-        object@concordances %>%
-        dplyr::group_by(.dots = c("chromosome", "bin", "condition")) %>%
-        dplyr::summarise(median = stats::median(concordance)) %>%
-        dplyr::ungroup() %>%
-        tidyr::spread(condition, median) %>%
-        dplyr::mutate(difference = `2` - `1`) %>%
-        dplyr::select(-c(`1`, `2`)) %>%
-        dplyr::left_join(changed, by = c("chromosome", "bin")) %>%
-        dplyr::mutate(changed = tidyr::replace_na(changed, "F")) %>%
-        dplyr::filter(!is.na(difference))
+        object@comparisons %>%
+        dplyr::mutate(
+            changed = dplyr::if_else(
+                compartment.1 == compartment.2,
+                "FALSE",
+                "TRUE"
+            )
+        )
 
     plot <-
         ggplot(differences, aes(x = difference, fill = changed)) +

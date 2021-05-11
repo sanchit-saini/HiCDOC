@@ -93,6 +93,7 @@ setClass(
         compartments = "ANY",
         concordances = "ANY",
         differences = "ANY",
+        comparisons = "ANY",
         distances = "ANY",
         centroids = "ANY",
         selfInteractionRatios = "ANY"

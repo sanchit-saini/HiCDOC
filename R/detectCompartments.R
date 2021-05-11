@@ -681,7 +681,7 @@
         dplyr::filter(as.numeric(condition.1) < as.numeric(condition.2)) %>%
         dplyr::group_by(chromosome, bin, condition.1, condition.2) %>%
         dplyr::summarise(
-            value = stats::median(abs(concordance.1 - concordance.2))
+            difference = stats::median(abs(concordance.1 - concordance.2))
         ) %>%
         dplyr::ungroup()
 
@@ -715,22 +715,43 @@
         ) %>%
         dplyr::filter(as.numeric(condition.1) < as.numeric(condition.2))
 
-    # Compute p-values for switching positions
-    # P-values for a condition pair computed from the whole genome distribution
-    object@differences <-
+    # Join medians of differences and pairs of conditions
+    object@comparisons <-
         compartmentComparisons %>%
         dplyr::left_join(
             concordanceDifferences,
             by = c("chromosome", "bin", "condition.1", "condition.2")
         ) %>%
+        dplyr::as_tibble() %>%
+        dplyr::select(
+            chromosome,
+            bin,
+            condition.1,
+            condition.2,
+            compartment.1,
+            compartment.2,
+            difference
+        )
+
+    # Compute p-values for switching positions
+    # P-values for a condition pair computed from the whole genome distribution
+    object@differences <-
+        object@comparisons %>%
         dplyr::mutate(
-            H0_value =
-                dplyr::if_else(compartment.1 == compartment.2, value, NA_real_)
+            H0_value = dplyr::if_else(
+                compartment.1 == compartment.2,
+                difference,
+                NA_real_
+            )
         ) %>%
         dplyr::group_by(condition.1, condition.2) %>%
-        dplyr::mutate(quantile = ifelse(value > 0,
-                                        stats::ecdf(H0_value)(value),
-                                        NA)) %>%
+        dplyr::mutate(
+          quantile = ifelse(
+            difference > 0,
+            stats::ecdf(H0_value)(difference),
+            NA
+          )
+        ) %>%
         dplyr::filter(compartment.1 != compartment.2) %>%
         dplyr::mutate(pvalue = 1 - quantile) %>%
         dplyr::mutate(pvalue = dplyr::if_else(pvalue < 0, 0, pvalue)) %>%
