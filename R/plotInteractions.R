@@ -209,7 +209,7 @@ plotInteractions <- function(
         )
 
     if (nrow(interactions) == 0) {
-        message("No interaction data to plot.")
+        message("No interactions for chromosome ", chromosomeName, ".")
         return(NULL)
     }
 

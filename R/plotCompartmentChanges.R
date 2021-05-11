@@ -58,6 +58,10 @@ plotCompartmentChanges <- function(
         xlim
     )
 
+    if (is.null(compartmentsPlot) || is.null(concordancesPlot)) {
+        return(NULL)
+    }
+
     # Horizontal alignment of the sub-graphs (change width of the plots)
     plotsGrobs <-
         lapply(

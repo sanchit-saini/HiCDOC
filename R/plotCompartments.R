@@ -43,6 +43,11 @@ plotCompartments <- function(
         dplyr::mutate(compartment = factor(compartment)) %>%
         dplyr::mutate(position = start + 0.5 * object@binSize)
 
+    if (nrow(compartments) == 0) {
+        message("No compartments for chromosome ", chromosomeName, ".")
+        return(NULL)
+    }
+
     plot <-
         ggplot(
             data = compartments,

@@ -29,6 +29,12 @@ plotCentroids <- function(object, chromosome, size = 2) {
         dplyr::filter(chromosome == chromosomeName) %>%
         dplyr::select(-chromosome) %>%
         tidyr::unite(name, c(condition, compartment))
+
+    if (nrow(df) == 0) {
+        message("No centroids for chromosome ", chromosomeName, ".")
+        return(NULL)
+    }
+
     names <- df$name
     df %<>%
         tidyr::spread(name, centroid) %>%

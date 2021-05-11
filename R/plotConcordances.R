@@ -41,7 +41,7 @@ plotConcordances <- function(
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
     xlim <- .validateXlim(xlim, object, chromosomeName)
 
-    concordance <-
+    concordances <-
         object@concordances %>%
         dplyr::filter(chromosome == chromosomeName) %>%
         dplyr::left_join(
@@ -51,6 +51,11 @@ plotConcordances <- function(
         dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
         dplyr::mutate(condition = paste0("Concordances\n", condition)) %>%
         dplyr::mutate(position = start + 0.5 * object@binSize)
+
+    if (nrow(concordances) == 0) {
+        message("No concordances for chromosome ", chromosomeName, ".")
+        return(NULL)
+    }
 
     # Significant differences
     differences <-
@@ -79,8 +84,8 @@ plotConcordances <- function(
 
     ylim <-
         c(
-            min(concordance$concordance, na.rm = TRUE),
-            max(concordance$concordance, na.rm = TRUE)
+            min(concordances$concordance, na.rm = TRUE),
+            max(concordances$concordance, na.rm = TRUE)
         )
 
     plot <- ggplot()
@@ -102,14 +107,14 @@ plotConcordances <- function(
     plot <-
         plot +
         geom_line(
-            data = concordance,
+            data = concordances,
             aes(x = position, y = concordance, color = replicate)
         )
     if (points) {
         plot <-
             plot +
             geom_point(
-                data = concordance,
+                data = concordances,
                 aes(
                     x = position,
                     y = concordance,
