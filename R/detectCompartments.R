@@ -878,14 +878,15 @@
 #'         \item{On Linux:
 #'
 #'              \code{multiParam <- BiocParallel::MulticoreParam(workers = 10)}
-#'              \code{BiocParallel::register(multiParam, default = TRUE)}
 #'          }
 #'          \item{On Windows:
 #'
 #'              \code{multiParam <- BiocParallel::SnowParam(workers = 10)}
-#'              \code{BiocParallel::register(multiParam, default = TRUE)}
 #'         }
 #'     }
+#'     And then you can register the parameters to be used by BiocParallel:
+#'
+#'     \code{BiocParallel::register(multiParam, default = TRUE)}
 #' }
 #'
 #' @param object

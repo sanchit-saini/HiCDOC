@@ -68,15 +68,35 @@ function in parallel you should specify the parallel parameters such as:
         \item{On Linux:
 
              \code{multiParam <- BiocParallel::MulticoreParam(workers = 10)}
-             \code{BiocParallel::register(multiParam, default = TRUE)}
          }
          \item{On Windows:
 
              \code{multiParam <- BiocParallel::SnowParam(workers = 10)}
-             \code{BiocParallel::register(multiParam, default = TRUE)}
         }
     }
+    And then you can register the parameters to be used by BiocParallel:
+
+    \code{BiocParallel::register(multiParam, default = TRUE)}
 }
+}
+\examples{
+data(exampleHiCDOCDataSet)
+object <- exampleHiCDOCDataSet
+
+# Default HiCDOC pipeline
+object <- HiCDOC(object)
+
+# Equivalent to
+if(FALSE){
+    object <- filterSmallChromosomes(object)
+    object <- filterSparseReplicates(object)
+    object <- filterWeakPositions(object)
+    object <- normalizeTechnicalBiases(object)
+    object <- normalizeBiologicalBiases(object)
+    object <- normalizeDistanceEffect(object)
+    object <- detectCompartments(object)
+}
+
 }
 \seealso{
 \code{\link{HiCDOCDataSet}}, \code{\link{filterSmallChromosomes}},

@@ -13,7 +13,7 @@ filterSparseReplicates(object, threshold = NULL)
 be kept. If a chromosome replicate's percentage of non-zero interactions is
 lower than this value, it is removed. Defaults to
 \code{object$smallChromosomeThreshold} which is originally set to
-\code{defaultHiCDOCParameters$smallChromosomeThreshold} = 30%.}
+\code{defaultHiCDOCParameters$smallChromosomeThreshold = 30\%}.}
 }
 \value{
 A filtered \code{\link{HiCDOCDataSet}}.
