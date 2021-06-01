@@ -6,18 +6,18 @@
 using namespace Rcpp;
 
 // constrainedClustering
-List constrainedClustering(NumericMatrix& matrix, IntegerMatrix& links, double maxDelta, int maxIterations, int totalRestarts, int totalClusters);
-RcppExport SEXP _HiCDOC_constrainedClustering(SEXP matrixSEXP, SEXP linksSEXP, SEXP maxDeltaSEXP, SEXP maxIterationsSEXP, SEXP totalRestartsSEXP, SEXP totalClustersSEXP) {
+List constrainedClustering(NumericMatrix& rMatrix, IntegerMatrix& rLinks, double maxDelta, int maxIterations, int totalRestarts, int totalClusters);
+RcppExport SEXP _HiCDOC_constrainedClustering(SEXP rMatrixSEXP, SEXP rLinksSEXP, SEXP maxDeltaSEXP, SEXP maxIterationsSEXP, SEXP totalRestartsSEXP, SEXP totalClustersSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix& >::type matrix(matrixSEXP);
-    Rcpp::traits::input_parameter< IntegerMatrix& >::type links(linksSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type rMatrix(rMatrixSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix& >::type rLinks(rLinksSEXP);
     Rcpp::traits::input_parameter< double >::type maxDelta(maxDeltaSEXP);
     Rcpp::traits::input_parameter< int >::type maxIterations(maxIterationsSEXP);
     Rcpp::traits::input_parameter< int >::type totalRestarts(totalRestartsSEXP);
     Rcpp::traits::input_parameter< int >::type totalClusters(totalClustersSEXP);
-    rcpp_result_gen = Rcpp::wrap(constrainedClustering(matrix, links, maxDelta, maxIterations, totalRestarts, totalClusters));
+    rcpp_result_gen = Rcpp::wrap(constrainedClustering(rMatrix, rLinks, maxDelta, maxIterations, totalRestarts, totalClusters));
     return rcpp_result_gen;
 END_RCPP
 }
