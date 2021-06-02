@@ -239,6 +239,12 @@ double clusterize(
   std::vector<std::vector<double>> previousCentroids;
 
   initializeCentroids(centroids, matrix);
+for (auto &centroid: centroids) {
+  for (auto d: centroid) {
+    Rcout << d << " ";
+  }
+  Rcerr << "\n";
+}
 
   do {
     previousCentroids = centroids;
@@ -306,6 +312,7 @@ for (size_t j = 0; j < links.ncol(); ++j) {
     quality = clusterize(
       matrix, links, clusters, centroids, maxDelta, maxIterations
     );
+Rcout << "quality: " << quality << "\n";
 
     if (quality < minQuality) {
       minQuality = quality;
