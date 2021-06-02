@@ -1,4 +1,4 @@
-#include <algorithm>    // std::find
+#include <algorithm>    // std::find, std::all_of
 #include <vector>       // std::vector
 #include <Rcpp.h>
 
