@@ -154,11 +154,8 @@ void initializeCentroids(
 ) {
 
   std::vector<double> distances(matrix.nrow());
-  std::vector<double> row;
+  centroids[0] = matrix.row(unif_rand() * matrix.nrow());
   double sum;
-
-  row = matrix.row(unif_rand() * matrix.nrow());
-  centroids[0] = row;
 
   for (
     unsigned int centroidId = 1;
@@ -176,8 +173,7 @@ void initializeCentroids(
     sum *= unif_rand();
     for (unsigned int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
       if ((sum -= distances[vectorId]) > 0) continue;
-      row = matrix.row(vectorId);
-      centroids[centroidId] = row;
+      centroids[centroidId] = matrix.row(vectorId);
       break;
     }
   }
@@ -239,12 +235,6 @@ double clusterize(
   std::vector<std::vector<double>> previousCentroids;
 
   initializeCentroids(centroids, matrix);
-for (auto &centroid: centroids) {
-  for (auto d: centroid) {
-    Rcout << d << " ";
-  }
-  Rcerr << "\n";
-}
 
   do {
     previousCentroids = centroids;
@@ -294,16 +284,7 @@ List constrainedClustering(
   std::vector<int> clusters(matrix.nrow());
   std::vector<int> bestClusters(matrix.nrow());
   std::vector<std::vector<double>> centroids(totalClusters, std::vector<double>(matrix.ncol(), 0.0));
-  std::vector<std::vector<double>> bestCentroids(totalClusters);
-
-/*
-for (size_t j = 0; j < links.ncol(); ++j) {
-  for (size_t i = 0; i < links.nrow(); ++i) {
-    Rcout << links.row(i)[j] << " ";
-  }
-  Rcout << "\n";
-}
-*/
+  std::vector<std::vector<double>> bestCentroids(totalClusters, std::vector<double>(matrix.ncol(), 0.0));
 
   double quality, minQuality = std::numeric_limits<double>::max();
 
@@ -312,7 +293,6 @@ for (size_t j = 0; j < links.ncol(); ++j) {
     quality = clusterize(
       matrix, links, clusters, centroids, maxDelta, maxIterations
     );
-Rcout << "quality: " << quality << "\n";
 
     if (quality < minQuality) {
       minQuality = quality;
