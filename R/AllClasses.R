@@ -137,17 +137,17 @@ defaultHiCDOCParameters <- list(
 #' @param path
 #' A path to a tabular file.
 #' @param sep
-#' The separator of the tabular file.
+#' The separator of the tabular file. Default to tabulation.
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @examples
 #' path <- system.file("extdata", "liver_18_10M_500000.tsv", package = "HiCDOC")
-#' object <- HiCDOCDataSetFromTabular(path)
+#' object <- HiCDOCDataSetFromTabular(path, sep = '\t')
 #'
 #' @usage
-#' HiCDOCDataSetFromTabular(path)
+#' HiCDOCDataSetFromTabular(path, sep = '\t')
 #'
 #' @export
 HiCDOCDataSetFromTabular <- function(path = NULL, sep="\t") {

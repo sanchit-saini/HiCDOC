@@ -4,12 +4,12 @@
 \alias{HiCDOCDataSetFromTabular}
 \title{\code{\link{HiCDOCDataSet}} constructor from a tabular file.}
 \usage{
-HiCDOCDataSetFromTabular(path)
+HiCDOCDataSetFromTabular(path, sep = '\t')
 }
 \arguments{
 \item{path}{A path to a tabular file.}
 
-\item{sep}{The separator of the tabular file.}
+\item{sep}{The separator of the tabular file. Default to tabulation.}
 }
 \value{
 A \code{\link{HiCDOCDataSet}}.
@@ -27,6 +27,6 @@ replaced by condition names and \code{y} replaced by replicate names.
 }
 \examples{
 path <- system.file("extdata", "liver_18_10M_500000.tsv", package = "HiCDOC")
-object <- HiCDOCDataSetFromTabular(path)
+object <- HiCDOCDataSetFromTabular(path, sep = '\t')
 
 }
