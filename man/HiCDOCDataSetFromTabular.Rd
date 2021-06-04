@@ -8,6 +8,8 @@ HiCDOCDataSetFromTabular(path)
 }
 \arguments{
 \item{path}{A path to a tabular file.}
+
+\item{sep}{The separator of the tabular file.}
 }
 \value{
 A \code{\link{HiCDOCDataSet}}.

@@ -146,9 +146,9 @@ normalizeTechnicalBiases <- function(object, parallel = TRUE) {
 
     object@interactions <-
         result %>%
-        tidyr::gather(as.character(seq_along(groups$replicate)),
-                      key = "index",
-                      value = "interaction") %>%
+        tidyr::pivot_longer(as.character(seq_along(groups$replicate)),
+                            names_to = "index",
+                            values_to = "interaction") %>%
         dplyr::mutate(index = factor(as.integer(index))) %>%
         dplyr::mutate(condition = groups$condition[index]) %>%
         dplyr::mutate(replicate = groups$replicate[index]) %>%

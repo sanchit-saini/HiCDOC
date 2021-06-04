@@ -4,20 +4,22 @@
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
+#' @param sep
+#' The separator of the tabular file.
 #'
 #' @return
 #' A filled \code{\link{HiCDOCDataSet}}.
 #'
 #' @keywords internal
 #' @noRd
-.parseTabular <- function(object) {
+.parseTabular <- function(object, sep = "\t") {
 
     message("Parsing '", object@input, "'.")
 
     interactions <-
         utils::read.table(
             file = object@input,
-            sep = "\t",
+            sep = sep,
             header = TRUE,
             comment.char = "#",
             check.names = FALSE
@@ -59,19 +61,16 @@
     object@interactions <-
         tidyr::pivot_longer(
             interactions,
-            columns,
+            all_of(columns),
             names_to = "condition.replicate",
             values_to = "interaction"
         ) %>%
-        tidyr::separate(
-            condition.replicate,
-            c("condition", "replicate"),
-            sep = "\\.",
-            remove = TRUE
-        ) %>%
+        dplyr::mutate(CR = strsplit(condition.replicate, ".", fixed = TRUE)) %>%
+        dplyr::mutate(condition = purrr::map_chr(CR, 1),
+                      replicate = purrr::map_chr(CR, 2)) %>%
+        dplyr::select(-CR) %>%
         dplyr::rename(position.1 = `position 1`) %>%
-        dplyr::rename(position.2 = `position 2`) %>%
-        dplyr::as_tibble()
+        dplyr::rename(position.2 = `position 2`)
 
     return(object)
 }

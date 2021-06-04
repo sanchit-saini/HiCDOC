@@ -8,7 +8,7 @@ object <- filterWeakPositions(object)
 test_that("plotConcordanceDifferences behaves as expected", {
     expect_error(
         pp <- plotConcordanceDifferences(object),
-        "No compartments found."
+        "Missing slots: comparisons"
     )
     set.seed(3215)
     object <- detectCompartments(object, parallel = FALSE)

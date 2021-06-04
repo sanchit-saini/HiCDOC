@@ -223,6 +223,7 @@
         object@validReplicates[[chromosomeName]][
             which(object@validConditions[[chromosomeName]] == conditionName)
         ]
+    replicateNames <- as.character(replicateNames)
     if (length(replicateNames) == 0) return(NULL)
 
     interactions <-

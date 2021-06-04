@@ -12,7 +12,7 @@ test_that("HiCDOCDataSetFromTabular produce correct format", {
         c("input", "parameters", "interactions", "chromosomes", "conditions",
           "replicates", "positions", "binSize", "totalBins", "weakBins",
           "validConditions", "validReplicates", "compartments",
-          "concordances", "differences", "distances", "centroids",
+          "concordances", "differences", "comparisons", "distances", "centroids",
           "selfInteractionRatios"
         )
     )

@@ -59,6 +59,8 @@ chromosome.}
 
 \item{\code{differences}}{A tibble of detected compartment differences between conditions.}
 
+\item{\code{comparisons}}{A tibble of comparisons ??? TODO}
+
 \item{\code{distances}}{A tibble of the distances to centroids of each bin in each replicate.}
 
 \item{\code{centroids}}{A tibble of centroids in each chromosome and condition.}

@@ -36,7 +36,8 @@
             "concordances",
             "differences",
             "centroids",
-            "positions"
+            "positions",
+            "comparisons"
         )) {
             if (!is.null(slot(object, slotName))) {
                 slot(object, slotName) %<>%

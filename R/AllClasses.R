@@ -57,6 +57,8 @@
 #' A tibble of the concordance of each bin in each replicate.
 #' @slot differences
 #' A tibble of detected compartment differences between conditions.
+#' @slot comparisons
+#' A tibble of comparisons ??? TODO
 #' @slot distances
 #' A tibble of the distances to centroids of each bin in each replicate.
 #' @slot centroids
@@ -134,6 +136,8 @@ defaultHiCDOCParameters <- list(
 #'
 #' @param path
 #' A path to a tabular file.
+#' @param sep
+#' The separator of the tabular file.
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}}.
@@ -146,7 +150,7 @@ defaultHiCDOCParameters <- list(
 #' HiCDOCDataSetFromTabular(path)
 #'
 #' @export
-HiCDOCDataSetFromTabular <- function(path = NULL) {
+HiCDOCDataSetFromTabular <- function(path = NULL, sep="\t") {
 
     if (!is.character(path) || length(path) > 1) {
         stop("'paths' must be a string of characters.", call. = FALSE)
@@ -157,7 +161,7 @@ HiCDOCDataSetFromTabular <- function(path = NULL) {
 
     object <- new("HiCDOCDataSet")
     object@input <- path
-    object <- .parseTabular(object)
+    object <- .parseTabular(object, sep = sep)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
