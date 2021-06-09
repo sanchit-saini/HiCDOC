@@ -68,7 +68,12 @@ double getMedianValue(
 ) {
     size_t n = v.size() / 2;
     std::nth_element(v.begin(), v.begin() + n, v.end());
-    return v[n];
+    double med = v[n];
+    if(!(v.size() & 1)) { //If the set size is even
+        auto max_it = max_element(v.begin(), v.begin()+n);
+        med = (*max_it + med) / 2.0;
+    }
+    return med;    
 }
 
 void getMedianVector(
@@ -119,7 +124,8 @@ void updateCentroids(
 
 struct NearestCentroid {
   int centroidId;
-  double distance;
+  // Should be double here!
+  float distance;
 };
 NearestCentroid getNearestCentroid(
   std::vector<double> &vector,
@@ -136,7 +142,7 @@ NearestCentroid getNearestCentroid(
     centroidId < centroids.size();
     centroidId++
   ) {
-    if (std::all_of(centroids[centroidId].begin(), centroids[centroidId].end(), [](double i){return i == 0.0;})) continue;
+    if (centroids[centroidId].front() == -1.0) continue;
     //if (centroids[centroidId].size() == 0) continue;
     distance = getDistance(vector, centroids[centroidId]);
     if (distance < nearestCentroid.distance) {
@@ -283,8 +289,8 @@ List constrainedClustering(
   StdMatrix<int>    links(rLinks);
   std::vector<int> clusters(matrix.nrow());
   std::vector<int> bestClusters(matrix.nrow());
-  std::vector<std::vector<double>> centroids(totalClusters, std::vector<double>(matrix.ncol(), 0.0));
-  std::vector<std::vector<double>> bestCentroids(totalClusters, std::vector<double>(matrix.ncol(), 0.0));
+  std::vector<std::vector<double>> centroids(totalClusters, std::vector<double>(matrix.ncol(), -1.0));
+  std::vector<std::vector<double>> bestCentroids(totalClusters, std::vector<double>(matrix.ncol(), -1.0));
 
   double quality, minQuality = std::numeric_limits<double>::max();
 
