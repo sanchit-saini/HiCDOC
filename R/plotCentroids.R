@@ -38,7 +38,7 @@ plotCentroids <- function(object, chromosome, size = 2) {
     names <- df$name
     df %<>%
         tidyr::spread(name, centroid) %>%
-        tidyr::unnest(cols = names) %>%
+        tidyr::unnest(cols = all_of(names)) %>%
         t()
 
     pca <- stats::prcomp(df)
@@ -48,14 +48,19 @@ plotCentroids <- function(object, chromosome, size = 2) {
 
     pca <- as.data.frame(pca$x)
     pca$group <- row.names(df)
+    pca %<>%
+        dplyr::mutate(group = strsplit(group, "_", fixed = TRUE)) %>%
+        dplyr::mutate(condition = purrr::map_chr(group, 1),
+                      compartment = purrr::map_chr(group, 2))
+
     plot <-
         ggplot(
             pca,
             aes(
                 x = PC1,
                 y = PC2,
-                color = group,
-                shape = group
+                color = compartment,
+                shape = condition
             )
         ) +
         geom_point(size = size) +
