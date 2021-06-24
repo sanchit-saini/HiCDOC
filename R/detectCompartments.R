@@ -382,10 +382,6 @@
                     )
                 }
             )
-        if (!is.null(BiocParallel::bpparam()$RNGseed))
-            BiocParallel::bpstart(BiocParallel::bpparam())
-        # bpstart to address this issue (and ensure reproducibility):
-        # https://github.com/Bioconductor/BiocParallel/issues/122
         result <-
             BiocParallel::bpmapply(
                 FUN = .clusterizeChromosomeCondition,
@@ -395,9 +391,6 @@
                 SIMPLIFY = FALSE,
                 BPPARAM = BiocParallel::bpparam()
             )
-        if (!is.null(BiocParallel::bpparam()$RNGseed))
-            BiocParallel::bpstop(BiocParallel::bpparam())
-        # Idem than bpstart
     }
 
     object@compartments <-
@@ -888,6 +881,11 @@
 #'     And then you can register the parameters to be used by BiocParallel:
 #'
 #'     \code{BiocParallel::register(multiParam, default = TRUE)}
+#'
+#'     You should be aware that using MulticoreParam, reproducibility of the
+#'     detectCompartments function using a RNGseed may not work. See this
+#'     \href{https://github.com/Bioconductor/BiocParallel/issues/122}{issue}
+#'     for more details.
 #' }
 #'
 #' @param object

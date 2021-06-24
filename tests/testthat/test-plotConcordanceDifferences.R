@@ -18,8 +18,8 @@ test_that("plotConcordanceDifferences behaves as expected", {
     )
     expect_is(pp, "ggplot")
     expect_identical(
-        pp$labels,
-        list(
+        unlist(pp$labels),
+        c(
             "x" = "Concordance",
             "title" = "Distribution of concordance differences",
             "fill" = "changed",

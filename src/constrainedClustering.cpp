@@ -1,18 +1,53 @@
+#include <algorithm>    // std::find, std::all_of
+#include <vector>       // std::vector
 #include <Rcpp.h>
+
 
 using namespace Rcpp;
 
+template <class T>
+class StdMatrix {
+  std::vector<std::vector<T>> matrix;
+
+  public:
+  template <class U>
+  StdMatrix (U &m): matrix(m.nrow(), std::vector<T>(m.ncol())) {
+    for (int i = 0; i < m.nrow(); ++i) {
+        std::vector<T> row (m.row(i).begin(), m.row(i).end());
+        matrix[i] = row;
+    }
+  }
+
+  size_t nrow () const {
+    return matrix.size();
+  }
+
+  size_t ncol () const {
+    return matrix.front().size();
+  }
+
+  std::vector<T> &row (size_t i) {
+    return matrix[i];
+  }
+};
+
+
 double getDistance(
-  const NumericVector &vector1,
-  const NumericVector &vector2
+  const std::vector<double> &vector1,
+  const std::vector<double> &vector2
 ) {
 
-  return sqrt(sum(pow(vector1 - vector2, 2)));
+  double d = 0.0;
+  for (size_t i = 0; i < vector1.size(); ++i) {
+    double t = vector1[i] - vector2[i];
+    d += t * t;
+  }
+  return sqrt(d);
 }
 
 double getCentroidsDelta(
-  const std::vector<NumericVector> &previousCentroids,
-  const std::vector<NumericVector> &centroids
+  const std::vector<std::vector<double>> &previousCentroids,
+  const std::vector<std::vector<double>> &centroids
 ) {
 
   double delta = 0.0;
@@ -28,35 +63,49 @@ double getCentroidsDelta(
   return delta;
 }
 
-NumericVector getMedianVector(
-  const std::vector<NumericVector> &vectors
+double getMedianValue(
+  std::vector<double> &v
+) {
+    size_t n = v.size() / 2;
+    std::nth_element(v.begin(), v.begin() + n, v.end());
+    double med = v[n];
+    if(!(v.size() & 1)) { //If the set size is even
+        auto max_it = max_element(v.begin(), v.begin()+n);
+        med = (*max_it + med) / 2.0;
+    }
+    return med;    
+}
+
+void getMedianVector(
+  const std::vector<std::vector<double>> &vectors,
+  std::vector<double> &medianVector
 ) {
 
-  NumericVector medianVector(vectors[0].size());
-  NumericVector buffer(vectors.size());
+  std::vector<double> buffer(vectors.size());
 
   for (unsigned int rowId = 0; rowId < vectors[0].size(); rowId++) {
     for (unsigned int columnId = 0; columnId < vectors.size(); columnId++) {
       buffer[columnId] = vectors[columnId][rowId];
     }
-    medianVector[rowId] = median(buffer);
+    medianVector[rowId] = getMedianValue(buffer);
   }
-  return medianVector;
 }
 
 void updateCentroids(
-  std::vector<NumericVector> &centroids,
-  const IntegerVector &clusters,
-  const NumericMatrix &matrix
+  std::vector<std::vector<double>> &centroids,
+  std::vector<int> &clusters,
+  StdMatrix<double> &matrix
 ) {
 
   std::vector<unsigned int> totalClusterMembers(centroids.size(), 0);
 
-  for (NumericVector &centroid: centroids) {
-    centroid = NumericVector(centroid.size(), 0.0);
+  for (std::vector<double> &centroid: centroids) {
+    centroid = std::vector<double>(centroid.size(), 0.0);
   }
-  for (int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
-    centroids[clusters[vectorId]] += matrix.row(vectorId);
+  for (unsigned int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
+    for (size_t i = 0; i < matrix.ncol(); ++i) {
+      centroids[clusters[vectorId]][i] += matrix.row(vectorId)[i];
+    }
     totalClusterMembers[clusters[vectorId]]++;
   }
   for (
@@ -65,20 +114,22 @@ void updateCentroids(
     centroidId++
   ) {
     if (totalClusterMembers[centroidId] > 0) {
-      centroids[centroidId] = (
-        centroids[centroidId] / totalClusterMembers[centroidId]
-      );
+      for (size_t i = 0; i < centroids[centroidId].size(); ++i) {
+        centroids[centroidId][i] = 
+          centroids[centroidId][i] / totalClusterMembers[centroidId];
+      }
     }
   }
 }
 
 struct NearestCentroid {
   int centroidId;
+  // Should be double here!
   float distance;
 };
 NearestCentroid getNearestCentroid(
-  const NumericVector &vector,
-  const std::vector<NumericVector> &centroids
+  std::vector<double> &vector,
+  std::vector<std::vector<double>> &centroids
 ) {
 
   NearestCentroid nearestCentroid;
@@ -91,7 +142,8 @@ NearestCentroid getNearestCentroid(
     centroidId < centroids.size();
     centroidId++
   ) {
-    if (centroids[centroidId].size() == 0) continue;
+    if (centroids[centroidId].front() == -1.0) continue;
+    //if (centroids[centroidId].size() == 0) continue;
     distance = getDistance(vector, centroids[centroidId]);
     if (distance < nearestCentroid.distance) {
       nearestCentroid.distance = distance;
@@ -103,16 +155,13 @@ NearestCentroid getNearestCentroid(
 
 // Initialize centroids with K-means++
 void initializeCentroids(
-  std::vector<NumericVector> &centroids,
-  const NumericMatrix &matrix
+  std::vector<std::vector<double>> &centroids,
+  StdMatrix<double> &matrix
 ) {
 
-  NumericVector distances(matrix.nrow());
-  NumericVector row;
+  std::vector<double> distances(matrix.nrow());
+  centroids[0] = matrix.row(unif_rand() * matrix.nrow());
   double sum;
-
-  row = matrix.row(unif_rand() * matrix.nrow());
-  centroids[0] = clone(row);
 
   for (
     unsigned int centroidId = 1;
@@ -120,7 +169,7 @@ void initializeCentroids(
     centroidId++
   ) {
     sum = 0;
-    for (int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
+    for (unsigned int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
       distances[vectorId] = getNearestCentroid(
         matrix.row(vectorId),
         centroids
@@ -128,32 +177,31 @@ void initializeCentroids(
       sum += distances[vectorId];
     }
     sum *= unif_rand();
-    for (int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
+    for (unsigned int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
       if ((sum -= distances[vectorId]) > 0) continue;
-      row = matrix.row(vectorId);
-      centroids[centroidId] = clone(row);
+      centroids[centroidId] = matrix.row(vectorId);
       break;
     }
   }
 }
 
 void assignClusters(
-  IntegerVector &clusters,
-  std::vector<NumericVector> &centroids,
-  const NumericMatrix &matrix,
-  const IntegerMatrix &links
+  std::vector<int> &clusters,
+  std::vector<std::vector<double>> &centroids,
+  StdMatrix<double> &matrix,
+  StdMatrix<int> &links
 ) {
 
-  IntegerVector link;
+  std::vector<double> medianVector(matrix.ncol());
   int centroidId;
 
-  for (int linkId = 0; linkId < links.nrow(); linkId++) {
+  for (unsigned int linkId = 0; linkId < links.nrow(); linkId++) {
 
-    link = links.row(linkId);
-    std::vector<NumericVector> linkedVectors;
-    linkedVectors.reserve(link.size());
+    std::vector<int> &link = links.row(linkId);
+    std::vector<std::vector<double>> linkedVectors(link.size(), std::vector<double>(matrix.ncol(), 0.0));
 
-    for (int vectorId: link) {
+    for (size_t i = 0; i < link.size(); ++i) {
+      unsigned int vectorId = link[i];
       if (vectorId >= matrix.nrow()) {
         throw std::invalid_argument(
           "Link (" +
@@ -163,11 +211,12 @@ void assignClusters(
           ").\n"
         );
       }
-      linkedVectors.push_back(matrix.row(vectorId));
+      linkedVectors[i] = matrix.row(vectorId);
     }
 
+    getMedianVector(linkedVectors, medianVector);
     centroidId = getNearestCentroid(
-      getMedianVector(linkedVectors),
+      medianVector,
       centroids
     ).centroidId;
 
@@ -178,10 +227,10 @@ void assignClusters(
 }
 
 double clusterize(
-  NumericMatrix &matrix,
-  IntegerMatrix &links,
-  IntegerVector &clusters,
-  std::vector<NumericVector> &centroids,
+  StdMatrix<double> &matrix,
+  StdMatrix<int> &links,
+  std::vector<int> &clusters,
+  std::vector<std::vector<double>> &centroids,
   double maxDelta,
   int maxIterations
 ) {
@@ -189,7 +238,7 @@ double clusterize(
   int totalIterations = 0;
   double centroidsDelta;
 
-  std::vector<NumericVector> previousCentroids;
+  std::vector<std::vector<double>> previousCentroids;
 
   initializeCentroids(centroids, matrix);
 
@@ -200,11 +249,11 @@ double clusterize(
     totalIterations++;
     centroidsDelta = getCentroidsDelta(previousCentroids, centroids);
   } while (
-    centroidsDelta > maxDelta && totalIterations < maxIterations
+    (centroidsDelta > maxDelta) && (totalIterations < maxIterations)
   );
 
   double quality = 0.0;
-  for (int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
+  for (unsigned int vectorId = 0; vectorId < matrix.nrow(); vectorId++) {
     quality += getDistance(matrix.row(vectorId), centroids[clusters[vectorId]]);
   }
   return quality;
@@ -212,63 +261,65 @@ double clusterize(
 
 // [[Rcpp::export]]
 List constrainedClustering(
-  NumericMatrix &matrix,
-  IntegerMatrix &links,
+  NumericMatrix &rMatrix,
+  IntegerMatrix &rLinks,
   double maxDelta = 0.0001,
   int maxIterations = 50,
   int totalRestarts = 20,
   int totalClusters = 2
 ) {
 
-  if (any(is_na(matrix))) {
+  if (any(is_na(rMatrix))) {
     throw std::invalid_argument("Matrix should not contain NAs.");
   }
-  if (any(is_na(links))) {
+  if (any(is_na(rLinks))) {
     throw std::invalid_argument("Links should not contain NAs.");
   }
-  if (any(is_nan(matrix))) {
+  if (any(is_nan(rMatrix))) {
     throw std::invalid_argument("Matrix should not contain NANs.");
   }
-  if (any(is_nan(links))) {
+  if (any(is_nan(rLinks))) {
     throw std::invalid_argument("Links should not contain NANs.");
   }
+  if (rMatrix.nrow() == 0) {
+    throw std::invalid_argument("Matrix should not be empty.");
+  }
 
-  IntegerVector clusters(matrix.nrow());
-  IntegerVector bestClusters(matrix.nrow());
-  std::vector<NumericVector> centroids(totalClusters);
-  std::vector<NumericVector> bestCentroids(totalClusters);
+  StdMatrix<double> matrix(rMatrix);
+  StdMatrix<int>    links(rLinks);
+  std::vector<int> clusters(matrix.nrow());
+  std::vector<int> bestClusters(matrix.nrow());
+  std::vector<std::vector<double>> centroids(totalClusters, std::vector<double>(matrix.ncol(), -1.0));
+  std::vector<std::vector<double>> bestCentroids(totalClusters, std::vector<double>(matrix.ncol(), -1.0));
 
-  if (matrix.nrow() > 0) {
-    double quality, minQuality = std::numeric_limits<double>::max();
+  double quality, minQuality = std::numeric_limits<double>::max();
 
-    for (int restart = 0; restart < totalRestarts; restart++) {
+  for (int restart = 0; restart < totalRestarts; restart++) {
 
-      quality = clusterize(
-        matrix, links, clusters, centroids, maxDelta, maxIterations
-      );
+    quality = clusterize(
+      matrix, links, clusters, centroids, maxDelta, maxIterations
+    );
 
-      if (quality < minQuality) {
-        minQuality = quality;
-        bestClusters = clone(clusters);
-        for (
-          unsigned int centroidId = 0;
-          centroidId < centroids.size();
-          centroidId++
-        ) {
-          bestCentroids[centroidId] = clone(centroids[centroidId]);
-        }
-      }
+    if (quality < minQuality) {
+      minQuality = quality;
+      bestClusters = clusters;
+      bestCentroids = centroids;
     }
+  }
 
-    if (is_false(any(bestClusters == 0)) || is_false(any(bestClusters == 1))) {
-      throw std::invalid_argument(
-        "Failed clustering: one of the clusters is empty.\n"
-      );
-    }
+  if ((std::find(bestClusters.begin(),
+                 bestClusters.end(),
+                 0) == bestClusters.end()) ||
+      (std::find(bestClusters.begin(),
+                 bestClusters.end(),
+                 1) == bestClusters.end())) {
+    throw std::invalid_argument(
+      "Failed clustering: one of the clusters is empty.\n"
+    );
   }
 
   List output;
-  output["clusters"] = bestClusters;
-  output["centroids"] = bestCentroids;
+  output["clusters"] = wrap(bestClusters);
+  output["centroids"] = wrap(bestCentroids);
   return output;
 }
