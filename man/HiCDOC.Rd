@@ -77,6 +77,11 @@ function in parallel you should specify the parallel parameters such as:
     And then you can register the parameters to be used by BiocParallel:
 
     \code{BiocParallel::register(multiParam, default = TRUE)}
+
+    You should be aware that using MulticoreParam, reproducibility of the
+    detectCompartments function using a RNGseed may not work. See this
+    \href{https://github.com/Bioconductor/BiocParallel/issues/122}{issue}
+    for more details.
 }
 }
 \examples{
