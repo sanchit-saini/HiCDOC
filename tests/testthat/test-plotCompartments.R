@@ -16,12 +16,12 @@ test_that("plotCompartments behaves as expected", {
     pp <- plotCompartments(object, 1)
     expect_is(pp, "ggplot")
     expect_identical(
-        pp$labels,
-        list(
-            "x" = "position",
-            "fill" = "compartment",
-            "y" = "count",
-            "weight" = "weight"
+        unlist(pp$labels),
+        c(
+          "x" = "position",
+          "fill" = "compartment",
+          "y" = "count",
+          "weight" = "weight"
         )
     )
     expect_is(pp$layers[[1]]$geom, "GeomBar")
