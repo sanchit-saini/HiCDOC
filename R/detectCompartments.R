@@ -354,44 +354,18 @@
             rep(gtools::mixedsort(unique(object@conditions)),
                 length(object@chromosomes))
 
-    if (!parallel) {
-        result <-
-            pbapply::pbmapply(
-                FUN = function(chromosomeName, conditionName) {
-                    .clusterizeChromosomeCondition(
-                        object,
-                        chromosomeName,
-                        conditionName
-                    )
-                },
-                chromosomeNames,
-                conditionNames,
-                SIMPLIFY = FALSE
-            )
-    } else {
-        reducedObjects <-
-            purrr::map2(
-                chromosomeNames,
-                conditionNames,
-                function(chromosomeName, conditionName) {
-                    reduceHiCDOCDataSet(
-                        object,
-                        chromosomes = chromosomeName,
-                        conditions = conditionName,
-                        dropLevels = FALSE
-                    )
-                }
-            )
-        result <-
-            BiocParallel::bpmapply(
-                FUN = .clusterizeChromosomeCondition,
-                reducedObjects,
-                chromosomeNames,
-                conditionNames,
-                SIMPLIFY = FALSE,
-                BPPARAM = BiocParallel::bpparam()
-            )
-    }
+    result <- .internalmApply(
+        parallel,
+        n = length(chromosomeNames)*length(conditionNames),
+        FUN = function(chromosomeName, conditionName) {
+            .clusterizeChromosomeCondition(
+                object,
+                chromosomeName,
+                conditionName
+            )},
+        chromosomeNames,
+        conditionNames
+        )
 
     object@compartments <-
         purrr::map_dfr(result, "compartments") %>%

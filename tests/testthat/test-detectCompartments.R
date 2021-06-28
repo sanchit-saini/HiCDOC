@@ -110,11 +110,14 @@ test_that("detectCompartments behaves as expected in parallel", {
     # Detect Compartments
     multiParam <- BiocParallel::MulticoreParam(
         workers = 3,
-        progressbar = TRUE
+        progressbar = TRUE,
+        RNGseed = 12345
     )
     BiocParallel::register(multiParam, default = TRUE)
     expect_message(
+      expect_warning(
         object <- detectCompartments(exampleHiCDOCDataSet, parallel = TRUE),
+        "The use of RNGseed"),
         "Detecting significant differences."
     )
     # Keep object format
@@ -137,6 +140,7 @@ test_that("detectCompartments behaves as expected in parallel", {
     expect_is(object@differences$condition.1, "factor")
     expect_is(object@differences$condition.2, "factor")
 
+    # Centroids
     expect_is(object@centroids$chromosome, "factor")
     expect_is(object@centroids$condition, "factor")
     expect_is(object@centroids$compartment, "factor")
@@ -164,6 +168,7 @@ test_that("detectCompartments behaves as expected in parallel", {
     expect_is(object@distances$compartment, "factor")
     expect_is(object@distances$distance, "numeric")
 
+    # SelfInteractionRatios
     expect_is(object@selfInteractionRatios$chromosome, "factor")
     expect_is(object@selfInteractionRatios$bin, "integer")
     expect_is(object@selfInteractionRatios$condition, "factor")
