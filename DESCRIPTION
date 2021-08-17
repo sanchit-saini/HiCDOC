@@ -23,6 +23,7 @@ Imports:
     stats,
     utils,
     methods,
+    zlibbioc,
     rhdf5,
     dplyr,
     tidyr,
