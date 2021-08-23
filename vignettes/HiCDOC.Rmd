@@ -21,6 +21,9 @@ knitr::opts_chunk$set(
 )
 ```
 
+The aim of HiCDOC is to detect significant A/B compartment changes, using Hi-C
+data with replicates.
+
 HiCDOC normalizes intrachromosomal Hi-C matrices, uses unsupervised learning to
 predict A/B compartments from multiple replicates, and detects significant
 compartment changes between experiment conditions.
@@ -52,7 +55,7 @@ It provides a collection of functions assembled into a pipeline:
        (confidence measure) in each replicate, and significant changes between
        experiment conditions.
     4. Plot the overall distribution of concordance differences.
-    6. Plot the result of the PCA on the compartments' centroids.
+    5. Plot the result of the PCA on the compartments' centroids.
     6. Plot the boxplots of self interaction ratios (differences between self
        interactions and the medians of other interactions) of each compartment,
        which is used for the A/B classification.

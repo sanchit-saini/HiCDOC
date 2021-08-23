@@ -61,7 +61,7 @@
     object@interactions <-
         tidyr::pivot_longer(
             interactions,
-            all_of(columns),
+            dplyr::all_of(columns),
             names_to = "condition.replicate",
             values_to = "interaction"
         ) %>%

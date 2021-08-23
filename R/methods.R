@@ -233,7 +233,7 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         "- Inputs:\n",
         paste0(
             "  ",
-            sapply(object@input, function(x) paste0(x)),
+            vapply(object@input, function(x) paste0(x), character(1)),
             "\n"
         ),
         "\n",
@@ -264,15 +264,16 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         "- Parameters:\n",
         paste0(
           "  ",
-          sapply(
-            1:length(parameters(object)),
+          vapply(
+            seq_along(parameters(object)),
             function(x) {
               paste(
                 names(parameters(object))[x],
                 '=',
                 parameters(object)[x]
               )
-            }
+            },
+            character(1)
           ),
           "\n"
         ),

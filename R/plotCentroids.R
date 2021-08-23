@@ -38,7 +38,7 @@ plotCentroids <- function(object, chromosome, size = 2) {
     names <- df$name
     df %<>%
         tidyr::spread(name, centroid) %>%
-        tidyr::unnest(cols = all_of(names)) %>%
+        tidyr::unnest(cols = dplyr::all_of(names)) %>%
         t()
 
     pca <- stats::prcomp(df)
