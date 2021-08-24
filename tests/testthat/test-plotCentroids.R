@@ -17,9 +17,9 @@ test_that("plotCentroids behaves as expected", {
     expect_identical(
         unlist(pp$labels),
         c(
-          "x" = "PC1  69.24 %",
-          "y" = "PC2  29.92 %",
-          "title" = "PCA on centroids of chromosome W",
+          "x" = "PC1  91.2 %",
+          "y" = "PC2  6.83 %",
+          "title" = "PCA on centroids of chromosome X",
           "colour" = "compartment",
           "shape" = "condition"
         )

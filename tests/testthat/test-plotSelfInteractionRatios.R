@@ -1,7 +1,7 @@
 test_that("plotSelfInteractionRatios returns an error if no compartments", {
     data(exampleHiCDOCDataSet)
     expect_error(
-        pp <- plotSelfInteractionRatios(object),
+        pp <- plotSelfInteractionRatios(exampleHiCDOCDataSet),
         "No compartments found."
     )
 })

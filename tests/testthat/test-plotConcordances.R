@@ -1,7 +1,7 @@
 test_that("plotConcordances returns error if no compartments", {
     data(exampleHiCDOCDataSet)
     expect_error(
-        pp <- plotConcordances(object),
+        pp <- plotConcordances(exampleHiCDOCDataSet),
         "No compartments found."
     )
 })

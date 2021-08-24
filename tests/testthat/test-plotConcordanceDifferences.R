@@ -9,7 +9,7 @@ test_that("plotConcordanceDifferences returns an error of no compartments", {
 test_that("plotConcordanceDifferences behaves as expected", {
     data(exampleHiCDOCDataSetProcessed)
     expect_error(
-        pp <- plotConcordanceDifferences(object),
+        pp <- plotConcordanceDifferences(exampleHiCDOCDataSetProcessed),
         NA
     )
     expect_is(pp, "ggplot")
