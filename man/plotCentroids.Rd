@@ -20,8 +20,7 @@ A \code{ggplot}.
 Plots the result of the PCA on the compartments' centroids.
 }
 \examples{
-data(exampleHiCDOCDataSet)
-object <- HiCDOC(exampleHiCDOCDataSet)
-plotCentroids(object, chromosome = 1)
+data(exampleHiCDOCDataSetProcessed)
+plotCentroids(exampleHiCDOCDataSetProcessed, chromosome = 1)
 
 }

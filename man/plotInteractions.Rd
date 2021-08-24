@@ -7,8 +7,8 @@
 plotInteractions(
   object,
   chromosome,
-  transform = "log2",
-  colours = c("#000066", "#ffffbf", "#990000")
+  transform = NULL,
+  colours = c("#F6FFB8", "#FF00CC", "#310038")
 )
 }
 \arguments{
@@ -16,13 +16,12 @@ plotInteractions(
 
 \item{chromosome}{A chromosome name or index in \code{chromosomes(object)}.}
 
-\item{transform}{Transformation of the color scale. Set to NULL for no transformation. See
-\code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.
-Defaults to "log2".}
+\item{transform}{Transformation of the color scale. Default to NULL (no transformation). See
+\code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.}
 
 \item{colours}{A character vector of colours to use for the gradient. See
 \code{\link[ggplot2]{scale_fill_gradientn}} for more info. Defaults to
-\code{c("#000066", "#ffffbf", "#990000")}.}
+\code{c("#F6FFB8", "#FF00CC", "#310038")}.}
 }
 \value{
 A \code{ggplot}.

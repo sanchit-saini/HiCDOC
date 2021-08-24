@@ -32,8 +32,7 @@ Plots the predicted compartments, along with their concordance in each
 replicate, and significant changes between experiment conditions.
 }
 \examples{
-data(exampleHiCDOCDataSet)
-object <- HiCDOC(exampleHiCDOCDataSet)
-plotCompartmentChanges(object, chromosome = 1)
+data(exampleHiCDOCDataSetProcessed)
+plotCompartmentChanges(exampleHiCDOCDataSetProcessed, chromosome = 1)
 
 }

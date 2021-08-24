@@ -86,14 +86,12 @@ function in parallel you should specify the parallel parameters such as:
 }
 \examples{
 data(exampleHiCDOCDataSet)
-object <- exampleHiCDOCDataSet
-
 # Default HiCDOC pipeline
-object <- HiCDOC(object)
+object <- HiCDOC(exampleHiCDOCDataSet)
 
 # Equivalent to
 if(FALSE){
-    object <- filterSmallChromosomes(object)
+    object <- filterSmallChromosomes(exampleHiCDOCDataSet)
     object <- filterSparseReplicates(object)
     object <- filterWeakPositions(object)
     object <- normalizeTechnicalBiases(object)

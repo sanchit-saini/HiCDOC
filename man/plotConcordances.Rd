@@ -35,8 +35,7 @@ position's distance to each compartment's centroid, normalized by the
 distance between both centroids, and min-maxed to a [-1,1] interval.
 }
 \examples{
-data(exampleHiCDOCDataSet)
-object <- HiCDOC(exampleHiCDOCDataSet)
-plotConcordances(object, chromosome = 1)
+data(exampleHiCDOCDataSetProcessed)
+plotConcordances(exampleHiCDOCDataSetProcessed, chromosome = 1)
 
 }

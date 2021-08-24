@@ -21,8 +21,7 @@ position's distance to each compartment's centroid, normalized by the
 distance between both centroids, and min-maxed to a [-1,1] interval.
 }
 \examples{
-data(exampleHiCDOCDataSet)
-object <- HiCDOC(exampleHiCDOCDataSet)
-plotConcordanceDifferences(object)
+data(exampleHiCDOCDataSetProcessed)
+plotConcordanceDifferences(exampleHiCDOCDataSetProcessed)
 
 }
