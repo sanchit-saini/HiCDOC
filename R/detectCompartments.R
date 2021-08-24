@@ -893,18 +893,17 @@
 #'
 #' @examples
 #' data(exampleHiCDOCDataSet)
-#' object <- exampleHiCDOCDataSet
-#'
-#' # Run all filtering and normalization steps
-#' object <- filterSmallChromosomes(object)
-#' object <- filterSparseReplicates(object)
-#' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
-#' object <- normalizeBiologicalBiases(object)
-#' object <- normalizeDistanceEffect(object)
+
+#' ## Run all filtering and normalization steps (not run for timing reasons)
+#' # object <- filterSmallChromosomes(exampleHiCDOCDataSet)
+#' # object <- filterSparseReplicates(object)
+#' # object <- filterWeakPositions(object)
+#' # object <- normalizeTechnicalBiases(object)
+#' # object <- normalizeBiologicalBiases(object)
+#' # object <- normalizeDistanceEffect(object)
 #'
 #' # Detect compartments and differences across conditions
-#' object <- detectCompartments(object)
+#' object <- detectCompartments(exampleHiCDOCDataSet)
 #'
 #' @usage
 #' detectCompartments(
