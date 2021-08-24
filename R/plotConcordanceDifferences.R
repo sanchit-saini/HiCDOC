@@ -15,9 +15,8 @@
 #' A \code{ggplot}.
 #'
 #' @examples
-#' data(exampleHiCDOCDataSet)
-#' object <- HiCDOC(exampleHiCDOCDataSet)
-#' plotConcordanceDifferences(object)
+#' data(exampleHiCDOCDataSetProcessed)
+#' plotConcordanceDifferences(exampleHiCDOCDataSetProcessed)
 #'
 #' @export
 plotConcordanceDifferences <- function(object) {
