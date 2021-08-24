@@ -1,17 +1,13 @@
-data(exampleHiCDOCDataSet)
-object <- reduceHiCDOCDataSet(exampleHiCDOCDataSet,
-                              replicates = c("R1", "R2"),
-                              conditions = c("1", "2"))
-object <- filterSparseReplicates(object)
-object <- filterWeakPositions(object)
-
-test_that("plotConcordanceDifferences behaves as expected", {
+test_that("plotConcordanceDifferences returns an error of no compartments", {
+    data(exampleHiCDOCDataSet)
     expect_error(
-        pp <- plotConcordanceDifferences(object),
+        pp <- plotConcordanceDifferences(exampleHiCDOCDataSet),
         "Missing slots: comparisons"
     )
-    set.seed(3215)
-    object <- detectCompartments(object, parallel = FALSE)
+})
+
+test_that("plotConcordanceDifferences behaves as expected", {
+    data(exampleHiCDOCDataSetProcessed)
     expect_error(
         pp <- plotConcordanceDifferences(object),
         NA

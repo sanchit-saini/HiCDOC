@@ -1,19 +1,18 @@
-data(exampleHiCDOCDataSet)
-object <- filterSparseReplicates(exampleHiCDOCDataSet)
-object <- filterWeakPositions(object)
-
-test_that("plotCentroids behaves as expected", {
+test_that("plotCentroids returns error if no centroids", {
+    data(exampleHiCDOCDataSet)
     expect_error(
-        pp <- plotCentroids(object),
+        pp <- plotCentroids(exampleHiCDOCDataSet),
         "No compartments found."
     )
-    set.seed(3215)
-    object <- detectCompartments(object, parallel = FALSE)
-    expect_error(plotCentroids(object),
-        "argument \"chromosome\"")
-    expect_error(plotCentroids(object, 5), "Unknown")
+})
 
-    pp <- plotCentroids(object, 1)
+test_that("plotCentroids behaves as expected", {
+    data(exampleHiCDOCDataSetProcessed)
+    expect_error(plotCentroids(exampleHiCDOCDataSetProcessed),
+        "argument \"chromosome\"")
+    expect_error(plotCentroids(exampleHiCDOCDataSetProcessed, 5), "Unknown")
+
+    pp <- plotCentroids(exampleHiCDOCDataSetProcessed, 1)
     expect_is(pp, "ggplot")
     expect_identical(
         unlist(pp$labels),

@@ -1,19 +1,18 @@
-data(exampleHiCDOCDataSet)
-object <- filterSparseReplicates(exampleHiCDOCDataSet)
-object <- filterWeakPositions(object)
-
-test_that("plotCompartments behaves as expected", {
+test_that("plotCompartments returns error if no compartments", {
+    data(exampleHiCDOCDataSet)
     expect_error(
-        pp <- plotCompartments(object),
+        pp <- plotCompartments(exampleHiCDOCDataSet),
         "No compartments found."
     )
-    set.seed(3215)
-    object <- detectCompartments(object, parallel = FALSE)
-    expect_error(plotCompartments(object),
-        "argument \"chromosome\"")
-    expect_error(plotCompartments(object, 5), "Unknown")
+})
 
-    pp <- plotCompartments(object, 1)
+test_that("plotCompartments behaves as expected", {
+    data(exampleHiCDOCDataSetProcessed)
+    expect_error(plotCompartments(exampleHiCDOCDataSetProcessed),
+        "argument \"chromosome\"")
+    expect_error(plotCompartments(exampleHiCDOCDataSetProcessed, 5), "Unknown")
+
+    pp <- plotCompartments(exampleHiCDOCDataSetProcessed, 1)
     expect_is(pp, "ggplot")
     expect_identical(
         unlist(pp$labels),

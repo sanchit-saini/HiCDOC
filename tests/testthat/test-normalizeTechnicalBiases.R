@@ -1,8 +1,9 @@
-data(exampleHiCDOCDataSet)
-object <- filterSparseReplicates(exampleHiCDOCDataSet)
-object <- filterWeakPositions(object)
-
 test_that("normalizeTechnicalBiases behaves as expected", {
+    data(exampleHiCDOCDataSet)
+    object <- reduceHiCDOCDataSet(exampleHiCDOCDataSet, chromosomes = c("X"))
+    object <- filterSparseReplicates(object)
+    object <- filterWeakPositions(object)
+    
     # Apply normalization
     expect_warning(object <- normalizeTechnicalBiases(object, parallel = FALSE))
     # Keep object format
@@ -13,9 +14,9 @@ test_that("normalizeTechnicalBiases behaves as expected", {
     expect_is(object@interactions$replicate, "factor")
     expect_is(object@interactions$interaction, "numeric")
     # Keep 0 values before normalisation
-    expect_equal(nrow(object@interactions), 181566)
-    expect_equal(mean(object@interactions$bin.1), 51.43243, tolerance = 1e-4)
-    expect_equal(mean(object@interactions$bin.2), 101.6621, tolerance = 1e-4)
-    expect_equal(mean(object@interactions$interaction), 343.0371,
+    expect_equal(nrow(object@interactions), 35105)
+    expect_equal(mean(object@interactions$bin.1), 40.0578, tolerance = 1e-4)
+    expect_equal(mean(object@interactions$bin.2), 79.4167, tolerance = 1e-4)
+    expect_equal(mean(object@interactions$interaction), 852.3587,
                  tolerance = 1e-4)
 })

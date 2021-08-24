@@ -12,6 +12,7 @@ test_that("filterWeakPositions behaves as expected", {
                           "Y" = c(1L, 122L, 146L),
                           "Z" = NULL))
 })
+
 test_that("filterWeakPositions behaves as expected, custom param", {
     # Filter values with 50 threshold
     expect_message(

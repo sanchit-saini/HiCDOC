@@ -1,33 +1,32 @@
-data(exampleHiCDOCDataSet)
-object <- reduceHiCDOCDataSet(exampleHiCDOCDataSet,
-                              replicates = c("R1", "R2"),
-                              conditions = c("1", "2"))
-object <- filterSparseReplicates(object)
-object <- filterWeakPositions(object)
-
-test_that("plotConcordances behaves as expected", {
+test_that("plotConcordances returns error if no compartments", {
+    data(exampleHiCDOCDataSet)
     expect_error(
         pp <- plotConcordances(object),
         "No compartments found."
     )
-    set.seed(3215)
-    object <- detectCompartments(object, parallel = FALSE)
-    expect_error(plotConcordances(object), '"chromosome"')
-    expect_error(plotConcordances(object, 6), "Unknown")
+})
 
-    pp <- plotConcordances(object, 1)
+test_that("plotConcordances behaves as expected", {
+    data(exampleHiCDOCDataSetProcessed)
+    expect_error(
+        plotConcordances(exampleHiCDOCDataSetProcessed), 
+        '"chromosome"'
+    )
+    expect_error(plotConcordances(exampleHiCDOCDataSetProcessed, 6), "Unknown")
+
+    pp <- plotConcordances(exampleHiCDOCDataSetProcessed, 1)
     expect_is(pp, "ggplot")
     expect_identical(
-        pp$labels,
+        pp$labels[c("caption", "x", "y", "colour")],
         list(
-            "caption" = "No change is significant (adjusted p-value <= 5%)",
+            "caption" = "The grey areas are significant changes (adjusted p-value <= 5%)",
             "x" = "position",
             "y" = "concordance",
-            "colour" = "replicate",
-            "yintercept" = "yintercept"
+            "colour" = "replicate"
         )
     )
-    expect_is(pp$layers[[1]]$geom, "GeomLine")
+    expect_is(pp$layers[[1]]$geom, "GeomRect")
+    expect_is(pp$layers[[2]]$geom, "GeomLine")
     # No error when printed
     expect_error(print(pp), NA)
 })

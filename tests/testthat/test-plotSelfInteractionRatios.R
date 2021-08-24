@@ -1,19 +1,21 @@
-data(exampleHiCDOCDataSet)
-object <- reduceHiCDOCDataSet(exampleHiCDOCDataSet, chromosomes = c("X", "Y"))
-object <- filterSparseReplicates(object)
-object <- filterWeakPositions(object)
-
-test_that("plotSelfInteractionRatios behaves as expected", {
+test_that("plotSelfInteractionRatios returns an error if no compartments", {
+    data(exampleHiCDOCDataSet)
     expect_error(
         pp <- plotSelfInteractionRatios(object),
         "No compartments found."
     )
-    set.seed(3215)
-    object <- detectCompartments(object)
-    expect_error(plotSelfInteractionRatios(object), '"chromosome"')
-    expect_error(plotSelfInteractionRatios(object, 3), "Unknown")
+})
 
-    pp <- plotSelfInteractionRatios(object, 1)
+test_that("plotSelfInteractionRatios behaves as expected", {
+    data(exampleHiCDOCDataSetProcessed)
+    expect_error(
+        plotSelfInteractionRatios(exampleHiCDOCDataSetProcessed), 
+        '"chromosome"')
+    expect_error(
+        plotSelfInteractionRatios(exampleHiCDOCDataSetProcessed, 4), 
+        "Unknown")
+
+    pp <- plotSelfInteractionRatios(exampleHiCDOCDataSetProcessed, 1)
     expect_is(pp, "ggplot")
     expect_identical(
         pp$labels,

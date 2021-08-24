@@ -100,6 +100,9 @@ normalizeTechnicalBiases <- function(object, parallel = TRUE) {
             names(object@weakBins)
         )),
         "bin" = unlist(object@weakBins))
+    # Handling the special case of one chromosome
+    if(colnames(weakRegions)[1] != "chromosome") 
+        colnames(weakRegions)[1] <- "chromosome"
 
     if (nrow(weakRegions) > 0) {
         weakRegions %<>%

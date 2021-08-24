@@ -1,8 +1,8 @@
-data(exampleHiCDOCDataSet)
-object <- filterSparseReplicates(exampleHiCDOCDataSet)
-object <- filterWeakPositions(object)
-
 test_that("normalizeBiologicalBiases behaves as expected", {
+    data(exampleHiCDOCDataSet)
+    object <- filterSparseReplicates(exampleHiCDOCDataSet)
+    object <- filterWeakPositions(object)
+    
     # Apply normalization
     expect_message(
         object <- normalizeBiologicalBiases(object),
