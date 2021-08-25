@@ -15,7 +15,7 @@ test_that("HiCDOCDataSetFromHic works as expected", {
             conditions = conditions,
             binSize = binSize
         ),
-        "liver_18_10M.hic'")
+        "liver_18_10M.hic")
     expect_equal(nrow(object@interactions), 210)
     expect_identical(object@chromosomes, "18")
     expect_identical(object@conditions, 1)
