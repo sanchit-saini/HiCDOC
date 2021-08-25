@@ -34,6 +34,7 @@
 
 #include <Rcpp.h>
 #include <cstring>
+#include <cstdint>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -45,7 +46,7 @@
 
 using namespace Rcpp;
 
-// The .hic specification do not provide the size of int, etc.
+// The .hic specification does not provide the size of int, etc.
 // Hope that this is correct.
 static const int SIZE_OF_CHAR   = 1;
 static const int SIZE_OF_SHORT  = 2;
@@ -63,14 +64,14 @@ struct membuf : std::streambuf {
 
 // stores input information
 struct hicInfo {
-  long master;
+  int64_t master;
   std::vector <int> availableResolutions;
   int resolution;
   int selectedResolutionId;
-  int version;
+  int32_t version;
   CharacterVector chromosomes;
   std::vector <long> chromosomeLengths;
-  int totalChromosomes;
+  int32_t totalChromosomes;
   bool firstChromosomeIsAll;
 };
 
@@ -99,7 +100,7 @@ void readHeader(std::istream &fin, hicInfo &info) {
     stop("Version " + std::to_string(info.version) + " no longer supported.");
   }
   std::string genome;
-  int totalAttributes;
+  int32_t totalAttributes;
   fin.read((char*) &info.master, SIZE_OF_LONG);
   getline(fin, genome, '\0');
   fin.read((char*) &totalAttributes, SIZE_OF_INT);
@@ -113,16 +114,16 @@ void readHeader(std::istream &fin, hicInfo &info) {
   // chromosome map for finding matrix
   for (int i = 0; i < info.totalChromosomes; i++) {
     std::string name;
-    int length;
+    int32_t length;
     getline(fin, name, '\0');
     fin.read((char*) &length, SIZE_OF_INT);
     info.chromosomes.push_back(name);
     info.chromosomeLengths.push_back(length);
   }
-  int totalResolutions;
+  int32_t totalResolutions;
   fin.read((char*) &totalResolutions, SIZE_OF_INT);
   for (int i = 0; i < totalResolutions; i++) {
-    int resolution;
+    int32_t resolution;
     fin.read((char*) &resolution, SIZE_OF_INT);
     info.availableResolutions.push_back(resolution);
     if (resolution == info.resolution) {
@@ -177,7 +178,7 @@ void readBlock(
   // create stream from buffer for ease of use
   membuf sbuf(uncompressedBytes, uncompressedBytes + uncompressedSize);
   std::istream bufferin(&sbuf);
-  int totalRecords;
+  int32_t totalRecords;
   bufferin.read((char*) &totalRecords, SIZE_OF_INT);
   bins1.reserve(totalRecords);
   bins2.reserve(totalRecords);
@@ -185,7 +186,7 @@ void readBlock(
   // different versions have different specific formats
   if (info.version < 7) {
     for (int i = 0; i < totalRecords; i++) {
-      int binX, binY;
+      int32_t binX, binY;
       float count;
       bufferin.read((char*) &binX, SIZE_OF_INT);
       bufferin.read((char*) &binY, SIZE_OF_INT);
@@ -195,28 +196,28 @@ void readBlock(
       counts.push_back(count);
     }
   } else {
-    int binXOffset, binYOffset;
-    char useShort;
-    char type;
+    int32_t binXOffset, binYOffset;
+    int8_t useShort;
+    int8_t type;
     bufferin.read((char*) &binXOffset, SIZE_OF_INT);
     bufferin.read((char*) &binYOffset, SIZE_OF_INT);
     bufferin.read((char*) &useShort, SIZE_OF_CHAR);
     bufferin.read((char*) &type, SIZE_OF_CHAR);
     if (type == 1) {
       // List-of-rows representation
-      short totalRows;
+      int16_t totalRows;
       bufferin.read((char*) &totalRows, SIZE_OF_SHORT);
       for (int i = 0; i < totalRows; i++) {
-        short y;
+        int16_t y;
         int binY;
-        short totalColumns;
+        int16_t totalColumns;
         bufferin.read((char*) &y, SIZE_OF_SHORT);
         binY = y + binYOffset;
         bufferin.read((char*) &totalColumns, SIZE_OF_SHORT);
         for (int j = 0; j < totalColumns; j++) {
-          short x;
+          int16_t x;
           int binX;
-          short c;
+          int16_t c;
           float count;
           bufferin.read((char*) &x, SIZE_OF_SHORT);
           binX = binXOffset + x;
@@ -237,8 +238,8 @@ void readBlock(
     } else if (type == 2) {
       // have yet to find test file where this is true
       // possibly entirely deprecated
-      int totalPoints;
-      short w;
+      int32_t totalPoints;
+      int16_t w;
       bufferin.read((char*) &totalPoints, SIZE_OF_INT);
       bufferin.read((char*) &w, SIZE_OF_SHORT);
 
@@ -248,7 +249,7 @@ void readBlock(
         int bin1 = binXOffset + column;
         int bin2 = binYOffset + row;
         float count;
-        short c;
+        int16_t c;
         if (useShort == 0) { // yes this is opposite of the usual
           bufferin.read((char*) &c, SIZE_OF_SHORT);
           if (c != -32768) {
@@ -293,7 +294,7 @@ void readMatrix(
   std::streampos pos;
   if (start != -1) {
     fin.seekg(start, std::ios::beg);
-    int chromosomeId1, chromosomeId2, totalResolutions;
+    int32_t chromosomeId1, chromosomeId2, totalResolutions;
     fin.read((char*) &chromosomeId1, SIZE_OF_INT);
     fin.read((char*) &chromosomeId2, SIZE_OF_INT);
     if (chromosomeId1 == chromosomeId2) {
@@ -305,12 +306,12 @@ void readMatrix(
           ++resolutionId
         ) {
           std::string unit;
-          int resIdx;
+          int32_t resIdx;
           float tmp2;
-          int binSize;
-          int totalBlockBins;
-          int totalBlockColumns;
-          int totalBlocks;
+          int32_t binSize;
+          int32_t totalBlockBins;
+          int32_t totalBlockColumns;
+          int32_t totalBlocks;
           getline(fin, unit, '\0');
           fin.read((char*) &resIdx, SIZE_OF_INT);
           fin.read((char*) &tmp2, SIZE_OF_FLOAT); // sumCounts
@@ -322,8 +323,8 @@ void readMatrix(
           fin.read((char*) &totalBlockColumns, SIZE_OF_INT);
           fin.read((char*) &totalBlocks, SIZE_OF_INT);
           for (int i = 0; i < totalBlocks; i++) {
-            int blockId, blockSize;
-            long blockPosition;
+            int32_t blockId, blockSize;
+            int64_t blockPosition;
             fin.read((char*) &blockId, SIZE_OF_INT);
             fin.read((char*) &blockPosition, SIZE_OF_LONG);
             fin.read((char*) &blockSize, SIZE_OF_INT);
@@ -348,16 +349,16 @@ void readMatrix(
 void readFooter(std::istream& fin, hicInfo &info, outputStr &output) {
   std::streampos pos;
   fin.seekg(info.master, std::ios::beg);
-  int totalBytes;
+  int32_t totalBytes;
   fin.read((char*) &totalBytes, SIZE_OF_INT);
-  int totalEntries;
+  int32_t totalEntries;
   fin.read((char*) &totalEntries, SIZE_OF_INT);
   for (int i = 0; i < totalEntries; i++) {
     std::string str;
     getline(fin, str, '\0');
-    long fpos;
+    int64_t fpos;
     fin.read((char*)& fpos, SIZE_OF_LONG);
-    int sizeInBytes;
+    int32_t sizeInBytes;
     fin.read((char*)& sizeInBytes, SIZE_OF_INT);
     pos = fin.tellg();
     readMatrix(fin, fpos, sizeInBytes, info, output);
