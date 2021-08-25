@@ -46,15 +46,6 @@
 
 using namespace Rcpp;
 
-// The .hic specification does not provide the size of int, etc.
-// Hope that this is correct.
-static const int SIZE_OF_CHAR   = 1;
-static const int SIZE_OF_SHORT  = 2;
-static const int SIZE_OF_INT    = 4;
-static const int SIZE_OF_FLOAT  = 4;
-static const int SIZE_OF_LONG   = 8;
-static const int SIZE_OF_DOUBLE = 8;
-
 // this is for creating a stream from a byte array for ease of use
 struct membuf : std::streambuf {
   membuf(char* begin, char* end) {
@@ -90,41 +81,82 @@ bool readMagicString(std::istream &fin) {
   return str[0] == 'H' && str[1] == 'I' && str[2] == 'C';
 }
 
+char readCharFromFile(std::istream &fin) {
+  char tempChar;
+  fin.read(&tempChar, sizeof(char));
+  return tempChar;
+}
+
+int16_t readInt16FromFile(std::istream &fin) {
+  int16_t tempInt16;
+  fin.read((char *) &tempInt16, sizeof(int16_t));
+  return tempInt16;
+}
+
+int32_t readInt32FromFile(std::istream &fin) {
+  int32_t tempInt32;
+  fin.read((char *) &tempInt32, sizeof(int32_t));
+  return tempInt32;
+}
+
+int64_t readInt64FromFile(std::istream &fin) {
+  int64_t tempInt64;
+  fin.read((char *) &tempInt64, sizeof(int64_t));
+  return tempInt64;
+}
+
+float readFloatFromFile(std::istream &fin) {
+  float tempFloat;
+  fin.read((char *) &tempFloat, sizeof(float));
+  return tempFloat;
+}
+
+double readDoubleFromFile(std::istream &fin) {
+  double tempDouble;
+  fin.read((char *) &tempDouble, sizeof(double));
+  return tempDouble;
+}
+
 void readHeader(std::istream &fin, hicInfo &info) {
   info.selectedResolutionId = -1;
   if (!readMagicString(fin)) {
     stop("Hi-C magic string is missing, does not appear to be a hic file.");
   }
-  fin.read((char*) &info.version, SIZE_OF_INT);
+  info.version = readInt32FromFile(fin);
   if (info.version < 6) {
     stop("Version " + std::to_string(info.version) + " no longer supported.");
   }
   std::string genome;
-  int32_t totalAttributes;
-  fin.read((char*) &info.master, SIZE_OF_LONG);
+  info.master = readInt64FromFile(fin);
   getline(fin, genome, '\0');
-  fin.read((char*) &totalAttributes, SIZE_OF_INT);
+  if (info.version > 8) {
+    readInt64FromFile(fin); // nviPosition
+    readInt64FromFile(fin); // nviLength
+  }
+  int32_t totalAttributes = readInt32FromFile(fin);
   // reading and ignoring attribute-value dictionary
   for (int i = 0; i < totalAttributes; i++) {
     std::string key, value;
     getline(fin, key, '\0');
     getline(fin, value, '\0');
   }
-  fin.read((char*) &info.totalChromosomes, SIZE_OF_INT);
+  info.totalChromosomes = readInt32FromFile(fin);
   // chromosome map for finding matrix
   for (int i = 0; i < info.totalChromosomes; i++) {
     std::string name;
     int32_t length;
     getline(fin, name, '\0');
-    fin.read((char*) &length, SIZE_OF_INT);
+    if (info.version > 8) {
+      length = readInt64FromFile(fin);
+    } else {
+      length = (int64_t) readInt32FromFile(fin);
+    }
     info.chromosomes.push_back(name);
     info.chromosomeLengths.push_back(length);
   }
-  int32_t totalResolutions;
-  fin.read((char*) &totalResolutions, SIZE_OF_INT);
+  int32_t totalResolutions = readInt32FromFile(fin);
   for (int i = 0; i < totalResolutions; i++) {
-    int32_t resolution;
-    fin.read((char*) &resolution, SIZE_OF_INT);
+    int32_t resolution = readInt32FromFile(fin);
     info.availableResolutions.push_back(resolution);
     if (resolution == info.resolution) {
       info.selectedResolutionId = i;
@@ -141,9 +173,9 @@ void readHeader(std::istream &fin, hicInfo &info) {
 // compressed and must be decompressed using the zlib library functions.
 void readBlock(
   std::istream &fin,
-  long position,
-  int size,
-  int chromosomeId,
+  int64_t position,
+  int32_t size,
+  int32_t chromosomeId,
   hicInfo &info,
   outputStr &output
 ) {
@@ -177,92 +209,127 @@ void readBlock(
 
   // create stream from buffer for ease of use
   membuf sbuf(uncompressedBytes, uncompressedBytes + uncompressedSize);
-  std::istream bufferin(&sbuf);
-  int32_t totalRecords;
-  bufferin.read((char*) &totalRecords, SIZE_OF_INT);
+  std::istream bufferIn(&sbuf);
+  int32_t totalRecords = readInt32FromFile(bufferIn);
   bins1.reserve(totalRecords);
   bins2.reserve(totalRecords);
   counts.reserve(totalRecords);
   // different versions have different specific formats
   if (info.version < 7) {
     for (int i = 0; i < totalRecords; i++) {
-      int32_t binX, binY;
-      float count;
-      bufferin.read((char*) &binX, SIZE_OF_INT);
-      bufferin.read((char*) &binY, SIZE_OF_INT);
-      bufferin.read((char*) &count, SIZE_OF_FLOAT);
+      int32_t binX = readInt32FromFile(bufferIn);
+      int32_t binY = readInt32FromFile(bufferIn);
+      float  c     = readFloatFromFile(bufferIn);
       bins1.push_back(binX);
       bins2.push_back(binY);
-      counts.push_back(count);
+      counts.push_back(c);
     }
   } else {
-    int32_t binXOffset, binYOffset;
-    int8_t useShort;
-    int8_t type;
-    bufferin.read((char*) &binXOffset, SIZE_OF_INT);
-    bufferin.read((char*) &binYOffset, SIZE_OF_INT);
-    bufferin.read((char*) &useShort, SIZE_OF_CHAR);
-    bufferin.read((char*) &type, SIZE_OF_CHAR);
+    int32_t binXOffset = readInt32FromFile(bufferIn);
+    int32_t binYOffset = readInt32FromFile(bufferIn);
+    bool    useShort   = readCharFromFile(bufferIn) == 0; // yes this is opposite of usual
+    bool useShortBinX = true;
+    bool useShortBinY = true;
+    if (info.version > 8) {
+      useShortBinX = readCharFromFile(bufferIn) == 0;
+      useShortBinY = readCharFromFile(bufferIn) == 0;
+    }
+    char type = readCharFromFile(bufferIn);
     if (type == 1) {
-      // List-of-rows representation
-      int16_t totalRows;
-      bufferin.read((char*) &totalRows, SIZE_OF_SHORT);
-      for (int i = 0; i < totalRows; i++) {
-        int16_t y;
-        int binY;
-        int16_t totalColumns;
-        bufferin.read((char*) &y, SIZE_OF_SHORT);
-        binY = y + binYOffset;
-        bufferin.read((char*) &totalColumns, SIZE_OF_SHORT);
-        for (int j = 0; j < totalColumns; j++) {
-          int16_t x;
-          int binX;
-          int16_t c;
-          float count;
-          bufferin.read((char*) &x, SIZE_OF_SHORT);
-          binX = binXOffset + x;
-          if (useShort == 0) { // yes this is opposite of usual
-            bufferin.read((char*) &c, SIZE_OF_SHORT);
-            count = c;
+      if (useShortBinX && useShortBinY) {
+        int16_t rowCount = readInt16FromFile(bufferIn);
+        for (int i = 0; i < rowCount; i++) {
+          int32_t binY = binYOffset + readInt16FromFile(bufferIn);
+          int16_t colCount = readInt16FromFile(bufferIn);
+          for (int j = 0; j < colCount; j++) {
+            int32_t binX = binXOffset + readInt16FromFile(bufferIn);
+            float c;
+            if (useShort) {
+              c = readInt16FromFile(bufferIn);
+            } else {
+              c = readFloatFromFile(bufferIn);
+            }
             bins1.push_back(binX);
             bins2.push_back(binY);
             counts.push_back(c);
-          } else {
-            bufferin.read((char*) &count, SIZE_OF_FLOAT);
+          }
+        }
+      } else if (useShortBinX && !useShortBinY) {
+        int32_t rowCount = readInt32FromFile(bufferIn);
+        for (int i = 0; i < rowCount; i++) {
+          int32_t binY = binYOffset + readInt32FromFile(bufferIn);
+          int16_t colCount = readInt16FromFile(bufferIn);
+          for (int j = 0; j < colCount; j++) {
+            int32_t binX = binXOffset + readInt16FromFile(bufferIn);
+            float c;
+            if (useShort) {
+              c = readInt16FromFile(bufferIn);
+            } else {
+              c = readFloatFromFile(bufferIn);
+            }
             bins1.push_back(binX);
             bins2.push_back(binY);
-            counts.push_back(count);
+            counts.push_back(c);
+          }
+        }
+      } else if (!useShortBinX && useShortBinY) {
+        int16_t rowCount = readInt16FromFile(bufferIn);
+        for (int i = 0; i < rowCount; i++) {
+          int32_t binY = binYOffset + readInt16FromFile(bufferIn);
+          int32_t colCount = readInt32FromFile(bufferIn);
+          for (int j = 0; j < colCount; j++) {
+            int32_t binX = binXOffset + readInt32FromFile(bufferIn);
+            float c;
+            if (useShort) {
+              c = readInt16FromFile(bufferIn);
+            } else {
+              c = readFloatFromFile(bufferIn);
+            }
+            bins1.push_back(binX);
+            bins2.push_back(binY);
+            counts.push_back(c);
+          }
+        }
+      } else {
+        int32_t rowCount = readInt32FromFile(bufferIn);
+        for (int i = 0; i < rowCount; i++) {
+          int32_t binY = binYOffset + readInt32FromFile(bufferIn);
+          int32_t colCount = readInt32FromFile(bufferIn);
+          for (int j = 0; j < colCount; j++) {
+            int32_t binX = binXOffset + readInt32FromFile(bufferIn);
+            float c;
+            if (useShort) {
+              c = readInt16FromFile(bufferIn);
+            } else {
+              c = readFloatFromFile(bufferIn);
+            }
+            bins1.push_back(binX);
+            bins2.push_back(binY);
+            counts.push_back(c);
           }
         }
       }
     } else if (type == 2) {
-      // have yet to find test file where this is true
-      // possibly entirely deprecated
-      int32_t totalPoints;
-      int16_t w;
-      bufferin.read((char*) &totalPoints, SIZE_OF_INT);
-      bufferin.read((char*) &w, SIZE_OF_SHORT);
-
-      for (int i = 0; i < totalPoints; i++) {
-        int row = i / w;
-        int column = i - row * w;
-        int bin1 = binXOffset + column;
-        int bin2 = binYOffset + row;
-        float count;
-        int16_t c;
-        if (useShort == 0) { // yes this is opposite of the usual
-          bufferin.read((char*) &c, SIZE_OF_SHORT);
+      int32_t nPts = readInt32FromFile(bufferIn);
+      int16_t w = readInt16FromFile(bufferIn);
+      for (int i = 0; i < nPts; i++) {
+        int32_t row = i / w;
+        int32_t col = i - row * w;
+        int32_t bin1 = binXOffset + col;
+        int32_t bin2 = binYOffset + row;
+        if (useShort) {
+          int16_t c = readInt16FromFile(bufferIn);
           if (c != -32768) {
             bins1.push_back(bin1);
             bins2.push_back(bin2);
             counts.push_back(c);
           }
         } else {
-          bufferin.read((char*) &count, SIZE_OF_FLOAT);
-          if (count != 0x7fc00000) { // not sure this works
+          float c = readFloatFromFile(bufferIn);
+          if (!std::isnan(c)) {
             bins1.push_back(bin1);
             bins2.push_back(bin2);
-            counts.push_back(count);
+            counts.push_back(c);
           }
         }
       }
@@ -285,8 +352,7 @@ void readBlock(
 // block bin count and block column count.
 void readMatrix(
   std::istream &fin,
-  long start,
-  int size,
+  int64_t start,
   hicInfo &info,
   outputStr &output
 ) {
@@ -294,40 +360,31 @@ void readMatrix(
   std::streampos pos;
   if (start != -1) {
     fin.seekg(start, std::ios::beg);
-    int32_t chromosomeId1, chromosomeId2, totalResolutions;
-    fin.read((char*) &chromosomeId1, SIZE_OF_INT);
-    fin.read((char*) &chromosomeId2, SIZE_OF_INT);
+    int32_t chromosomeId1 = readInt32FromFile(fin);
+    int32_t chromosomeId2 = readInt32FromFile(fin);
+    int32_t totalResolutions = readInt32FromFile(fin);
     if (chromosomeId1 == chromosomeId2) {
       if ((! info.firstChromosomeIsAll) || (chromosomeId1 != 0)) {
-        fin.read((char*) &totalResolutions, SIZE_OF_INT);
         for (
           int resolutionId = 0;
           resolutionId < totalResolutions;
           ++resolutionId
         ) {
           std::string unit;
-          int32_t resIdx;
-          float tmp2;
-          int32_t binSize;
-          int32_t totalBlockBins;
-          int32_t totalBlockColumns;
-          int32_t totalBlocks;
           getline(fin, unit, '\0');
-          fin.read((char*) &resIdx, SIZE_OF_INT);
-          fin.read((char*) &tmp2, SIZE_OF_FLOAT); // sumCounts
-          fin.read((char*) &tmp2, SIZE_OF_FLOAT); // occupiedCellCount
-          fin.read((char*) &tmp2, SIZE_OF_FLOAT); // stdDev
-          fin.read((char*) &tmp2, SIZE_OF_FLOAT); // percent95
-          fin.read((char*) &binSize, SIZE_OF_INT);
-          fin.read((char*) &totalBlockBins, SIZE_OF_INT);
-          fin.read((char*) &totalBlockColumns, SIZE_OF_INT);
-          fin.read((char*) &totalBlocks, SIZE_OF_INT);
+          readInt32FromFile(fin); // resIdx
+          readFloatFromFile(fin); // sumCounts
+          readFloatFromFile(fin); // occupiedCellCount
+          readFloatFromFile(fin); // stdDev
+          readFloatFromFile(fin); // percent95
+          readInt32FromFile(fin); // binSize
+          readInt32FromFile(fin); // totalBlockBins
+          readInt32FromFile(fin); // totalBlockColumns
+          int32_t totalBlocks = readInt32FromFile(fin);
           for (int i = 0; i < totalBlocks; i++) {
-            int32_t blockId, blockSize;
-            int64_t blockPosition;
-            fin.read((char*) &blockId, SIZE_OF_INT);
-            fin.read((char*) &blockPosition, SIZE_OF_LONG);
-            fin.read((char*) &blockSize, SIZE_OF_INT);
+            readInt32FromFile(fin); // blockId
+            int64_t blockPosition = readInt64FromFile(fin);
+            int32_t blockSize     = readInt32FromFile(fin);
             if (resolutionId == info.selectedResolutionId) {
               pos = fin.tellg();
               readBlock(
@@ -349,19 +406,19 @@ void readMatrix(
 void readFooter(std::istream& fin, hicInfo &info, outputStr &output) {
   std::streampos pos;
   fin.seekg(info.master, std::ios::beg);
-  int32_t totalBytes;
-  fin.read((char*) &totalBytes, SIZE_OF_INT);
-  int32_t totalEntries;
-  fin.read((char*) &totalEntries, SIZE_OF_INT);
+  if (info.version > 8) {
+    readInt64FromFile(fin); // totalBytes
+  } else {
+    readInt32FromFile(fin); // totalBytes
+  }
+  int32_t totalEntries = readInt32FromFile(fin);
   for (int i = 0; i < totalEntries; i++) {
     std::string str;
     getline(fin, str, '\0');
-    int64_t fpos;
-    fin.read((char*)& fpos, SIZE_OF_LONG);
-    int32_t sizeInBytes;
-    fin.read((char*)& sizeInBytes, SIZE_OF_INT);
+    int64_t fpos = readInt64FromFile(fin);
+    readInt32FromFile(fin); // sizeInBytes
     pos = fin.tellg();
-    readMatrix(fin, fpos, sizeInBytes, info, output);
+    readMatrix(fin, fpos, info, output);
     fin.seekg(pos, std::ios::beg);
   }
 }
