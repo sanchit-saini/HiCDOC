@@ -1,6 +1,7 @@
 ---
 title: "HiCDOC"
 date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+author: "Cyril Kurylo & Matthias Zytnicki & Sylvain Foissac & Elise Maigné"
 output:
     BiocStyle::html_document:
        fig_width: 7
@@ -246,7 +247,9 @@ hic.experiment <- filterWeakPositions(hic.experiment, threshold = 1)
 Normalize technical biases such as sequencing depth (inter-matrix normalization):
 
 ```{r normalizeTechnicalBiases}
-hic.experiment <- normalizeTechnicalBiases(hic.experiment)
+suppressWarnings(
+  hic.experiment <- normalizeTechnicalBiases(hic.experiment)
+)
 ```
 
 Normalize biological biases, such as GC content, number of restriction sites,
@@ -260,8 +263,10 @@ Normalize the linear distance effect resulting from more interactions between
 closer genomic regions (20000 is the default value for `loessSampleSize`):
 
 ```{r normalizeDistanceEffect}
-hic.experiment <- 
+suppressWarnings(
+  hic.experiment <- 
     normalizeDistanceEffect(hic.experiment, loessSampleSize = 20000)
+)
 ```
 
 ### Predicting compartments and differences
