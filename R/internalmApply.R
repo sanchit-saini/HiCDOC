@@ -1,5 +1,5 @@
 # code inspired from multiHiCcompare package (fonction smartApply)
-.internalmApply <- function(parallel, n, ...) {
+.internalmApply <- function(parallel, ...) {
     if (parallel) {
         if(!is.null(BiocParallel::bpparam()$RNGseed)) {
              warning("The use of RNGseed may not be ensured ",

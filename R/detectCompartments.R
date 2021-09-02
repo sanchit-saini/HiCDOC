@@ -353,16 +353,25 @@
     conditionNames <-
             rep(gtools::mixedsort(unique(object@conditions)),
                 length(object@chromosomes))
-
+    reducedObjects <- 
+        purrr::pmap(
+            list(chromosomeNames, conditionNames),
+            function(x, y){
+                reduceHiCDOCDataSet(object,
+                                    chromosomes = x,
+                                    conditions = y,
+                                    dropLevels = FALSE)
+            }
+        )
     result <- .internalmApply(
         parallel,
-        n = length(chromosomeNames)*length(conditionNames),
-        FUN = function(chromosomeName, conditionName) {
+        FUN = function(obj, chromosomeName, conditionName) {
             .clusterizeChromosomeCondition(
-                object,
+                obj,
                 chromosomeName,
                 conditionName
             )},
+        reducedObjects,
         chromosomeNames,
         conditionNames
         )
@@ -498,51 +507,30 @@
     conditionNames <- rep(object@conditions, length(object@chromosomes))
     replicateNames <- rep(object@replicates, length(object@chromosomes))
 
-    if (!parallel) {
-        ratios <-
-            pbapply::pbmapply(
-                function(chromosomeName, conditionName, replicateName) {
-                    .computeSelfInteractionRatios(
-                        object,
-                        chromosomeName,
-                        conditionName,
-                        replicateName
-                    )
-                },
-                chromosomeNames,
-                conditionNames,
-                replicateNames,
-                SIMPLIFY = FALSE
-            )
-        object@selfInteractionRatios <- do.call("rbind", ratios)
-    } else {
-        reducedObjects <-
-            purrr::pmap(
-                list(chromosomeNames, conditionNames, replicateNames),
-                function(chromosomeName, conditionName, replicateName) {
-                    reduceHiCDOCDataSet(
-                        object,
-                        chromosomes = chromosomeName,
-                        conditions = conditionName,
-                        replicates = replicateName,
-                        dropLevels = FALSE
-                    )
-                }
-            )
-        object@selfInteractionRatios <-
-            BiocParallel::bpmapply(
-                FUN = .computeSelfInteractionRatios,
-                reducedObjects,
-                chromosomeNames,
-                conditionNames,
-                replicateNames,
-                SIMPLIFY = FALSE,
-                BPPARAM = BiocParallel::bpparam()
-            )
-        object@selfInteractionRatios <-
-            do.call("rbind", object@selfInteractionRatios)
-    }
-
+    reducedObjects <-
+        purrr::pmap(
+            list(chromosomeNames, conditionNames, replicateNames),
+            function(x, y, z) {
+                reduceHiCDOCDataSet(
+                    object,
+                    chromosomes = x,
+                    conditions = y,
+                    replicates = z,
+                    dropLevels = FALSE
+                )
+            }
+        )
+    ratios <-
+        .internalmApply(parallel,
+            FUN = .computeSelfInteractionRatios,
+            reducedObjects,
+            chromosomeNames,
+            conditionNames,
+            replicateNames
+        )
+    object@selfInteractionRatios <-
+        do.call("rbind", ratios)
+    
     compartments <-
         object@compartments %>%
         dplyr::left_join(
@@ -866,7 +854,7 @@
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @param parallel
-#' Whether or not to parallelize the processing. Defaults to TRUE.
+#' Whether or not to parallelize the processing. Defaults to FALSE
 #' See 'Details'.
 #'
 #' @param kMeansDelta
@@ -908,7 +896,7 @@
 #' @usage
 #' detectCompartments(
 #'     object,
-#'     parallel = TRUE,
+#'     parallel = FALSE,
 #'     kMeansDelta = NULL,
 #'     kMeansIterations = NULL,
 #'     kMeansRestarts = NULL
@@ -917,7 +905,7 @@
 #' @export
 detectCompartments <- function(
     object,
-    parallel = TRUE,
+    parallel = FALSE,
     kMeansDelta = NULL,
     kMeansIterations = NULL,
     kMeansRestarts = NULL

@@ -32,7 +32,7 @@
 #' A \code{\link{HiCDOCDataSet}}.
 #'
 #' @param parallel
-#' Whether or not to parallelize the processing. Defaults to TRUE.
+#' Whether or not to parallelize the processing. Defaults to FALSE
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}} with normalized interactions.
@@ -52,7 +52,7 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @export
-normalizeTechnicalBiases <- function(object, parallel = TRUE) {
+normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     .validateSlots(
         object,
         slots = c(

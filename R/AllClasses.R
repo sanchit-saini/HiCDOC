@@ -536,7 +536,7 @@ HiCDOCDataSetFromHiCPro <- function(
 #' @param object
 #' A \code{HiCDOCDataSet}.
 #' @param parallel
-#' Whether or not to parallelize each step. Defaults to TRUE.
+#' Whether or not to parallelize each step. Defaults to FALSE.
 #'
 #' @return
 #' A HiCDOCDataSet with all slots filled.
@@ -566,7 +566,7 @@ HiCDOCDataSetFromHiCPro <- function(
 #' }
 #'
 #' @export
-HiCDOC <- function(object, parallel = TRUE) {
+HiCDOC <- function(object, parallel = FALSE) {
     object <- filterSmallChromosomes(object)
     object <- filterSparseReplicates(object)
     object <- filterWeakPositions(object)
