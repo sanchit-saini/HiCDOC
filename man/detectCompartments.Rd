@@ -6,7 +6,7 @@
 \usage{
 detectCompartments(
     object,
-    parallel = TRUE,
+    parallel = FALSE,
     kMeansDelta = NULL,
     kMeansIterations = NULL,
     kMeansRestarts = NULL
@@ -15,7 +15,7 @@ detectCompartments(
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{parallel}{Whether or not to parallelize the processing. Defaults to TRUE.
+\item{parallel}{Whether or not to parallelize the processing. Defaults to FALSE
 See 'Details'.}
 
 \item{kMeansDelta}{The convergence stop criterion for the clustering. When the centroids'

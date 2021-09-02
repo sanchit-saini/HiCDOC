@@ -4,12 +4,12 @@
 \alias{HiCDOC}
 \title{Default pipeline to run on the HiCDOC analysis.}
 \usage{
-HiCDOC(object, parallel = TRUE)
+HiCDOC(object, parallel = FALSE)
 }
 \arguments{
 \item{object}{A \code{HiCDOCDataSet}.}
 
-\item{parallel}{Whether or not to parallelize each step. Defaults to TRUE.}
+\item{parallel}{Whether or not to parallelize each step. Defaults to FALSE.}
 }
 \value{
 A HiCDOCDataSet with all slots filled.

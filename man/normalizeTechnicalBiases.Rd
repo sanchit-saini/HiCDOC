@@ -4,12 +4,12 @@
 \alias{normalizeTechnicalBiases}
 \title{Normalize technical biases.}
 \usage{
-normalizeTechnicalBiases(object, parallel = TRUE)
+normalizeTechnicalBiases(object, parallel = FALSE)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{parallel}{Whether or not to parallelize the processing. Defaults to TRUE.}
+\item{parallel}{Whether or not to parallelize the processing. Defaults to FALSE}
 }
 \value{
 A \code{\link{HiCDOCDataSet}} with normalized interactions.
