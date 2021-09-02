@@ -19,9 +19,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  warning = FALSE
+  comment = "#>"
 )
+options(warn=-1)
 ```
 
 The aim of HiCDOC is to detect significant A/B compartment changes, using Hi-C
@@ -247,9 +247,7 @@ hic.experiment <- filterWeakPositions(hic.experiment, threshold = 1)
 Normalize technical biases such as sequencing depth (inter-matrix normalization):
 
 ```{r normalizeTechnicalBiases}
-suppressWarnings(
-  hic.experiment <- normalizeTechnicalBiases(hic.experiment)
-)
+suppressWarnings(hic.experiment <- normalizeTechnicalBiases(hic.experiment))
 ```
 
 Normalize biological biases, such as GC content, number of restriction sites,
@@ -263,10 +261,8 @@ Normalize the linear distance effect resulting from more interactions between
 closer genomic regions (20000 is the default value for `loessSampleSize`):
 
 ```{r normalizeDistanceEffect}
-suppressWarnings(
-  hic.experiment <- 
+hic.experiment <- 
     normalizeDistanceEffect(hic.experiment, loessSampleSize = 20000)
-)
 ```
 
 ### Predicting compartments and differences
@@ -289,42 +285,60 @@ hic.experiment <- detectCompartments(
 Plot the interaction matrix of each replicate:
 
 ```{r plotInteractions}
-plotInteractions(hic.experiment, chromosome = "Y")
+p <- plotInteractions(hic.experiment, chromosome = "Y")
+p
 ```
 
 Plot the overall distance effect on the proportion of interactions:
 
 ```{r plotDistanceEffect}
-plotDistanceEffect(hic.experiment)
+p <- plotDistanceEffect(hic.experiment)
+p
 ```
 
 List and plot compartments with their concordance (confidence measure) in each
 replicate, and significant changes between experiment conditions:
 
-```{r extractcomponents}
+```{r extractCompartments}
 compartments(hic.experiment)
+```
+
+
+```{r extractConcordances}
 concordances(hic.experiment)
+```
+
+
+```{r extractDifferences}
 differences(hic.experiment)
-plotCompartmentChanges(hic.experiment, chromosome = "Y")
+```
+
+
+```{r plotCompartmentChanges}
+p <- plotCompartmentChanges(hic.experiment, chromosome = "Y")
+p
 ```
 
 Plot the overall distribution of concordance differences:
 
 ```{r plotConcordanceDifferences}
-plotConcordanceDifferences(hic.experiment)
+p <- plotConcordanceDifferences(hic.experiment)
+p
 ```
 
 Plot the result of the PCA on the compartments' centroids:
 
 ```{r plotCentroids}
-plotCentroids(hic.experiment, chromosome = "Y")
+p <- plotCentroids(hic.experiment, chromosome = "Y")
+p
 ```
 
 Plot the boxplots of self interaction ratios (differences between self
 interactions and the median of other interactions) of each compartment:
 
 ```{r plotSelfInteractionRatios}
-plotSelfInteractionRatios(hic.experiment, chromosome = "Y")
+p <- plotSelfInteractionRatios(hic.experiment, chromosome = "Y")
+p
 ```
 
 
