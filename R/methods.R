@@ -233,7 +233,17 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         "- Inputs:\n",
         paste0(
             "  ",
-            vapply(object@input, function(x) paste0(x), character(1)),
+            vapply(
+                object@input,
+                function(x) paste0(x),
+                character(
+                    ifelse(
+                        length(object@input) > 0,
+                        length(object@input[[1]]),
+                        1
+                    )
+                )
+            ),
             "\n"
         ),
         "\n",
