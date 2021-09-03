@@ -105,3 +105,73 @@ test_that("detectCompartments behaves as expected", {
     expect_is(object@selfInteractionRatios$replicate, "factor")
     expect_is(object@selfInteractionRatios$ratio, "numeric")
 })
+
+test_that("detectCompartments behaves as expected in parallel", {
+  # Parallel settings according to OS
+  if(.Platform$OS.type == "windows"){
+    multiParam <- BiocParallel::SnowParam(workers = 2)
+  } else {
+    multiParam <- BiocParallel::MulticoreParam(workers = 2)
+  }
+  BiocParallel::register(multiParam, default = TRUE)
+  
+  # Detect Compartments
+  expect_message(
+    object <- detectCompartments(exampleHiCDOCDataSet, parallel = TRUE),
+    "Detecting significant differences."
+  )
+  # Keep object format
+  expect_is(object@interactions$chromosome, "factor")
+  expect_is(object@interactions$bin.1, "integer")
+  expect_is(object@interactions$bin.2, "integer")
+  expect_is(object@interactions$condition, "factor")
+  expect_is(object@interactions$replicate, "factor")
+  expect_is(object@interactions$interaction, "numeric")
+  # Create new objects in correct format
+  expect_is(object@distances, "tbl_df")
+  expect_is(object@selfInteractionRatios, "tbl_df")
+  expect_is(object@compartments, "tbl_df")
+  expect_is(object@concordances, "tbl_df")
+  expect_is(object@differences, "tbl_df")
+  expect_is(object@centroids, "tbl_df")
+  
+  # Differences
+  expect_is(object@differences$chromosome, "factor")
+  expect_is(object@differences$condition.1, "factor")
+  expect_is(object@differences$condition.2, "factor")
+  
+  # Centroids
+  expect_is(object@centroids$chromosome, "factor")
+  expect_is(object@centroids$condition, "factor")
+  expect_is(object@centroids$compartment, "factor")
+  expect_is(object@centroids$centroid, "list")
+  
+  # Compartments
+  expect_is(object@compartments$chromosome, "factor")
+  expect_is(object@compartments$condition, "factor")
+  expect_is(object@compartments$compartment, "factor")
+  expect_is(object@compartments$bin, "integer")
+  
+  # Concordance
+  expect_is(object@concordances$chromosome, "factor")
+  expect_is(object@concordances$bin, "integer")
+  expect_is(object@concordances$condition, "factor")
+  expect_is(object@concordances$replicate, "factor")
+  expect_is(object@concordances$compartment, "factor")
+  expect_is(object@concordances$concordance, "numeric")
+
+  # Distances
+  expect_is(object@distances$chromosome, "factor")
+  expect_is(object@distances$bin, "integer")
+  expect_is(object@distances$condition, "factor")
+  expect_is(object@distances$replicate, "factor")
+  expect_is(object@distances$compartment, "factor")
+  expect_is(object@distances$distance, "numeric")
+
+  # SelfInteractionRatios
+  expect_is(object@selfInteractionRatios$chromosome, "factor")
+  expect_is(object@selfInteractionRatios$bin, "integer")
+  expect_is(object@selfInteractionRatios$condition, "factor")
+  expect_is(object@selfInteractionRatios$replicate, "factor")
+  expect_is(object@selfInteractionRatios$ratio, "numeric")
+})
