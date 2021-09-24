@@ -298,7 +298,6 @@
                                    position.1,
                                    position.2,
                                    interaction)]
-    interactions <- dplyr::as_tibble(interactions)
     
     return(interactions)
 }
@@ -324,15 +323,15 @@
         ) %>%
         purrr::map2(
             object@replicates,
-            ~ dplyr::mutate(.x, replicate = .y)
+            .f = function(x, y) x[, replicate:=y]
         ) %>%
         purrr::map2(
             object@conditions,
-            ~ dplyr::mutate(.x, condition = .y)
+            .f = function(x, y) x[, condition:=y]
         )
     
     object@interactions <-
-        dplyr::bind_rows(interactions) %>%
+        data.table::rbindlist(interactions) %>%
         dplyr::as_tibble()
     
     return(object)

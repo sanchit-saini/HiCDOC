@@ -451,6 +451,10 @@ HiCDOCDataSetFromHiCPro <- function(
         stop("'conditions' must be a vector of conditions.", call. = FALSE)
     }
 
+    if (length(conditions) != length(replicates)) {
+        stop("'conditions' and 'replicates' must have the same length", call. = FALSE)
+    }
+    
     object <- new("HiCDOCDataSet")
     object@input <- paths
     object@replicates <- replicates
