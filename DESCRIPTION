@@ -37,7 +37,8 @@ Imports:
     gridExtra,
     purrr,
     ggpubr,
-    pbapply
+    pbapply,
+    data.table
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 biocViews:

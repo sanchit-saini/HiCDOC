@@ -13,19 +13,20 @@
 #' @keywords internal
 #' @noRd
 .parseTabular <- function(object, sep = "\t") {
-
+    
     message("Parsing '", object@input, "'.")
-
+    
     interactions <-
-        utils::read.table(
+        data.table::fread(
             file = object@input,
             sep = sep,
             header = TRUE,
-            comment.char = "#",
-            check.names = FALSE
+            # comment.char = "#",
+            check.names = FALSE,
+            data.table = FALSE
         ) %>%
         dplyr::as_tibble()
-
+    
     if (colnames(interactions)[[1]] != "chromosome") {
         stop(
             "First column of the input file must be named 'chromosome'.",
@@ -44,9 +45,9 @@
             call. = FALSE
         )
     }
-
+    
     columns <- colnames(interactions)[4:ncol(interactions)]
-
+    
     if (!all(grepl("^.+?\\..+$", columns))) {
         stop(
             "Fourth to last column of the input file must be named 'C.R', ",
@@ -54,10 +55,10 @@
             call. = FALSE
         )
     }
-
+    
     object@conditions <- gsub("^(.+?)\\..+$", "\\1", columns)
     object@replicates <- gsub("^.+?\\.(.+)$", "\\1", columns)
-
+    
     object@interactions <-
         tidyr::pivot_longer(
             interactions,
@@ -71,7 +72,7 @@
         dplyr::select(-CR) %>%
         dplyr::rename(position.1 = `position 1`) %>%
         dplyr::rename(position.2 = `position 2`)
-
+    
     return(object)
 }
 
@@ -91,9 +92,9 @@
 #' @keywords internal
 #' @noRd
 .parseOneCool <- function(path, binSize = NULL) {
-
+    
     message("\nParsing '", path, "'.")
-
+    
     uri <- function(path) {
         if (!is.numeric(binSize)) return(path)
         return(
@@ -105,7 +106,7 @@
             )
         )
     }
-
+    
     bins <-
         dplyr::tibble(
             chromosome = factor(
@@ -114,21 +115,21 @@
             start = rhdf5::h5read(file = path, name = uri("bins/start")),
             end = rhdf5::h5read(file = path, name = uri("bins/end"))
         )
-
+    
     step <- bins$end - bins$start
     if (length(step) < 0.9) {
         stop("Cannot parse '", path, "': fixed width only.", call. = FALSE)
     }
     step <- max(step)
-
+    
     bins %<>%
         dplyr::select(-end) %>%
         dplyr::rename(position = start) %>%
         dplyr::mutate(ide = seq_len(nrow(bins)) - 1) %>%
         dplyr::select(ide, chromosome, position)
-
+    
     rownames(bins) <- NULL
-
+    
     interactions <-
         dplyr::tibble(
             id1 = rhdf5::h5read(file = path, name = uri("pixels/bin1_id")),
@@ -145,7 +146,7 @@
         dplyr::select(-chromosome.2) %>%
         dplyr::rename(chromosome = chromosome.1) %>%
         dplyr::select(chromosome, position.1, position.2, interaction)
-
+    
     return(interactions)
 }
 
@@ -166,23 +167,23 @@
 #' @keywords internal
 #' @noRd
 .parseCool <- function(object, binSize = NULL) {
-
+    
     interactions <-
         pbapply::pblapply(
             object@input,
             .parseOneCool,
             binSize = binSize
         )
-
+    
     for (i in seq_along(interactions)) {
         interactions[[i]]$replicate <- object@replicates[[i]]
         interactions[[i]]$condition <- object@conditions[[i]]
     }
-
+    
     object@interactions <-
         dplyr::bind_rows(interactions) %>%
         dplyr::as_tibble()
-
+    
     return(object)
 }
 
@@ -222,7 +223,7 @@
 #' @keywords internal
 #' @noRd
 .parseHiC <- function(object, binSize) {
-
+    
     interactions <-
         pbapply::pblapply(
             object@input,
@@ -237,11 +238,11 @@
             object@conditions,
             ~ dplyr::mutate(.x, condition = .y)
         )
-
+    
     object@interactions <-
         dplyr::bind_rows(interactions) %>%
         dplyr::as_tibble()
-
+    
     return(object)
 }
 
@@ -259,27 +260,29 @@
 #' @keywords internal
 #' @noRd
 .parseOneHiCPro <- function(matrixPath, bedPath) {
-
+    
     message("\nParsing '", matrixPath, "' and '", bedPath, "'.")
-
+    
     interactions <-
-        utils::read.table(
+        data.table::fread(
             matrixPath,
             header = FALSE,
             stringsAsFactors = FALSE,
-            col.names = c("startIndex", "stopIndex", "interaction")
+            col.names = c("startIndex", "stopIndex", "interaction"),
+            data.table = FALSE
         ) %>%
         dplyr::as_tibble()
-
+    
     bed <-
-        utils::read.table(
+        data.table::fread(
             bedPath,
             header = FALSE,
             stringsAsFactors = FALSE,
-            col.names = c("chromosome", "start", "end", "index")
+            col.names = c("chromosome", "start", "end", "index"),
+            data.table = FALSE
         ) %>%
         dplyr::as_tibble()
-
+    
     interactions %<>%
         dplyr::left_join(
             bed %>% dplyr::select(
@@ -305,7 +308,7 @@
             position.2,
             interaction
         )
-
+    
     return(interactions)
 }
 
@@ -322,7 +325,7 @@
 #' @keywords internal
 #' @noRd
 .parseHiCPro <- function(object) {
-
+    
     interactions <-
         pbapply::pblapply(
             object@input,
@@ -336,10 +339,10 @@
             object@conditions,
             ~ dplyr::mutate(.x, condition = .y)
         )
-
+    
     object@interactions <-
         dplyr::bind_rows(interactions) %>%
         dplyr::as_tibble()
-
+    
     return(object)
 }
