@@ -9,7 +9,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom Rcpp evalCpp sourceCpp
 #' @importFrom stats D loess median quantile
-#' @importFrom data.table fread
+#' @import data.table
 #' @useDynLib HiCDOC
 #' @aliases HiCDOC-package
 "_PACKAGE"

@@ -269,9 +269,8 @@
             header = FALSE,
             stringsAsFactors = FALSE,
             col.names = c("startIndex", "stopIndex", "interaction"),
-            data.table = FALSE
-        ) %>%
-        dplyr::as_tibble()
+            data.table = TRUE
+        )
     
     bed <-
         data.table::fread(
@@ -279,35 +278,27 @@
             header = FALSE,
             stringsAsFactors = FALSE,
             col.names = c("chromosome", "start", "end", "index"),
-            data.table = FALSE
-        ) %>%
-        dplyr::as_tibble()
-    
-    interactions %<>%
-        dplyr::left_join(
-            bed %>% dplyr::select(
-                chromosome.1 = chromosome,
-                startIndex = index,
-                position.1 = start
-            ),
-            by = "startIndex"
-        ) %>%
-        dplyr::select(-startIndex) %>%
-        dplyr::left_join(
-            bed %>% dplyr::select(
-                chromosome.2 = chromosome,
-                stopIndex = index,
-                position.2 = start
-            ),
-            by = "stopIndex"
-        ) %>%
-        dplyr::filter(chromosome.1 == chromosome.2) %>%
-        dplyr::select(
-            chromosome = chromosome.1,
-            position.1,
-            position.2,
-            interaction
+            data.table = TRUE
         )
+    
+    interactions <- merge(interactions,
+                          bed[,.(chromosome.1 = chromosome, 
+                                 startIndex = index, 
+                                 position.1 = start)], 
+                          all.x=TRUE, 
+                          by = "startIndex")
+    interactions <- merge(interactions,
+                          bed[,.(chromosome.2 = chromosome, 
+                                 stopIndex = index, 
+                                 position.2 = start)], 
+                          all.x=TRUE, 
+                          by = "stopIndex")
+    interactions <- interactions[chromosome.1 == chromosome.2,
+                                 .(chromosome = chromosome.1,
+                                   position.1,
+                                   position.2,
+                                   interaction)]
+    interactions <- dplyr::as_tibble(interactions)
     
     return(interactions)
 }
