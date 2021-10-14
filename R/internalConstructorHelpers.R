@@ -154,7 +154,7 @@
 
 #' @description
 #' Reformats the interactions to fit them into a numeric upper triangular
-#' sparse matrix. If duplicate interactions are found, they are averaged.
+#' sparse matrix.
 #'
 #' @param interactions
 #' A tibble of interactions.
@@ -166,39 +166,15 @@
 #' @noRd
 .reformatInteractions <- function(interactions) {
 
-    lowerTriangle <- which(interactions$bin.1 > interactions$bin.2)
-    if (length(lowerTriangle) > 0) {
-        lowerTriangleBins1 <-
-            interactions[lowerTriangle, "bin.1"] %>%
-            dplyr::pull()
-        lowerTriangleBins2 <-
-            interactions[lowerTriangle, "bin.2"] %>%
-            dplyr::pull()
-        interactions[lowerTriangle, ]$bin.1 <- lowerTriangleBins2
-        interactions[lowerTriangle, ]$bin.2 <- lowerTriangleBins1
-    }
-
-    if (!is.numeric(interactions$interaction)) {
-        interactions$interaction <- as.numeric(interactions$interaction)
-    }
-
-    if (
-        nrow(interactions) != nrow(unique(
-            interactions[,
-                c("chromosome", "condition", "replicate", "bin.1", "bin.2")
-            ]
-        ))
-    ) {
-        message("Averaging duplicate interactions.")
-        interactions %<>%
-            dplyr::group_by(chromosome, condition, replicate, bin.1, bin.2) %>%
-            dplyr::mutate(interaction = mean(interaction)) %>%
-            dplyr::ungroup()
-    }
-
-    interactions %<>% dplyr::filter(interaction > 0)
-
-    return(interactions)
+    interactions %>%
+    dplyr::mutate(minBin = pmin(bin.1, bin.2)) %>%
+    dplyr::mutate(maxBin = pmax(bin.1, bin.2)) %>%
+    dplyr::select(chromosome, condition, replicate, interaction, minBin, maxBin) %>%
+    dplyr::rename(bin.1 = minBin) %>%
+    dplyr::rename(bin.2 = maxBin) %>%
+    dplyr::mutate(interaction = as.numeric(interaction)) %>%
+    dplyr::filter(interaction > 0) %>%
+    dplyr::select(chromosome, bin.1, bin.2, condition, replicate, interaction)
 }
 
 #' @description
