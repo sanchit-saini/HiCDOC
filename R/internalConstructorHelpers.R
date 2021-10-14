@@ -12,17 +12,11 @@
 #' @noRd
 .determineBinSize <- function(object) {
 
-    binSize <-
-        min(abs(
-            object@interactions$position.2[
-                object@interactions$position.1 != object@interactions$position.2
-            ] -
-            object@interactions$position.1[
-                object@interactions$position.1 != object@interactions$position.2
-            ]
-        ))
-
-    return(binSize)
+    object@interactions %>%
+        dplyr::filter(position.1 != position.2) %>%
+        dplyr::mutate(size = abs(position.1 - position.2)) %>%
+        dplyr::pull(size) %>%
+        min()
 }
 
 #' @description
