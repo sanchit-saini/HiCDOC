@@ -23,10 +23,8 @@
             header = TRUE,
             # comment.char = "#",
             check.names = FALSE,
-            data.table = FALSE
-        ) %>%
-        dplyr::as_tibble()
-    
+            data.table = TRUE
+        ) 
     if (colnames(interactions)[[1]] != "chromosome") {
         stop(
             "First column of the input file must be named 'chromosome'.",
@@ -46,7 +44,8 @@
         )
     }
     
-    columns <- colnames(interactions)[4:ncol(interactions)]
+    data.table::setnames(interactions, "position 1", "bin.1")
+    data.table::setnames(interactions, "position 2", "bin.2")
     
     if (!all(grepl("^.+?\\..+$", columns))) {
         stop(
@@ -56,22 +55,59 @@
         )
     }
     
-    object@conditions <- gsub("^(.+?)\\..+$", "\\1", columns)
-    object@replicates <- gsub("^.+?\\.(.+)$", "\\1", columns)
+    # Partie assays
+    assays <- as.matrix(interactions[,4:ncol(interactions)])
+    interactions <- interactions[,1:3]
     
-    object@interactions <-
-        tidyr::pivot_longer(
-            interactions,
-            dplyr::all_of(columns),
-            names_to = "condition.replicate",
-            values_to = "interaction"
-        ) %>%
-        dplyr::mutate(CR = strsplit(condition.replicate, ".", fixed = TRUE)) %>%
-        dplyr::mutate(condition = purrr::map_chr(CR, 1),
-                      replicate = purrr::map_chr(CR, 2)) %>%
-        dplyr::select(-CR) %>%
-        dplyr::rename(position.1 = `position 1`) %>%
-        dplyr::rename(position.2 = `position 2`)
+    # binSize and construction of the GInteraction Part
+    isDiagonal <- (interactions$bin.1 == interactions$bin.2)
+    binSize <- DescTools::GCD(abs(interactions[!isDiagonal,]$bin.1 - 
+                                      interactions[!isDiagonal,]$bin.2))
+    object$binSize <- binSize
+    
+    
+    interactions[,bin.1 := bin.1/binSize]
+    interactions[,bin.2 := bin.2/binSize]
+    
+    allRegions <- data.table::melt(interactions[,.(chromosome, bin.1, bin.2)],
+                                   id.vars = "chromosome", 
+                                   value.name = "indexC")
+    allRegions[,variable := NULL]
+    data.table::setkey(allRegions, chromosome, indexC)
+    allRegions <- unique(allRegions)
+    allRegions[,index := indexC - data.table::shift(indexC, fill = 0)]
+    allRegions[index < 0 ,index := 1]
+    allRegions[, index := cumsum(index) + 1]
+    allRegions[, end:=(indexC+1)*binSize]
+    allRegions[, start:=(indexC)*binSize]
+    data.table::setcolorder(allRegions, c("chromosome", "start", "end", "index", "indexC"))
+    
+    interactions <- 
+        merge(
+            interactions, 
+            allRegions[,.(chromosome, startIndex = index, bin.1 = indexC)], 
+            all.x=TRUE, 
+            sort=FALSE,
+            by=c("chromosome", "bin.1"))
+    interactions <- 
+        merge(
+            interactions, 
+            allRegions[,.(chromosome, stopIndex = index, bin.2 = indexC)], 
+            all.x=TRUE, 
+            sort=FALSE,
+            by=c("chromosome", "bin.2"))
+    interactions[, bin.1 := NULL]
+    interactions[, bin.2 := NULL]
+    
+    allRegions[,indexC := NULL]
+    gi <- InteractionSet::GInteractions(
+        interactions$startIndex, interactions$stopIndex, GRanges(allRegions))
+    
+    object@interactions  <- InteractionSet::InteractionSet(
+        assays = assays, 
+        interactions = gi,  
+        colData=DataFrame("condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)), 
+                          "replicat" =  gsub("^.+?\\.(.+)$", "\\1", colnames(assays)))) 
     
     return(object)
 }
