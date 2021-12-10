@@ -29,7 +29,7 @@
 #' A list of parameters used for filtering, normalization, and prediction of
 #' compartments.
 #' @slot interactions
-#' A tibble of interactions.
+#' An InteractionSet object of interactions.
 #' @slot chromosomes
 #' A vector of names of chromosomes.
 #' @slot conditions
