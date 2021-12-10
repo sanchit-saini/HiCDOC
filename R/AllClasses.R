@@ -73,10 +73,11 @@
 #' @export
 setClass(
     "HiCDOCDataSet",
+    contains = "InteractionSet",
     slots = c(
         input = "ANY",
         parameters = "ANY",
-        interactions = "ANY",
+        # interactions = "ANY",
         chromosomes = "ANY",
         binSize = "ANY",
         totalBins = "ANY",
@@ -150,9 +151,9 @@ HiCDOCDataSetFromTabular <- function(path = NULL, sep="\t") {
         stop("'", path, "' does not exist.", call. = FALSE)
     }
 
-    object <- new("HiCDOCDataSet")
-    object@input <- path
-    object <- .parseTabular(object, sep = sep)
+    # object <- new("HiCDOCDataSet")
+    # object@input <- path
+    object <- .parseTabular(path, sep = sep)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }

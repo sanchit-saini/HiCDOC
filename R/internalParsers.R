@@ -12,13 +12,13 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseTabular <- function(object, sep = "\t") {
+.parseTabular <- function(input, sep = "\t") {
     
-    message("Parsing '", object@input, "'.")
+    message("Parsing '", input, "'.")
     
     interactions <-
         data.table::fread(
-            file = object@input,
+            file = input,
             sep = sep,
             header = TRUE,
             # comment.char = "#",
@@ -65,7 +65,7 @@
     diag <- (interactions$bin.1 == interactions$bin.2)
     binSize <- DescTools::GCD(abs(interactions[!diag,]$bin.1 - 
                                       interactions[!diag,]$bin.2))
-    object@binSize <- binSize
+    # object@binSize <- binSize
     
     interactions[,bin.1 := bin.1/binSize]
     interactions[,bin.2 := bin.2/binSize]
@@ -105,27 +105,29 @@
         interactions$startIndex, interactions$stopIndex, 
         GenomicRanges::GRanges(allRegions), mode="strict")
     
-    interactions <- InteractionSet::InteractionSet(
-        assays = assays, 
-        interactions = gi,  
-        colData=S4Vectors::DataFrame(
-            "condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)), 
-            "replicat" =  gsub("^.+?\\.(.+)$", "\\1", colnames(assays)))) 
+    iset <- InteractionSet::InteractionSet(
+        assays = assays,
+        interactions = gi)
+    colData(iset) <- S4Vectors::DataFrame(
+            "condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)),
+            "replicat" =  gsub("^.+?\\.(.+)$", "\\1", colnames(assays)))
     
     # Remove zero rows
     zeros <- (rowSums(assays, na.rm=TRUE) == 0)
-    interactions <- interactions[!zeros,]
+    iset <- iset[!zeros,]
     
     # Keep only intra-chromosomal interactions
-    interactions <- interactions[InteractionSet::intrachr(gi)]
+    # interactions <- interactions[InteractionSet::intrachr(gi)]
+    iset <- iset[InteractionSet::intrachr(iset),]
     
     # Add chromosome column for split purpose
-    S4Vectors::mcols(interactions) <- 
+    S4Vectors::mcols(iset) <- 
         S4Vectors::DataFrame(
             "Chr" = GenomeInfoDb::seqnames(InteractionSet::anchors(gi, "first"))
         )
     
-    object@interactions <- interactions
+    object <- new("HiCDOCDataSet", iset, input = input, binSize = binSize)
+    
     return(object)
 }
 

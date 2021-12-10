@@ -35,17 +35,6 @@ setGeneric(
     }
 )
 
-#### positions ####
-#' @describeIn HiCDOCDataSet-methods
-#' Retrieves the genomic positions corresponding to bins for each chromosome.
-#' @export
-setGeneric(
-    name = "positions",
-    def = function(object) {
-        standardGeneric("positions")
-    }
-)
-
 #### conditions ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the vector of condition names.
@@ -67,17 +56,34 @@ setGeneric(
         standardGeneric("replicates")
     }
 )
-
-#### interactions ####
-#' @describeIn HiCDOCDataSet-methods
-#' Retrieves a tibble of the interactions.
-#' @export
-setGeneric(
-    name = "interactions",
-    def = function(object) {
-        standardGeneric("interactions")
-    }
-)
+# 
+# #### assay ####
+# #' Retrieves the assay matrix of interactions
+# #' @rdname HiCDOCDataSet-methods
+# #' @usage
+# #' NULL
+# #' @export
+# assay <- function(object) SummarizedExperiment::assay(object@interactions)
+# 
+# #### regions ####
+# #' Retrieves the regions of interactions
+# #' @rdname HiCDOCDataSet-methods
+# #' @usage
+# #' NULL
+# #' @export
+# regions <- function(object) InteractionSet::regions(object@interactions)
+# 
+# #### interactions ####
+# #' Retrieves a tibble of the interactions.
+# #' @rdname HiCDOCDataSet-methods
+# #' @usage
+# #' NULL
+# #' @export
+# interactions <- function(object) {
+#     if (is.null(object@interactions)) return(NULL)
+#     interactions <- InteractionSet::interactions(object@interactions)
+#     return(interactions)
+# }
 
 #### binSize ####
 #' @describeIn HiCDOCDataSet-methods

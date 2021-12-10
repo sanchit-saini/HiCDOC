@@ -11,7 +11,7 @@
 #' @noRd
 .determineChromosomeSizes <- function(object) {
     totalBins <- S4Vectors::runLength(
-        GenomeInfoDb::seqnames(InteractionSet::regions(object@interactions)))
+        GenomeInfoDb::seqnames(InteractionSet::regions(object)))
     names(totalBins) <- object@chromosomes
     return(totalBins)
 }
@@ -27,15 +27,15 @@
 #'
 #' @keywords internal
 #' @noRd
-.determineValids <- function(interactions) {
-    valids <- S4Vectors::split(SummarizedExperiment::assay(interactions), 
-                               S4Vectors::mcols(interactions)$Chr, drop=FALSE)
+.determineValids <- function(object) {
+    valids <- S4Vectors::split(SummarizedExperiment::assay(object), 
+                               S4Vectors::mcols(object)$Chr, drop=FALSE)
     valids <- lapply(valids, colSums, na.rm=TRUE)
     valids <- lapply(valids, function(x) (x>0 & !is.na(x)))
     validConditions <-
-        lapply(valids, function(x) interactions$condition[x])
+        lapply(valids, function(x) object$condition[x])
     validReplicates <-
-        lapply(valids, function(x) interactions$replicat[x])
+        lapply(valids, function(x) object$replicat[x])
     return(list("validConditions" = validConditions, 
                 "validReplicates" =validReplicates))
 }
@@ -53,9 +53,8 @@
 #' @noRd
 .fillHiCDOCDataSet <- function(object) {
 
-    # Fill all other slots than interactions
-    .validateSlots(object, "interactions")
-
+    # Fill all other slots than interactionSet part
+    
     # Chromosomes and their size (max bin)
     object@chromosomes <- GenomeInfoDb::seqlevels(object@interactions)
     object@totalBins <- .determineChromosomeSizes(object)
@@ -63,7 +62,7 @@
     
     # Valid conditions and replicats by chromosome (==not empty)
     # maybe do a function for valid conditions and replicats ?
-    valids <- .determineValids(object@interactions)
+    valids <- .determineValids(object)
     object@validConditions <-valids$validConditions
     object@validReplicates <-valids$validReplicates
 

@@ -6,21 +6,14 @@
 #' @export
 setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 
-#### positions ####
-#' Retrieves the genomic positions corresponding to bins for each chromosome.
-#' @rdname HiCDOCDataSet-methods
-#' @usage
-#' NULL
-#' @export
-setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
-
 #### conditions ####
 #' Retrieves the vector of condition names.
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
 #' @export
-setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
+setMethod("conditions", "HiCDOCDataSet", 
+          function(object) object@interactions$condition)
 
 #### replicates ####
 #' Retrieves the vector of replicate names.
@@ -28,7 +21,8 @@ setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 #' @usage
 #' NULL
 #' @export
-setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
+setMethod("replicates", "HiCDOCDataSet", 
+          function(object) object@interactions$replicat)
 
 #### binSize ####
 #' Retrieves the resolution (span of each position in number of bases).
@@ -38,44 +32,41 @@ setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
 #' @export
 setMethod("binSize", "HiCDOCDataSet", function(object) object@binSize)
 
-#### interactions ####
-#' Retrieves a tibble of the interactions.
-#' @rdname HiCDOCDataSet-methods
-#' @usage
-#' NULL
-#' @export
-setMethod("interactions", "HiCDOCDataSet", function(object) {
-    if (is.null(object@interactions)) return(NULL)
-
-    interactions <-
-        object@interactions %>%
-        dplyr::left_join(
-            object@positions %>% dplyr::select(
-                chromosome,
-                bin.1 = bin,
-                position.1 = start,
-            ),
-            by = c("chromosome", "bin.1")
-        ) %>%
-        dplyr::left_join(
-            object@positions %>% dplyr::select(
-                chromosome,
-                bin.2 = bin,
-                position.2 = start,
-            ),
-            by = c("chromosome", "bin.2")
-        ) %>%
-        dplyr::select(
-            chromosome,
-            position.1,
-            position.2,
-            condition,
-            replicate,
-            interaction
-        )
-
-    return(interactions)
-})
+# #### assay ####
+# #' Retrieves the assay matrix of interactions
+# #' @rdname HiCDOCDataSet-methods
+# #' @usage
+# #' NULL
+# #' @export
+# setMethod("assay", 
+#           signature(object="HiCDOCDataSet"),
+#           function(object) {
+#               SummarizedExperiment::assay(object@interactions)
+#           })
+# 
+# #### regions ####
+# #' Retrieves the regions of interactions
+# #' @rdname HiCDOCDataSet-methods
+# #' @usage
+# #' NULL
+# #' @export
+# setMethod("regions", 
+#           signature(object="HiCDOCDataSet"),
+#           function(object) InteractionSet::regions(object@interactions))
+# 
+# #### interactions ####
+# #' Retrieves a tibble of the interactions.
+# #' @rdname HiCDOCDataSet-methods
+# #' @usage
+# #' NULL
+# #' @export
+# setMethod("interactions", 
+#           signature(object="HiCDOCDataSet"), 
+#           function(object) {
+#     if (is.null(object@interactions)) return(NULL)
+#     interactions <- InteractionSet::interactions(object@interactions)
+#     return(interactions)
+# })
 
 #### compartments ####
 #' Retrieves a \code{GenomicRange} of the compartment of every position
@@ -254,16 +245,17 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         paste(object@chromosomes, collapse = ", "),
         "\n\n",
         "- Replicates:\n",
-        if (is.null(object@replicates) || length(object@replicates) == 0)
-        "  None\n"
-        else
+        if (is.null(replicates(object)) || 
+            length(replicates(object)) == 0){
+            "  None\n"
+        } else {
         paste0(
             "  condition ",
-            object@conditions,
+            conditions(object),
             ", replicate ",
-            object@replicates,
+            replicates(object),
             "\n"
-        ),
+        )},
         "\n",
         "- Resolution (bin size):\n  ",
         if (is.null(object@binSize))
