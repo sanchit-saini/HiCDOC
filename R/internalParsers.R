@@ -44,17 +44,17 @@
         )
     }
     
-    if (!all(grepl("^.+?\\..+$", columns))) {
+    # Assays part, fill with NA
+    assays <- as.matrix(interactions[,4:ncol(interactions)])
+    
+    if (!all(grepl("^.+?\\..+$", colnames(assays)))) {
         stop(
             "Fourth to last column of the input file must be named 'C.R', ",
             "with C the condition number/name and R the replicate number/name.",
             call. = FALSE
         )
     }
-    
-    
-    # Assays part
-    assays <- as.matrix(interactions[,4:ncol(interactions)])
+    assays[assays == 0] <- NA
     
     # GInteraction part
     interactions <- interactions[,1:3]
@@ -65,7 +65,7 @@
     diag <- (interactions$bin.1 == interactions$bin.2)
     binSize <- DescTools::GCD(abs(interactions[!diag,]$bin.1 - 
                                       interactions[!diag,]$bin.2))
-    object$binSize <- binSize
+    object@binSize <- binSize
     
     interactions[,bin.1 := bin.1/binSize]
     interactions[,bin.2 := bin.2/binSize]
@@ -105,16 +105,27 @@
         interactions$startIndex, interactions$stopIndex, 
         GenomicRanges::GRanges(allRegions), mode="strict")
     
-    object@interactions  <- InteractionSet::InteractionSet(
+    interactions <- InteractionSet::InteractionSet(
         assays = assays, 
         interactions = gi,  
-        colData=S4Vectors::DataFrame("condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)), 
-                          "replicat" =  gsub("^.+?\\.(.+)$", "\\1", colnames(assays)))) 
+        colData=S4Vectors::DataFrame(
+            "condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)), 
+            "replicat" =  gsub("^.+?\\.(.+)$", "\\1", colnames(assays)))) 
     
     # Remove zero rows
     zeros <- (rowSums(assays, na.rm=TRUE) == 0)
-    object@interactions <- object@interactions[!zeros,]
+    interactions <- interactions[!zeros,]
     
+    # Keep only intra-chromosomal interactions
+    interactions <- interactions[InteractionSet::intrachr(gi)]
+    
+    # Add chromosome column for split purpose
+    S4Vectors::mcols(interactions) <- 
+        S4Vectors::DataFrame(
+            "Chr" = GenomeInfoDb::seqnames(InteractionSet::anchors(gi, "first"))
+        )
+    
+    object@interactions <- interactions
     return(object)
 }
 
