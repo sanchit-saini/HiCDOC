@@ -19,24 +19,25 @@
     function(object, chromosomeNames, dropLevels) {
         chromosomeIds <- which(object@chromosomes %in% chromosomeNames)
         object@chromosomes <- object@chromosomes[chromosomeIds]
-        if (dropLevels) {
-            object@chromosomes <-
-                gtools::mixedsort(unique(as.character(object@chromosomes)))
-        }
-
+        
         object@weakBins <- object@weakBins[chromosomeIds]
         object@totalBins <- object@totalBins[chromosomeIds]
         object@validReplicates <- object@validReplicates[chromosomeIds]
         object@validConditions <- object@validConditions[chromosomeIds]
+        
+        toKeep <- as.character(S4Vectors::mcols(object)$Chr) %in% chromosomeNames
+        object <- object[toKeep,]
+        
+        if (dropLevels) {
+            object <- InteractionSet::reduceRegions(object)
+        }
         for (slotName in c(
-            "interactions",
             "distances",
             "selfInteractionRatios",
             "compartments",
             "concordances",
             "differences",
             "centroids",
-            "positions",
             "comparisons"
         )) {
             if (!is.null(slot(object, slotName))) {
@@ -213,24 +214,24 @@ reduceHiCDOCDataSet <- function(object,
             call. = FALSE
         )
     }
-    chromosomeNames <-
-        .validateNames(object, chromosomes, "chromosomes")
-    conditionNames <-
-        .validateNames(object, conditions, "conditions")
-    replicateNames <-
-        .validateNames(object, replicates, "replicates")
-
-    if (!is.null(chromosomeNames)) {
+    
+    if (!is.null(chromosomes)) {
+        chromosomeNames <-
+            .validateNames(object, chromosomes, "chromosomes")
         object <-
             .reduceHiCDOCChromosomes(object, chromosomeNames, dropLevels)
     }
 
-    if (!is.null(conditionNames)) {
+    if (!is.null(conditions)) {
+        conditionNames <-
+            .validateNames(object, conditions, "conditions")
         object <-
             .reduceHiCDOCConditions(object, conditionNames, dropLevels)
     }
 
-    if (!is.null(replicateNames)) {
+    if (!is.null(replicates)) {
+        replicateNames <-
+            .validateNames(object, replicates, "replicates")
         object <-
             .reduceHiCDOCReplicates(object, replicateNames, dropLevels)
     }

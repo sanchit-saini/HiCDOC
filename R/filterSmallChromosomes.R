@@ -34,7 +34,6 @@ filterSmallChromosomes <- function(object, threshold = NULL) {
     .validateSlots(
         object,
         slots = c(
-            "interactions",
             "chromosomes",
             "totalBins",
             "parameters"
@@ -65,9 +64,11 @@ filterSmallChromosomes <- function(object, threshold = NULL) {
     bigChromosomeNames <- gtools::mixedsort(bigChromosomeNames)
     smallChromosomeNames <-
         object@chromosomes[!(object@chromosomes %in% bigChromosomeNames)]
-
-    object <- reduceHiCDOCDataSet(object, chromosomes = bigChromosomeNames)
-
+    
+    object <- reduceHiCDOCDataSet(object,
+                                  chromosomes = bigChromosomeNames, 
+                                  dropLevels = TRUE)
+    
     message(
         "Kept ",
         length(bigChromosomeNames),
