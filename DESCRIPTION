@@ -38,7 +38,9 @@ Imports:
     purrr,
     ggpubr,
     pbapply,
-    data.table
+    data.table,
+    S4Vectors,
+    InteractionSet
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 biocViews:
