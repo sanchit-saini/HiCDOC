@@ -44,9 +44,6 @@
         )
     }
     
-    data.table::setnames(interactions, "position 1", "bin.1")
-    data.table::setnames(interactions, "position 2", "bin.2")
-    
     if (!all(grepl("^.+?\\..+$", columns))) {
         stop(
             "Fourth to last column of the input file must be named 'C.R', ",
@@ -55,16 +52,20 @@
         )
     }
     
-    # Partie assays
+    
+    # Assays part
     assays <- as.matrix(interactions[,4:ncol(interactions)])
+    
+    # GInteraction part
     interactions <- interactions[,1:3]
+    data.table::setnames(interactions, "position 1", "bin.1")
+    data.table::setnames(interactions, "position 2", "bin.2")
+    setkey(interactions, chromosome, bin.1, bin.2)
     
-    # binSize and construction of the GInteraction Part
-    isDiagonal <- (interactions$bin.1 == interactions$bin.2)
-    binSize <- DescTools::GCD(abs(interactions[!isDiagonal,]$bin.1 - 
-                                      interactions[!isDiagonal,]$bin.2))
+    diag <- (interactions$bin.1 == interactions$bin.2)
+    binSize <- DescTools::GCD(abs(interactions[!diag,]$bin.1 - 
+                                      interactions[!diag,]$bin.2))
     object$binSize <- binSize
-    
     
     interactions[,bin.1 := bin.1/binSize]
     interactions[,bin.2 := bin.2/binSize]
@@ -101,13 +102,18 @@
     
     allRegions[,indexC := NULL]
     gi <- InteractionSet::GInteractions(
-        interactions$startIndex, interactions$stopIndex, GRanges(allRegions))
+        interactions$startIndex, interactions$stopIndex, 
+        GenomicRanges::GRanges(allRegions), mode="strict")
     
     object@interactions  <- InteractionSet::InteractionSet(
         assays = assays, 
         interactions = gi,  
-        colData=DataFrame("condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)), 
+        colData=S4Vectors::DataFrame("condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)), 
                           "replicat" =  gsub("^.+?\\.(.+)$", "\\1", colnames(assays)))) 
+    
+    # Remove zero rows
+    zeros <- (rowSums(assays, na.rm=TRUE) == 0)
+    object@interactions <- object@interactions[!zeros,]
     
     return(object)
 }
