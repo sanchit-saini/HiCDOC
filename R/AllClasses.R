@@ -32,12 +32,6 @@
 #' An InteractionSet object of interactions.
 #' @slot chromosomes
 #' A vector of names of chromosomes.
-#' @slot conditions
-#' A vector of names of conditions, repeated along the replicates.
-#' @slot replicates
-#' A vector of names of replicates, repeated along the conditions.
-#' @slot positions
-#' A tibble of positions and their corresponding bin.
 #' @slot binSize
 #' The resolution: computed bin size (span of each bin in number of bases).
 #' @slot totalBins
@@ -84,9 +78,6 @@ setClass(
         parameters = "ANY",
         interactions = "ANY",
         chromosomes = "ANY",
-        conditions = "ANY",
-        replicates = "ANY",
-        positions = "ANY",
         binSize = "ANY",
         totalBins = "ANY",
         weakBins = "ANY",
