@@ -4,7 +4,8 @@
 #' @usage
 #' NULL
 #' @export
-setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
+setMethod("chromosomes", "HiCDOCDataSet", 
+          function(object) object@chromosomes)
 
 #### conditions ####
 #' Retrieves the vector of condition names.
@@ -13,7 +14,7 @@ setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
 #' NULL
 #' @export
 setMethod("conditions", "HiCDOCDataSet", 
-          function(object) object@interactions$condition)
+          function(object) object$condition)
 
 #### replicates ####
 #' Retrieves the vector of replicate names.
@@ -22,7 +23,7 @@ setMethod("conditions", "HiCDOCDataSet",
 #' NULL
 #' @export
 setMethod("replicates", "HiCDOCDataSet", 
-          function(object) object@interactions$replicat)
+          function(object) object$replicat)
 
 #### binSize ####
 #' Retrieves the resolution (span of each position in number of bases).
@@ -30,7 +31,8 @@ setMethod("replicates", "HiCDOCDataSet",
 #' @usage
 #' NULL
 #' @export
-setMethod("binSize", "HiCDOCDataSet", function(object) object@binSize)
+setMethod("binSize", "HiCDOCDataSet", 
+          function(object) object@binSize)
 
 # #### assay ####
 # #' Retrieves the assay matrix of interactions
