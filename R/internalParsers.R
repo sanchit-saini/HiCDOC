@@ -108,9 +108,11 @@
     iset <- InteractionSet::InteractionSet(
         assays = assays,
         interactions = gi)
-    colData(iset) <- S4Vectors::DataFrame(
+    SummarizedExperiment::colData(iset) <- 
+        S4Vectors::DataFrame(
             "condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)),
-            "replicat" =  gsub("^.+?\\.(.+)$", "\\1", colnames(assays)))
+            "replicat" =  gsub("^.+?\\.(.+)$", "\\1", colnames(assays))
+            )
     
     # Remove zero rows
     zeros <- (rowSums(assays, na.rm=TRUE) == 0)
