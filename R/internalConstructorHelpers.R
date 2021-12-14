@@ -51,14 +51,15 @@
     # Fill all other slots than interactionSet part
     
     # Chromosomes and their size (max bin)
-    object@chromosomes <- GenomeInfoDb::seqlevels(object@interactions)
+    object@chromosomes <- gtools::mixedsort(
+        GenomeInfoDb::seqlevels(object@interactions))
     object@totalBins <- .determineChromosomeSizes(object)
     object@parameters <- defaultHiCDOCParameters
     
     # Valid conditions and replicats by chromosome (==not empty)
     # maybe do a function for valid conditions and replicats ?
     valids <- .determineValids(object)
-    object@validConditionsReplicates <-valids
+    object@validAssay <-valids
 
     # Weakbins
     object@weakBins <- vector("list", length(object@chromosomes))
