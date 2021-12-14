@@ -10,9 +10,10 @@
 #' @keywords internal
 #' @noRd
 .determineChromosomeSizes <- function(object) {
-    totalBins <- S4Vectors::runLength(
-        GenomeInfoDb::seqnames(InteractionSet::regions(object)))
-    names(totalBins) <- object@chromosomes
+    chromosomes <- GenomeInfoDb::seqnames(InteractionSet::regions(object))
+    totalBins <- S4Vectors::runLength(chromosomes)
+    names(totalBins) <- levels(chromosomes)
+    totalBins <- totalBins[gtools::mixedsort(levels(chromosomes))]
     return(totalBins)
 }
 
