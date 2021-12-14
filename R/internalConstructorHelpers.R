@@ -31,13 +31,8 @@
     valids <- S4Vectors::split(SummarizedExperiment::assay(object), 
                                S4Vectors::mcols(object)$Chr, drop=FALSE)
     valids <- lapply(valids, colSums, na.rm=TRUE)
-    valids <- lapply(valids, function(x) (x>0 & !is.na(x)))
-    validConditions <-
-        lapply(valids, function(x) object$condition[x])
-    validReplicates <-
-        lapply(valids, function(x) object$replicat[x])
-    return(list("validConditions" = validConditions, 
-                "validReplicates" =validReplicates))
+    valids <- lapply(valids, function(x) which(x>0 & !is.na(x)))
+    return(valids)
 }
 #' @description
 #' Fills parameters and slots describing the data. Called by a
@@ -63,8 +58,7 @@
     # Valid conditions and replicats by chromosome (==not empty)
     # maybe do a function for valid conditions and replicats ?
     valids <- .determineValids(object)
-    object@validConditions <-valids$validConditions
-    object@validReplicates <-valids$validReplicates
+    object@validConditionsReplicates <-valids
 
     # Weakbins
     object@weakBins <- vector("list", length(object@chromosomes))

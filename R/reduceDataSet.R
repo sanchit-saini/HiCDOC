@@ -22,8 +22,8 @@
         
         object@weakBins <- object@weakBins[chromosomeIds]
         object@totalBins <- object@totalBins[chromosomeIds]
-        object@validReplicates <- object@validReplicates[chromosomeIds]
-        object@validConditions <- object@validConditions[chromosomeIds]
+        object@validConditionsReplicates <- 
+            object@validConditionsReplicates[chromosomeIds]
         
         toKeep <- as.character(S4Vectors::mcols(object)$Chr) %in% chromosomeNames
         object <- object[toKeep,]

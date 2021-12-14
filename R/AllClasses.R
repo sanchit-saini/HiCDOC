@@ -38,13 +38,9 @@
 #' A list of the number of bins in each chromosome.
 #' @slot weakBins
 #' A list of weak bins that are filtered out in each chromosome.
-#' @slot validConditions
-#' A list of non-sparse valid conditions, repeated along the valid replicates
-#' in each chromosome.
-#' @slot validReplicates
-#' A list of non-sparse valid replicates, repeated along the valid conditions
-#' in each
-#' chromosome.
+#' @slot validConditionsReplicates
+#' A list of non-sparse valid conditions and replicates, corresponding to the 
+#' valid columns of the assay matrix, for each chromosome
 #' @slot compartments
 #' A tibble of the A or B compartment of each bin in each condition.
 #' @slot concordances
@@ -82,8 +78,7 @@ setClass(
         binSize = "ANY",
         totalBins = "ANY",
         weakBins = "ANY",
-        validConditions = "ANY",
-        validReplicates = "ANY",
+        validConditionsReplicates = "ANY",
         compartments = "ANY",
         concordances = "ANY",
         differences = "ANY",
