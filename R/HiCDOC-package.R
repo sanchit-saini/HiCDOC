@@ -11,6 +11,7 @@
 #' @importFrom stats D loess median quantile
 #' @importFrom S4Vectors DataFrame mcols
 #' @importFrom GenomeInfoDb seqlevels
+#' @importFrom DescTools GCD
 #' @import data.table
 #' @import InteractionSet
 #' @useDynLib HiCDOC
