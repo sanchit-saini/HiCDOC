@@ -20,7 +20,6 @@
     reducedObject,
     threshold
 ) {
-    totalBins <- reducedObject@totalBins[chromosomeName]
     regions <- InteractionSet::regions(reducedObject)
     regions <- regions[regions@seqnames == chromosomeName,]
     minBin <- min(regions$index)
@@ -33,8 +32,8 @@
                           SummarizedExperiment::assay(reducedObject)[,validColumns])
     interactions <- data.table::melt.data.table(interactions, id.vars=c("index1", "index2"))
     interactions[, diagonal := 1-0.5*(index1 == index2)]
-
-    totalBins <- object@totalBins[chromosomeName]
+    
+    totalBins <- reducedObject@totalBins[chromosomeName]
     allBins <- seq(minBin, maxBin)
     removedBins <-
         allBins[
@@ -51,7 +50,7 @@
         sum2 <- interactions[, .(sum2 = sum(value*diagonal, na.rm = TRUE)), 
                              by=.(index = index2, variable)]
         sum12 <- merge(sum1, sum2, by=c("index", "variable"), all=T)
-        sum12[,mean := (sum1 + sum2) / totalBins]
+        sum12[, mean := (sum1 + sum2) / totalBins]
         weakBins <- unique(sum12[mean < threshold, index])
         
         totalNewWeakBins <- length(weakBins) - totalRemovedBins
@@ -139,7 +138,7 @@ filterWeakPositions <- function(object, threshold = NULL) {
         "."
     )
 
-    objectChromosomes <- S4Vectors::split(
+    objectChromosomes <- split(
         object, 
         SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
     

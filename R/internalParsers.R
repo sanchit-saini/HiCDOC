@@ -43,7 +43,9 @@
             call. = FALSE
         )
     }
-    
+    interactions[,chromosome := as.character(chromosome)]
+    interactions[,chromosome := factor(chromosome, 
+                                       levels=gtools::mixedsort(unique(chromosome)))]
     setorder(interactions, chromosome, `position 1`, `position 2`)
     # Assays part, fill with NA
     assays <- as.matrix(interactions[,4:ncol(interactions)])
@@ -122,11 +124,10 @@
     iset <- iset[InteractionSet::intrachr(iset),]
     
     # Add chromosome column for split purpose
-    S4Vectors::mcols(iset) <- 
-        S4Vectors::DataFrame(
-            "Chr" = GenomeInfoDb::seqnames(InteractionSet::anchors(gi, "first"))
-        )
-    
+    Chr <- GenomeInfoDb::seqnames(InteractionSet::anchors(gi, "first"))
+    Chr <- Rle(factor(Chr, levels=gtools::mixedsort(as.character(unique(Chr)))))
+    S4Vectors::mcols(iset) <-  S4Vectors::DataFrame("Chr" = Chr)
+        
     object <- new("HiCDOCDataSet", iset, input = input, binSize = binSize)
     
     return(object)
