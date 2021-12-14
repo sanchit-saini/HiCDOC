@@ -16,65 +16,51 @@
 #' @keywords internal
 #' @noRd
 .filterWeakPositionsOfChromosome <- function(
-    object,
     chromosomeName,
+    reducedObject,
     threshold
 ) {
+    totalBins <- reducedObject@totalBins[chromosomeName]
+    regions <- InteractionSet::regions(reducedObject)
+    regions <- regions[regions@seqnames == chromosomeName,]
+    minBin <- min(regions$index)
+    maxBin <- max(regions$index)
+    validColumns <- reducedObject@validAssay[[chromosomeName]]
+    
+    interactions <- as.data.table(InteractionSet::interactions(reducedObject))
+    interactions <- interactions[,.(index1, index2)]
+    interactions <- cbind(interactions, 
+                          SummarizedExperiment::assay(reducedObject)[,validColumns])
+    interactions <- data.table::melt.data.table(interactions, id.vars=c("index1", "index2"))
+    interactions[, diagonal := 1-0.5*(index1 == index2)]
 
-    interactions <-
-        object@interactions %>%
-        dplyr::filter(chromosome == chromosomeName) %>%
-        dplyr::filter(interaction > 0)
-
-    totalBins <- object@totalBins[[chromosomeName]]
-    allBins <- seq_len(totalBins)
+    totalBins <- object@totalBins[chromosomeName]
+    allBins <- seq(minBin, maxBin)
     removedBins <-
         allBins[
-            !(allBins %in% unique(c(interactions$bin.1, interactions$bin.2)))
+            !(allBins %in% unique(c(interactions$index1, interactions$index1)))
         ]
-
+    
     totalNewWeakBins <- 1
     totalRemovedBins <- 0
-
+    
     # Recursive removal of bins - deleting a bin can create a new weak bin.
     while (totalNewWeakBins > 0 && totalRemovedBins <= totalBins) {
-        diagonalInteractions <-
-            interactions %>%
-            dplyr::filter(bin.1 == bin.2) %>%
-            dplyr::rename(bin = bin.1) %>%
-            dplyr::select(-chromosome, -bin.2)
-
-        rowInteractions <-
-            interactions %>%
-            dplyr::filter(bin.1 != bin.2) %>%
-            tidyr::pivot_longer(
-                cols = c(`bin.1`, `bin.2`),
-                values_to = "bin"
-            ) %>%
-            dplyr::select(-name, -chromosome) %>%
-            dplyr::bind_rows(diagonalInteractions) %>%
-            tidyr::complete(
-                bin,
-                tidyr::nesting(condition, replicate),
-                fill = list(interaction = 0)
-            )
-
-        weakBins <-
-            rowInteractions %>%
-            dplyr::group_by(replicate, condition, bin) %>%
-            dplyr::mutate(mean = sum(interaction) / totalBins) %>%
-            dplyr::filter(mean < threshold) %>%
-            dplyr::pull(bin) %>%
-            unique() %>%
-            sort()
-
+        sum1 <- interactions[, .(sum1 = sum(value*diagonal, na.rm = TRUE)), 
+                             by=.(index = index1, variable)]
+        sum2 <- interactions[, .(sum2 = sum(value*diagonal, na.rm = TRUE)), 
+                             by=.(index = index2, variable)]
+        sum12 <- merge(sum1, sum2, by=c("index", "variable"), all=T)
+        sum12[,mean := (sum1 + sum2) / totalBins]
+        weakBins <- unique(sum12[mean < threshold, index])
+        
         totalNewWeakBins <- length(weakBins) - totalRemovedBins
         removedBins <- c(removedBins, weakBins)
 
         # Remove interactions of weak bins
         if (totalNewWeakBins > 0) {
-            interactions <- interactions[!(interactions$bin.1 %in% weakBins), ]
-            interactions <- interactions[!(interactions$bin.2 %in% weakBins), ]
+            interactions <- interactions[
+                !(index1 %in% weakBins | index2 %in% weakBins)]
             totalRemovedBins <- totalRemovedBins + totalNewWeakBins
         }
     }
@@ -92,8 +78,7 @@
         if (length(allBins) - length(removedBins) != 1) "s",
         " remaining."
     )
-
-    return(list("removedBins" = removedBins, "interactions" = interactions))
+    return(removedBins)
 }
 
 #' @title
@@ -133,11 +118,9 @@
 #'
 #' @export
 filterWeakPositions <- function(object, threshold = NULL) {
-
     .validateSlots(
         object,
         slots = c(
-            "interactions",
             "chromosomes",
             "totalBins",
             "parameters"
@@ -156,26 +139,23 @@ filterWeakPositions <- function(object, threshold = NULL) {
         "."
     )
 
-    results <-
-        lapply(
-            object@chromosomes,
-            function(chromosomeName) {
-                .filterWeakPositionsOfChromosome(
-                    object,
-                    chromosomeName,
-                    threshold
-                )
-            }
-        )
-
-    names(results) <- object@chromosomes
-
-    weakBins <- results %>% purrr::map("removedBins")
-
-    interactions <- results %>% purrr::map_dfr("interactions")
+    objectChromosomes <- S4Vectors::split(
+        object, 
+        SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
+    
+    weakBins <- mapply(function(c, m, t){
+        .filterWeakPositionsOfChromosome(c, m, t)}, 
+        object@chromosomes,
+        objectChromosomes,
+        threshold)
 
     object@weakBins <- weakBins
-    object@interactions <- interactions
+    
+    toRemove <- (object@interactions@anchor1 %in% unlist(weakBins) |
+                     object@interactions@anchor2 %in% unlist(weakBins))
+    object <- object[!toRemove,]
+    object <- reduceRegions(object)
+    object@validAssay <- .determineValids(object)
 
     totalWeakBins <- sum(vapply(weakBins, length, FUN.VALUE = 0))
 
@@ -187,7 +167,7 @@ filterWeakPositions <- function(object, threshold = NULL) {
         " in total."
     )
 
-    if (nrow(object@interactions) == 0) {
+    if (length(toRemove) == sum(toRemove)) {
         warning("No data left!", call. = FALSE)
     }
 
