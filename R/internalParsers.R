@@ -25,25 +25,26 @@
             check.names = FALSE,
             data.table = TRUE
         ) 
-    if (colnames(interactions)[[1]] != "chromosome") {
+    if (colnames(interactions)[1] != "chromosome") {
         stop(
             "First column of the input file must be named 'chromosome'.",
             call. = FALSE
         )
     }
-    if (colnames(interactions)[[2]] != "position 1") {
+    if (colnames(interactions)[2] != "position 1") {
         stop(
             "Second column of the input file must be named 'position 1'.",
             call. = FALSE
         )
     }
-    if (colnames(interactions)[[3]] != "position 2") {
+    if (colnames(interactions)[3] != "position 2") {
         stop(
             "Third column of the input file must be named 'position 2'.",
             call. = FALSE
         )
     }
     
+    setorder(interactions, chromosome, `position 1`, `position 2`)
     # Assays part, fill with NA
     assays <- as.matrix(interactions[,4:ncol(interactions)])
     
@@ -65,8 +66,7 @@
     diag <- (interactions$bin.1 == interactions$bin.2)
     binSize <- DescTools::GCD(abs(interactions[!diag,]$bin.1 - 
                                       interactions[!diag,]$bin.2))
-    # object@binSize <- binSize
-    
+
     interactions[,bin.1 := bin.1/binSize]
     interactions[,bin.2 := bin.2/binSize]
     
@@ -119,7 +119,6 @@
     iset <- iset[!zeros,]
     
     # Keep only intra-chromosomal interactions
-    # interactions <- interactions[InteractionSet::intrachr(gi)]
     iset <- iset[InteractionSet::intrachr(iset),]
     
     # Add chromosome column for split purpose
