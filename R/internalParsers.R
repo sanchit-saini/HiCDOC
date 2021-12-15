@@ -12,30 +12,25 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseTabular <- function(input, sep = "\t") {
+.setFromTabular <- function(interactions, input) {
     
-    message("Parsing '", input, "'.")
-    
-    interactions <-
-        data.table::fread(
-            file = input,
-            sep = sep,
-            header = TRUE,
-            # comment.char = "#",
-            check.names = FALSE,
-            data.table = TRUE
-        ) 
     if (colnames(interactions)[1] != "chromosome") {
         stop(
             "First column of the input file must be named 'chromosome'.",
             call. = FALSE
         )
     }
+    if (colnames(interactions)[2] == "position.1") {
+        data.table::setnames(interactions, "position.1", "position 1")
+    }
     if (colnames(interactions)[2] != "position 1") {
         stop(
             "Second column of the input file must be named 'position 1'.",
             call. = FALSE
         )
+    }
+    if (colnames(interactions)[3] == "position.2") {
+        data.table::setnames(interactions, "position.2", "position 2")
     }
     if (colnames(interactions)[3] != "position 2") {
         stop(
@@ -50,6 +45,7 @@
     # Assays part, fill with NA
     assays <- as.matrix(interactions[,4:ncol(interactions)])
     
+    # This may be dangerous: what if the condition name contains a "."?
     if (!all(grepl("^.+?\\..+$", colnames(assays)))) {
         stop(
             "Fourth to last column of the input file must be named 'C.R', ",
@@ -131,6 +127,36 @@
     object <- new("HiCDOCDataSet", iset, input = input, binSize = binSize)
     
     return(object)
+}
+
+#' @description
+#' Read the file, and fills it using \code{\link{.setFromTabular}}.
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param sep
+#' The separator of the tabular file.
+#'
+#' @return
+#' A filled \code{\link{HiCDOCDataSet}}.
+#'
+#' @keywords internal
+#' @noRd
+.parseTabular <- function(input, sep = "\t") {
+    
+    message("Parsing '", input, "'.")
+    
+    interactions <-
+        data.table::fread(
+            file = input,
+            sep = sep,
+            header = TRUE,
+            # comment.char = "#",
+            check.names = FALSE,
+            data.table = TRUE
+        ) 
+
+    return(.setFromTabular(interactions, input))
 }
 
 #' @description
@@ -259,9 +285,13 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseOneHiC <- function(path, binSize) {
+.parseOneHiC <- function(path, binSize, condition, replicate) {
     message("\nParsing '", path, "'.")
-    return(parseHiCFile(path, binSize))
+    interactions <- parseHiCFile(path, binSize, paste(condition, replicate, sep = "."))
+    # Automagical stuff to transform Rcpp DataFrame to data.table
+    interactions <- data.table::setalloccol(interactions)
+    interactions <- .setFromTabular(interactions, path)
+    return(interactions)
 }
 
 #' @description

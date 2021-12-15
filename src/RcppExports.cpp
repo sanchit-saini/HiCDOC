@@ -27,21 +27,22 @@ BEGIN_RCPP
 END_RCPP
 }
 // parseHiCFile
-DataFrame parseHiCFile(std::string& fname, int resolution);
-RcppExport SEXP _HiCDOC_parseHiCFile(SEXP fnameSEXP, SEXP resolutionSEXP) {
+DataFrame parseHiCFile(std::string& fname, int resolution, std::string& name);
+RcppExport SEXP _HiCDOC_parseHiCFile(SEXP fnameSEXP, SEXP resolutionSEXP, SEXP nameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string& >::type fname(fnameSEXP);
     Rcpp::traits::input_parameter< int >::type resolution(resolutionSEXP);
-    rcpp_result_gen = Rcpp::wrap(parseHiCFile(fname, resolution));
+    Rcpp::traits::input_parameter< std::string& >::type name(nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(parseHiCFile(fname, resolution, name));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
     {"_HiCDOC_constrainedClustering", (DL_FUNC) &_HiCDOC_constrainedClustering, 6},
-    {"_HiCDOC_parseHiCFile", (DL_FUNC) &_HiCDOC_parseHiCFile, 2},
+    {"_HiCDOC_parseHiCFile", (DL_FUNC) &_HiCDOC_parseHiCFile, 3},
     {NULL, NULL, 0}
 };
 
