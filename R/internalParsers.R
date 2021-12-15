@@ -132,14 +132,14 @@
         SummarizedExperiment::colData(iset) <- 
             S4Vectors::DataFrame(
                 "condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)),
-                "replicat" = gsub("^.+?\\.(.+)$", "\\1", colnames(assays))
+                "replicate" = gsub("^.+?\\.(.+)$", "\\1", colnames(assays))
                 )
     }
     else {
         SummarizedExperiment::colData(iset) <- 
             S4Vectors::DataFrame(
                 "condition" = conditions,
-                "replicat" = replicates
+                "replicate" = replicates
                 )
     }
     
