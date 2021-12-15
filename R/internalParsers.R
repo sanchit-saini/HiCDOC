@@ -125,7 +125,7 @@
     
     # Add chromosome column for split purpose
     Chr <- GenomeInfoDb::seqnames(InteractionSet::anchors(gi, "first"))
-    Chr <- Rle(factor(Chr, levels=gtools::mixedsort(as.character(unique(Chr)))))
+    Chr <- S4Vectors::Rle(factor(Chr, levels=gtools::mixedsort(as.character(unique(Chr)))))
     S4Vectors::mcols(iset) <-  S4Vectors::DataFrame("Chr" = Chr)
         
     object <- new("HiCDOCDataSet", iset, input = input, binSize = binSize)
