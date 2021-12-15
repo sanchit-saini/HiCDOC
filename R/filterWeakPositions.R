@@ -142,7 +142,7 @@ filterWeakPositions <- function(object, threshold = NULL) {
         object, 
         SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
     
-    weakBins <- mapply(function(c, m, t){
+    weakBins <- pbapply::pbmapply(function(c, m, t){
         .filterWeakPositionsOfChromosome(c, m, t)}, 
         object@chromosomes,
         objectChromosomes,
@@ -152,10 +152,12 @@ filterWeakPositions <- function(object, threshold = NULL) {
     
     toRemove <- (object@interactions@anchor1 %in% unlist(weakBins) |
                      object@interactions@anchor2 %in% unlist(weakBins))
-    object <- object[!toRemove,]
-    object <- reduceRegions(object)
-    object@validAssay <- .determineValids(object)
-
+    if(sum(toRemove)>0){
+        object <- object[!toRemove,]
+        object <- reduceRegions(object)
+        object@validAssay <- .determineValids(object)
+    }
+    
     totalWeakBins <- sum(vapply(weakBins, length, FUN.VALUE = 0))
 
     message(

@@ -79,7 +79,8 @@
     allRegions[, index := cumsum(index) + 1]
     allRegions[, end:=(indexC+1)*binSize -1]
     allRegions[, start:=(indexC)*binSize]
-    data.table::setcolorder(allRegions, c("chromosome", "start", "end", "index", "indexC"))
+    data.table::setcolorder(allRegions, 
+                            c("chromosome", "start", "end", "index", "indexC"))
     
     interactions <- 
         merge(
@@ -291,6 +292,7 @@
     interactions <- parseHiCFile(path, binSize, paste(condition, replicate, sep = "."))
     # Automagical stuff to transform Rcpp DataFrame to data.table
     interactions <- data.table::setalloccol(interactions)
+    # Create InteractionSet object
     interactions <- .setFromTabular(interactions, path)
     return(interactions)
 }
@@ -312,17 +314,20 @@
 #' @noRd
 .parseHiC <- function(object, binSize, replicates, conditions) {
     
-    interactions <-
+    isetHic <-
         pbapply::pbmapply(
             .parseOneHiC,
             path      = object@input,
             binSize   = binSize,
             condition = conditions,
-	    replicate = replicates
+	        replicate = replicates
         )
     
-    mergedInteractions <- Reduce(f = mergeInteractionSet, x = interactions)
-    object <- new("HiCDOCDataSet", mergedInteractions, input = object@input, binSize = binSize)
+    mergedIsetHic <- Reduce(f = .mergeInteractionSet, x = isetHic)
+    object <- new("HiCDOCDataSet", 
+                  mergedIsetHic, 
+                  input = object@input, 
+                  binSize = binSize)
 }
 
 #' @description

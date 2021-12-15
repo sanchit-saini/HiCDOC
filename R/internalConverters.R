@@ -167,7 +167,7 @@ fillInteractionSet <- function(iset, isetUnion, fill=0){
 #'
 #' @keywords internal
 #' @noRd
-mergeInteractionSet <- function(iset1, iset2, fill=0){
+.mergeInteractionSet <- function(iset1, iset2, fill=0){
     unionInteractions <- GenomicRanges::union(InteractionSet::interactions(iset1),
                                               InteractionSet::interactions(iset2))
     # Complete InteractionSets

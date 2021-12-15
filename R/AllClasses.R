@@ -317,10 +317,16 @@ HiCDOCDataSetFromHiC <- function(
     if (is.null(replicates)) {
         stop("'replicates' must be a vector of replicates.", call. = FALSE)
     }
+    if(length(replicates) != length(path)){
+        stop("'replicates' should have the same length as paths")
+    }
 
     if (is.factor(conditions)) conditions <- as.vector(conditions)
     if (is.null(conditions)) {
         stop("'conditions' must be a vector of conditions.", call. = FALSE)
+    }
+    if(length(conditions) != length(path)){
+        stop("'conditions' should have the same length as paths")
     }
 
     if (!is.numeric(binSize) || length(binSize) != 1) {

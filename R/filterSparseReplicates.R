@@ -117,7 +117,7 @@ filterSparseReplicates <- function(object, threshold = NULL) {
         SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
     
     resultAssay <-
-        mapply(function(a, d, c, t, v)
+        pbapply::pbmapply(function(a, d, c, t, v)
             .filterSparseReplicatesOfChromosome(a, d, c, t, threshold, v, 
                                                 object$condition, 
                                                 object$replicat),
