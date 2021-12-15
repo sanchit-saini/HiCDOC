@@ -329,9 +329,7 @@ HiCDOCDataSetFromHiC <- function(
 
     object <- new("HiCDOCDataSet")
     object@input <- paths
-    object@replicates <- replicates
-    object@conditions <- conditions
-    object <- .parseHiC(object, binSize)
+    object <- .parseHiC(object, binSize, replicates, conditions)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }

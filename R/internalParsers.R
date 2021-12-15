@@ -1,6 +1,6 @@
 #' @description
 #' Parses interactions in tabular format and fills the conditions, replicates,
-#' and interactions slots of the provided \code{\link{HiCDOCDataSet}}.
+#' and interactions slots of the provided \code{\link{InteractionSet}}.
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
@@ -8,7 +8,7 @@
 #' The separator of the tabular file.
 #'
 #' @return
-#' A filled \code{\link{HiCDOCDataSet}}.
+#' An \code{\link{InteractionSet}}.
 #'
 #' @keywords internal
 #' @noRd
@@ -124,9 +124,7 @@
     Chr <- S4Vectors::Rle(factor(Chr, levels=gtools::mixedsort(as.character(unique(Chr)))))
     S4Vectors::mcols(iset) <-  S4Vectors::DataFrame("Chr" = Chr)
         
-    object <- new("HiCDOCDataSet", iset, input = input, binSize = binSize)
-    
-    return(object)
+    return(iset)
 }
 
 #' @description
@@ -156,7 +154,10 @@
             data.table = TRUE
         ) 
 
-    return(.setFromTabular(interactions, input))
+    iset   <- .setFromTabular(interactions, input)
+    object <- new("HiCDOCDataSet", iset, input = input, binSize = binSize)
+    
+    return(object)
 }
 
 #' @description
@@ -281,7 +282,7 @@
 #' the \code{.hic} file.
 #'
 #' @return
-#' A dataframe of interactions.
+#' An \code{\link{InteractionSet}}.
 #'
 #' @keywords internal
 #' @noRd
@@ -309,28 +310,19 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseHiC <- function(object, binSize) {
+.parseHiC <- function(object, binSize, replicates, conditions) {
     
     interactions <-
-        pbapply::pblapply(
-            object@input,
+        pbapply::pbmapply(
             .parseOneHiC,
-            binSize = binSize
-        ) %>%
-        purrr::map2(
-            object@replicates,
-            ~ dplyr::mutate(.x, replicate = .y)
-        ) %>%
-        purrr::map2(
-            object@conditions,
-            ~ dplyr::mutate(.x, condition = .y)
+            path      = object@input,
+            binSize   = binSize,
+            condition = conditions,
+	    replicate = replicates
         )
     
-    object@interactions <-
-        dplyr::bind_rows(interactions) %>%
-        dplyr::as_tibble()
-    
-    return(object)
+    mergedInteractions <- Reduce(f = mergeInteractionSet, x = interactions)
+    object <- new("HiCDOCDataSet", mergedInteractions, input = object@input, binSize = binSize)
 }
 
 #' @description
