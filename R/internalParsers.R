@@ -4,15 +4,21 @@
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
-#' @param sep
-#' The separator of the tabular file.
+#' @param input
+#' The name of the input file
+#' @param conditions
+#' The names of the conditions
+#' (infered from the table if not specified).
+#' @param replicates
+#' The names of the replicates
+#' (infered from the table if not specified).
 #'
 #' @return
 #' An \code{\link{InteractionSet}}.
 #'
 #' @keywords internal
 #' @noRd
-.setFromTabular <- function(interactions, input) {
+.setFromTabular <- function(interactions, input, conditions = NULL, replicates = NULL) {
     
     if (colnames(interactions)[1] != "chromosome") {
         stop(
@@ -38,12 +44,27 @@
             call. = FALSE
         )
     }
+    if (is.null(conditions) != is.null(replicates)) {
+        stop(
+            "Conditions and replicates should be both NULL, or none.",
+            call. = FALSE
+        )
+    }
     interactions[,chromosome := as.character(chromosome)]
     interactions[,chromosome := factor(chromosome, 
                                        levels=gtools::mixedsort(unique(chromosome)))]
     setorder(interactions, chromosome, `position 1`, `position 2`)
     # Assays part, fill with NA
     assays <- as.matrix(interactions[,4:ncol(interactions)])
+
+    if (! is.null(conditions)) {
+        if ((length(conditions) != ncol(assays)) | (length(replicates) != ncol(assays))) {
+            stop(
+                "Number of conditions and replicates should match the number of counts in the matrix.",
+                call. = FALSE
+            )
+        }
+    }
     
     # This may be dangerous: what if the condition name contains a "."?
     if (!all(grepl("^.+?\\..+$", colnames(assays)))) {
@@ -107,11 +128,20 @@
     iset <- InteractionSet::InteractionSet(
         assays = assays,
         interactions = gi)
-    SummarizedExperiment::colData(iset) <- 
-        S4Vectors::DataFrame(
-            "condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)),
-            "replicat" =  gsub("^.+?\\.(.+)$", "\\1", colnames(assays))
-            )
+    if (is.null(conditions)) {
+        SummarizedExperiment::colData(iset) <- 
+            S4Vectors::DataFrame(
+                "condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)),
+                "replicat" = gsub("^.+?\\.(.+)$", "\\1", colnames(assays))
+                )
+    }
+    else {
+        SummarizedExperiment::colData(iset) <- 
+            S4Vectors::DataFrame(
+                "condition" = conditions,
+                "replicat" = replicates
+                )
+    }
     
     # Remove zero rows
     zeros <- (rowSums(assays, na.rm=TRUE) == 0)
@@ -293,7 +323,7 @@
     # Automagical stuff to transform Rcpp DataFrame to data.table
     interactions <- data.table::setalloccol(interactions)
     # Create InteractionSet object
-    interactions <- .setFromTabular(interactions, path)
+    interactions <- .setFromTabular(interactions, path, condition, replicate)
     return(interactions)
 }
 
