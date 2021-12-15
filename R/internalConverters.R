@@ -144,12 +144,15 @@
 #'
 #' @keywords internal
 #' @noRd
-fillInteractionSet <- function(iset, isetUnion, fill=0){
+.fillInteractionSet <- function(iset, isetUnion, fill=NA){
     over <- GenomicRanges::match(iset, isetUnion)
     nc <- ncol(iset)
     newassays <- matrix(rep(fill, length(isetUnion)*nc), ncol=nc)
     newassays[over,] <- SummarizedExperiment::assay(iset)
-    return(InteractionSet(newassays, isetUnion, colData = SummarizedExperiment::colData(iset)))
+    return(InteractionSet::InteractionSet(
+        newassays, 
+        isetUnion, 
+        colData = SummarizedExperiment::colData(iset)))
 }
 
 #' @description
@@ -167,12 +170,12 @@ fillInteractionSet <- function(iset, isetUnion, fill=0){
 #'
 #' @keywords internal
 #' @noRd
-.mergeInteractionSet <- function(iset1, iset2, fill=0){
+.mergeInteractionSet <- function(iset1, iset2, fill=NA){
     unionInteractions <- GenomicRanges::union(InteractionSet::interactions(iset1),
                                               InteractionSet::interactions(iset2))
     # Complete InteractionSets
-    iset1 <- fillInteractionSet(iset1, unionInteractions, fill)
-    iset2 <- fillInteractionSet(iset2, unionInteractions, fill)
+    iset1 <- .fillInteractionSet(iset1, unionInteractions, fill)
+    iset2 <- .fillInteractionSet(iset2, unionInteractions, fill)
 
     # Merge
     newiset <- BiocGenerics::cbind(iset1, iset2)
