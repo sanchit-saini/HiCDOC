@@ -120,7 +120,7 @@ filterSparseReplicates <- function(object, threshold = NULL) {
         pbapply::pbmapply(function(a, d, c, t, v)
             .filterSparseReplicatesOfChromosome(a, d, c, t, threshold, v, 
                                                 object$condition, 
-                                                object$replicat),
+                                                object$replicate),
             assayChromosomes,
             diagonals,
             object@chromosomes,

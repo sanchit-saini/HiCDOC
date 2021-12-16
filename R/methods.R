@@ -23,7 +23,7 @@ setMethod("conditions", "HiCDOCDataSet",
 #' NULL
 #' @export
 setMethod("replicates", "HiCDOCDataSet", 
-          function(object) object$replicat)
+          function(object) object$replicate)
 
 #### binSize ####
 #' Retrieves the resolution (span of each position in number of bases).
