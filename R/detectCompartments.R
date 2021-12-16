@@ -363,7 +363,7 @@
                                     dropLevels = FALSE)
             }
         )
-    result <- .internalmApply(
+    result <- .internalApply(
         parallel,
         FUN = function(obj, chromosomeName, conditionName) {
             .clusterizeChromosomeCondition(
@@ -521,7 +521,7 @@
             }
         )
     ratios <-
-        .internalmApply(parallel,
+        .internalApply(parallel,
             FUN = .computeSelfInteractionRatios,
             reducedObjects,
             chromosomeNames,
