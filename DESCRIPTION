@@ -26,7 +26,6 @@ Imports:
     rhdf5,
     dplyr,
     tidyr,
-    multiHiCcompare,
     magrittr,
     ggplot2,
     ggExtra,
@@ -41,6 +40,7 @@ Imports:
     data.table,
     S4Vectors,
     InteractionSet,
+    SummarizedExperiment,
     DescTools
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1

@@ -10,3 +10,8 @@ src/*.o
 inst/doc
 /doc/
 /Meta/
+
+# Ignoring renv files
+/renv/
+renv.lock
+.Rprofile

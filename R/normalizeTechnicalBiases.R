@@ -53,118 +53,58 @@
 #'
 #' @export
 normalizeTechnicalBiases <- function(object, parallel = FALSE) {
-    .validateSlots(
-        object,
-        slots = c(
-            "interactions",
-            "chromosomes",
-            "binSize",
-            "weakBins",
-            "validReplicates",
-            "validConditions"
-        )
-    )
-
+    .validateSlots(object,
+                   slots = c("chromosomes",
+                             "binSize"))
+    
     message("Normalizing technical biases.")
-
-    # One matrix per condition and replicate
-    matrices <-
-        object@interactions %>%
-        dplyr::mutate(
-            chromosome =
-                as.integer(factor(chromosome, levels = object@chromosomes)),
-            bin.1 = (bin.1 - 1) * object@binSize,
-            bin.2 = (bin.2 - 1) * object@binSize
-        ) %>%
-        dplyr::group_split(condition, replicate)
-
-    groups <-
-        matrices %>%
-        purrr::map(function(group) {
-            dplyr::select(group, c(condition, replicate)) %>%
-                dplyr::slice(1)
-        }) %>%
-        purrr::reduce(rbind)
-
-    matrices %<>%
-        purrr::map(function(group)
-            dplyr::select(group,-condition,-replicate))
-
-    # Regions to ignore during normalization
-    weakRegions <-
-        data.frame("chromosome" = unlist(mapply(
-            function(bins, chromosomeName) {
-                rep(chromosomeName, length(bins))
-            },
-            object@weakBins,
-            names(object@weakBins)
-        )),
-        "bin" = unlist(object@weakBins))
-    # Handling the special case of one chromosome
-    if(colnames(weakRegions)[1] != "chromosome") 
-        colnames(weakRegions)[1] <- "chromosome"
-
-    if (nrow(weakRegions) > 0) {
-        weakRegions %<>%
-            dplyr::mutate(
-                start = (bin - 1) * object@binSize,
-                end = (bin * object@binSize) - 1
-            ) %>%
-            dplyr::select(-bin) %>%
-            dplyr::mutate(chromosome =
-                as.integer(factor(chromosome, levels = object@chromosomes))) %>%
-            GenomicRanges::makeGRangesFromDataFrame()
-    } else {
-        weakRegions <- NULL
-    }
-
-    # Cyclic loess normalization
-    experiment <-
-        multiHiCcompare::make_hicexp(
-            data_list = matrices,
-            groups = groups$condition,
-            remove.regions = weakRegions,
-            remove_zeros = FALSE,
-            filter = TRUE,
-            zero.p = 1,
-            A.min = 0
-        )
-    normalized <-
-        multiHiCcompare::cyclic_loess(experiment, parallel = parallel)
-
-    result <-
-        multiHiCcompare::hic_table(normalized) %>%
-        dplyr::as_tibble() %>%
-        dplyr::select(-D)
-    colnames(result) <-
-        c("chromosome",
-          "bin.1",
-          "bin.2",
-          seq_along(groups$replicate))
-    result %<>%
-        dplyr::mutate(
-            bin.1 = as.integer(bin.1 / object@binSize + 1),
-            bin.2 = as.integer(bin.2 / object@binSize + 1)
-        )
-
-    object@interactions <-
-        result %>%
-        tidyr::pivot_longer(as.character(seq_along(groups$replicate)),
-                            names_to = "index",
-                            values_to = "interaction") %>%
-        dplyr::mutate(index = factor(as.integer(index))) %>%
-        dplyr::mutate(condition = groups$condition[index]) %>%
-        dplyr::mutate(replicate = groups$replicate[index]) %>%
-        dplyr::mutate(chromosome = object@chromosomes[chromosome]) %>%
-        dplyr::select(chromosome,
-                      condition,
-                      replicate,
-                      bin.1,
-                      bin.2,
-                      interaction) %>%
-        .sortInteractions(object@chromosomes,
-                          object@conditions,
-                          object@replicates)
-
+    
+    hic_table <- as.data.table(InteractionSet::interactions(object))
+    hic_table <-
+        hic_table[, .(chr = as.numeric(as.factor(as.character(seqnames1))),
+                      region1 = start1,
+                      region2 = start2)]
+    hic_table[, D := InteractionSet::pairdist(object, type = "diag")]
+    assay <- SummarizedExperiment::assay(object)
+    assay[is.na(assay)] <- 0
+    # Reordering columns in alphabetic order (useful for tests)
+    colnames(assay) <- paste(object$condition, object$replicat)
+    refOrder <- sort(paste(object$condition, object$replicat))
+    columnOrder <- sort(refOrder)
+    assay <- assay[, columnOrder]
+    assay <- as.data.table(assay)
+    setnames(assay, paste0("IF", seq_len(ncol(assay))))
+    
+    hic_table <- cbind(hic_table, assay)
+    
+    table_list <- split(hic_table, hic_table$chr)
+    
+    # plug into parallelized loess function
+    normalized <- .internalApply(
+        parallel = parallel,
+        table_list,
+        FUN = .cloess,
+        iterations = 3,
+        verbose = FALSE,
+        span = NA
+    )
+    normalized <- data.table::rbindlist(normalized)
+    
+    ifcolumns <- colnames(hic_table)[4:ncol(hic_table)]
+    hic_table[, (ifcolumns) := NULL]
+    data.table::setindexv(normalized, c("chr", "region1", "region2"))
+    data.table::setindexv(hic_table, c("chr", "region1", "region2"))
+    hic_table <- merge(hic_table, normalized, sort = FALSE)
+    
+    assay <- hic_table[, 5:ncol(hic_table)]
+    # Reordering columns in original order
+    colnames(assay) <- columnOrder
+    setcolorder(assay, refOrder)
+    assay <- as.matrix(assay)
+    colnames(assay) <- NULL
+    assay[assay == 0] <- NA
+    if (sum(!is.na(assay)) != sum(!is.na(SummarizedExperiment::assay(object))))
+        stop("Something went wrong")
+    SummarizedExperiment::assay(object) <- assay
     return(object)
 }
