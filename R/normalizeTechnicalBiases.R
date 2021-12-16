@@ -68,8 +68,8 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     assay <- SummarizedExperiment::assay(object)
     assay[is.na(assay)] <- 0
     # Reordering columns in alphabetic order (useful for tests)
-    colnames(assay) <- paste(object$condition, object$replicat)
-    refOrder <- sort(paste(object$condition, object$replicat))
+    colnames(assay) <- paste(object$condition, object$replicate)
+    refOrder <- sort(paste(object$condition, object$replicate))
     columnOrder <- sort(refOrder)
     assay <- assay[, columnOrder]
     assay <- as.data.table(assay)
