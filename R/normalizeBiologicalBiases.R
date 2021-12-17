@@ -14,7 +14,9 @@
 #'
 #' @keywords internal
 #' @noRd
-.normalizeKnightRuiz <- function(m) {
+.normalizeKnightRuiz <- function(cm) {
+    m <- cm@matrix
+    m[is.na(m)] <- 0
     tol <- 1e-6
     minDelta <- 0.1
     maxDelta <- 3
@@ -87,7 +89,8 @@
         eta <- max(c(min(c(eta, etamax)), stop_tol / res_norm))
     }
     result <- t(t(x[, 1] * m) * x[, 1])
-    return(result)
+    cm@matrix <- result
+    return(cm)
 }
 
 #' @description
@@ -104,49 +107,33 @@
 #'
 #' @keywords internal
 #' @noRd
-.normalizeBiologicalBiasesOfChromosome <- function(object, chromosomeName) {
-
+.normalizeBiologicalBiasesOfChromosome <- function(object) {
+    chromosomeName <- as.character(SummarizedExperiment::mcols(object)$Chr[1])
     message("Chromosome ", chromosomeName, ": normalizing biological biases.")
+    if (object@totalBins[[chromosomeName]] <= 0) return(NULL)
 
-    if (object@totalBins[[chromosomeName]] == -Inf) return(NULL)
-
-    matrices <-
-        mapply(
-            function(conditionName, replicateName) {
-                .sparseInteractionsToMatrix(
-                    object,
-                    chromosomeName,
-                    conditionName,
-                    replicateName,
-                    filter = TRUE
-                )
-            },
-            object@validConditions[[chromosomeName]],
-            object@validReplicates[[chromosomeName]],
-            SIMPLIFY = FALSE
-        )
-
-    normalizedMatrices <- lapply(matrices, .normalizeKnightRuiz)
-
-    interactions <-
-        purrr::pmap_dfr(
-            list(
-                normalizedMatrices,
-                object@validConditions[[chromosomeName]],
-                object@validReplicates[[chromosomeName]]
-            ),
-            .f = function(matrix, conditionName, replicateName) {
-                .matrixToSparseInteractions(
-                    matrix,
-                    object,
-                    chromosomeName,
-                    conditionName,
-                    replicateName
-                )
-            }
-        )
-
-    return(interactions)
+    isetChromosome <- InteractionSet::InteractionSet(
+        SummarizedExperiment::assay(object),
+        InteractionSet::interactions(object)
+    )
+    validAssay <- object@validAssay[[chromosomeName]]
+    matrices <- 
+        lapply(validAssay,
+               FUN = function(x) {
+                   InteractionSet::inflate(isetChromosome, 
+                                           rows = chromosomeName,
+                                           columns = chromosomeName,
+                                           sample = x)
+                   })
+    
+    matrices <- lapply(matrices, .normalizeKnightRuiz)
+    matrices <- lapply(matrices, InteractionSet::deflate)
+    matrices <- lapply(matrices, SummarizedExperiment::assay)
+    matrices <- do.call("cbind", matrices)
+    
+    assay <-SummarizedExperiment::assay(object)
+    assay[,validAssay] <- matrices
+    return(assay)
 }
 
 #' @title
@@ -179,34 +166,27 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @export
-normalizeBiologicalBiases <- function(object) {
+normalizeBiologicalBiases <- function(object, parallel = FALSE) {
 
     .validateSlots(
         object,
         slots = c(
-            "interactions",
             "chromosomes",
             "totalBins",
             "weakBins",
-            "validReplicates",
-            "validConditions"
+            "validAssay"
         )
     )
+    objectChromosomes <- S4Vectors::split(
+        object, 
+        SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
+    
+    normalizedAssays <- .internalApply(parallel,
+                                       objectChromosomes,
+                                       FUN = .normalizeBiologicalBiasesOfChromosome) 
+    normalizedAssays <- do.call("rbind", normalizedAssays)
 
-    normalizedInteractions <-
-        purrr::map_dfr(
-            object@chromosomes,
-            function(chromosomeName) {
-                .normalizeBiologicalBiasesOfChromosome(object, chromosomeName)
-            }
-        ) %>%
-        .sortInteractions(
-            object@chromosomes,
-            object@conditions,
-            object@replicates
-        )
-
-    object@interactions <- normalizedInteractions
+    SummarizedExperiment::assay(object) <- normalizedAssays
 
     return(object)
 }
