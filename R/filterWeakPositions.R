@@ -150,8 +150,9 @@ filterWeakPositions <- function(object, threshold = NULL) {
 
     object@weakBins <- weakBins
     
-    toRemove <- (object@interactions@anchor1 %in% unlist(weakBins) |
-                     object@interactions@anchor2 %in% unlist(weakBins))
+    indexes <- as.data.table(InteractionSet::interactions(object))
+    toRemove <- (indexes$index1 %in% unlist(weakBins) |
+                     indexes$index2 %in% unlist(weakBins))
     if(sum(toRemove)>0){
         object <- object[!toRemove,]
         object <- reduceRegions(object)
