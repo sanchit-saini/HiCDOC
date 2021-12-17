@@ -425,7 +425,7 @@ void readFooter(std::istream& fin, hicInfo &info, outputStr &output) {
 
 
 // [[Rcpp::export]]
-DataFrame parseHiCFile(std::string &fname, int resolution, std::string &name) {
+DataFrame parseHiCFile(std::string &fname, int resolution) {
   hicInfo info;
   outputStr output;
   std::ifstream fin;
@@ -461,7 +461,7 @@ DataFrame parseHiCFile(std::string &fname, int resolution, std::string &name) {
     _["chromosome"] = chromosomes,
     _["position 1"] = bins1 * resolution,
     _["position 2"] = bins2 * resolution,
-    _[name] = counts
+    _["interaction"] = counts
   );
   outputR.attr("class") = Rcpp::CharacterVector::create("data.table", "data.frame");
   return outputR;

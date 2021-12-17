@@ -18,27 +18,27 @@
 #'
 #' @keywords internal
 #' @noRd
-.setFromTabular <- function(interactions, input, conditions = NULL, replicates = NULL) {
-    
-    if (colnames(interactions)[1] != "chromosome") {
+.setFromTabular <- function(tabular, input, conditions = NULL, replicates = NULL) {
+
+    if (colnames(tabular)[1] != "chromosome") {
         stop(
             "First column of the input file must be named 'chromosome'.",
             call. = FALSE
         )
     }
-    if (colnames(interactions)[2] == "position.1") {
-        data.table::setnames(interactions, "position.1", "position 1")
+    if (colnames(tabular)[2] == "position.1") {
+        data.table::setnames(tabular, "position.1", "position 1")
     }
-    if (colnames(interactions)[2] != "position 1") {
+    if (colnames(tabular)[2] != "position 1") {
         stop(
             "Second column of the input file must be named 'position 1'.",
             call. = FALSE
         )
     }
-    if (colnames(interactions)[3] == "position.2") {
-        data.table::setnames(interactions, "position.2", "position 2")
+    if (colnames(tabular)[3] == "position.2") {
+        data.table::setnames(tabular, "position.2", "position 2")
     }
-    if (colnames(interactions)[3] != "position 2") {
+    if (colnames(tabular)[3] != "position 2") {
         stop(
             "Third column of the input file must be named 'position 2'.",
             call. = FALSE
@@ -50,12 +50,12 @@
             call. = FALSE
         )
     }
-    interactions[,chromosome := as.character(chromosome)]
-    interactions[,chromosome := factor(chromosome, 
+    tabular[,chromosome := as.character(chromosome)]
+    tabular[,chromosome := factor(chromosome, 
                                        levels=gtools::mixedsort(unique(chromosome)))]
-    setorder(interactions, chromosome, `position 1`, `position 2`)
+    setorder(tabular, chromosome, `position 1`, `position 2`)
     # Assays part, fill with NA
-    assays <- as.matrix(interactions[,4:ncol(interactions)])
+    assays <- as.matrix(tabular[,4:ncol(tabular)])
 
     if (! is.null(conditions)) {
         if ((length(conditions) != ncol(assays)) | (length(replicates) != ncol(assays))) {
@@ -65,31 +65,31 @@
             )
         }
     }
-    
-    # This may be dangerous: what if the condition name contains a "."?
-    if (!all(grepl("^.+?\\..+$", colnames(assays)))) {
-        stop(
-            "Fourth to last column of the input file must be named 'C.R', ",
-            "with C the condition number/name and R the replicate number/name.",
-            call. = FALSE
-        )
+    else {
+        if (!all(grepl("^.+?\\..+$", colnames(assays)))) {
+            stop(
+                "Fourth to last column of the input file must be named 'C.R', ",
+                "with C the condition number/name and R the replicate number/name.",
+                call. = FALSE
+            )
+        }
     }
     assays[assays == 0] <- NA
     
     # GInteraction part
-    interactions <- interactions[,1:3]
-    data.table::setnames(interactions, "position 1", "bin.1")
-    data.table::setnames(interactions, "position 2", "bin.2")
-    setkey(interactions, chromosome, bin.1, bin.2)
+    tabular <- tabular[,1:3]
+    data.table::setnames(tabular, "position 1", "bin.1")
+    data.table::setnames(tabular, "position 2", "bin.2")
+    setkey(tabular, chromosome, bin.1, bin.2)
     
-    diag <- (interactions$bin.1 == interactions$bin.2)
-    binSize <- DescTools::GCD(abs(interactions[!diag,]$bin.1 - 
-                                      interactions[!diag,]$bin.2))
+    diag <- (tabular$bin.1 == tabular$bin.2)
+    binSize <- DescTools::GCD(abs(tabular[!diag,]$bin.1 - 
+                                      tabular[!diag,]$bin.2))
 
-    interactions[,bin.1 := bin.1/binSize]
-    interactions[,bin.2 := bin.2/binSize]
+    tabular[,bin.1 := bin.1/binSize]
+    tabular[,bin.2 := bin.2/binSize]
     
-    allRegions <- data.table::melt(interactions[,.(chromosome, bin.1, bin.2)],
+    allRegions <- data.table::melt(tabular[,.(chromosome, bin.1, bin.2)],
                                    id.vars = "chromosome", 
                                    value.name = "indexC")
     allRegions[,variable := NULL]
@@ -103,30 +103,30 @@
     data.table::setcolorder(allRegions, 
                             c("chromosome", "start", "end", "index", "indexC"))
     
-    interactions <- 
+    tabular <- 
         merge(
-            interactions, 
+            tabular, 
             allRegions[,.(chromosome, startIndex = index, bin.1 = indexC)], 
             all.x=TRUE, 
             sort=FALSE,
             by=c("chromosome", "bin.1"))
-    interactions <- 
+    tabular <- 
         merge(
-            interactions, 
+            tabular, 
             allRegions[,.(chromosome, stopIndex = index, bin.2 = indexC)], 
             all.x=TRUE, 
             sort=FALSE,
             by=c("chromosome", "bin.2"))
-    interactions[, bin.1 := NULL]
-    interactions[, bin.2 := NULL]
+    tabular[, bin.1 := NULL]
+    tabular[, bin.2 := NULL]
     
     allRegions[,indexC := NULL]
     gi <- InteractionSet::GInteractions(
-        interactions$startIndex, interactions$stopIndex, 
+        tabular$startIndex, tabular$stopIndex, 
         GenomicRanges::GRanges(allRegions), mode="strict")
-    
+
     iset <- InteractionSet::InteractionSet(
-        assays = assays,
+        assays       = assays,
         interactions = gi)
     if (is.null(conditions)) {
         SummarizedExperiment::colData(iset) <- 
@@ -206,7 +206,7 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseOneCool <- function(path, binSize = NULL) {
+.parseOneCool <- function(path, binSize = NA, replicate, condition) {
     
     message("\nParsing '", path, "'.")
     
@@ -223,7 +223,7 @@
     }
     
     bins <-
-        dplyr::tibble(
+        data.table::data.table(
             chromosome = factor(
                 rhdf5::h5read(file = path, name = uri("bins/chrom"))
             ),
@@ -236,33 +236,32 @@
         stop("Cannot parse '", path, "': fixed width only.", call. = FALSE)
     }
     step <- max(step)
-    
-    bins %<>%
-        dplyr::select(-end) %>%
-        dplyr::rename(position = start) %>%
-        dplyr::mutate(ide = seq_len(nrow(bins)) - 1) %>%
-        dplyr::select(ide, chromosome, position)
-    
-    rownames(bins) <- NULL
+
+    bins[, end := NULL]
+    bins[, ide := seq_len(nrow(bins)) - 1]
+    data.table::setnames(bins, "start", "position")
+    data.table::setcolorder(bins, c("ide", "chromosome", "position"))
     
     interactions <-
-        dplyr::tibble(
+        data.table::data.table(
             id1 = rhdf5::h5read(file = path, name = uri("pixels/bin1_id")),
             id2 = rhdf5::h5read(file = path, name = uri("pixels/bin2_id")),
             interaction = rhdf5::h5read(file = path, name = uri("pixels/count"))
-        ) %>%
-        dplyr::left_join(bins, by = c("id1" = "ide")) %>%
-        dplyr::rename(chromosome.1 = chromosome, position.1 = position) %>%
-        dplyr::select(-id1) %>%
-        dplyr::left_join(bins, by = c("id2" = "ide")) %>%
-        dplyr::rename(chromosome.2 = chromosome, position.2 = position) %>%
-        dplyr::select(-id2) %>%
-        dplyr::filter(chromosome.1 == chromosome.2) %>%
-        dplyr::select(-chromosome.2) %>%
-        dplyr::rename(chromosome = chromosome.1) %>%
-        dplyr::select(chromosome, position.1, position.2, interaction)
+        )
+    interactions <- data.table::merge.data.table(interactions, bins, by.x = "id1", by.y = "ide")
+    interactions[, id1 := NULL]
+    data.table::setnames(interactions, "position", "position.1")
+    data.table::setnames(interactions, "chromosome", "chromosome.1")
+    interactions <- data.table::merge.data.table(interactions, bins, by.x = "id2", by.y = "ide")
+    interactions[, id2 := NULL]
+    data.table::setnames(interactions, "position", "position.2")
+    data.table::setnames(interactions, "chromosome", "chromosome.2")
+    interactions <- interactions[chromosome.1 == chromosome.2]
+    interactions[, chromosome.2 := NULL]
+    data.table::setnames(interactions, "chromosome.1", "chromosome")
+    data.table::setcolorder(interactions, c("chromosome", "position.1", "position.2", "interaction"))
     
-    return(interactions)
+    .setFromTabular(interactions, path, condition, replicate)
 }
 
 #' @description
@@ -281,25 +280,23 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseCool <- function(object, binSize = NULL) {
+.parseCool <- function(object, binSize = NA, replicates, conditions) {
     
-    interactions <-
-        pbapply::pblapply(
-            object@input,
+    isetCool <-
+        pbapply::pbmapply(
             .parseOneCool,
-            binSize = binSize
+            path      = object@input,
+            binSize   = binSize,
+            condition = conditions,
+	          replicate = replicates
         )
     
-    for (i in seq_along(interactions)) {
-        interactions[[i]]$replicate <- object@replicates[[i]]
-        interactions[[i]]$condition <- object@conditions[[i]]
-    }
-    
-    object@interactions <-
-        dplyr::bind_rows(interactions) %>%
-        dplyr::as_tibble()
-    
-    return(object)
+    mergedIsetCool <- Reduce(f = .mergeInteractionSet, x = isetCool)
+
+    new("HiCDOCDataSet", 
+        mergedIsetCool, 
+        input = object@input, 
+        binSize = binSize)
 }
 
 #' @description
@@ -319,7 +316,7 @@
 #' @noRd
 .parseOneHiC <- function(path, binSize, condition, replicate) {
     message("\nParsing '", path, "'.")
-    interactions <- parseHiCFile(path, binSize, paste(condition, replicate, sep = "."))
+    interactions <- parseHiCFile(path, binSize)
     # Automagical stuff to transform Rcpp DataFrame to data.table
     interactions <- data.table::setalloccol(interactions)
     # Create InteractionSet object
@@ -354,10 +351,11 @@
         )
     
     mergedIsetHic <- Reduce(f = .mergeInteractionSet, x = isetHic)
-    object <- new("HiCDOCDataSet", 
-                  mergedIsetHic, 
-                  input = object@input, 
-                  binSize = binSize)
+
+    new("HiCDOCDataSet", 
+        mergedIsetHic, 
+        input = object@input, 
+        binSize = binSize)
 }
 
 #' @description

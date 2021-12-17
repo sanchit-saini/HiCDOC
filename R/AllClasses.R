@@ -206,7 +206,7 @@ HiCDOCDataSetFromCool <- function(
     paths,
     replicates,
     conditions,
-    binSize = NULL
+    binSize = NA
 ) {
 
     if (is.factor(paths)) paths <- as.vector(paths)
@@ -230,7 +230,7 @@ HiCDOCDataSetFromCool <- function(
     }
 
     if (
-        !is.null(binSize) &&
+        !is.na(binSize) &&
         (!is.numeric(binSize) || length(binSize) != 1)
     ) {
         stop("'binSize' must be an integer.", call. = FALSE)
@@ -238,9 +238,7 @@ HiCDOCDataSetFromCool <- function(
 
     object <- new("HiCDOCDataSet")
     object@input <- paths
-    object@replicates <- replicates
-    object@conditions <- conditions
-    object <- .parseCool(object, binSize)
+    object <- .parseCool(object, binSize, replicates, conditions)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
