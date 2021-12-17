@@ -54,8 +54,7 @@
 #' @export
 normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     .validateSlots(object,
-                   slots = c("chromosomes",
-                             "binSize"))
+                   slots = c("chromosomes"))
     
     message("Normalizing technical biases.")
     
@@ -69,9 +68,9 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     assay[is.na(assay)] <- 0
     # Reordering columns in alphabetic order (useful for tests)
     colnames(assay) <- paste(object$condition, object$replicate)
-    refOrder <- sort(paste(object$condition, object$replicate))
+    refOrder <- paste(object$condition, object$replicate)
     columnOrder <- sort(refOrder)
-    assay <- assay[, columnOrder]
+    assay <- assay[, refOrder]
     assay <- as.data.table(assay)
     setnames(assay, paste0("IF", seq_len(ncol(assay))))
     
