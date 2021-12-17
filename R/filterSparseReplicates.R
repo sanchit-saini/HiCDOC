@@ -125,15 +125,16 @@ filterSparseReplicates <- function(object, threshold = NULL) {
             diagonals,
             object@chromosomes,
             object@totalBins,
-            object@validAssay
+            object@validAssay,
+            SIMPLIFY=FALSE
         )
     
-    assay <- do.call("rbind",resultAssay)
-    if(nrow(assay)!=nrow(object)){
+    resultAssay <- do.call("rbind",resultAssay)
+    if(nrow(resultAssay)!=nrow(object)){
         stop("Something went wrong")
     }
     
-    SummarizedExperiment::assay(object)  <- assay
+    SummarizedExperiment::assay(object)  <- resultAssay
     newValidAssay <- .determineValids(object)
     badChromosomes <-
         vapply(
