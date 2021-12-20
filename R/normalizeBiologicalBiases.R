@@ -171,9 +171,7 @@ normalizeBiologicalBiases <- function(object, parallel = FALSE) {
     .validateSlots(
         object,
         slots = c(
-            "chromosomes",
             "totalBins",
-            "weakBins",
             "validAssay"
         )
     )

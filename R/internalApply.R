@@ -12,14 +12,13 @@
                                    BPPARAM = BiocParallel::bpparam())
         } else {
             BiocParallel::bplapply(...,
-                                   SIMPLIFY = FALSE,
                                    BPPARAM = BiocParallel::bpparam())
         }
     } else {
         if(type == "mapply") {
             pbapply::pbmapply(..., SIMPLIFY = FALSE)
         } else {
-            pbapply::pblapply(..., SIMPLIFY = FALSE)
+            pbapply::pblapply(...)
         }
     }
 }

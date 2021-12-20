@@ -21,9 +21,12 @@
     # Reordering columns in alphabetic order (useful for tests)
     validAssay <- object@validAssay[[chromosomeName]]
     refOrder <- paste(object$condition, object$replicate)
+    values <- origAssay[, validAssay]
+    values <- values[,order(refOrder[validAssay])]
+    
     chromosomeValues <- 
         data.table("distance" = rep(distances, length(validAssay)),
-                   "value" = as.vector(origAssay[, order(refOrder[validAssay])]))
+                   "value" = as.vector(values))
     chromosomeValues <- chromosomeValues[!is.na(value),]
     idSample <- sample(seq_len(nrow(chromosomeValues)),
                    size = min(
@@ -144,15 +147,6 @@
 normalizeDistanceEffect <- function(object, 
                                     loessSampleSize = NULL, 
                                     parallel=FALSE) {
-
-    .validateSlots(
-        object,
-        slots = c(
-            "chromosomes",
-            "parameters"
-        )
-    )
-
     if (!is.null(loessSampleSize)) {
         object@parameters$loessSampleSize <- loessSampleSize
     }
@@ -163,7 +157,8 @@ normalizeDistanceEffect <- function(object,
     
     normAssay <- .internalApply(parallel,
                                 objectChromosomes,
-                                FUN = .normalizeDistanceEffectOfChromosome) 
+                                FUN = .normalizeDistanceEffectOfChromosome,
+                                type="lapply") 
     
     normAssay <- do.call("rbind", normAssay)
     SummarizedExperiment::assay(object) <- normAssay
