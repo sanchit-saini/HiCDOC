@@ -117,7 +117,7 @@
     object@concordances[compartment == 1 & compartment == cluster.1, change := 1]
     object@concordances[compartment == 2 & compartment == cluster.2, change := 1]
     object@concordances[, concordance := change * concordance]
-    object@concordances[, compartment = data.table::fifelse(compartment == 1, cluster.1, cluster.2)]
+    object@concordances[, compartment := data.table::fifelse(compartment == 1, cluster.1, cluster.2)]
     object@concordances[,`:=`(cluster.1 = NULL, cluster.2 = NULL, change = NULL)]
 
     object@distances <- data.table::merge.data.table(
@@ -263,7 +263,7 @@
         "condition" = rep(dfCompartments$condition, length(replicateNames)),
         "replicate" = rep(replicateNames, each = nbBins),
         "compartment" = rep(dfCompartments$compartment, length(replicateNames)),
-        "concordances" = concordances
+        "concordance" = concordances
     )
         
     dfDistances <- data.table::data.table(
@@ -403,7 +403,22 @@
     conditionName,
     replicateName
 ) {
-
+    ids <- InteractionSet::anchorIds(object)
+    diagonal <- ids$first == ids$second
+    valdiag <- data.table(
+        "index" = ids$first[diagonal],
+        SummarizedExperiment::assay(object)[diagonal,])
+    offDiagonal <- rbind(
+        SummarizedExperiment::assay(object)[!diagonal,],
+        SummarizedExperiment::assay(object)[!diagonal,]
+    ) 
+    offDiagonal <- data.table::data.table(
+        "ids" = c(ids$first[!diagonal], ids$second[!diagonal]),
+              offDiagonal)
+    data.table::setDT(as.data.frame(offDiagonal))
+    se
+    
+    
     interactions <-
         object@interactions %>%
         dplyr::filter(chromosome == chromosomeName) %>%
