@@ -28,9 +28,9 @@
         object <- object[toKeep,]
         
         if (dropLevels) {
-            object <- InteractionSet::reduceRegions(object)
             SummarizedExperiment::mcols(object)$Chr <- 
                 droplevels(SummarizedExperiment::mcols(object)$Chr)
+            object <- InteractionSet::reduceRegions(object)
         }
         for (slotName in c(
             "distances",
