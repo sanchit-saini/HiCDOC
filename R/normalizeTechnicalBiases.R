@@ -64,17 +64,15 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
                       region1 = start1,
                       region2 = start2)]
     hic_table[, D := InteractionSet::pairdist(object, type = "diag")]
-    assay <- SummarizedExperiment::assay(object)
-    assay[is.na(assay)] <- 0
+    matAssay <- SummarizedExperiment::assay(object)
+    matAssay[is.na(matAssay)] <- 0
     # Reordering columns in alphabetic order (useful for tests)
-    colnames(assay) <- paste(object$condition, object$replicate)
     refOrder <- paste(object$condition, object$replicate)
-    columnOrder <- sort(refOrder)
-    assay <- assay[, refOrder]
-    assay <- as.data.table(assay)
-    setnames(assay, paste0("IF", seq_len(ncol(assay))))
+    matAssay <- matAssay[, order(refOrder)]
+    matAssay <- as.data.table(matAssay)
+    setnames(matAssay, paste0("IF", seq_len(ncol(matAssay))))
     
-    hic_table <- cbind(hic_table, assay)
+    hic_table <- cbind(hic_table, matAssay)
     
     table_list <- split(hic_table, hic_table$chr)
     
@@ -95,15 +93,12 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     data.table::setindexv(hic_table, c("chr", "region1", "region2"))
     hic_table <- merge(hic_table, normalized, sort = FALSE)
     
-    assay <- hic_table[, 5:ncol(hic_table)]
+    matAssay <- hic_table[, 5:ncol(hic_table)]
+    matAssay <- as.matrix(matAssay)
     # Reordering columns in original order
-    colnames(assay) <- columnOrder
-    setcolorder(assay, refOrder)
-    assay <- as.matrix(assay)
-    colnames(assay) <- NULL
-    assay[assay == 0] <- NA
-    if (sum(!is.na(assay)) != sum(!is.na(SummarizedExperiment::assay(object))))
-        stop("Something went wrong")
-    SummarizedExperiment::assay(object) <- assay
+    matAssay <- matAssay[,match(refOrder, sort(refOrder))]
+    colnames(matAssay) <- NULL
+    matAssay[matAssay == 0] <- NA
+    SummarizedExperiment::assay(object) <- matAssay
     return(object)
 }

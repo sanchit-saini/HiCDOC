@@ -16,25 +16,21 @@
     message("Chromosome ", chromosomeName, ": normalizing distance effect.")
     
     distances <- InteractionSet::pairdist(object, type="mid")
-    assay <- SummarizedExperiment::assay(object)
-    interaction <- assay
-    colnames(interaction) <- paste(object$condition, object$replicate)
+    origAssay <- SummarizedExperiment::assay(object)
     
     # Reordering columns in alphabetic order (useful for tests)
     validAssay <- object@validAssay[[chromosomeName]]
     refOrder <- paste(object$condition, object$replicate)
-    interaction <- interaction[, sort(refOrder[validAssay])]
-    interaction <- as.vector(interaction)
-    chromosomeInteractions <- 
+    chromosomeValues <- 
         data.table("distance" = rep(distances, length(validAssay)),
-                   "interaction" = interaction)
-    chromosomeInteractions <- chromosomeInteractions[!is.na(interaction),]
-    idSample <- sample(seq_len(nrow(chromosomeInteractions)),
+                   "value" = as.vector(origAssay[, order(refOrder[validAssay])]))
+    chromosomeValues <- chromosomeValues[!is.na(value),]
+    idSample <- sample(seq_len(nrow(chromosomeValues)),
                    size = min(
                        object@parameters$loessSampleSize,
-                       nrow(chromosomeInteractions)
+                       nrow(chromosomeValues)
                    ))
-    sample <- chromosomeInteractions[idSample]
+    sample <- chromosomeValues[idSample]
     setorder(sample, distance)
 
     if (nrow(sample) == 0) {
@@ -73,7 +69,7 @@
 
     loess <-
         stats::loess(
-            interaction ~ distance,
+            value ~ distance,
             data = sample,
             control = stats::loess.control(trace.hat = traceMethod)
         )
@@ -81,18 +77,18 @@
 
     loess <-
         stats::loess(
-            interaction ~ distance,
+            value ~ distance,
             span = span,
             data = sample,
             control = stats::loess.control(trace.hat = traceMethod)
         )
     sample[,loess := stats::predict(loess)]
     sample[,loess := pmax(loess, 0)]
-    sample[,interaction := NULL]
+    sample[,value := NULL]
     setnames(sample, "distance", "sampleDistance")
     sample <- unique(sample)
     
-    uniqueDistances <- unique(sort(chromosomeInteractions$distance))
+    uniqueDistances <- unique(sort(chromosomeValues$distance))
     sampleDistance <- unique(sort(sample$sampleDistance))
     sampleDistance <- vapply(
         uniqueDistances,
@@ -110,9 +106,9 @@
                             by="distance", 
                             sort=FALSE,
                             all.x=T)
-    assay <- assay / (loessDistances$loess + 0.00001)
+    origAssay <- origAssay / (loessDistances$loess + 0.00001)
     
-    return(assay)
+    return(origAssay)
 }
 
 #' @title
@@ -165,12 +161,12 @@ normalizeDistanceEffect <- function(object,
         object, 
         SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
     
-    normalizedAssays <- .internalApply(parallel,
-                                       objectChromosomes,
-                                       FUN = .normalizeDistanceEffectOfChromosome) 
+    normAssay <- .internalApply(parallel,
+                                objectChromosomes,
+                                FUN = .normalizeDistanceEffectOfChromosome) 
     
-    normalizedAssays <- do.call("rbind", normalizedAssays)
-    SummarizedExperiment::assay(object) <- normalizedAssays
+    normAssay <- do.call("rbind", normAssay)
+    SummarizedExperiment::assay(object) <- normAssay
     
     return(object)
 }
