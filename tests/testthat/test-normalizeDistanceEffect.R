@@ -6,18 +6,11 @@ test_that("normalizeDistanceEffect behaves as expected", {
     
     # Apply normalization
     set.seed(123)
-    expect_message(object <- normalizeDistanceEffect(object))
-    # Keep object format
-    expect_is(object@interactions$chromosome, "factor")
-    expect_is(object@interactions$bin.1, "integer")
-    expect_is(object@interactions$bin.2, "integer")
-    expect_is(object@interactions$condition, "factor")
-    expect_is(object@interactions$replicate, "factor")
-    expect_is(object@interactions$interaction, "numeric")
+    expect_message(norm <- normalizeDistanceEffect(object))
     # Filtering 0 values before normalisation
-    expect_equal(nrow(object@interactions), 35105)
-    expect_equal(mean(object@interactions$bin.1), 40.0578, tolerance = 1e-4)
-    expect_equal(mean(object@interactions$bin.2), 79.4167, tolerance = 1e-4)
-    expect_equal(mean(object@interactions$interaction), 0.9994,
-                 tolerance = 1e-4)
+    expect_equal(nrow(norm), nrow(object))
+    matAssay <- SummarizedExperiment::assay(norm)
+    
+    expect_equal(sum(!is.na(matAssay)), 35105)
+    expect_equal(round(colSums(matAssay, na.rm=T),3), c(4399.817, 5383.972, 0, 0, 7968.255, 8152.632, 9181.737))
 })
