@@ -72,31 +72,11 @@
 #' @noRd
 .reduceHiCDOCConditions <-
     function(object, conditionNames, dropLevels) {
-        conditionIds <- which(object@conditions %in% conditionNames)
-        object@conditions <- object@conditions[conditionIds]
-        object@replicates <- object@replicates[conditionIds]
+        conditionIds <- which(object$condition %in% conditionNames)
+        object <- object[,conditionIds]
 
-        selection <- lapply(
-            object@validConditions,
-            FUN = function(x)
-                which(x %in% conditionNames)
-        )
-        object@validConditions <- mapply(
-            FUN = function(x, y)
-                x[y],
-            object@validConditions,
-            selection,
-            SIMPLIFY = FALSE
-        )
-        object@validReplicates <- mapply(
-            FUN = function(x, y)
-                x[y],
-            object@validReplicates,
-            selection,
-            SIMPLIFY = FALSE
-        )
+        object@validAssay <- .determineValids(object)
         for (slotName in c(
-            "interactions",
             "distances",
             "selfInteractionRatios",
             "compartments",
@@ -134,31 +114,12 @@
 #' @noRd
 .reduceHiCDOCReplicates <-
     function(object, replicateNames, dropLevels) {
-        replicateIds <- which(object@replicates %in% replicateNames)
-        object@conditions <- object@conditions[replicateIds]
-        object@replicates <- object@replicates[replicateIds]
-
-        selection <- lapply(
-            object@validReplicates,
-            FUN = function(x)
-                which(x %in% replicateNames)
-        )
-        object@validConditions <- mapply(
-            FUN = function(x, y)
-                x[y],
-            object@validConditions,
-            selection,
-            SIMPLIFY = FALSE
-        )
-        object@validReplicates <- mapply(
-            FUN = function(x, y)
-                x[y],
-            object@validReplicates,
-            selection,
-            SIMPLIFY = FALSE
-        )
-        for (slotName in c("interactions",
-                           "distances",
+        replicateIds <- which(object$replicate %in% replicateNames)
+        object <- object[,replicateIds]
+        
+        object@validAssay <- .determineValids(object)
+        
+        for (slotName in c("distances",
                            "selfInteractionRatios",
                            "concordances")) {
             if (!is.null(slot(object, slotName))) {
@@ -224,17 +185,17 @@ reduceHiCDOCDataSet <- function(object,
     }
 
     if (!is.null(conditions)) {
-        conditionNames <-
-            .validateNames(object, conditions, "conditions")
+        # conditionNames <-
+        #     .validateNames(object, conditions, "conditions")
         object <-
-            .reduceHiCDOCConditions(object, conditionNames, dropLevels)
+            .reduceHiCDOCConditions(object, conditions, dropLevels)
     }
 
     if (!is.null(replicates)) {
-        replicateNames <-
-            .validateNames(object, replicates, "replicates")
+        # replicateNames <-
+        #     .validateNames(object, replicates, "replicates")
         object <-
-            .reduceHiCDOCReplicates(object, replicateNames, dropLevels)
+            .reduceHiCDOCReplicates(object, replicates, dropLevels)
     }
 
     return(object)
