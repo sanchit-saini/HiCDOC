@@ -452,41 +452,24 @@
                                        value.var = "ratio",
                                       fill=0)
     
-    # compartments <-
-    #     object@compartments %>%
-    #     dplyr::left_join(
-    #         object@selfInteractionRatios,
-    #         by = c("chromosome", "condition", "bin")
-    #     ) %>%
-    #     dplyr::group_by(chromosome, compartment) %>%
-    #     dplyr::summarize(ratio = stats::median(ratio)) %>%
-    #     dplyr::ungroup() %>%
-    #     tidyr::pivot_wider(
-    #         names_from = compartment,
-    #         values_from = ratio,
-    #         values_fill = list(ratio = 0),
-    #         names_prefix = "ratio."
-    #     ) %>%
-    #     dplyr::mutate(A = dplyr::if_else(ratio.1 >= ratio.2, 2, 1)) %>%
-    #     dplyr::select(-ratio.1, -ratio.2)
-    
     compartments[, A := data.table::fifelse(`1` >= `2`, 2, 1)]
     compartments <- compartments[, .(chromosome, A)]
     
     object@compartments <- data.table::merge.data.table(
         object@compartments, 
-        compartements, 
+        compartments, 
         by="chromosome",
         all.x=T
     )
+    
     object@compartments[,compartment := 
                             data.table::fifelse(compartment == A, "A", "B")]
-    object@compartments[,compartment := as.factor(compartment, levels=c("A", "B"))]
+    object@compartments[,compartment := factor(compartment, levels=c("A", "B"))]
     object@compartments[,A := NULL]
    
     object@concordances <- data.table::merge.data.table(
         object@concordances, 
-        compartements, 
+        compartments, 
         by="chromosome",
         all.x=T
     )
@@ -494,28 +477,28 @@
                             data.table::fifelse(A == 1, 1, -1)]
     object@concordances[,concordance :=  change * concordance]
     object@concordances[,compartment := factor(data.table::fifelse(
-        compartement == A, "A", "B"), levels=c("A", "B"))]
+        compartment == A, "A", "B"), levels=c("A", "B"))]
     object@concordances[,change := NULL]
     object@concordances[,A := NULL]
     
     object@distances <- data.table::merge.data.table(
         object@distances, 
-        compartements, 
+        compartments, 
         by="chromosome",
         all.x=T
     )
     object@distances[,compartment := factor(data.table::fifelse(
-        compartement == A, "A", "B"), levels=c("A", "B"))]
+        compartment == A, "A", "B"), levels=c("A", "B"))]
     object@distances[,A := NULL]
     
     object@centroids <- data.table::merge.data.table(
         object@centroids, 
-        compartements, 
+        compartments, 
         by="chromosome",
         all.x=T
     )
     object@centroids[,compartment := factor(data.table::fifelse(
-        compartement == A, "A", "B"), levels=c("A", "B"))]
+        compartment == A, "A", "B"), levels=c("A", "B"))]
     object@centroids[,A := NULL]
     
     return(object)
