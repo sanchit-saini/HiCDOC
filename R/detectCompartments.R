@@ -218,6 +218,7 @@
                })
     matAssay <- lapply(matAssay, function(x) x@matrix)
     matAssay <- do.call("rbind", matAssay)
+    matAssay[is.na(matAssay)] <- 0
     
     mustLink <- .constructLinkMatrix(length(replicateNames), nbBins)
     clusteringOutput <-
@@ -254,15 +255,15 @@
         "chromosome" = chromosomeName,
         "index" = indexes,
         "condition" = conditionName,
-        "compartment" = factor(clusters, levels = c(1, 2))
+        "compartment" = clusters
     )
     
     dfConcordances <- data.table::data.table(
         "chromosome" = chromosomeName,
         "index" = rep(indexes, length(replicateNames)),
-        "condition" = rep(dfCompartments$condition, length(replicateNames)),
+        "condition" = conditionName,
         "replicate" = rep(replicateNames, each = nbBins),
-        "compartment" = rep(dfCompartments$compartment, length(replicateNames)),
+        "compartment" = rep(clusters, length(replicateNames)),
         "concordance" = concordances
     )
         
@@ -271,14 +272,13 @@
         "index" = rep(indexes, 2 * length(replicateNames)),
         "condition" = conditionName,
         "replicate" = rep(rep(replicateNames, each = nbBins), 2),
-        "compartment" = rep(factor(c(1, 2), levels = c(1, 2)),
-                             each = length(replicateNames) * nbBins),
+        "compartment" = rep(c(1, 2), each = length(replicateNames) * nbBins),
         "distance" = c(t(distances)))
     
     dfCentroids <- data.table::data.table(
         "chromosome" = chromosomeName,
         "condition" = conditionName,
-        "compartment" = factor(c(1, 2), levels = c(1, 2)),
+        "compartment" = c(1, 2),
         "centroid" = centroids)
     
     return(list(
@@ -309,7 +309,8 @@
         lapply(object@chromosomes,
                FUN = function(x) {
                    data.frame("chr" = x, 
-                              "cond" = unique(object$condition[object@validAssay[[x]]]))
+                              "cond" = unique(
+                                  object$condition[object@validAssay[[x]]]))
                })
     condByChromosomes <- Reduce(rbind, condByChromosomes)
     
@@ -334,46 +335,10 @@
     distances <- lapply(result, function(x) x[["distances"]])
     centroids <- lapply(result, function(x) x[["centroids"]])
     
-    compartments <- data.table::rbindlist(compartments)
-    concordances <- data.table::rbindlist(concordances)
-    distances <- data.table::rbindlist(distances)
-    centroids <- data.table::rbindlist(centroids)
-    
-    object@compartments <- compartments
-        # purrr::map_dfr(result, "compartments") %>%
-        # dplyr::arrange(
-        #     chromosome,
-        #     condition,
-        #     bin
-        # )
-
-    object@concordances <- concordances
-        # purrr::map_dfr(result, "concordances") %>%
-        # dplyr::arrange(
-        #     chromosome,
-        #     condition,
-        #     replicate,
-        #     bin
-        # )
-
-    object@distances <- distances
-        # purrr::map_dfr(result, "distances") %>%
-        # dplyr::arrange(
-        #     chromosome,
-        #     condition,
-        #     replicate,
-        #     bin,
-        #     compartment
-        # )
-
-    object@centroids <- centroids
-        # purrr::map_dfr(result, "centroids") %>%
-        # dplyr::arrange(
-        #     chromosome,
-        #     condition,
-        #     compartment
-        # )
-
+    object@compartments <- data.table::rbindlist(compartments)
+    object@concordances <- data.table::rbindlist(concordances)
+    object@distances <- data.table::rbindlist(distances)
+    object@centroids <- data.table::rbindlist(centroids)
     object <- .tieCentroids(object)
 
     return(object)
@@ -398,69 +363,55 @@
 #' @keywords internal
 #' @noRd
 .computeSelfInteractionRatios <- function(
-    object,
-    chromosomeName,
-    conditionName,
-    replicateName
+    object
 ) {
-    ids <- InteractionSet::anchorIds(object)
+    # TODO : j'ai essayé d'utiliser anchorIds() mais ça ne me renvoie pas les
+    # bonnes valeurs d'index.
+    tmp <- as.data.frame(InteractionSet::interactions(object))
+    ids <- list("first" = tmp$index1, "second" = tmp$index2)
     diagonal <- ids$first == ids$second
-    valdiag <- data.table(
+    cn <- paste(object$condition, object$replicate)
+    
+    # Values on diagonal
+    onDiagonal <- data.table(
         "index" = ids$first[diagonal],
         SummarizedExperiment::assay(object)[diagonal,])
+    setnames(onDiagonal, c("index", cn))
+    onDiagonal <- data.table::melt.data.table(onDiagonal, id.vars="index")
+    onDiagonal <- onDiagonal[!is.na(value)]
+    
+    # Compute median by bin, out of diagonal
     offDiagonal <- rbind(
         SummarizedExperiment::assay(object)[!diagonal,],
         SummarizedExperiment::assay(object)[!diagonal,]
     ) 
     offDiagonal <- data.table::data.table(
-        "ids" = c(ids$first[!diagonal], ids$second[!diagonal]),
+        "index" = c(ids$first[!diagonal], ids$second[!diagonal]),
               offDiagonal)
-    data.table::setDT(as.data.frame(offDiagonal))
-    se
+    setnames(offDiagonal, c("index", cn))
+    offDiagonal <- offDiagonal[, lapply(.SD, 
+                                        median, 
+                                        na.rm=TRUE), 
+                               by=index, 
+                               .SDcols=colnames(offDiagonal)[-1]] 
+    offDiagonal <- data.table::melt.data.table(offDiagonal, 
+                                               id.vars = "index", 
+                                               value.name = "median")
+    offDiagonal <- offDiagonal[!is.na(median)]
     
+    onDiagonal<- data.table::merge.data.table(onDiagonal, 
+                                              offDiagonal, 
+                                              all=T,
+                                              by=c("index", "variable"),
+                                              sort=FALSE)
+    onDiagonal[is.na(value), value := 0]
+    onDiagonal[is.na(median), median := 0]
+    onDiagonal[,ratio := value - median]
+    onDiagonal[, c("condition", "replicate") := 
+                   tstrsplit(variable, " ", fixed=TRUE)]
+    onDiagonal <- onDiagonal[,.(index, condition, replicate, ratio)]
     
-    interactions <-
-        object@interactions %>%
-        dplyr::filter(chromosome == chromosomeName) %>%
-        dplyr::filter(condition == conditionName) %>%
-        dplyr::filter(replicate == replicateName)
-
-    diagonal <-
-        interactions %>%
-        dplyr::filter(bin.1 == bin.2) %>%
-        dplyr::select(-bin.2) %>%
-        dplyr::rename(bin = bin.1) %>%
-        dplyr::rename(diagonal = interaction)
-
-    offDiagonal <-
-        interactions %>%
-        dplyr::filter(bin.1 != bin.2) %>%
-        tidyr::pivot_longer(
-            cols = tidyr::starts_with("bin"),
-            names_to = "namepos",
-            values_to = "bin"
-        ) %>%
-        dplyr::select(-namepos) %>%
-        dplyr::group_by(chromosome, condition, replicate, bin) %>%
-        dplyr::summarise(offDiagonal = stats::median(interaction)) %>%
-        dplyr::ungroup()
-
-    selfInteractionRatios <-
-        diagonal %>%
-        dplyr::full_join(
-            offDiagonal,
-            by = c(
-                "chromosome",
-                "condition",
-                "replicate",
-                "bin"
-            )
-        ) %>%
-        tidyr::replace_na(list(diagonal = 0, offDiagonal = 0)) %>%
-        dplyr::mutate(ratio = diagonal - offDiagonal) %>%
-        dplyr::select(-diagonal, -offDiagonal)
-
-    return(selfInteractionRatios)
+    return(onDiagonal)
 }
 
 #' @description
@@ -480,95 +431,93 @@
 #' @keywords internal
 #' @noRd
 .predictCompartmentsAB <- function(object, parallel = TRUE) {
-
-    chromosomeNames <- rep(object@chromosomes, each = length(object@replicates))
-    conditionNames <- rep(object@conditions, length(object@chromosomes))
-    replicateNames <- rep(object@replicates, length(object@chromosomes))
-
-    reducedObjects <-
-        purrr::pmap(
-            list(chromosomeNames, conditionNames, replicateNames),
-            function(x, y, z) {
-                reduceHiCDOCDataSet(
-                    object,
-                    chromosomes = x,
-                    conditions = y,
-                    replicates = z,
-                    dropLevels = FALSE
-                )
-            }
-        )
-    ratios <-
-        .internalApply(parallel,
-            FUN = .computeSelfInteractionRatios,
-            reducedObjects,
-            chromosomeNames,
-            conditionNames,
-            replicateNames
-        )
-    object@selfInteractionRatios <-
-        do.call("rbind", ratios)
     
-    compartments <-
-        object@compartments %>%
-        dplyr::left_join(
-            object@selfInteractionRatios,
-            by = c("chromosome", "condition", "bin")
-        ) %>%
-        dplyr::group_by(chromosome, compartment) %>%
-        dplyr::summarize(ratio = stats::median(ratio)) %>%
-        dplyr::ungroup() %>%
-        tidyr::pivot_wider(
-            names_from = compartment,
-            values_from = ratio,
-            values_fill = list(ratio = 0),
-            names_prefix = "ratio."
-        ) %>%
-        dplyr::mutate(A = dplyr::if_else(ratio.1 >= ratio.2, 2, 1)) %>%
-        dplyr::select(-ratio.1, -ratio.2)
-
-    object@compartments %<>%
-        dplyr::left_join(compartments, by = "chromosome") %>%
-        dplyr::mutate(
-            compartment = factor(
-                dplyr::if_else(compartment == A, "A", "B"),
-                levels = c("A", "B")
-            )
-        ) %>%
-        dplyr::select(-A)
-
-    object@concordances %<>%
-        dplyr::left_join(compartments, by = "chromosome") %>%
-        dplyr::mutate(change = dplyr::if_else(A == 1, 1, -1)) %>%
-        dplyr::mutate(concordance = change * concordance) %>%
-        dplyr::mutate(
-            compartment = factor(
-                dplyr::if_else(compartment == A, "A", "B"),
-                levels = c("A", "B")
-            )
-        ) %>%
-        dplyr::select(-A, -change)
-
-    object@distances %<>%
-        dplyr::left_join(compartments, by = "chromosome") %>%
-        dplyr::mutate(
-            compartment = factor(
-                dplyr::if_else(compartment == A, "A", "B"),
-                levels = c("A", "B")
-            )
-        ) %>%
-        dplyr::select(-A)
-
-    object@centroids %<>%
-        dplyr::left_join(compartments, by = "chromosome") %>%
-        dplyr::mutate(
-            compartment = factor(
-                dplyr::if_else(compartment == A, "A", "B"),
-                levels = c("A", "B")
-            )
-        ) %>%
-        dplyr::select(-A)
-
+    ratios <-.computeSelfInteractionRatios(object)
+    object@selfInteractionRatios <-ratios
+    
+    # TODO : est-ce utile de garder le slot selfInteractionRatios ?
+    compartments <- data.table::merge.data.table(
+        object@compartments, 
+        object@selfInteractionRatios,
+        by = c("index", "condition"),
+        all.x=T,
+        sort=FALSE
+    )
+    # TODO !! A vérifier ici, les valeurs ne sont pas bonnes !!!
+    # La sortie de selfInteractionRatios est bonne 
+    compartments <- compartments[,.(ratio = median(ratio, na.rm=T)), 
+                                 by=.(chromosome, compartment)]
+    compartments <- data.table::dcast(compartments, 
+                                       chromosome  ~ compartment, 
+                                       value.var = "ratio",
+                                      fill=0)
+    
+    # compartments <-
+    #     object@compartments %>%
+    #     dplyr::left_join(
+    #         object@selfInteractionRatios,
+    #         by = c("chromosome", "condition", "bin")
+    #     ) %>%
+    #     dplyr::group_by(chromosome, compartment) %>%
+    #     dplyr::summarize(ratio = stats::median(ratio)) %>%
+    #     dplyr::ungroup() %>%
+    #     tidyr::pivot_wider(
+    #         names_from = compartment,
+    #         values_from = ratio,
+    #         values_fill = list(ratio = 0),
+    #         names_prefix = "ratio."
+    #     ) %>%
+    #     dplyr::mutate(A = dplyr::if_else(ratio.1 >= ratio.2, 2, 1)) %>%
+    #     dplyr::select(-ratio.1, -ratio.2)
+    
+    compartments[, A := data.table::fifelse(`1` >= `2`, 2, 1)]
+    compartments <- compartments[, .(chromosome, A)]
+    
+    object@compartments <- data.table::merge.data.table(
+        object@compartments, 
+        compartements, 
+        by="chromosome",
+        all.x=T
+    )
+    object@compartments[,compartment := 
+                            data.table::fifelse(compartment == A, "A", "B")]
+    object@compartments[,compartment := as.factor(compartment, levels=c("A", "B"))]
+    object@compartments[,A := NULL]
+   
+    object@concordances <- data.table::merge.data.table(
+        object@concordances, 
+        compartements, 
+        by="chromosome",
+        all.x=T
+    )
+    object@concordances[,change := 
+                            data.table::fifelse(A == 1, 1, -1)]
+    object@concordances[,concordance :=  change * concordance]
+    object@concordances[,compartment := factor(data.table::fifelse(
+        compartement == A, "A", "B"), levels=c("A", "B"))]
+    object@concordances[,change := NULL]
+    object@concordances[,A := NULL]
+    
+    object@distances <- data.table::merge.data.table(
+        object@distances, 
+        compartements, 
+        by="chromosome",
+        all.x=T
+    )
+    object@distances[,compartment := factor(data.table::fifelse(
+        compartement == A, "A", "B"), levels=c("A", "B"))]
+    object@distances[,A := NULL]
+    
+    object@centroids <- data.table::merge.data.table(
+        object@centroids, 
+        compartements, 
+        by="chromosome",
+        all.x=T
+    )
+    object@centroids[,compartment := factor(data.table::fifelse(
+        compartement == A, "A", "B"), levels=c("A", "B"))]
+    object@centroids[,A := NULL]
+    
     return(object)
 }
 
