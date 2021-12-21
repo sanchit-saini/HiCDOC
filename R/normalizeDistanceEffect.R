@@ -15,15 +15,15 @@
     chromosomeName <- as.character(SummarizedExperiment::mcols(object)$Chr[1])
     message("Chromosome ", chromosomeName, ": normalizing distance effect.")
     
-    distances <- InteractionSet::pairdist(object, type="mid")
-    origAssay <- SummarizedExperiment::assay(object)
+    currentAssay <- SummarizedExperiment::assay(object)
     
     # Reordering columns in alphabetic order (useful for tests)
     validAssay <- object@validAssay[[chromosomeName]]
     refOrder <- paste(object$condition, object$replicate)
-    values <- origAssay[, validAssay]
+    values <- currentAssay[, validAssay]
     values <- values[,order(refOrder[validAssay])]
     
+    distances <- InteractionSet::pairdist(object, type="mid")
     chromosomeValues <- 
         data.table("distance" = rep(distances, length(validAssay)),
                    "value" = as.vector(values))
@@ -109,9 +109,9 @@
                             by="distance", 
                             sort=FALSE,
                             all.x=T)
-    origAssay <- origAssay / (loessDistances$loess + 0.00001)
+    currentAssay <- currentAssay / (loessDistances$loess + 0.00001)
     
-    return(origAssay)
+    return(currentAssay)
 }
 
 #' @title

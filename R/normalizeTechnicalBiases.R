@@ -53,9 +53,6 @@
 #'
 #' @export
 normalizeTechnicalBiases <- function(object, parallel = FALSE) {
-    .validateSlots(object,
-                   slots = c("chromosomes"))
-    
     message("Normalizing technical biases.")
     
     hic_table <- as.data.table(InteractionSet::interactions(object))
@@ -64,15 +61,15 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
                       region1 = start1,
                       region2 = start2)]
     hic_table[, D := InteractionSet::pairdist(object, type = "diag")]
-    matAssay <- SummarizedExperiment::assay(object)
-    matAssay[is.na(matAssay)] <- 0
+    currentAssay <- SummarizedExperiment::assay(object)
+    currentAssay[is.na(currentAssay)] <- 0
     # Reordering columns in alphabetic order (useful for tests)
     refOrder <- paste(object$condition, object$replicate)
-    matAssay <- matAssay[, order(refOrder)]
-    matAssay <- as.data.table(matAssay)
-    setnames(matAssay, paste0("IF", seq_len(ncol(matAssay))))
+    currentAssay <- currentAssay[, order(refOrder)]
+    currentAssay <- as.data.table(currentAssay)
+    setnames(currentAssay, paste0("IF", seq_len(ncol(currentAssay))))
     
-    hic_table <- cbind(hic_table, matAssay)
+    hic_table <- cbind(hic_table, currentAssay)
     
     table_list <- split(hic_table, hic_table$chr)
     
@@ -93,12 +90,12 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     data.table::setindexv(hic_table, c("chr", "region1", "region2"))
     hic_table <- merge(hic_table, normalized, sort = FALSE)
     
-    matAssay <- hic_table[, 5:ncol(hic_table)]
-    matAssay <- as.matrix(matAssay)
+    currentAssay <- hic_table[, 5:ncol(hic_table)]
+    currentAssay <- as.matrix(currentAssay)
     # Reordering columns in original order
-    matAssay <- matAssay[,match(refOrder, sort(refOrder))]
-    colnames(matAssay) <- NULL
-    matAssay[matAssay == 0] <- NA
-    SummarizedExperiment::assay(object) <- matAssay
+    currentAssay <- currentAssay[,match(refOrder, sort(refOrder))]
+    colnames(currentAssay) <- NULL
+    currentAssay[currentAssay == 0] <- NA
+    SummarizedExperiment::assay(object) <- currentAssay
     return(object)
 }
