@@ -24,18 +24,17 @@
 plotSelfInteractionRatios <- function(object, chromosome) {
     .validateSlots(object, slots = c("selfInteractionRatios", "compartments"))
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
-
-    data <-
-        object@selfInteractionRatios %>%
-        dplyr::left_join(
-            object@compartments,
-            by = c("chromosome", "condition", "bin")
-        ) %>%
-        dplyr::filter(chromosome == chromosomeName)
-
+    
+    dataplot <- data.table::merge.data.table(
+        object@selfInteractionRatios[chromosome == chromosomeName],
+        object@compartments[chromosome == chromosomeName],
+        by=c("chromosome", "condition", "index"),
+        all.x=T
+    )
+    
     plot <-
-        ggplot(data, aes(x = compartment, y = ratio)) +
-        geom_jitter(aes(color = compartment)) +
+        ggplot(dataplot, aes(x = compartment, y = ratio)) +
+        geom_jitter(aes(color = compartment), width=0.35) +
         geom_boxplot(
             outlier.colour = NA,
             fill = NA,
