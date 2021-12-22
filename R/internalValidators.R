@@ -212,7 +212,7 @@
             )
         }
 
-        if (any(c("validReplicates", "validConditions") %in% missingSlots)) {
+        if ("validAssay" %in% missingSlots) {
             stop(
                 "Cannot process potentially sparse replicates.\n",
                 "First, run 'filterSparseReplicates()' on the object.",
