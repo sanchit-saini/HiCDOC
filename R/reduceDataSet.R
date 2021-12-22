@@ -42,12 +42,13 @@
             "comparisons"
         )) {
             if (!is.null(slot(object, slotName))) {
-                slot(object, slotName) %<>%
-                    dplyr::filter(chromosome %in% chromosomeNames)
+                tmp <- slot(object, slotName) 
+                tmp <- tmp[chromosome %in% chromosomeNames]
                 if (dropLevels) {
-                    slot(object, slotName) %<>%
-                        dplyr::mutate(chromosome = droplevels(chromosome))
+                    tmp[,chromosome := droplevels(chromosome)]
                 }
+                slot(object, slotName)  <- tmp
+               
             }
         }
         return(object)
@@ -84,12 +85,13 @@
             "centroids"
         )) {
             if (!is.null(slot(object, slotName))) {
-                slot(object, slotName) %<>%
-                    dplyr::filter(condition %in% conditionNames)
+                tmp <- slot(object, slotName) 
+                tmp <- tmp[condition %in% conditionNames]
                 if (dropLevels) {
-                    slot(object, slotName) %<>%
-                        dplyr::mutate(condition = droplevels(condition))
+                    tmp[,condition := droplevels(condition)]
                 }
+                slot(object, slotName)  <- tmp
+                
             }
         }
         return(object)
@@ -119,16 +121,18 @@
         
         object@validAssay <- .determineValids(object)
         
+        
         for (slotName in c("distances",
                            "selfInteractionRatios",
                            "concordances")) {
             if (!is.null(slot(object, slotName))) {
-                slot(object, slotName) %<>%
-                    dplyr::filter(replicate %in% replicateNames)
+                tmp <- slot(object, slotName) 
+                tmp <- tmp[replicate %in% replicateNames]
                 if (dropLevels) {
-                    slot(object, slotName) %<>%
-                        dplyr::mutate(replicate = droplevels(replicate))
+                    tmp[,replicate := droplevels(replicate)]
                 }
+                slot(object, slotName)  <- tmp
+                
             }
         }
         return(object)
@@ -185,15 +189,15 @@ reduceHiCDOCDataSet <- function(object,
     }
 
     if (!is.null(conditions)) {
-        # conditionNames <-
-        #     .validateNames(object, conditions, "conditions")
+        conditionNames <-
+            .validateNames(object, conditions, "conditions")
         object <-
             .reduceHiCDOCConditions(object, conditions, dropLevels)
     }
 
     if (!is.null(replicates)) {
-        # replicateNames <-
-        #     .validateNames(object, replicates, "replicates")
+        replicateNames <-
+            .validateNames(object, replicates, "replicates")
         object <-
             .reduceHiCDOCReplicates(object, replicates, dropLevels)
     }
