@@ -24,17 +24,18 @@ plotCentroids <- function(object, chromosome, size = 2) {
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
     
     df <- object@centroids[chromosome == chromosomeName,
-                           .(name = paste(condition, compartment, sep="_"),
+                           .(condition,
+                             compartment,
                              centroid)]
-    names <- df$name
+    names <- paste(df$condition, df$compartment, sep="_")
     
     if (nrow(df) == 0) {
         message("No centroids for chromosome ", chromosomeName, ".")
         return(NULL)
     }
     
-    df <- lapply(df$name, function(x) unlist(df[name == x, centroid]))
-    df <- do.call("rbind", dflist)
+    df <- lapply(df$centroid, unlist)
+    df <- do.call("rbind", df)
     
     pca <- stats::prcomp(df)
     varpca <- pca$sdev^2
