@@ -7,25 +7,18 @@ test_that("detectCompartments behaves as expected", {
         object <- detectCompartments(exampleHiCDOCDataSet, parallel = FALSE),
         "Detecting significant differences."
     )
-    # Keep object format
-    expect_is(object@interactions$chromosome, "factor")
-    expect_is(object@interactions$bin.1, "integer")
-    expect_is(object@interactions$bin.2, "integer")
-    expect_is(object@interactions$condition, "factor")
-    expect_is(object@interactions$replicate, "factor")
-    expect_is(object@interactions$interaction, "numeric")
     # Create new objects in correct format
-    expect_is(object@distances, "tbl_df")
-    expect_is(object@selfInteractionRatios, "tbl_df")
-    expect_is(object@compartments, "tbl_df")
-    expect_is(object@concordances, "tbl_df")
-    expect_is(object@differences, "tbl_df")
-    expect_is(object@centroids, "tbl_df")
+    expect_is(object@distances, "data.table")
+    expect_is(object@selfInteractionRatios, "data.table")
+    expect_is(object@compartments, "data.table")
+    expect_is(object@concordances, "data.table")
+    expect_is(object@differences, "data.table")
+    expect_is(object@centroids, "data.table")
 
     # Differences
     expect_equal(nrow(object@differences), 52)
     expect_equal(
-        nrow(object@differences %>% dplyr::filter(pvalue.adjusted <= 0.05)),
+        nrow(object@differences[pvalue.adjusted <= 0.05]),
         0
     )
     expect_is(object@differences$chromosome, "factor")
@@ -41,10 +34,9 @@ test_that("detectCompartments behaves as expected", {
     expect_equal(
         sapply(object@centroids$centroid, mean),
         c(
-            637.7590, 562.3542, 357.6060, 431.8505, 582.9829, 702.6890,
-            631.2621, 572.7756, 571.6183, 514.5372, 914.0674, 1036.9587,
-            688.8065, 688.7135, 446.8057, 457.7582, 931.4028, 857.0596,
-            676.4497, 803.4541
+            431.85, 357.606, 562.354, 637.759, 582.983, 702.689, 571.618, 
+            514.537, 631.262, 572.776, 914.067, 1036.959, 457.758, 446.806, 
+            688.807, 688.714, 857.06, 931.403, 676.45, 803.454
         ),
         tolerance = 1e-04
     )
@@ -56,24 +48,24 @@ test_that("detectCompartments behaves as expected", {
     # Compartments
     expect_equal(nrow(object@compartments), 1280)
     expect_equal(
-        nrow(object@compartments %>% dplyr::filter(compartment == "B")),
+        nrow(object@compartments[compartment == "B"]),
         745
     )
     expect_is(object@compartments$chromosome, "factor")
     expect_is(object@compartments$condition, "factor")
     expect_is(object@compartments$compartment, "factor")
-    expect_is(object@compartments$bin, "integer")
+    expect_is(object@compartments$index, "numeric")
 
     # Concordance
     expect_is(object@concordances$chromosome, "factor")
-    expect_is(object@concordances$bin, "integer")
+    expect_is(object@concordances$index, "numeric")
     expect_is(object@concordances$condition, "factor")
     expect_is(object@concordances$replicate, "factor")
     expect_is(object@concordances$compartment, "factor")
     expect_is(object@concordances$concordance, "numeric")
     expect_equal(nrow(object@concordances), 2720)
     expect_equal(
-      nrow(object@concordances %>% dplyr::filter(compartment == "A")),
+      nrow(object@concordances[compartment == "A"]),
       1162
     )
     expect_equal(
@@ -84,7 +76,7 @@ test_that("detectCompartments behaves as expected", {
 
     # Distances
     expect_is(object@distances$chromosome, "factor")
-    expect_is(object@distances$bin, "integer")
+    expect_is(object@distances$index, "numeric")
     expect_is(object@distances$condition, "factor")
     expect_is(object@distances$replicate, "factor")
     expect_is(object@distances$compartment, "factor")
@@ -100,7 +92,7 @@ test_that("detectCompartments behaves as expected", {
       tolerance = 1e-04
     )
     expect_is(object@selfInteractionRatios$chromosome, "factor")
-    expect_is(object@selfInteractionRatios$bin, "integer")
+    expect_is(object@selfInteractionRatios$index, "numeric")
     expect_is(object@selfInteractionRatios$condition, "factor")
     expect_is(object@selfInteractionRatios$replicate, "factor")
     expect_is(object@selfInteractionRatios$ratio, "numeric")
@@ -114,47 +106,41 @@ test_that("detectCompartments behaves as expected in parallel", {
     multiParam <- BiocParallel::MulticoreParam(workers = 2)
   }
   BiocParallel::register(multiParam, default = TRUE)
-  
+
   # Detect Compartments
   expect_message(
     object <- detectCompartments(exampleHiCDOCDataSet, parallel = TRUE),
     "Detecting significant differences."
   )
-  # Keep object format
-  expect_is(object@interactions$chromosome, "factor")
-  expect_is(object@interactions$bin.1, "integer")
-  expect_is(object@interactions$bin.2, "integer")
-  expect_is(object@interactions$condition, "factor")
-  expect_is(object@interactions$replicate, "factor")
-  expect_is(object@interactions$interaction, "numeric")
-  # Create new objects in correct format
-  expect_is(object@distances, "tbl_df")
-  expect_is(object@selfInteractionRatios, "tbl_df")
-  expect_is(object@compartments, "tbl_df")
-  expect_is(object@concordances, "tbl_df")
-  expect_is(object@differences, "tbl_df")
-  expect_is(object@centroids, "tbl_df")
   
+  # Create new objects in correct format
+  expect_is(object@distances, "data.table")
+  expect_is(object@selfInteractionRatios, "data.table")
+  expect_is(object@compartments, "data.table")
+  expect_is(object@concordances, "data.table")
+  expect_is(object@differences, "data.table")
+  expect_is(object@centroids, "data.table")
+
   # Differences
   expect_is(object@differences$chromosome, "factor")
   expect_is(object@differences$condition.1, "factor")
   expect_is(object@differences$condition.2, "factor")
-  
+
   # Centroids
   expect_is(object@centroids$chromosome, "factor")
   expect_is(object@centroids$condition, "factor")
   expect_is(object@centroids$compartment, "factor")
   expect_is(object@centroids$centroid, "list")
-  
+
   # Compartments
   expect_is(object@compartments$chromosome, "factor")
   expect_is(object@compartments$condition, "factor")
   expect_is(object@compartments$compartment, "factor")
-  expect_is(object@compartments$bin, "integer")
-  
+  expect_is(object@compartments$index, "numeric")
+
   # Concordance
   expect_is(object@concordances$chromosome, "factor")
-  expect_is(object@concordances$bin, "integer")
+  expect_is(object@concordances$index, "numeric")
   expect_is(object@concordances$condition, "factor")
   expect_is(object@concordances$replicate, "factor")
   expect_is(object@concordances$compartment, "factor")
@@ -162,7 +148,7 @@ test_that("detectCompartments behaves as expected in parallel", {
 
   # Distances
   expect_is(object@distances$chromosome, "factor")
-  expect_is(object@distances$bin, "integer")
+  expect_is(object@distances$index, "numeric")
   expect_is(object@distances$condition, "factor")
   expect_is(object@distances$replicate, "factor")
   expect_is(object@distances$compartment, "factor")
@@ -170,7 +156,7 @@ test_that("detectCompartments behaves as expected in parallel", {
 
   # SelfInteractionRatios
   expect_is(object@selfInteractionRatios$chromosome, "factor")
-  expect_is(object@selfInteractionRatios$bin, "integer")
+  expect_is(object@selfInteractionRatios$index, "numeric")
   expect_is(object@selfInteractionRatios$condition, "factor")
   expect_is(object@selfInteractionRatios$replicate, "factor")
   expect_is(object@selfInteractionRatios$ratio, "numeric")

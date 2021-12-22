@@ -374,10 +374,12 @@
     
     # Values on diagonal
     onDiagonal <- data.table(
+        "chromosome" = tmp[diagonal,]$seqnames1,
         "index" = ids$first[diagonal],
         SummarizedExperiment::assay(object)[diagonal,])
-    setnames(onDiagonal, c("index", cn))
-    onDiagonal <- data.table::melt.data.table(onDiagonal, id.vars="index")
+    data.table::setnames(onDiagonal, c("chromosome", "index", cn))
+    onDiagonal <- data.table::melt.data.table(onDiagonal, 
+                                              id.vars=c("chromosome", "index"))
     onDiagonal <- onDiagonal[!is.na(value)]
     
     # Compute median by bin, out of diagonal
@@ -409,8 +411,7 @@
     onDiagonal[,ratio := value - median]
     onDiagonal[, c("condition", "replicate") := 
                    tstrsplit(variable, " ", fixed=TRUE)]
-    onDiagonal <- onDiagonal[,.(index, condition, replicate, ratio)]
-    
+    onDiagonal <- onDiagonal[,.(chromosome, index, condition, replicate, ratio)]
     return(onDiagonal)
 }
 
@@ -439,7 +440,7 @@
     compartments <- data.table::merge.data.table(
         object@compartments, 
         object@selfInteractionRatios,
-        by = c("index", "condition"),
+        by = c("chromosome", "index", "condition"),
         all.x=T,
         sort=FALSE
     )
@@ -524,7 +525,7 @@
     concordances <- object@concordances 
     concordances[,condition := factor(condition, 
                                      levels=sort(unique(object$condition)))]
-    setorder(concordances, chromosome, index, condition, replicate)
+    data.table::setorder(concordances, chromosome, index, condition, replicate)
     diff1 <- concordances[rep(seq_len(nrow(concordances)), each=nbReplicates),
                          .(chromosome, 
                            index,
@@ -535,7 +536,7 @@
                             index = index,
                             condition.2 = condition, 
                             concordance.2 = concordance)]
-    setorder(diff2, chromosome, index)
+    data.table::setorder(diff2, chromosome, index)
     diff2[,`:=`(chromosome = NULL, index = NULL)]
     diffConcordance <- cbind(diff1, diff2)
     rm(diff1, diff2)
@@ -549,7 +550,7 @@
     compartments <- object@compartments 
     compartments[,condition := factor(condition, 
                                      levels=sort(unique(object$condition)))]
-    setorder(compartments, chromosome, index, condition)
+    data.table::setorder(compartments, chromosome, index, condition)
     comp1 <- compartments[rep(seq_len(nrow(compartments)), each=nbConditions),
                           .(chromosome, 
                             index,
@@ -560,7 +561,7 @@
                             index,
                             condition.2 = condition, 
                             compartment.2 = compartment)]
-    setorder(comp2, chromosome, index)
+    data.table::setorder(comp2, chromosome, index)
     comp2[,`:=`(chromosome = NULL, index = NULL)]
     comparisons <- cbind(comp1, comp2)
     rm(comp1, comp2)
@@ -568,7 +569,7 @@
     comparisons <- data.table::merge.data.table(comparisons, 
                                                 diffConcordance,
                                                 by = c("chromosome", "index", "condition.1", "condition.2"))
-    setcolorder(comparisons, c("chromosome",
+    data.table::setcolorder(comparisons, c("chromosome",
                                "index",
                                "condition.1",
                                "condition.2",
@@ -581,7 +582,7 @@
     # P-values for a condition pair computed from the whole genome distribution
     differences <- copy(comparisons)
     differences[compartment.1 == compartment.2 ,H0_value := difference]
-    setorder(differences, condition.1, condition.2)
+    data.table::setorder(differences, condition.1, condition.2)
     quantiles <- split(differences, list(differences$condition.1, differences$condition.2))
     quantiles <- lapply(quantiles, function(x) x[difference > 0])
     quantiles <- lapply(quantiles, function(x) 
@@ -609,7 +610,7 @@
                                   pvalue, 
                                   pvalue.adjusted, 
                                   direction)]
-    setorder(differences, chromosome, index, condition.1, condition.2)
+    data.table::setorder(differences, chromosome, index, condition.1, condition.2)
     object@differences <- differences
     return(object)
 }
@@ -812,5 +813,23 @@ detectCompartments <- function(
     object <- .predictCompartmentsAB(object, parallel)
     message("Detecting significant differences.")
     object <- .computePValues(object)
+    
+    # Reformating outputs
+    chr <- object@chromosomes
+    cond <- sort(unique(object$condition))
+    rep <- sort(unique(object$replicate))
+    
+    object@centroids[,`:=`(chromosome = factor(chromosome, levels =  chr),
+                           condition = factor(condition, levels = cond))]
+    object@differences[, chromosome := factor(chromosome, levels =  chr)]
+    object@compartments[, chromosome := factor(chromosome, levels =  chr)]
+    object@concordances[,`:=`(chromosome = factor(chromosome, levels =  chr),
+                              replicate = factor(condition, levels = rep))]
+    object@distances[,`:=`(chromosome = factor(chromosome, levels =  chr),
+                           condition = factor(condition, levels = cond),
+                           replicate = factor(condition, levels = rep))]
+    object@selfInteractionRatios[,`:=`(chromosome = factor(chromosome, levels =  chr),
+                           condition = factor(condition, levels = cond),
+                           replicate = factor(condition, levels = rep))]
     return(object)
 }
