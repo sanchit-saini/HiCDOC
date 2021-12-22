@@ -826,6 +826,7 @@ detectCompartments <- function(
     object@distances[,`:=`(chromosome = factor(chromosome, levels =  chr),
                            condition = factor(condition, levels = cond),
                            replicate = factor(replicate, levels = rep))]
+    object@comparisons[,chromosome := factor(chromosome, levels =  chr)]
     object@selfInteractionRatios[,`:=`(chromosome = factor(chromosome, levels =  chr),
                            condition = factor(condition, levels = cond),
                            replicate = factor(replicate, levels = rep))]
