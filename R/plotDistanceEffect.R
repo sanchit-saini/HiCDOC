@@ -16,12 +16,15 @@
 #'
 #' @export
 plotDistanceEffect <- function(object) {
-    .validateSlots(object, slots = c("interactions", "binSize"))
-    data <-
-        object@interactions %>%
-        dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize)
+    .validateSlots(object, slots = c("interactions"))
+    distances <- InteractionSet::pairdist(object, type="mid")
+    matAssay <- SummarizedExperiment::assay(object)
+    dfDistance <- data.table("distance" = rep(distances, ncol(matAssay)),
+                             "interaction" = as.vector(matAssay))
+    dfDistance <- dfDistance[!is.na(interaction)]
+    
     plot <-
-        ggplot(data, aes(x = distance, y = interaction)) +
+        ggplot(dfDistance, aes(x = distance, y = interaction)) +
         geom_bin2d() +
         scale_fill_gradient(
             low = "white",
