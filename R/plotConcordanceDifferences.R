@@ -25,16 +25,8 @@ plotConcordanceDifferences <- function(object) {
         slots = c("comparisons")
     )
 
-    differences <-
-        object@comparisons %>%
-        dplyr::mutate(
-            changed = dplyr::if_else(
-                compartment.1 == compartment.2,
-                "FALSE",
-                "TRUE"
-            )
-        )
-
+    differences <- object@comparisons[,changed := data.table::fifelse(compartment.1 == compartment.2,"FALSE", "TRUE")]
+    
     plot <-
         ggplot(differences, aes(x = difference, fill = changed)) +
         geom_histogram() +
