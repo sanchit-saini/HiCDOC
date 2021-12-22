@@ -159,7 +159,7 @@
         "interactions" %in% slots && (
             !.hasSlot(object, "interactions") ||
             is.null(slot(object, "interactions")) ||
-            nrow(object@interactions) == 0
+            nrow(object) == 0
         )
     ) {
         stop(

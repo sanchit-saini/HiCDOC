@@ -789,8 +789,6 @@ detectCompartments <- function(
         object,
         slots = c(
             "chromosomes",
-            "totalBins",
-            "weakBins",
             "validAssay",
             "parameters"
         )
@@ -831,5 +829,7 @@ detectCompartments <- function(
     object@selfInteractionRatios[,`:=`(chromosome = factor(chromosome, levels =  chr),
                            condition = factor(condition, levels = cond),
                            replicate = factor(condition, levels = rep))]
+    
+    # TODO : objets à trier. 
     return(object)
 }
