@@ -22,35 +22,27 @@
 plotCentroids <- function(object, chromosome, size = 2) {
     .validateSlots(object, slots = "centroids")
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
-
-    df <-
-        object@centroids %>%
-        dplyr::filter(chromosome == chromosomeName) %>%
-        dplyr::select(-chromosome) %>%
-        tidyr::unite(name, c(condition, compartment))
-
+    
+    df <- object@centroids[chromosome == chromosomeName,
+                           .(name = paste(condition, compartment, sep="_"),
+                             centroid)]
+    names <- df$name
+    
     if (nrow(df) == 0) {
         message("No centroids for chromosome ", chromosomeName, ".")
         return(NULL)
     }
-
-    names <- df$name
-    df %<>%
-        tidyr::spread(name, centroid) %>%
-        tidyr::unnest(cols = dplyr::all_of(names)) %>%
-        t()
-
+    
+    df <- lapply(df$name, function(x) unlist(df[name == x, centroid]))
+    df <- do.call("rbind", dflist)
+    
     pca <- stats::prcomp(df)
     varpca <- pca$sdev^2
     propvar <- varpca / sum(varpca)
     propvar <- paste(round(100 * propvar, 2), "%")
 
-    pca <- as.data.frame(pca$x)
-    pca$group <- row.names(df)
-    pca %<>%
-        dplyr::mutate(group = strsplit(group, "_", fixed = TRUE)) %>%
-        dplyr::mutate(condition = purrr::map_chr(group, 1),
-                      compartment = purrr::map_chr(group, 2))
+    pca <- as.data.table(pca$x)
+    pca[, c("condition", "compartment") := tstrsplit(names, "_", fixed=TRUE)]
 
     plot <-
         ggplot(
