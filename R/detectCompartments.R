@@ -520,134 +520,97 @@
 
     # Compute median of differences between pairs of concordances
     # N.b. median of differences != difference of medians
-    totalReplicates <- length(object@replicates)
-
-    concordanceDifferences <-
-        object@concordances %>%
-        dplyr::arrange(chromosome, bin, condition, replicate)
-
-    concordanceDifferences %<>%
-        # Duplicate each row "totalReplicates" times
-        tidyr::uncount(totalReplicates) %>%
-        cbind(
-            # Duplicate the table "totalReplicates" times
-            concordanceDifferences[rep(
-                seq_len(nrow(concordanceDifferences)),
-                totalReplicates
-            ), ] %>%
-            # Arrange by chromosome and position
-            # to join with the duplicated rows
-            dplyr::arrange(chromosome, bin) %>%
-            dplyr::rename_with(function(column) {
-                paste(column, 2, sep = ".")
-            })
-        ) %>%
-        dplyr::select(-chromosome.2, -bin.2) %>%
-        dplyr::rename(condition.1 = condition, concordance.1 = concordance) %>%
-        dplyr::filter(as.numeric(condition.1) < as.numeric(condition.2)) %>%
-        dplyr::group_by(chromosome, bin, condition.1, condition.2) %>%
-        dplyr::summarise(
-            difference = stats::median(abs(concordance.1 - concordance.2))
-        ) %>%
-        dplyr::ungroup()
-
+    nbReplicates <- length(object$replicate)
+    concordances <- object@concordances 
+    concordances[,condition := factor(condition, 
+                                     levels=sort(unique(object$condition)))]
+    setorder(concordances, chromosome, index, condition, replicate)
+    diff1 <- concordances[rep(seq_len(nrow(concordances)), each=nbReplicates),
+                         .(chromosome, 
+                           index,
+                           condition.1 = condition, 
+                           concordance.1 = concordance)]
+    diff2 <-  concordances[rep(seq_len(nrow(concordances)), nbReplicates),
+                          .(chromosome = chromosome, 
+                            index = index,
+                            condition.2 = condition, 
+                            concordance.2 = concordance)]
+    setorder(diff2, chromosome, index)
+    diff2[,`:=`(chromosome = NULL, index = NULL)]
+    diffConcordance <- cbind(diff1, diff2)
+    rm(diff1, diff2)
+    diffConcordance <- diffConcordance[as.numeric(condition.1) < as.numeric(condition.2)]
+    diffConcordance <- diffConcordance[,.(difference = stats::median(abs(concordance.1 - concordance.2))),
+                                  by = .(chromosome, index, condition.1, condition.2)]
+ 
     # Format compartments per pair of conditions
-    totalConditions <- length(unique(object@conditions))
-
-    compartmentComparisons <-
-        object@compartments %>%
-        dplyr::arrange(chromosome, bin, condition)
-
-    compartmentComparisons %<>%
-        # Duplicate each row "totalConditions" times
-        tidyr::uncount(totalConditions) %>%
-        cbind(
-            # Duplicate the table "totalConditions" times
-            compartmentComparisons[rep(
-                seq_len(nrow(compartmentComparisons)),
-                totalConditions
-            ), ] %>%
-            # Arrange by chromosome and position
-            # to join with the duplicated rows
-            dplyr::arrange(chromosome, bin) %>%
-            dplyr::rename_with(function(column) {
-                paste(column, 2, sep = ".")
-            })
-        ) %>%
-        dplyr::select(-chromosome.2, -bin.2) %>%
-        dplyr::rename(
-            condition.1 = condition,
-            compartment.1 = compartment
-        ) %>%
-        dplyr::filter(as.numeric(condition.1) < as.numeric(condition.2))
-
     # Join medians of differences and pairs of conditions
-    object@comparisons <-
-        compartmentComparisons %>%
-        dplyr::left_join(
-            concordanceDifferences,
-            by = c("chromosome", "bin", "condition.1", "condition.2")
-        ) %>%
-        dplyr::as_tibble() %>%
-        dplyr::select(
-            chromosome,
-            bin,
-            condition.1,
-            condition.2,
-            compartment.1,
-            compartment.2,
-            difference
-        )
-
+    nbConditions <- length(unique(object$condition))
+    compartments <- object@compartments 
+    compartments[,condition := factor(condition, 
+                                     levels=sort(unique(object$condition)))]
+    setorder(compartments, chromosome, index, condition)
+    comp1 <- compartments[rep(seq_len(nrow(compartments)), each=nbConditions),
+                          .(chromosome, 
+                            index,
+                            condition.1 = condition, 
+                            compartment.1 = compartment)]
+    comp2 <- compartments[rep(seq_len(nrow(compartments)), nbConditions),
+                          .(chromosome, 
+                            index,
+                            condition.2 = condition, 
+                            compartment.2 = compartment)]
+    setorder(comp2, chromosome, index)
+    comp2[,`:=`(chromosome = NULL, index = NULL)]
+    comparisons <- cbind(comp1, comp2)
+    rm(comp1, comp2)
+    comparisons <- comparisons[as.numeric(condition.1) < as.numeric(condition.2)]
+    comparisons <- data.table::merge.data.table(comparisons, 
+                                                diffConcordance,
+                                                by = c("chromosome", "index", "condition.1", "condition.2"))
+    setcolorder(comparisons, c("chromosome",
+                               "index",
+                               "condition.1",
+                               "condition.2",
+                               "compartment.1",
+                               "compartment.2",
+                               "difference"))
+    object@comparisons <- comparisons
+    
     # Compute p-values for switching positions
     # P-values for a condition pair computed from the whole genome distribution
-    object@differences <-
-        object@comparisons %>%
-        dplyr::mutate(
-            H0_value = dplyr::if_else(
-                compartment.1 == compartment.2,
-                difference,
-                NA_real_
-            )
-        ) %>%
-        dplyr::group_by(condition.1, condition.2) %>%
-        dplyr::mutate(
-          quantile = ifelse(
-            difference > 0,
-            stats::ecdf(H0_value)(difference),
-            NA
-          )
-        ) %>%
-        dplyr::filter(compartment.1 != compartment.2) %>%
-        dplyr::mutate(pvalue = 1 - quantile) %>%
-        dplyr::mutate(pvalue = dplyr::if_else(pvalue < 0, 0, pvalue)) %>%
-        dplyr::mutate(pvalue = dplyr::if_else(pvalue > 1, 1, pvalue)) %>%
-        dplyr::mutate(
-            pvalue.adjusted = stats::p.adjust(pvalue, method = "BH")
-        ) %>%
-        dplyr::ungroup() %>%
-        dplyr::mutate(
-            direction = factor(
-                dplyr::if_else(compartment.1 == "A", "A->B", "B->A"),
-                levels = c("A->B", "B->A")
-            )
-        ) %>%
-        dplyr::select(
-            chromosome,
-            bin,
-            condition.1,
-            condition.2,
-            pvalue,
-            pvalue.adjusted,
-            direction
-        ) %>%
-        dplyr::arrange(
-            chromosome,
-            bin,
-            condition.1,
-            condition.2
-        )
-
+    differences <- copy(comparisons)
+    differences[compartment.1 == compartment.2 ,H0_value := difference]
+    setorder(differences, condition.1, condition.2)
+    quantiles <- split(differences, list(differences$condition.1, differences$condition.2))
+    quantiles <- lapply(quantiles, function(x) x[difference > 0])
+    quantiles <- lapply(quantiles, function(x) 
+        if(nrow(x)>0) { return(stats::ecdf(x$H0_value)(x$difference))} else return(NULL))
+    quantiles <- do.call("c", quantiles)
+    differences[difference > 0, quantile := quantiles]
+    
+    # Pvalues
+    differences <- differences[compartment.1 != compartment.2]
+    differences[, pvalue := 1 - quantile]
+    differences[pvalue<0, pvalue := 0]
+    differences[pvalue>1, pvalue := 1]
+    pvalAdjust <- split(differences, list(differences$condition.1, differences$condition.2))
+    pvalAdjust <- lapply(pvalAdjust, function(x) if(nrow(x) > 0) return(stats::p.adjust(x$pvalue, method = "BH")) else return(NULL))
+    pvalAdjust <- do.call("c", pvalAdjust)
+    differences[, pvalue.adjusted := pvalAdjust]
+    
+    # Changes
+    differences[,direction := data.table::fifelse(compartment.1 == "A", "A->B", "B->A")]
+    differences[,direction := factor(direction, levels = c("A->B", "B->A"))]
+    differences <- differences[,.(chromosome, 
+                                  index, 
+                                  condition.1, 
+                                  condition.2, 
+                                  pvalue, 
+                                  pvalue.adjusted, 
+                                  direction)]
+    setorder(differences, chromosome, index, condition.1, condition.2)
+    object@differences <- differences
     return(object)
 }
 
@@ -849,6 +812,5 @@ detectCompartments <- function(
     object <- .predictCompartmentsAB(object, parallel)
     message("Detecting significant differences.")
     object <- .computePValues(object)
-
     return(object)
 }
