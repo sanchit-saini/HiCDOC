@@ -110,8 +110,11 @@
 #' @noRd
 .validateNames <- function(object, names, category = "chromosomes") {
 
-    validNames <- unique(slot(object, category))
-
+    validNames <- switch(category,
+                         "chromosomes" = unique(object@chromosomes),
+                         "replicates" = unique(object$replicate),
+                         "conditions" = unique(object$condition))
+    
     if (all(names %in% validNames)) return(names)
 
     if (is.numeric(names) && all(names %in% seq_len(length(validNames)))) {
