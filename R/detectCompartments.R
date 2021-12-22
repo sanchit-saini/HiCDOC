@@ -822,13 +822,13 @@ detectCompartments <- function(
     object@differences[, chromosome := factor(chromosome, levels =  chr)]
     object@compartments[, chromosome := factor(chromosome, levels =  chr)]
     object@concordances[,`:=`(chromosome = factor(chromosome, levels =  chr),
-                              replicate = factor(condition, levels = rep))]
+                              replicate = factor(replicate, levels = rep))]
     object@distances[,`:=`(chromosome = factor(chromosome, levels =  chr),
                            condition = factor(condition, levels = cond),
-                           replicate = factor(condition, levels = rep))]
+                           replicate = factor(replicate, levels = rep))]
     object@selfInteractionRatios[,`:=`(chromosome = factor(chromosome, levels =  chr),
                            condition = factor(condition, levels = cond),
-                           replicate = factor(condition, levels = rep))]
+                           replicate = factor(replicate, levels = rep))]
     
     # TODO : objets à trier. 
     return(object)
