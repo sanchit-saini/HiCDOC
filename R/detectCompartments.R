@@ -815,24 +815,7 @@ detectCompartments <- function(
     object <- .computePValues(object)
     
     # Reformating outputs
-    chr <- object@chromosomes
-    cond <- sort(unique(object$condition))
-    rep <- sort(unique(object$replicate))
+    object <- .formatDetectCompartment(object)
     
-    object@centroids[,`:=`(chromosome = factor(chromosome, levels =  chr),
-                           condition = factor(condition, levels = cond))]
-    object@differences[, chromosome := factor(chromosome, levels =  chr)]
-    object@compartments[, chromosome := factor(chromosome, levels =  chr)]
-    object@concordances[,`:=`(chromosome = factor(chromosome, levels =  chr),
-                              replicate = factor(replicate, levels = rep))]
-    object@distances[,`:=`(chromosome = factor(chromosome, levels =  chr),
-                           condition = factor(condition, levels = cond),
-                           replicate = factor(replicate, levels = rep))]
-    object@comparisons[,chromosome := factor(chromosome, levels =  chr)]
-    object@selfInteractionRatios[,`:=`(chromosome = factor(chromosome, levels =  chr),
-                           condition = factor(condition, levels = cond),
-                           replicate = factor(replicate, levels = rep))]
-    
-    # TODO : objets à trier. 
     return(object)
 }
