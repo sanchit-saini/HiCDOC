@@ -202,6 +202,7 @@
     nbBins <- length(InteractionSet::regions(object))
     validAssay <- object@validAssay[[chromosomeName]]
     replicateNames <- object$replicate[validAssay]
+    orderAssay <- validAssay[order(replicateNames)]
     
     if (length(replicateNames) == 0) return(NULL)
     isetChromosome <- InteractionSet::InteractionSet(
@@ -209,7 +210,7 @@
         InteractionSet::interactions(object)
     )
     matAssay <- 
-        lapply(validAssay,
+        lapply(orderAssay,
                FUN = function(x) {
                    InteractionSet::inflate(isetChromosome, 
                                            rows = chromosomeName,
@@ -231,7 +232,7 @@
         )
     # TODO : question : pourquoi on ne prend que les premiers ?
     # Quel est l'intérêt de retourner 2 fois ?
-    clusters <- clusteringOutput[["clusters"]][1:nbBins] + 1
+    clusters <- clusteringOutput[["clusters"]][0:nbBins] + 1
     centroids <- clusteringOutput[["centroids"]]
 
     min <- .distanceRatio(centroids[[1]], centroids)
@@ -262,7 +263,7 @@
         "chromosome" = chromosomeName,
         "index" = rep(indexes, length(replicateNames)),
         "condition" = conditionName,
-        "replicate" = rep(replicateNames, each = nbBins),
+        "replicate" = rep(sort(replicateNames), each = nbBins),
         "compartment" = rep(clusters, length(replicateNames)),
         "concordance" = concordances
     )
@@ -271,7 +272,7 @@
         "chromosome" = chromosomeName,
         "index" = rep(indexes, 2 * length(replicateNames)),
         "condition" = conditionName,
-        "replicate" = rep(rep(replicateNames, each = nbBins), 2),
+        "replicate" = rep(rep(sort(replicateNames), each = nbBins), 2),
         "compartment" = rep(c(1, 2), each = length(replicateNames) * nbBins),
         "distance" = c(t(distances)))
     
@@ -309,8 +310,8 @@
         lapply(object@chromosomes,
                FUN = function(x) {
                    data.frame("chr" = x, 
-                              "cond" = unique(
-                                  object$condition[object@validAssay[[x]]]))
+                              "cond" = sort(unique(
+                                  object$condition[object@validAssay[[x]]])))
                })
     condByChromosomes <- Reduce(rbind, condByChromosomes)
     
@@ -339,8 +340,7 @@
     object@concordances <- data.table::rbindlist(concordances)
     object@distances <- data.table::rbindlist(distances)
     object@centroids <- data.table::rbindlist(centroids)
-    object <- .tieCentroids(object)
-
+    
     return(object)
 }
 
@@ -807,6 +807,8 @@ detectCompartments <- function(
 
     message("Clustering genomic positions.")
     object <- .clusterize(object, parallel)
+    object <- .tieCentroids(object)
+    
     message("Predicting A/B compartments.")
     object <- .predictCompartmentsAB(object, parallel)
     message("Detecting significant differences.")
