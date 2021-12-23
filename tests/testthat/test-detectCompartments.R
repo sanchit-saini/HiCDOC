@@ -1,10 +1,11 @@
 data(exampleHiCDOCDataSet)
+object <- reduceHiCDOCDataSet(exampleHiCDOCDataSet, chromosomes=c("X", "Z"), conditions = c(1, 2))
 
 test_that("detectCompartments behaves as expected", {
     # Detect Compartments
     set.seed(3215) # Test with 123 : no significant differences
     expect_message(
-        object <- detectCompartments(exampleHiCDOCDataSet, parallel = FALSE),
+        object <- detectCompartments(object, parallel = FALSE),
         "Detecting significant differences."
     )
     # Create new objects in correct format
@@ -16,7 +17,7 @@ test_that("detectCompartments behaves as expected", {
     expect_is(object@centroids, "data.table")
 
     # Differences
-    expect_equal(nrow(object@differences), 52)
+    expect_equal(nrow(object@differences), 1)
     expect_equal(
         nrow(object@differences[pvalue.adjusted <= 0.05]),
         0
@@ -26,18 +27,14 @@ test_that("detectCompartments behaves as expected", {
     expect_is(object@differences$condition.2, "factor")
 
     # Centroids
-    expect_equal(nrow(object@centroids), 20)
+    expect_equal(nrow(object@centroids), 6)
     expect_equal(
         sapply(object@centroids$centroid, length),
-        c(rep(80, 6), rep(120, 6), rep(160, 6), rep(200, 2))
+        c(rep(120, 4), rep(200, 2))
     )
     expect_equal(
         sapply(object@centroids$centroid, mean),
-        c(
-            431.85, 357.606, 562.354, 637.759, 582.983, 702.689, 571.618, 
-            514.537, 631.262, 572.776, 914.067, 1036.959, 457.758, 446.806, 
-            688.807, 688.714, 857.06, 931.403, 676.45, 803.454
-        ),
+        c(572.776, 631.262, 514.537, 571.618, 676.45, 803.454),
         tolerance = 1e-04
     )
     expect_is(object@centroids$chromosome, "factor")
@@ -46,10 +43,10 @@ test_that("detectCompartments behaves as expected", {
     expect_is(object@centroids$centroid, "list")
 
     # Compartments
-    expect_equal(nrow(object@compartments), 1280)
+    expect_equal(nrow(object@compartments), 440)
     expect_equal(
         nrow(object@compartments[compartment == "B"]),
-        745
+        271
     )
     expect_is(object@compartments$chromosome, "factor")
     expect_is(object@compartments$condition, "factor")
@@ -63,14 +60,14 @@ test_that("detectCompartments behaves as expected", {
     expect_is(object@concordances$replicate, "factor")
     expect_is(object@concordances$compartment, "factor")
     expect_is(object@concordances$concordance, "numeric")
-    expect_equal(nrow(object@concordances), 2720)
+    expect_equal(nrow(object@concordances), 880)
     expect_equal(
       nrow(object@concordances[compartment == "A"]),
-      1162
+      337
     )
     expect_equal(
       100 * mean(object@concordances$concordance),
-      0.02854235,
+      -0.0218919,
       tolerance = 1e-05
     )
 
@@ -81,14 +78,14 @@ test_that("detectCompartments behaves as expected", {
     expect_is(object@distances$replicate, "factor")
     expect_is(object@distances$compartment, "factor")
     expect_is(object@distances$distance, "numeric")
-    expect_equal(nrow(object@distances), 5440)
-    expect_equal(mean(object@distances$distance), 4542.623, tolerance = 1e-04)
+    expect_equal(nrow(object@distances), 1760)
+    expect_equal(mean(object@distances$distance), 5713.632, tolerance = 1e-04)
 
     # SelfInteractionRatios
-    expect_equal(nrow(object@selfInteractionRatios), 2714)
+    expect_equal(nrow(object@selfInteractionRatios), 879)
     expect_equal(
       mean(object@selfInteractionRatios$ratio),
-      361.8327,
+      350.6047,
       tolerance = 1e-04
     )
     expect_is(object@selfInteractionRatios$chromosome, "factor")
@@ -99,6 +96,8 @@ test_that("detectCompartments behaves as expected", {
 })
 
 test_that("detectCompartments behaves as expected in parallel", {
+    skip_on_cran("skip parallel tests")
+    skip_on_bioc("skip parallel tests")
   # Parallel settings according to OS
   if(.Platform$OS.type == "windows"){
     multiParam <- BiocParallel::SnowParam(workers = 2)
@@ -109,7 +108,7 @@ test_that("detectCompartments behaves as expected in parallel", {
 
   # Detect Compartments
   expect_message(
-    object <- detectCompartments(exampleHiCDOCDataSet, parallel = TRUE),
+    object <- detectCompartments(object, parallel = TRUE),
     "Detecting significant differences."
   )
   

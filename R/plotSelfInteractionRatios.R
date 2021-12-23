@@ -25,7 +25,7 @@ plotSelfInteractionRatios <- function(object, chromosome) {
     .validateSlots(object, slots = c("selfInteractionRatios", "compartments"))
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
     
-    compartements <-  as.data.table(object@compartments[seqnames(object@compartments) == chromosomeName])
+    compartements <-  as.data.table(object@compartments[GenomicRanges::seqnames(object@compartments) == chromosomeName])
     dataplot <- data.table::merge.data.table(
         object@selfInteractionRatios[chromosome == chromosomeName],
         compartements[,.(chromosome = seqnames, condition, index, compartment)],

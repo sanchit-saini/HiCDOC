@@ -83,7 +83,7 @@
     setkey(tabular, chromosome, bin.1, bin.2)
     
     diag <- (tabular$bin.1 == tabular$bin.2)
-    binSize <- DescTools::GCD(abs(tabular[!diag,]$bin.1 - 
+    binSize <- modeVector(abs(tabular[!diag,]$bin.1 - 
                                       tabular[!diag,]$bin.2))
 
     tabular[,bin.1 := bin.1/binSize]
@@ -186,7 +186,7 @@
         ) 
 
     iset   <- .setFromTabular(interactions, input)
-    object <- new("HiCDOCDataSet", iset, input = input, binSize = binSize)
+    object <- new("HiCDOCDataSet", iset, input = input)
     
     return(object)
 }
@@ -288,7 +288,7 @@
             path      = object@input,
             binSize   = binSize,
             condition = conditions,
-	          replicate = replicates
+	        replicate = replicates
         )
     
     mergedIsetCool <- Reduce(f = .mergeInteractionSet, x = isetCool)

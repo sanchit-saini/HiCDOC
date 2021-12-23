@@ -25,15 +25,6 @@ setMethod("conditions", "HiCDOCDataSet",
 setMethod("replicates", "HiCDOCDataSet", 
           function(object) object$replicate)
 
-#### binSize ####
-#' Retrieves the resolution (span of each position in number of bases).
-#' @rdname HiCDOCDataSet-methods
-#' @usage
-#' NULL
-#' @export
-setMethod("binSize", "HiCDOCDataSet", 
-          function(object) object@binSize)
-
 # #### assay ####
 # #' Retrieves the assay matrix of interactions
 # #' @rdname HiCDOCDataSet-methods

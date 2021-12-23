@@ -85,17 +85,6 @@ setGeneric(
 #     return(interactions)
 # }
 
-#### binSize ####
-#' @describeIn HiCDOCDataSet-methods
-#' Retrieves the resolution (span of each position in number of bases).
-#' @export
-setGeneric(
-    name = "binSize",
-    def = function(object) {
-        standardGeneric("binSize")
-    }
-)
-
 #### compartments ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a \code{GenomicRange} of the compartment of every position

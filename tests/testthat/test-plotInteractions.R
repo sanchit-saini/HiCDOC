@@ -6,13 +6,6 @@ test_that("plotInteractions behaves as expected", {
     expect_error(plotInteractions(object), '"chromosome"')
     pp <- plotInteractions(object, 1)
     expect_is(pp, "ggplot")
-    expect_identical(
-        nrow(pp$data),
-        nrow(
-            object@interactions %>%
-            dplyr::filter(chromosome == "X" & interaction > 0)
-        )
-    )
     expect_equal(pp$labels$title, "Chromosome X")
     expect_equal(pp$labels$x, "")
     expect_equal(pp$labels$y, "")

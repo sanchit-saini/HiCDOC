@@ -75,7 +75,6 @@ setClass(
         parameters = "ANY",
         # interactions = "ANY",
         chromosomes = "ANY",
-        binSize = "ANY",
         totalBins = "ANY",
         weakBins = "ANY",
         validAssay = "ANY",

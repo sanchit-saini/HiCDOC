@@ -43,7 +43,8 @@ plotConcordances <- function(
     concordances <- object@concordances[GenomicRanges::seqnames(object@concordances) == chromosomeName]
     concordances <- data.table::as.data.table(concordances)
     concordances[, condition := paste0("Concordances\n", condition)]
-    concordances <- concordances[index >= xlim[1] & index <= xlim[2]]
+    concordances <- concordances[start >= xlim[1] & start <= xlim[2]]
+    binSize <- modeVector(concordances$width)
     
     if (nrow(concordances) == 0) {
         message("No concordances for chromosome ", chromosomeName, ".")
@@ -54,14 +55,13 @@ plotConcordances <- function(
     differences <- object@differences[GenomicRanges::seqnames(object@differences) == chromosomeName]
     differences <- as.data.table(differences)
     differences <- differences[pvalue.adjusted <= threshold]
-    differences <- differences[index >= xlim[1] & index <= xlim[2]]
+    differences <- differences[start >= xlim[1] & start <= xlim[2]]
     differences <- data.table::melt(differences,
-                                    id.vars= c("seqnames", "index"),
+                                    id.vars= c("seqnames", "start", "end"),
                                     measure.vars = c("condition.1", "condition.2"),
                                     value.name = "condition")
     differences[,condition := paste0("Concordances\n", condition)]
-    differences[,start := index - 0.5]
-    differences[,end := index + 0.5]
+
     
     caption <- "The grey areas are significant changes"
     if (nrow(differences) == 0) caption <- "No change is significant"
@@ -98,7 +98,7 @@ plotConcordances <- function(
         plot +
         geom_line(
             data = concordances,
-            aes(x = index, y = concordance, color = replicate)
+            aes(x = start + 0.5 * binSize, y = concordance, color = replicate)
         )
     if (points) {
         plot <-
@@ -106,7 +106,7 @@ plotConcordances <- function(
             geom_point(
                 data = concordances,
                 aes(
-                    x = index,
+                    x = start + 0.5 * binSize,
                     y = concordance,
                     color = replicate
                 )
@@ -115,7 +115,8 @@ plotConcordances <- function(
     plot <-
         plot +
         labs(caption = caption) +
-        # xlim(xlim[1], xlim[2] + object@binSize) +
+        xlab("position") + 
+        xlim(xlim[1], xlim[2] + binSize) +
         ylim(ylim) +
         geom_hline(yintercept = 0.0, size = 0.1) +
         facet_grid(rows = vars(condition), margins = FALSE, switch = "y") +

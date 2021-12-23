@@ -1,9 +1,16 @@
+#' modeVector Extract the mode of vector.
+#'
+#' @param x A vector
+#'
+#' @return The mode of a vector
+#' @export
+#'
+#' @examples
+#' modeVector(c(1, 2, 2, 2, 4))
 modeVector <- function(x) {
     ux <- unique(x)
     ux[which.max(tabulate(match(x, ux)))]
 }
-
-
 
 #' @description
 #' Determines the number of bins per chromosome.
