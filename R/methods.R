@@ -131,39 +131,12 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
             call. = FALSE
         )
     }
-
-    differences <-
-        object@differences %>%
-        dplyr::left_join(
-            object@positions,
-            by = c("chromosome", "bin")
-        ) %>%
-        dplyr::mutate(
-            significance = dplyr::case_when(
-                pvalue.adjusted <= 0.0001 ~ "****",
-                pvalue.adjusted <= 0.001 ~ "***",
-                pvalue.adjusted <= 0.01 ~ "**",
-                pvalue.adjusted <= 0.05 ~ "*",
-                TRUE ~ ""
-            )
-        ) %>%
-        dplyr::select(
-            chromosome,
-            start,
-            end,
-            condition.1,
-            condition.2,
-            pvalue,
-            pvalue.adjusted,
-            direction,
-            significance
-        )
-
+    differences <- object@differences
     if (!is.null(threshold)) {
-        differences %<>% dplyr::filter(pvalue.adjusted <= threshold)
+        differences <- differences[differences$pvalue.adjusted <= threshold]
     }
 
-    if (nrow(differences) == 0) {
+    if (length(differences) == 0) {
         if (is.null(threshold)){
             message("No differences found.")
         } else {
@@ -175,14 +148,8 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
         }
         return(NULL)
     }
-
-    genomicRange <-
-        GenomicRanges::makeGRangesFromDataFrame(
-            differences,
-            keep.extra.columns = TRUE
-        )
-
-    return(genomicRange)
+    
+    return(differences)
 })
 
 #### concordances ####
@@ -193,24 +160,7 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 #' NULL
 #' @export
 setMethod("concordances", "HiCDOCDataSet", function(object) {
-
-    if (is.null(object@concordances)) return(NULL)
-
-    concordances <-
-        object@concordances %>%
-        dplyr::left_join(object@positions, by = c("chromosome", "bin")) %>%
-        dplyr::select(
-            chromosome,
-            start,
-            end,
-            condition,
-            replicate,
-            compartment,
-            concordance
-        ) %>%
-        GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE)
-
-    return(concordances)
+    return(object@concordances)
 })
 
 #### show ####

@@ -82,13 +82,19 @@
     
     # Differences
     object@differences[, chromosome := factor(chromosome, levels =  chr)]
+    object@differences[, significance := ""]
+    object@differences[pvalue.adjusted <= 0.05, significance := "*"]
+    object@differences[pvalue.adjusted <= 0.01, significance := "**"]
+    object@differences[pvalue.adjusted <= 0.001, significance := "***"]
+    object@differences[pvalue.adjusted <= 0.0001, significance := "****"]
+
     differences <- object@differences
     object@differences <- all.regions[match(differences$index, 
                                             S4Vectors::mcols(all.regions)$index)]
     S4Vectors::mcols(object@differences) <- 
         S4Vectors::DataFrame(differences[,.(condition.1, condition.2, 
                                             pvalue, pvalue.adjusted, 
-                                            direction)])
+                                            direction, significance)])
     
     # Compartments
     object@compartments[, chromosome := factor(chromosome, levels =  chr)]
