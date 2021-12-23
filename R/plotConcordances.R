@@ -38,13 +38,11 @@ plotConcordances <- function(
 
     .validateSlots(object, slots = c("concordances", "differences"))
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
-    # xlim <- .validateXlim(xlim, object, chromosomeName)
-    reg <- InteractionSet::regions(object)
-    reg <- reg[GenomicRanges::seqnames(reg) == chromosomeName,]
-    xlim <- c(min(reg$index), max(reg$index))
-              
-    concordances <- object@concordances[chromosome == chromosomeName]
-    concordances[,condition := paste0("Concordances\n", condition)]
+    xlim <- .validateXlim(xlim, object, chromosomeName)
+    
+    concordances <- object@concordances[GenomicRanges::seqnames(object@concordances) == chromosomeName]
+    concordances <- data.table::as.data.table(concordances)
+    concordances[, condition := paste0("Concordances\n", condition)]
     concordances <- concordances[index >= xlim[1] & index <= xlim[2]]
     
     if (nrow(concordances) == 0) {
@@ -53,11 +51,12 @@ plotConcordances <- function(
     }
     
     # Significant differences
-    differences <- object@differences[chromosome == chromosomeName & 
-                                          pvalue.adjusted <= threshold]
+    differences <- object@differences[GenomicRanges::seqnames(object@differences) == chromosomeName]
+    differences <- as.data.table(differences)
+    differences <- differences[pvalue.adjusted <= threshold]
     differences <- differences[index >= xlim[1] & index <= xlim[2]]
     differences <- data.table::melt(differences,
-                                    id.vars= c("chromosome", "index"),
+                                    id.vars= c("seqnames", "index"),
                                     measure.vars = c("condition.1", "condition.2"),
                                     value.name = "condition")
     differences[,condition := paste0("Concordances\n", condition)]

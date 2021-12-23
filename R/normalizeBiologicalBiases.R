@@ -111,10 +111,12 @@
     chromosomeName <- as.character(SummarizedExperiment::mcols(object)$Chr[1])
     message("Chromosome ", chromosomeName, ": normalizing biological biases.")
     if (object@totalBins[[chromosomeName]] <= 0) return(NULL)
-
+    currentOrder <- InteractionSet::anchorIds(object)
+    currentAssay <- SummarizedExperiment::assay(object)
+    
     # Pass by InteractionSet so we can use inflate/deflate
     isetChromosome <- InteractionSet::InteractionSet(
-        SummarizedExperiment::assay(object),
+        currentAssay,
         InteractionSet::interactions(object)
     )
     validAssay <- object@validAssay[[chromosomeName]]
@@ -128,13 +130,18 @@
                    })
     
     matrices <- lapply(matrices, .normalizeKnightRuiz)
-    matrices <- lapply(matrices, InteractionSet::deflate)
-    matrices <- lapply(matrices, SummarizedExperiment::assay)
+    matrices <- lapply(matrices, InteractionSet::deflate, use.na=TRUE)
+    # Correct ids order
+    ids <- InteractionSet::anchorIds(matrices[[1]])
+    ids <- paste(ids$first, ids$second)
+    correctIds <- paste(currentOrder$first, currentOrder$second)
+    orderids <- match(ids, correctIds)
+    matrices <- lapply(matrices, function(x) SummarizedExperiment::assay(x))
+    matrices <- lapply(matrices, function(x) x[orderids])
     matrices <- do.call("cbind", matrices)
-    
-    assay <-SummarizedExperiment::assay(object)
-    assay[,validAssay] <- matrices
-    return(assay)
+
+    currentAssay[,validAssay] <- matrices
+    return(currentAssay)
 }
 
 #' @title

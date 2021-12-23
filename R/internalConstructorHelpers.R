@@ -1,3 +1,10 @@
+modeVector <- function(x) {
+    ux <- unique(x)
+    ux[which.max(tabulate(match(x, ux)))]
+}
+
+
+
 #' @description
 #' Determines the number of bins per chromosome.
 #'

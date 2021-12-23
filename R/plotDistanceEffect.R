@@ -24,10 +24,10 @@ plotDistanceEffect <- function(object, chromosome = NULL) {
             chromosome < chromosome[1]
         }
         chromosomeName <- .validateNames(object, chromosome, "chromosomes")
-        rowsId <- (S4Vectors::mcols(object)$Chr == chromosomeName)
+        rowsId <- as.logical(S4Vectors::mcols(object)$Chr == chromosomeName)
         addTitle <- paste(", chromosome", chromosomeName)
     } else {
-        rowsId <- rep(TRUE, nrow(object))
+        rowsId <- rep(TRUE, length(object))
         addTitle <- ""
     }
     

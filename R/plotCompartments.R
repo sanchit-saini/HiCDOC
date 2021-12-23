@@ -28,28 +28,30 @@ plotCompartments <- function(
 
     .validateSlots(object, slots = c("compartments"))
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
-    # xlim <- .validateXlim(xlim, object, chromosomeName)
+    xlim <- .validateXlim(xlim, object, chromosomeName)
     
-    compartments <- object@compartments[chromosome == chromosomeName]
-    # TODO : resolve xlim in case of compartemnts (index)
-    # Add index param in validxlim ?
-    
-    if (nrow(compartments) == 0) {
+    compartments <- object@compartments[ GenomicRanges::seqnames(object@compartments) == chromosomeName]
+
+    if (length(compartments) == 0) {
         message("No compartments for chromosome ", chromosomeName, ".")
         return(NULL)
     }
+    compartments <- as.data.table(compartments)
+    compartments[,position := start + 0.5 * width]
+    
+    binSize <- modeVector(compartements$width)
     
     plot <-
         ggplot(
             data = compartments,
-            aes(x = index, fill = compartment)
+            aes(x = position, fill = compartment)
         ) +
         geom_histogram(
-            binwidth = 1,
+            binwidth = binSize,
             colour = "gray90",
             size = 0.05
         ) +
-        # xlim(xlim[1] - 0.5 * object@binSize, xlim[2] + 0.5 * object@binSize) +
+        xlim(xlim[1] - 0.5 * binSize, xlim[2] + 0.5 * binSize) +
         facet_grid(rows = vars(condition), margins = FALSE, switch = "y") +
         theme_minimal() +
         theme(

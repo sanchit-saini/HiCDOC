@@ -28,12 +28,10 @@
         }
     }
     if (is.null(xlim)) {
-        positions <-
-            object@positions %>%
-            dplyr::filter(chromosome == chromosomeName) %>%
-            dplyr::select(start) %>%
-            dplyr::pull()
-        xlim <- c(min(positions, na.rm = TRUE), max(positions, na.rm = TRUE))
+        regions <- InteractionSet::regions(object)
+        regions <- regions[seqnames(regions) == chromosomeName]
+        xlim <- c(min(GenomicRanges::start(regions), na.rm = TRUE), 
+                  max(GenomicRanges::start(regions), na.rm = TRUE))
     }
     return(xlim)
 }
