@@ -38,40 +38,32 @@ plotConcordances <- function(
 
     .validateSlots(object, slots = c("concordances", "differences"))
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
-    xlim <- .validateXlim(xlim, object, chromosomeName)
-
-    concordances <-
-        object@concordances %>%
-        dplyr::filter(chromosome == chromosomeName) %>%
-        dplyr::left_join(
-            object@positions %>% dplyr::filter(chromosome == chromosomeName),
-            by = c("chromosome", "bin")
-        ) %>%
-        dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
-        dplyr::mutate(condition = paste0("Concordances\n", condition)) %>%
-        dplyr::mutate(position = start + 0.5 * object@binSize)
-
+    # xlim <- .validateXlim(xlim, object, chromosomeName)
+    reg <- InteractionSet::regions(object)
+    reg <- reg[GenomicRanges::seqnames(reg) == chromosomeName,]
+    xlim <- c(min(reg$index), max(reg$index))
+              
+    concordances <- object@concordances[chromosome == chromosomeName]
+    concordances[,condition := paste0("Concordances\n", condition)]
+    concordances <- concordances[index >= xlim[1] & index <= xlim[2]]
+    
     if (nrow(concordances) == 0) {
         message("No concordances for chromosome ", chromosomeName, ".")
         return(NULL)
     }
-
+    
     # Significant differences
-    differences <-
-        object@differences %>%
-        dplyr::filter(chromosome == chromosomeName) %>%
-        dplyr::left_join(
-            object@positions %>% dplyr::filter(chromosome == chromosomeName),
-            by = c("chromosome", "bin")
-        ) %>%
-        dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
-        dplyr::filter(pvalue.adjusted <= threshold) %>%
-        tidyr::pivot_longer(
-            cols = tidyr::starts_with("condition"),
-            values_to = "condition"
-        ) %>%
-        dplyr::mutate(condition = paste0("Concordances\n", condition))
-
+    differences <- object@differences[chromosome == chromosomeName & 
+                                          pvalue.adjusted <= threshold]
+    differences <- differences[index >= xlim[1] & index <= xlim[2]]
+    differences <- data.table::melt(differences,
+                                    id.vars= c("chromosome", "index"),
+                                    measure.vars = c("condition.1", "condition.2"),
+                                    value.name = "condition")
+    differences[,condition := paste0("Concordances\n", condition)]
+    differences[,start := index - 0.5]
+    differences[,end := index + 0.5]
+    
     caption <- "The grey areas are significant changes"
     if (nrow(differences) == 0) caption <- "No change is significant"
     caption <- paste0(
@@ -80,7 +72,7 @@ plotConcordances <- function(
         round(100 * threshold, 2),
         "%)"
     )
-
+    
     ylim <-
         c(
             min(concordances$concordance, na.rm = TRUE),
@@ -107,7 +99,7 @@ plotConcordances <- function(
         plot +
         geom_line(
             data = concordances,
-            aes(x = position, y = concordance, color = replicate)
+            aes(x = index, y = concordance, color = replicate)
         )
     if (points) {
         plot <-
@@ -115,7 +107,7 @@ plotConcordances <- function(
             geom_point(
                 data = concordances,
                 aes(
-                    x = position,
+                    x = index,
                     y = concordance,
                     color = replicate
                 )
@@ -124,7 +116,7 @@ plotConcordances <- function(
     plot <-
         plot +
         labs(caption = caption) +
-        xlim(xlim[1], xlim[2] + object@binSize) +
+        # xlim(xlim[1], xlim[2] + object@binSize) +
         ylim(ylim) +
         geom_hline(yintercept = 0.0, size = 0.1) +
         facet_grid(rows = vars(condition), margins = FALSE, switch = "y") +

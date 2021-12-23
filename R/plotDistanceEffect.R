@@ -15,11 +15,25 @@
 #' plotDistanceEffect(exampleHiCDOCDataSet)
 #'
 #' @export
-plotDistanceEffect <- function(object) {
+plotDistanceEffect <- function(object, chromosome = NULL) {
     .validateSlots(object, slots = c("interactions"))
-    distances <- InteractionSet::pairdist(object, type="mid")
-    matAssay <- SummarizedExperiment::assay(object)
-    dfDistance <- data.table("distance" = rep(distances, ncol(matAssay)),
+    if(!is.null(chromosome)) {
+        if(length(chromosome) > 1){
+            warning(paste("`chromosome` should be of length 1, taking the",
+                          "first one"))
+            chromosome < chromosome[1]
+        }
+        chromosomeName <- .validateNames(object, chromosome, "chromosomes")
+        rowsId <- (S4Vectors::mcols(object)$Chr == chromosomeName)
+        addTitle <- paste(", chromosome", chromosomeName)
+    } else {
+        rowsId <- rep(TRUE, nrow(object))
+        addTitle <- ""
+    }
+    
+    distances <- InteractionSet::pairdist(object, type="mid")[rowsId]
+    matAssay <- SummarizedExperiment::assay(object)[rowsId,]
+    dfDistance <- data.table::data.table("distance" = rep(distances, ncol(matAssay)),
                              "interaction" = as.vector(matAssay))
     dfDistance <- dfDistance[!is.na(interaction)]
     
@@ -33,7 +47,7 @@ plotDistanceEffect <- function(object) {
         ) +
         geom_point(col = "transparent") + # necessary for geom_smooth
         geom_smooth(col = "red") +
-        labs(title = "Distance effect")
+        labs(title = paste0("Distance effect", addTitle))
     plot <-
         ggExtra::ggMarginal(
             plot,

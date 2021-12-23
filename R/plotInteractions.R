@@ -16,7 +16,7 @@
 #' @keywords internal
 #' @noRd
 .plotInteractionsGrid <- function(
-    interactions,
+    dataplot,
     xylim,
     transform,
     colours,
@@ -24,13 +24,13 @@
 ) {
     plot <-
         ggplot(
-            data = interactions,
-            aes(x = position.1, y = position.2, z = interaction)
+            data = dataplot,
+            aes(x = start1, y = start2, z = interaction)
         ) +
         geom_raster(aes(fill = interaction), na.rm = TRUE) +
         geom_raster(
-            data = interactions[interactions$bin.1 != interactions$bin.2, ],
-            aes(x = position.2, y = position.1, fill = interaction),
+            data = dataplot[start1 != start2, ],
+            aes(x = start2, y = start1, fill = interaction),
             na.rm = TRUE
         ) +
         coord_fixed(ratio = 1) +
@@ -75,7 +75,7 @@
 #' @keywords internal
 #' @noRd
 .plotInteractionsWrap <- function(
-    interactions,
+    dataplot,
     xylim,
     transform,
     colours,
@@ -85,13 +85,13 @@
 ) {
     plot <-
         ggplot(
-            data = interactions,
-            aes(x = position.1, y = position.2, z = interaction)
+            data = dataplot,
+            aes(x = start1, y = start2, z = interaction)
         ) +
         geom_raster(aes(fill = interaction), na.rm = TRUE) +
         geom_raster(
-            data = interactions[interactions$bin.1 != interactions$bin.2, ],
-            aes(x = position.2, y = position.1, fill = interaction),
+            data = dataplot[start1 != start2, ],
+            aes(x = start2, y = start1, fill = interaction),
             na.rm = TRUE
         ) +
         coord_fixed(ratio = 1) +
@@ -99,7 +99,7 @@
         xlim(xylim) +
         scale_y_reverse(limits = rev(xylim)) +
         facet_wrap(
-            . ~ facetVar,
+            . ~ variable,
             ncol = totalCols,
             nrow = totalRows,
             drop = FALSE
@@ -113,31 +113,6 @@
         )
     return(plot)
 }
-
-#' Complete the levels of replicates to get balanced condition x replicate
-#'
-#' @param replicates
-#' Vector of replicates for one conditino
-#' @param expectedLength
-#' Expected length of replicates levels
-#' @param condition
-#' Name of the condition
-#'
-#' @return
-#' A vector with fictif levels if some missing
-#'
-#' @keywords internal
-#' @noRd
-.completeLevels <- function(replicates, expectedLength, condition) {
-    if (length(replicates) < expectedLength) {
-        complete <- paste0("R.", seq(expectedLength))
-        complete[seq(length(replicates))] <- replicates
-    } else {
-        complete <- replicates
-    }
-    return(complete)
-}
-
 
 #' @title
 #' Plot interaction matrices.
@@ -172,73 +147,58 @@ plotInteractions <- function(
     colours = c("#F6FFB8", "#FF00CC", "#310038")
 ) {
 
-    .validateSlots(
-        object,
-        slots = c(
-            "interactions",
-            "conditions",
-            "totalBins",
-            "binSize",
-            "positions"
-        )
-    )
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
     if (is.null(transform)) transform <- "identity"
+    
+    rowsChromosome <- (S4Vectors::mcols(object)$Chr == chromosomeName)
+    assayChromosome <- SummarizedExperiment::assay(object[rowsChromosome,])
+    assayChromosome <- as.data.table(assayChromosome)
+    setnames(assayChromosome, paste(object$condition, object$replicate, sep="_"))
+    
+    interactionsChromosome <- InteractionSet::interactions(object[rowsChromosome,]) 
+    interactionsChromosome <- as.data.table(interactionsChromosome)
+    dataplot <- cbind(interactionsChromosome[,.(seqnames = seqnames1, start1, start2)], 
+                      assayChromosome) 
+    dataplot <- data.table::melt.data.table(dataplot, 
+                    id.vars = c("seqnames", "start1", "start2"),
+                    value.name = "interaction",
+                    variable.factor = FALSE)
+    dataplot <- dataplot[!is.na(interaction)]
+    dataplot[, c("condition", "replicate") := 
+                 data.table::tstrsplit(variable, "_", fixed=TRUE)]
+    dataplot[,condition := factor(condition, levels=sort(unique(object$condition)))]
+    dataplot[,replicate := factor(replicate, levels=sort(unique(object$replicate)))]
 
-    positions <-
-        object@positions %>%
-        dplyr::filter(chromosome == chromosomeName)
-    interactions <-
-        object@interactions %>%
-        dplyr::filter(chromosome == chromosomeName) %>%
-        dplyr::filter(interaction > 0) %>%
-        dplyr::left_join(
-            positions %>% dplyr::select(
-                bin.1 = bin,
-                position.1 = start
-            ),
-            by = "bin.1"
-        ) %>%
-        dplyr::left_join(
-            positions %>% dplyr::select(
-                bin.2 = bin,
-                position.2 = start
-            ),
-            by = "bin.2"
-        )
-
-    if (nrow(interactions) == 0) {
+    if (nrow(dataplot) == 0) {
         message("No interactions for chromosome ", chromosomeName, ".")
         return(NULL)
     }
-
-    xylim <- c(min(positions$start), max(positions$start))
-
-    if (length(unique(object@replicates)) <= max(table(object@conditions))) {
-        plot <- .plotInteractionsGrid(interactions, xylim, transform, colours,
+    
+    regionsChromosome <- as.data.table(InteractionSet::regions(object))
+    regionsChromosome <- regionsChromosome[seqnames == chromosomeName]
+    xylim <- c(min(regionsChromosome$start), max(regionsChromosome$start))
+    
+    if (length(unique(object$replicate)) <= max(table(object$condition))) {
+        plot <- .plotInteractionsGrid(dataplot, xylim, transform, colours,
                     chromosomeName)
     } else {
-        totalLevels <- table(object@conditions)
+        totalLevels <- table(object$condition)
         totalCols <- max(totalLevels)
-        totalRows <- length(unique(object@conditions))
+        totalRows <- length(unique(object$condition))
 
-        existing <- by(object@replicates, object@conditions, unique)
+        existing <- by(object$replicate, object$condition, unique)
         existing <- lapply(existing, as.character)
         existing <- lapply(existing, .completeLevels, totalCols)
         existing <- mapply(
             paste,
-            unique(object@conditions),
+            names(existing),
             existing,
             sep = "_",
             SIMPLIFY = FALSE)
         allLevels <- unlist(existing, use.names = FALSE)
+        dataplot[,variable := factor(variable, levels = allLevels)]
 
-        # Construct facet variable
-        interactions %<>%
-            dplyr::mutate(facetVar = paste(condition, replicate, sep = "_")) %>%
-            dplyr::mutate(facetVar = factor(facetVar, levels = allLevels))
-
-        plot <- .plotInteractionsWrap(interactions, xylim, transform, colours,
+        plot <- .plotInteractionsWrap(dataplot, xylim, transform, colours,
                     chromosomeName, totalRows, totalCols)
     }
     return(plot)

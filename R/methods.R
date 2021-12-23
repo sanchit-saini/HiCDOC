@@ -258,13 +258,13 @@ setMethod("show", "HiCDOCDataSet", function(object) {
             replicates(object),
             "\n"
         )},
+        # "\n",
+        # "- Resolution (bin size):\n  ",
+        # if (is.null(object@binSize))
+        # "None"
+        # else
+        # object@binSize,
         "\n",
-        "- Resolution (bin size):\n  ",
-        if (is.null(object@binSize))
-        "None"
-        else
-        object@binSize,
-        "\n\n",
         "- Parameters:\n",
         paste0(
           "  ",
@@ -287,7 +287,6 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         "  conditions(object)\n",
         "  replicates(object)\n",
         "  binSize(object)\n",
-        "  interactions(object)\n",
         "  compartments(object)\n",
         "  differences(object)\n",
         "  concordances(object)\n",

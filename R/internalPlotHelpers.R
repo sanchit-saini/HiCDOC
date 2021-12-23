@@ -55,3 +55,28 @@
     grob$grobs <- grob$grobs[matches]
     return(grob)
 }
+
+
+#' @description 
+#' Complete the levels of replicates to get balanced condition x replicate
+#' @param replicates
+#' Vector of replicates for one conditino
+#' @param expectedLength
+#' Expected length of replicates levels
+#' @param condition
+#' Name of the condition
+#'
+#' @return
+#' A vector with fictif levels if some missing
+#'
+#' @keywords internal
+#' @noRd
+.completeLevels <- function(replicates, expectedLength, condition) {
+    if (length(replicates) < expectedLength) {
+        complete <- paste0("R.", seq(expectedLength))
+        complete[seq(length(replicates))] <- replicates
+    } else {
+        complete <- replicates
+    }
+    return(complete)
+}

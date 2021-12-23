@@ -26,38 +26,30 @@ plotCompartments <- function(
     xlim = NULL
 ) {
 
-    .validateSlots(object, slots = c("compartments", "positions"))
+    .validateSlots(object, slots = c("compartments"))
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
-    xlim <- .validateXlim(xlim, object, chromosomeName)
-
-    compartments <-
-        object@compartments %>%
-        dplyr::filter(chromosome == chromosomeName) %>%
-        dplyr::left_join(
-            object@positions %>%
-            dplyr::filter(chromosome == chromosomeName),
-            by = c("chromosome", "bin")
-        ) %>%
-        dplyr::filter(start >= xlim[1] & end <= xlim[2]) %>%
-        dplyr::mutate(compartment = factor(compartment)) %>%
-        dplyr::mutate(position = start + 0.5 * object@binSize)
-
+    # xlim <- .validateXlim(xlim, object, chromosomeName)
+    
+    compartments <- object@compartments[chromosome == chromosomeName]
+    # TODO : resolve xlim in case of compartemnts (index)
+    # Add index param in validxlim ?
+    
     if (nrow(compartments) == 0) {
         message("No compartments for chromosome ", chromosomeName, ".")
         return(NULL)
     }
-
+    
     plot <-
         ggplot(
             data = compartments,
-            aes(x = position, fill = compartment)
+            aes(x = index, fill = compartment)
         ) +
         geom_histogram(
-            binwidth = object@binSize,
+            binwidth = 1,
             colour = "gray90",
             size = 0.05
         ) +
-        xlim(xlim[1] - 0.5 * object@binSize, xlim[2] + 0.5 * object@binSize) +
+        # xlim(xlim[1] - 0.5 * object@binSize, xlim[2] + 0.5 * object@binSize) +
         facet_grid(rows = vars(condition), margins = FALSE, switch = "y") +
         theme_minimal() +
         theme(
@@ -69,5 +61,6 @@ plotCompartments <- function(
             legend.position = "bottom",
             strip.placement = "outside"
         )
+    
     return(plot)
 }

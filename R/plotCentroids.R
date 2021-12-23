@@ -21,6 +21,11 @@
 #' @export
 plotCentroids <- function(object, chromosome, size = 2) {
     .validateSlots(object, slots = "centroids")
+    if(length(chromosome) > 1){
+        warning(paste("`chromosome` should be of length 1, taking the",
+                      "first one"))
+        chromosome < chromosome[1]
+    }
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
     
     df <- object@centroids[chromosome == chromosomeName,

@@ -112,6 +112,7 @@
     message("Chromosome ", chromosomeName, ": normalizing biological biases.")
     if (object@totalBins[[chromosomeName]] <= 0) return(NULL)
 
+    # Pass by InteractionSet so we can use inflate/deflate
     isetChromosome <- InteractionSet::InteractionSet(
         SummarizedExperiment::assay(object),
         InteractionSet::interactions(object)
