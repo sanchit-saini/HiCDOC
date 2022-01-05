@@ -27,8 +27,8 @@
             data = dataplot,
             aes(x = start1, y = start2, z = interaction)
         ) +
-        geom_raster(aes(fill = interaction), na.rm = TRUE) +
-        geom_raster(
+        geom_tile(aes(fill = interaction), na.rm = TRUE) +
+        geom_tile(
             data = dataplot[start1 != start2, ],
             aes(x = start2, y = start1, fill = interaction),
             na.rm = TRUE
@@ -88,8 +88,8 @@
             data = dataplot,
             aes(x = start1, y = start2, z = interaction)
         ) +
-        geom_raster(aes(fill = interaction), na.rm = TRUE) +
-        geom_raster(
+        geom_tile(aes(fill = interaction), na.rm = TRUE) +
+        geom_tile(
             data = dataplot[start1 != start2, ],
             aes(x = start2, y = start1, fill = interaction),
             na.rm = TRUE

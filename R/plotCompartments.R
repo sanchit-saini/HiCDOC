@@ -39,7 +39,7 @@ plotCompartments <- function(
     compartments <- as.data.table(compartments)
     compartments[,position := start + 0.5 * width]
     
-    binSize <- modeVector(compartements$width)
+    binSize <- modeVector(compartments$width)
     
     plot <-
         ggplot(
