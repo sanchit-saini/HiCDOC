@@ -25,6 +25,7 @@ setMethod("conditions", "HiCDOCDataSet",
 setMethod("replicates", "HiCDOCDataSet", 
           function(object) object$replicate)
 
+# TODO : j'aimerai bien doubler les fonctions assay et regions. 
 # #### assay ####
 # #' Retrieves the assay matrix of interactions
 # #' @rdname HiCDOCDataSet-methods
@@ -68,39 +69,7 @@ setMethod("replicates", "HiCDOCDataSet",
 #' NULL
 #' @export
 setMethod("compartments", "HiCDOCDataSet", function(object) {
-
-    if (is.null(object@compartments)) return(NULL)
-
-    compartments <-
-        object@compartments %>%
-        dplyr::left_join(object@positions, by = c("chromosome", "bin")) %>%
-        dplyr::select(
-            chromosome,
-            start,
-            end,
-            condition,
-            compartment
-        ) %>%
-        dplyr::arrange(chromosome, condition, start, end) %>%
-        dplyr::mutate(
-            consecutive = (
-                start - dplyr::lag(end) == 1 &
-                dplyr::lag(chromosome) == chromosome &
-                dplyr::lag(condition) == condition &
-                dplyr::lag(compartment) == compartment
-            ),
-            consecutive = tidyr::replace_na(consecutive, TRUE),
-            switching = dplyr::if_else(consecutive, 0, 1),
-            group = cumsum(switching)
-        ) %>%
-        dplyr::group_by(group) %>%
-        dplyr::mutate(start = min(start), end = max(end)) %>%
-        dplyr::slice(1) %>%
-        dplyr::ungroup() %>%
-        dplyr::select(-consecutive, -switching, -group) %>%
-        GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE)
-
-    return(compartments)
+    object@compartments 
 })
 
 #### differences ####
@@ -199,12 +168,6 @@ setMethod("show", "HiCDOCDataSet", function(object) {
             replicates(object),
             "\n"
         )},
-        # "\n",
-        # "- Resolution (bin size):\n  ",
-        # if (is.null(object@binSize))
-        # "None"
-        # else
-        # object@binSize,
         "\n",
         "- Parameters:\n",
         paste0(
@@ -263,7 +226,6 @@ setReplaceMethod("parameters", "HiCDOCDataSet", function(object, value) {
             call. = FALSE
         )
     }
-
     parameterNames <- names(value)
 
     duplicatedParameterNames <-

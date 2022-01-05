@@ -29,7 +29,7 @@
     }
     if (is.null(xlim)) {
         regions <- InteractionSet::regions(object)
-        regions <- regions[seqnames(regions) == chromosomeName]
+        regions <- regions[GenomicRanges::seqnames(regions) == chromosomeName]
         xlim <- c(min(GenomicRanges::start(regions), na.rm = TRUE), 
                   max(GenomicRanges::start(regions), na.rm = TRUE))
     }
