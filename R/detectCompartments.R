@@ -392,7 +392,7 @@
               offDiagonal)
     setnames(offDiagonal, c("index", cn))
     offDiagonal <- offDiagonal[, lapply(.SD, 
-                                        median, 
+                                        stats::median, 
                                         na.rm=TRUE), 
                                by=index, 
                                .SDcols=colnames(offDiagonal)[-1]] 
@@ -446,7 +446,7 @@
     )
     # TODO !! A vérifier ici, les valeurs ne sont pas bonnes !!!
     # La sortie de selfInteractionRatios est bonne 
-    compartments <- compartments[,.(ratio = median(ratio, na.rm=T)), 
+    compartments <- compartments[,.(ratio = stats::median(ratio, na.rm=T)), 
                                  by=.(chromosome, compartment)]
     compartments <- data.table::dcast(compartments, 
                                        chromosome  ~ compartment, 

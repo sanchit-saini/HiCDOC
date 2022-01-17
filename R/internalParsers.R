@@ -371,7 +371,7 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseOneHiCPro <- function(matrixPath, bedPath) {
+.parseOneHiCPro <- function(matrixPath, bedPath, replicate, condition) {
     
     message("\nParsing '", matrixPath, "' and '", bedPath, "'.")
     
@@ -410,6 +410,8 @@
                                    position.1,
                                    position.2,
                                    interaction)]
+    interactions[, condition := condition]
+    interactions[, replicate := replicate]
     
     return(interactions)
 }
@@ -427,24 +429,21 @@
 #' @keywords internal
 #' @noRd
 .parseHiCPro <- function(object) {
-    
-    interactions <-
-        pbapply::pblapply(
+
+    isetHic <-
+        pbapply::pbmapply(
             object@input,
-            function(paths) .parseOneHiCPro(paths[1], paths[2])
-        ) %>%
-        purrr::map2(
             object@replicates,
-            .f = function(x, y) x[, replicate:=y]
-        ) %>%
-        purrr::map2(
             object@conditions,
-            .f = function(x, y) x[, condition:=y]
+            .f = function(paths, replicate, condition) .parseOneHiCPro(paths[1], paths[2], replicate, condition)
         )
     
-    object@interactions <-
-        data.table::rbindlist(interactions) %>%
-        dplyr::as_tibble()
+    mergedIsetHic <- Reduce(f = .mergeInteractionSet, x = isetHic)
+
+    new("HiCDOCDataSet", 
+        mergedIsetHic, 
+        input = object@input, 
+        binSize = binSize)
     
     return(object)
 }
