@@ -104,14 +104,14 @@
                             c("chromosome", "start", "end", "index", "indexC"))
     
     tabular <- 
-        merge(
+        data.table::merge.data.table(
             tabular, 
             allRegions[,.(chromosome, startIndex = index, bin.1 = indexC)], 
             all.x=TRUE, 
             sort=FALSE,
             by=c("chromosome", "bin.1"))
     tabular <- 
-        merge(
+        data.table::merge.data.table(
             tabular, 
             allRegions[,.(chromosome, stopIndex = index, bin.2 = indexC)], 
             all.x=TRUE, 
@@ -393,13 +393,13 @@
             data.table = TRUE
         )
     
-    interactions <- merge(interactions,
+    interactions <- data.table::merge.data.table(interactions,
                           bed[,.(chromosome.1 = chromosome, 
                                  startIndex = index, 
                                  position.1 = start)], 
                           all.x=TRUE, 
                           by = "startIndex")
-    interactions <- merge(interactions,
+    interactions <- data.table::merge.data.table(interactions,
                           bed[,.(chromosome.2 = chromosome, 
                                  stopIndex = index, 
                                  position.2 = start)], 

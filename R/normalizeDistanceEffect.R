@@ -102,13 +102,16 @@
     )
     valueMap <- data.table("distance" = uniqueDistances,
                            "sampleDistance" = sampleDistance)
-    valueMap <- merge(valueMap, sample, by="sampleDistance")
+    valueMap <- data.table::merge.data.table(valueMap,
+                                             sample,
+                                             by="sampleDistance")
     
-    loessDistances <- merge(data.table("distance" = distances),
-                            valueMap, 
-                            by="distance", 
-                            sort=FALSE,
-                            all.x=T)
+    loessDistances <- data.table::merge.data.table(
+        data.table("distance" = distances),
+        valueMap, 
+        by="distance", 
+        sort=FALSE,
+        all.x=T)
     currentAssay <- currentAssay / (loessDistances$loess + 0.00001)
     
     return(currentAssay)

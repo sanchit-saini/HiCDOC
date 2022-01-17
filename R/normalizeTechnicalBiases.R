@@ -88,7 +88,9 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     hic_table[, (ifcolumns) := NULL]
     data.table::setindexv(normalized, c("chr", "region1", "region2"))
     data.table::setindexv(hic_table, c("chr", "region1", "region2"))
-    hic_table <- merge(hic_table, normalized, sort = FALSE)
+    hic_table <- data.table::merge.data.table(hic_table,
+                                              normalized,
+                                              sort = FALSE)
     
     currentAssay <- hic_table[, 5:ncol(hic_table)]
     currentAssay <- as.matrix(currentAssay)
