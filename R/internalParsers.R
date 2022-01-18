@@ -18,7 +18,7 @@
 #'
 #' @keywords internal
 #' @noRd
-.setFromTabular <- function(tabular, input, conditions = NULL, replicates = NULL) {
+.setFromTabular <- function(tabular, conditions = NULL, replicates = NULL) {
 
     if (colnames(tabular)[1] != "chromosome") {
         stop(
@@ -185,7 +185,7 @@
             data.table = TRUE
         ) 
 
-    iset   <- .setFromTabular(interactions, input)
+    iset   <- .setFromTabular(interactions)
     object <- new("HiCDOCDataSet", iset, input = input)
     
     return(object)
@@ -261,7 +261,7 @@
     data.table::setnames(interactions, "chromosome.1", "chromosome")
     data.table::setcolorder(interactions, c("chromosome", "position.1", "position.2", "interaction"))
     
-    .setFromTabular(interactions, path, condition, replicate)
+    .setFromTabular(interactions, condition, replicate)
 }
 
 #' @description
@@ -295,8 +295,7 @@
 
     new("HiCDOCDataSet", 
         mergedIsetCool, 
-        input = object@input, 
-        binSize = binSize)
+        input = object@input)
 }
 
 #' @description
@@ -320,7 +319,7 @@
     # Automagical stuff to transform Rcpp DataFrame to data.table
     interactions <- data.table::setalloccol(interactions)
     # Create InteractionSet object
-    interactions <- .setFromTabular(interactions, path, condition, replicate)
+    interactions <- .setFromTabular(interactions, condition, replicate)
     return(interactions)
 }
 
@@ -354,8 +353,7 @@
 
     new("HiCDOCDataSet", 
         mergedIsetHic, 
-        input = object@input, 
-        binSize = binSize)
+        input = object@input)
 }
 
 #' @description
@@ -410,10 +408,8 @@
                                    position.1,
                                    position.2,
                                    interaction)]
-    interactions[, condition := condition]
-    interactions[, replicate := replicate]
-    
-    return(interactions)
+
+    .setFromTabular(interactions, condition, replicate)
 }
 
 #' @description
@@ -428,22 +424,25 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseHiCPro <- function(object) {
+.parseHiCPro <- function(object, replicates, conditions) {
+
+    matrixPaths <- lapply(object@input, `[[`, 1)
+    bedPaths    <- lapply(object@input, `[[`, 2)
 
     isetHic <-
         pbapply::pbmapply(
-            object@input,
-            object@replicates,
-            object@conditions,
-            .f = function(paths, replicate, condition) .parseOneHiCPro(paths[1], paths[2], replicate, condition)
+            .parseOneHiCPro,
+	    matrixPaths,
+	    bedPaths,
+            replicates,
+            conditions
         )
-    
+
     mergedIsetHic <- Reduce(f = .mergeInteractionSet, x = isetHic)
 
     new("HiCDOCDataSet", 
         mergedIsetHic, 
-        input = object@input, 
-        binSize = binSize)
+        input = object@input)
     
     return(object)
 }

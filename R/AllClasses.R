@@ -32,8 +32,6 @@
 #' An InteractionSet object of interactions.
 #' @slot chromosomes
 #' A vector of names of chromosomes.
-#' @slot binSize
-#' The resolution: computed bin size (span of each bin in number of bases).
 #' @slot totalBins
 #' A list of the number of bins in each chromosome.
 #' @slot weakBins
@@ -446,9 +444,7 @@ HiCDOCDataSetFromHiCPro <- function(
     
     object <- new("HiCDOCDataSet")
     object@input <- paths
-    object@replicates <- replicates
-    object@conditions <- conditions
-    object <- .parseHiCPro(object)
+    object <- .parseHiCPro(object, replicates, conditions)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
