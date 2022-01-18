@@ -16,9 +16,6 @@ test_that("HiCDOCDataSetFromCool works as expected", {
         "liver_18_10M_500000.cool'")
     expect_equal(nrow(object@interactions), 210)
     expect_identical(object@chromosomes, "18")
-    expect_identical(object@conditions, 1)
-    expect_identical(object@replicates, 1)
-    expect_identical(object@binSize, 500000L)
 })
 
 
@@ -45,7 +42,4 @@ test_that("HiCDOCDataSetFromCool works as expected if mcool", {
 
     expect_equal(nrow(object@interactions), 210)
     expect_identical(object@chromosomes, "18")
-    expect_identical(object@conditions, 1)
-    expect_identical(object@replicates, 1)
-    expect_identical(object@binSize, 500000L)
 })
