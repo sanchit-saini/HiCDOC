@@ -77,7 +77,8 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
             remove_zeros = FALSE,
             filter = TRUE,
             zero.p = 1,
-            A.min = 0
+            A.min = 0,
+            remove.regions = NULL
         )
     normalized <-
         multiHiCcompare::cyclic_loess(experiment, parallel = parallel)
