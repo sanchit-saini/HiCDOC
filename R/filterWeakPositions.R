@@ -49,7 +49,8 @@
                              by=.(index = index1, variable)]
         sum2 <- interactions[, .(sum2 = sum(value*diagonal, na.rm = TRUE)), 
                              by=.(index = index2, variable)]
-        sum12 <- merge(sum1, sum2, by=c("index", "variable"), all=T)
+        sum12 <- data.table::merge.data.table(sum1, sum2, by=c("index", "variable"),
+                                              all = TRUE)
         sum12[, mean := (sum1 + sum2) / totalBins]
         weakBins <- unique(sum12[mean < threshold, index])
         

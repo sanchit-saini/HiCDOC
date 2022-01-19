@@ -20,5 +20,4 @@ test_that("HiCDOCDataSetFromHic works as expected", {
     expect_identical(object@chromosomes, "18")
     expect_identical(object$condition, "X1")
     expect_identical(object$replicat, "1")
-    expect_identical(object@binSize, 500000L)
 })

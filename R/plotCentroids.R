@@ -48,7 +48,8 @@ plotCentroids <- function(object, chromosome, size = 2) {
     propvar <- paste(round(100 * propvar, 2), "%")
 
     pca <- as.data.table(pca$x)
-    pca[, c("condition", "compartment") := tstrsplit(names, "_", fixed=TRUE)]
+    pca[, c("condition", "compartment") :=
+	data.table::tstrsplit(names, "_", fixed=TRUE)]
 
     plot <-
         ggplot(

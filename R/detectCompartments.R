@@ -390,9 +390,9 @@
     offDiagonal <- data.table::data.table(
         "index" = c(ids$first[!diagonal], ids$second[!diagonal]),
               offDiagonal)
-    setnames(offDiagonal, c("index", cn))
+    data.table::setnames(offDiagonal, c("index", cn))
     offDiagonal <- offDiagonal[, lapply(.SD, 
-                                        median, 
+                                        stats::median, 
                                         na.rm=TRUE), 
                                by=index, 
                                .SDcols=colnames(offDiagonal)[-1]] 
@@ -410,7 +410,7 @@
     onDiagonal[is.na(median), median := 0]
     onDiagonal[,ratio := value - median]
     onDiagonal[, c("condition", "replicate") := 
-                   tstrsplit(variable, " ", fixed=TRUE)]
+                   data.table::tstrsplit(variable, " ", fixed=TRUE)]
     onDiagonal <- onDiagonal[,.(chromosome, index, condition, replicate, ratio)]
     return(onDiagonal)
 }
@@ -446,7 +446,7 @@
     )
     # TODO !! A vérifier ici, les valeurs ne sont pas bonnes !!!
     # La sortie de selfInteractionRatios est bonne 
-    compartments <- compartments[,.(ratio = median(ratio, na.rm=T)), 
+    compartments <- compartments[,.(ratio = stats::median(ratio, na.rm=T)), 
                                  by=.(chromosome, compartment)]
     compartments <- data.table::dcast(compartments, 
                                        chromosome  ~ compartment, 

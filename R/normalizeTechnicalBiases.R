@@ -67,7 +67,8 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     refOrder <- paste(object$condition, object$replicate)
     currentAssay <- currentAssay[, order(refOrder)]
     
-    table_list <- lapply(seq_len(ncol(currentAssay)), function(x) cbind(hic_table, currentAssay[,x]))
+    table_list <- lapply(seq_len(ncol(currentAssay)), 
+                         function(x) cbind(hic_table, currentAssay[,x]))
     
     experiment <-
         multiHiCcompare::make_hicexp(
@@ -85,7 +86,9 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     # Re-sorting the rows in the same order as original
     data.table::setindexv(normalized, c("chr", "region1", "region2"))
     data.table::setindexv(hic_table, c("chr", "region1", "region2"))
-    hic_table <- merge(hic_table, normalized, sort = FALSE)
+    hic_table <- data.table::merge.data.table(hic_table,
+                                              normalized,
+                                              sort = FALSE)
     
     currentAssay <- as.matrix(hic_table[, 5:ncol(hic_table)])
     # Reordering columns in original order
