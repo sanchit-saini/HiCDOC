@@ -19,29 +19,25 @@ License: LGPL (>= 3)
 Encoding: UTF-8
 SystemRequirements: C++11
 Imports:
-    stats,
-    utils,
     methods,
     zlibbioc,
-    rhdf5,
-    dplyr,
-    tidyr,
-    magrittr,
     ggplot2,
-    ggExtra,
-    gtools,
-    BiocParallel,
-    Rcpp (>= 0.12.8),
     GenomicRanges,
-    gridExtra,
-    purrr,
-    ggpubr,
-    pbapply,
-    data.table,
+    Rcpp (>= 0.12.8),
+    stats,
     S4Vectors,
-    InteractionSet,
+    GenomeInfoDb,
     SummarizedExperiment,
-    DescTools
+    gtools,
+    pbapply,
+    BiocParallel,
+    BiocGenerics,
+    rhdf5,
+    ggpubr,
+    gridExtra,
+    ggExtra,
+    data.table,
+    InteractionSet
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 biocViews:
