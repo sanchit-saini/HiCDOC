@@ -417,8 +417,8 @@ HiCDOCDataSetFromHiCPro <- function(
     }
 
     paths <-
-        split(
-            cbind(matrixPaths, bedPaths),
+        base::split(
+            base::cbind(matrixPaths, bedPaths),
             seq(length(matrixPaths))
         )
 

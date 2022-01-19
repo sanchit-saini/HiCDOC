@@ -138,7 +138,7 @@
     orderids <- match(ids, correctIds)
     matrices <- lapply(matrices, function(x) SummarizedExperiment::assay(x))
     matrices <- lapply(matrices, function(x) x[orderids])
-    matrices <- do.call("cbind", matrices)
+    matrices <- do.call("base::cbind", matrices)
 
     currentAssay[,validAssay] <- matrices
     return(currentAssay)
