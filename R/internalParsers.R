@@ -80,7 +80,7 @@
     tabular <- tabular[,1:3]
     data.table::setnames(tabular, "position 1", "bin.1")
     data.table::setnames(tabular, "position 2", "bin.2")
-    setkey(tabular, chromosome, bin.1, bin.2)
+    data.table::setkey(tabular, chromosome, bin.1, bin.2)
     
     diag <- (tabular$bin.1 == tabular$bin.2)
     binSize <- modeVector(abs(tabular[!diag,]$bin.1 - 
@@ -288,7 +288,7 @@
             path      = object@input,
             binSize   = binSize,
             condition = conditions,
-	        replicate = replicates
+	    replicate = replicates
         )
     
     mergedIsetCool <- Reduce(f = .mergeInteractionSet, x = isetCool)

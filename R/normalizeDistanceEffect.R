@@ -88,7 +88,7 @@
     sample[,loess := stats::predict(loess)]
     sample[,loess := pmax(loess, 0)]
     sample[,value := NULL]
-    setnames(sample, "distance", "sampleDistance")
+    data.table::setnames(sample, "distance", "sampleDistance")
     sample <- unique(sample)
     
     uniqueDistances <- unique(sort(chromosomeValues$distance))

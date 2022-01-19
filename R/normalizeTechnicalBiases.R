@@ -67,7 +67,7 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     refOrder <- paste(object$condition, object$replicate)
     currentAssay <- currentAssay[, order(refOrder)]
     currentAssay <- as.data.table(currentAssay)
-    setnames(currentAssay, paste0("IF", seq_len(ncol(currentAssay))))
+    data.table::setnames(currentAssay, paste0("IF", seq_len(ncol(currentAssay))))
     
     hic_table <- cbind(hic_table, currentAssay)
     

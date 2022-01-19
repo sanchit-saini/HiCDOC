@@ -390,7 +390,7 @@
     offDiagonal <- data.table::data.table(
         "index" = c(ids$first[!diagonal], ids$second[!diagonal]),
               offDiagonal)
-    setnames(offDiagonal, c("index", cn))
+    data.table::setnames(offDiagonal, c("index", cn))
     offDiagonal <- offDiagonal[, lapply(.SD, 
                                         stats::median, 
                                         na.rm=TRUE), 
@@ -410,7 +410,7 @@
     onDiagonal[is.na(median), median := 0]
     onDiagonal[,ratio := value - median]
     onDiagonal[, c("condition", "replicate") := 
-                   tstrsplit(variable, " ", fixed=TRUE)]
+                   data.table::tstrsplit(variable, " ", fixed=TRUE)]
     onDiagonal <- onDiagonal[,.(chromosome, index, condition, replicate, ratio)]
     return(onDiagonal)
 }
