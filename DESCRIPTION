@@ -26,7 +26,6 @@ Imports:
     Rcpp (>= 0.12.8),
     stats,
     S4Vectors,
-    GenomeInfoDb,
     SummarizedExperiment,
     gtools,
     pbapply,

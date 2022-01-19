@@ -9,7 +9,7 @@ test_that("HiCDOCDataSetFromTabular produce correct format", {
     expect_is(object, "HiCDOCDataSet")
     expect_identical(
         slotNames(object),
-        c("input", "parameters",
+        c("input", "parameters", "chromosomes", 
           "totalBins", "weakBins", "validConditions", "validReplicates",
           "compartments", "concordances", "differences", "comparisons", 
           "distances", "centroids", "selfInteractionRatios", "interactions", 

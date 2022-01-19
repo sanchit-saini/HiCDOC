@@ -151,7 +151,7 @@
     iset <- iset[InteractionSet::intrachr(iset),]
     
     # Add chromosome column for split purpose
-    Chr <- GenomeInfoDb::seqnames(InteractionSet::anchors(gi, "first"))
+    Chr <- GenomicRanges::seqnames(InteractionSet::anchors(gi, "first"))
     Chr <- S4Vectors::Rle(factor(Chr, levels=gtools::mixedsort(as.character(unique(Chr)))))
     S4Vectors::mcols(iset) <-  S4Vectors::DataFrame("Chr" = Chr)
         

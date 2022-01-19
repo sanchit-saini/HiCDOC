@@ -67,7 +67,7 @@ modeVector <- function(x) {
     
     # Chromosomes and their size (max bin)
     object@chromosomes <- gtools::mixedsort(
-        GenomeInfoDb::seqlevels(object@interactions))
+        levels(GenomicRanges::seqnames(object@interactions)))
     object@totalBins <- .determineChromosomeSizes(object)
     object@parameters <- defaultHiCDOCParameters
     
