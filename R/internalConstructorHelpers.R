@@ -24,7 +24,7 @@ modeVector <- function(x) {
 #' @keywords internal
 #' @noRd
 .determineChromosomeSizes <- function(object) {
-    chromosomes <- GenomeInfoDb::seqnames(InteractionSet::regions(object))
+    chromosomes <- GenomicRanges::seqnames(InteractionSet::regions(object))
     totalBins <- S4Vectors::runLength(chromosomes)
     names(totalBins) <- levels(chromosomes)
     totalBins <- totalBins[gtools::mixedsort(levels(chromosomes))]
