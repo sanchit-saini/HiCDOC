@@ -18,6 +18,7 @@
 #' @importFrom ggpubr as_ggplot
 #' @importFrom gridExtra arrangeGrob
 #' @importFrom ggExtra ggMarginal
+#' @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
 #' @import data.table
 #' @import InteractionSet
 #' @useDynLib HiCDOC
