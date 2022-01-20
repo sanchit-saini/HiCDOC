@@ -38,7 +38,7 @@ Imports:
     data.table,
     InteractionSet,
     multiHiCcompare,
-    GenomeInfoDB
+    GenomeInfoDb
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 biocViews:
