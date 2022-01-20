@@ -4,7 +4,7 @@
 #' @import methods
 #' @import zlibbioc
 #' @import ggplot2
-#' @importFrom GenomicRanges start end distance GRanges match union seqnames
+#' @importFrom GenomicRanges start end distance GRanges match union
 #' @importFrom Rcpp evalCpp sourceCpp
 #' @importFrom stats loess loess.control ecdf predict median update optimize prcomp p.adjust
 #' @importFrom S4Vectors DataFrame mcols split runLength Rle
@@ -18,6 +18,7 @@
 #' @importFrom gridExtra arrangeGrob
 #' @importFrom ggExtra ggMarginal
 #' @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
+#' @importFrom GenomeInfoDb seqlevels seqnames
 #' @import data.table
 #' @import InteractionSet
 #' @useDynLib HiCDOC

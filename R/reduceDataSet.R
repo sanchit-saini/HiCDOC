@@ -31,6 +31,10 @@
             SummarizedExperiment::mcols(object)$Chr <- 
                 droplevels(SummarizedExperiment::mcols(object)$Chr)
             object <- InteractionSet::reduceRegions(object)
+            newlevels <- unique(SummarizedExperiment::mcols(object)$Chr)
+            GenomeInfoDb::seqlevels(InteractionSet::regions(object), 
+                                    pruning.mode="coarse") <- newlevels
+            
         }
         for (slotName in c(
             "distances",
