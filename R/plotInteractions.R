@@ -157,7 +157,7 @@ plotInteractions <- function(
     
     interactionsChromosome <- InteractionSet::interactions(object[rowsChromosome,]) 
     interactionsChromosome <- as.data.table(interactionsChromosome)
-    dataplot <- cbind(interactionsChromosome[,.(seqnames = seqnames1, start1, start2)], 
+    dataplot <- base::cbind(interactionsChromosome[,.(seqnames = seqnames1, start1, start2)], 
                       assayChromosome) 
     dataplot <- data.table::melt.data.table(dataplot, 
                     id.vars = c("seqnames", "start1", "start2"),

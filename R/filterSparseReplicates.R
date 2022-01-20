@@ -110,7 +110,7 @@ filterSparseReplicates <- function(object, threshold = NULL) {
     diagonal <- InteractionSet::anchors(object)
     diagonal <- diagonal$first == diagonal$second
     diagonal <- 2 - 1*diagonal
-    diagonals <- split(diagonal, 
+    diagonals <- S4Vectors::split(diagonal, 
                        SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
     assayChromosomes <- S4Vectors::split(
         SummarizedExperiment::assay(object), 

@@ -28,7 +28,7 @@
     
     interactions <- as.data.table(InteractionSet::interactions(reducedObject))
     interactions <- interactions[,.(index1, index2)]
-    interactions <- cbind(interactions, 
+    interactions <- base::cbind(interactions, 
                           SummarizedExperiment::assay(reducedObject)[,validColumns])
     interactions <- data.table::melt.data.table(interactions, id.vars=c("index1", "index2"))
     interactions[, diagonal := 1-0.5*(index1 == index2)]
@@ -139,7 +139,7 @@ filterWeakPositions <- function(object, threshold = NULL) {
         "."
     )
 
-    objectChromosomes <- split(
+    objectChromosomes <- S4Vectors::split(
         object, 
         SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
     

@@ -37,7 +37,8 @@ Imports:
     ggExtra,
     data.table,
     InteractionSet,
-    multiHiCcompare
+    multiHiCcompare,
+    GenomeInfoDB
 LinkingTo: Rcpp
 RoxygenNote: 7.1.1
 biocViews:

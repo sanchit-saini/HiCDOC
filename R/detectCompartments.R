@@ -538,7 +538,7 @@
                             concordance.2 = concordance)]
     data.table::setorder(diff2, chromosome, index)
     diff2[,`:=`(chromosome = NULL, index = NULL)]
-    diffConcordance <- cbind(diff1, diff2)
+    diffConcordance <- base::cbind(diff1, diff2)
     rm(diff1, diff2)
     diffConcordance <- diffConcordance[as.numeric(condition.1) < as.numeric(condition.2)]
     diffConcordance <- diffConcordance[,.(difference = stats::median(abs(concordance.1 - concordance.2))),
@@ -563,7 +563,7 @@
                             compartment.2 = compartment)]
     data.table::setorder(comp2, chromosome, index)
     comp2[,`:=`(chromosome = NULL, index = NULL)]
-    comparisons <- cbind(comp1, comp2)
+    comparisons <- base::cbind(comp1, comp2)
     rm(comp1, comp2)
     comparisons <- comparisons[as.numeric(condition.1) < as.numeric(condition.2)]
     comparisons <- data.table::merge.data.table(comparisons, 
@@ -583,7 +583,7 @@
     differences <- copy(comparisons)
     differences[compartment.1 == compartment.2 ,H0_value := difference]
     data.table::setorder(differences, condition.1, condition.2)
-    quantiles <- split(differences, list(differences$condition.1, differences$condition.2))
+    quantiles <- data.table::split(differences, list(differences$condition.1, differences$condition.2))
     quantiles <- lapply(quantiles, function(x) x[difference > 0])
     quantiles <- lapply(quantiles, function(x) 
         if(nrow(x)>0) { return(stats::ecdf(x$H0_value)(x$difference))} else return(NULL))
@@ -595,7 +595,7 @@
     differences[, pvalue := 1 - quantile]
     differences[pvalue<0, pvalue := 0]
     differences[pvalue>1, pvalue := 1]
-    pvalAdjust <- split(differences, list(differences$condition.1, differences$condition.2))
+    pvalAdjust <- data.table::split(differences, list(differences$condition.1, differences$condition.2))
     pvalAdjust <- lapply(pvalAdjust, function(x) if(nrow(x) > 0) return(stats::p.adjust(x$pvalue, method = "BH")) else return(NULL))
     pvalAdjust <- do.call("c", pvalAdjust)
     differences[, pvalue.adjusted := pvalAdjust]
