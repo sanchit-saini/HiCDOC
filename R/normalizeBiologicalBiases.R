@@ -120,24 +120,34 @@
         InteractionSet::interactions(object)
     )
     validAssay <- object@validAssay[[chromosomeName]]
+    
     matrices <- 
         lapply(validAssay,
                FUN = function(x) {
                    InteractionSet::inflate(isetChromosome, 
                                            rows = chromosomeName,
                                            columns = chromosomeName,
-                                           sample = x)
+                                           sample = x,
+                                           sparse = FALSE)
                    })
+    matrices <- lapply(matrices, function(m) {
+        m@matrix[is.na(m@matrix)] <- 0
+        return(m)
+        })
     
     matrices <- lapply(matrices, .normalizeKnightRuiz)
+    matrices <- lapply(matrices, function(m) {
+        m@matrix[m@matrix == 0] <- NA
+        return(m)
+    })
     matrices <- lapply(matrices, InteractionSet::deflate, use.na=TRUE)
-    # Correct ids order
+
     ids <- InteractionSet::anchorIds(matrices[[1]])
     ids <- paste(ids$first, ids$second)
     correctIds <- paste(currentOrder$first, currentOrder$second)
-    orderids <- match(ids, correctIds)
+    orderids <- match(correctIds, ids)
     matrices <- lapply(matrices, function(x) SummarizedExperiment::assay(x))
-    matrices <- lapply(matrices, function(x) x[orderids])
+    matrices <- lapply(matrices, function(x) x[orderids,])
     matrices <- do.call("cbind", matrices)
 
     currentAssay[,validAssay] <- matrices
@@ -189,7 +199,8 @@ normalizeBiologicalBiases <- function(object, parallel = FALSE) {
     
     normAssay <- .internalApply(parallel,
                                 objectChromosomes,
-                                FUN = .normalizeBiologicalBiasesOfChromosome) 
+                                FUN = .normalizeBiologicalBiasesOfChromosome,
+                                type="lapply") 
     normAssay <- do.call("rbind", normAssay)
 
     SummarizedExperiment::assay(object) <- normAssay

@@ -20,14 +20,18 @@
     # Reordering columns in alphabetic order (useful for tests)
     validAssay <- object@validAssay[[chromosomeName]]
     refOrder <- paste(object$condition, object$replicate)
-    values <- currentAssay[, validAssay]
-    values <- values[,order(refOrder[validAssay])]
+    values <- currentAssay[, validAssay, drop=FALSE]
+    values <- values[,order(refOrder[validAssay]), drop=FALSE]
     
     distances <- InteractionSet::pairdist(object, type="mid")
+    
     chromosomeValues <- 
         data.table("distance" = rep(distances, length(validAssay)),
                    "value" = as.vector(values))
     chromosomeValues <- chromosomeValues[!is.na(value),]
+    # TODO : apreès refactoring, supprimer cette ligne - ça ne sert juste à retrouver des résultats identiques avant le sampling
+    setorder(chromosomeValues, distance, value)
+    
     idSample <- sample(seq_len(nrow(chromosomeValues)),
                    size = min(
                        object@parameters$loessSampleSize,
@@ -161,7 +165,7 @@ normalizeDistanceEffect <- function(object,
     normAssay <- .internalApply(parallel,
                                 objectChromosomes,
                                 FUN = .normalizeDistanceEffectOfChromosome,
-                                type="lapply") 
+                                type="lapply")
     
     normAssay <- do.call("rbind", normAssay)
     SummarizedExperiment::assay(object) <- normAssay
