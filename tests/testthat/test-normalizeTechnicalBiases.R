@@ -11,6 +11,5 @@ test_that("normalizeTechnicalBiases behaves as expected", {
     assay <- SummarizedExperiment::assay(norm)
     expect_equal(sum(!is.na(assay)), 35105)
     expect_equal(round(colSums(assay, na.rm=TRUE),2), 
-                 c(756639.61, 1135253.75, 0, 1021827.14, 
-                   728328.14, 728069.03, 0))
+                 c(751294.607, 1152226.832, 0, 0, 721966.582, 721539.165, 910899.793))
 })
