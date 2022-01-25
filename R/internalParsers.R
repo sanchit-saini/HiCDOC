@@ -64,8 +64,7 @@
                 call. = FALSE
             )
         }
-    }
-    else {
+    } else {
         if (!all(grepl("^.+?\\..+$", colnames(assays)))) {
             stop(
                 "Fourth to last column of the input file must be named 'C.R', ",
@@ -80,7 +79,7 @@
     tabular <- tabular[,1:3]
     data.table::setnames(tabular, "position 1", "bin.1")
     data.table::setnames(tabular, "position 2", "bin.2")
-    data.table::setkey(tabular, chromosome, bin.1, bin.2)
+    # data.table::setindex(tabular, chromosome, bin.1, bin.2)
     
     diag <- (tabular$bin.1 == tabular$bin.2)
     binSize <- modeVector(abs(tabular[!diag,]$bin.1 - 
@@ -93,7 +92,7 @@
                                    id.vars = "chromosome", 
                                    value.name = "indexC")
     allRegions[,variable := NULL]
-    data.table::setkey(allRegions, chromosome, indexC)
+    # data.table::setindex(allRegions, chromosome, indexC)
     allRegions <- unique(allRegions)
     allRegions[,index := indexC - data.table::shift(indexC, fill = 0)]
     allRegions[index < 0 ,index := 1]
@@ -126,7 +125,7 @@
         GenomicRanges::GRanges(allRegions), mode="strict")
 
     iset <- InteractionSet::InteractionSet(
-        assays       = assays,
+        assays = assays,
         interactions = gi)
     if (is.null(conditions)) {
         SummarizedExperiment::colData(iset) <- 
@@ -134,8 +133,7 @@
                 "condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)),
                 "replicate" = gsub("^.+?\\.(.+)$", "\\1", colnames(assays))
                 )
-    }
-    else {
+    } else {
         SummarizedExperiment::colData(iset) <- 
             S4Vectors::DataFrame(
                 "condition" = conditions,
@@ -143,18 +141,18 @@
                 )
     }
     
-    # Remove zero rows
-    zeros <- (rowSums(assays, na.rm=TRUE) == 0)
-    iset <- iset[!zeros,]
-    
-    # Keep only intra-chromosomal interactions
-    iset <- iset[InteractionSet::intrachr(iset),]
-    
     # Add chromosome column for split purpose
     Chr <- GenomeInfoDb::seqnames(InteractionSet::anchors(gi, "first"))
     Chr <- S4Vectors::Rle(factor(Chr, levels=gtools::mixedsort(as.character(unique(Chr)))))
     S4Vectors::mcols(iset) <-  S4Vectors::DataFrame("Chr" = Chr)
-        
+    
+    # Keep only intra-chromosomal interactions
+    iset <- iset[InteractionSet::intrachr(iset),]
+    
+    # Remove zero rows
+    zeros <- (rowSums(SummarizedExperiment::assay(iset), na.rm=TRUE) == 0)
+    iset <- iset[!zeros,]
+    
     return(iset)
 }
 
@@ -391,25 +389,42 @@
             data.table = TRUE
         )
     
-    interactions <- data.table::merge.data.table(interactions,
-                          bed[,.(chromosome.1 = chromosome, 
-                                 startIndex = index, 
-                                 position.1 = start)], 
-                          all.x=TRUE, 
-                          by = "startIndex")
-    interactions <- data.table::merge.data.table(interactions,
-                          bed[,.(chromosome.2 = chromosome, 
-                                 stopIndex = index, 
-                                 position.2 = start)], 
-                          all.x=TRUE, 
-                          by = "stopIndex")
-    interactions <- interactions[chromosome.1 == chromosome.2,
-                                 .(chromosome = chromosome.1,
-                                   position.1,
-                                   position.2,
-                                   interaction)]
+    allRegions <- GRanges(bed)
+    
+    # GInteraciotns part
+    gi <- InteractionSet::GInteractions(interactions$startIndex, 
+                        interactions$stopIndex, 
+                        allRegions)
+    # swap the anchors -> only upper matrix
+    gi <- InteractionSet::swapAnchors(gi, mode="order")
+    
+    iset <- InteractionSet::InteractionSet(
+        assays = as.matrix(interactions$interaction, ncol=1), 
+        interactions = gi,  
+        colData=DataFrame("condition" = condition, "replicat" = replicate)) 
+    
+    iset <- iset[ intrachr(iset) ,]
+    
+    return(iset)
+    # interactions <- data.table::merge.data.table(interactions,
+    #                       bed[,.(chromosome.1 = chromosome, 
+    #                              startIndex = index, 
+    #                              position.1 = start)], 
+    #                       all.x=TRUE, 
+    #                       by = "startIndex")
+    # interactions <- data.table::merge.data.table(interactions,
+    #                       bed[,.(chromosome.2 = chromosome, 
+    #                              stopIndex = index, 
+    #                              position.2 = start)], 
+    #                       all.x=TRUE, 
+    #                       by = "stopIndex")
+    # interactions <- interactions[chromosome.1 == chromosome.2,
+    #                              .(chromosome = chromosome.1,
+    #                                position.1,
+    #                                position.2,
+    #                                interaction)]
 
-    .setFromTabular(interactions, condition, replicate)
+    # .setFromTabular(interactions, condition, replicate)
 }
 
 #' @description
@@ -432,12 +447,12 @@
     isetHic <-
         pbapply::pbmapply(
             .parseOneHiCPro,
-	    matrixPaths,
-	    bedPaths,
+            matrixPaths,
+            bedPaths,
             replicates,
             conditions
         )
-
+    
     mergedIsetHic <- Reduce(f = .mergeInteractionSet, x = isetHic)
 
     object <- new("HiCDOCDataSet", 
