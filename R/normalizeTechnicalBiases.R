@@ -73,7 +73,7 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     experiment <-
         multiHiCcompare::make_hicexp(
             data_list = table_list,
-            groups = sort(preparedObject$condition),
+            groups = sort(object$condition),
             remove_zeros = FALSE,
             filter = TRUE,
             zero.p = 1,
