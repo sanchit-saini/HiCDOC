@@ -3,8 +3,8 @@ test_that("HiCDOCDataSetFromCool works as expected", {
         system.file("extdata", "liver_18_10M_500000.cool", package = "HiCDOC")
 
     # Replicate and condition of each file. Can be names instead of numbers.
-    replicates <- 1
-    conditions <- 1
+    replicates <- "GG"
+    conditions <- "AA"
 
     # Instantiation of data set
     expect_message(
@@ -14,8 +14,11 @@ test_that("HiCDOCDataSetFromCool works as expected", {
             conditions = conditions
         ),
         "liver_18_10M_500000.cool'")
-    expect_equal(nrow(object@interactions), 210)
+    matAssay <- SummarizedExperiment::assay(object) 
+    expect_equal(dim(matAssay), c(210, 1))
     expect_identical(object@chromosomes, "18")
+    expect_identical(object$replicate, c("GG"))
+    expect_identical(object$condition, c("AA"))
 })
 
 
@@ -24,8 +27,8 @@ test_that("HiCDOCDataSetFromCool works as expected if mcool", {
         system.file("extdata", "liver_18_10M.mcool", package = "HiCDOC")
 
     # Replicate and condition of each file. Can be names instead of numbers.
-    replicates <- 1
-    conditions <- 1
+    replicates <- "A"
+    conditions <- "C"
 
     # Resolution to select in .mcool files
     binSize <- 500000
@@ -39,7 +42,10 @@ test_that("HiCDOCDataSetFromCool works as expected if mcool", {
             binSize = binSize
         ),
         "liver_18_10M.mcool")
-
-    expect_equal(nrow(object@interactions), 210)
+    
+    matAssay <- SummarizedExperiment::assay(object) 
+    expect_equal(dim(matAssay), c(210, 1))
     expect_identical(object@chromosomes, "18")
+    expect_identical(object$replicate, c("A"))
+    expect_identical(object$condition, c("C"))
 })

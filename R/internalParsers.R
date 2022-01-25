@@ -55,7 +55,7 @@
                                        levels=gtools::mixedsort(unique(chromosome)))]
     setorder(tabular, chromosome, `position 1`, `position 2`)
     # Assays part, fill with NA
-    assays <- as.matrix(tabular[,4:ncol(tabular)])
+    assays <- as.matrix(tabular[,4:ncol(tabular), drop=FALSE])
 
     if (! is.null(conditions)) {
         if ((length(conditions) != ncol(assays)) | (length(replicates) != ncol(assays))) {
@@ -440,9 +440,9 @@
 
     mergedIsetHic <- Reduce(f = .mergeInteractionSet, x = isetHic)
 
-    new("HiCDOCDataSet", 
-        mergedIsetHic, 
-        input = object@input)
+    object <- new("HiCDOCDataSet", 
+                  mergedIsetHic, 
+                  input = object@input)
     
     return(object)
 }
