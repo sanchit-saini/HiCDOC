@@ -32,10 +32,9 @@
             SummarizedExperiment::mcols(object)$Chr <-
                 droplevels(SummarizedExperiment::mcols(object)$Chr)
             object <- InteractionSet::reduceRegions(object)
-            newlevels <- object@chromosomes
             GenomeInfoDb::seqlevels(InteractionSet::regions(object),
                                     pruning.mode = "coarse") <-
-                newlevels
+                object@chromosomes
             
         }
         for (slotName in c(
@@ -57,9 +56,14 @@
                 } else {
                     if (!is(tmp, "GRanges"))
                         stop("malformed HiCDOCDataSet")
-                    GenomeInfoDb::seqlevels(tmp,
-                                            pruning.mode = "coarse") <-
-                        object@chromosomes
+                    if(dropLevels){
+                        GenomeInfoDb::seqlevels(tmp,
+                                                pruning.mode = "coarse") <-
+                            object@chromosomes
+                    } else {
+                        tmp <- tmp[S4Vectors::`%in%`(tmp@seqnames, chromosomeNames)]
+                    }
+                   
                 }
                 slot(object, slotName)  <- tmp
                 
@@ -100,9 +104,18 @@
         )) {
             if (!is.null(slot(object, slotName))) {
                 tmp <- slot(object, slotName)
-                tmp <- tmp[condition %in% conditionNames]
-                if (dropLevels) {
-                    tmp[, condition := droplevels(condition)]
+                if (is(tmp, "data.table")) {
+                    tmp <- tmp[condition %in% conditionNames]
+                    if (dropLevels) {
+                        tmp[, condition := droplevels(condition)]
+                    }
+                } else {
+                    if (!is(tmp, "GRanges"))
+                        stop("malformed HiCDOCDataSet")
+                    tmp <- tmp[tmp$condition %in% conditionNames]
+                    if(dropLevels){
+                        tmp$condition <- droplevels(tmp$condition)
+                    }
                 }
                 slot(object, slotName)  <- tmp
                 
@@ -141,12 +154,20 @@
                            "concordances")) {
             if (!is.null(slot(object, slotName))) {
                 tmp <- slot(object, slotName)
-                tmp <- tmp[replicate %in% replicateNames]
-                if (dropLevels) {
-                    tmp[, replicate := droplevels(replicate)]
+                if (is(tmp, "data.table")) {
+                    tmp <- tmp[replicate %in% replicateNames]
+                    if (dropLevels) {
+                        tmp[, replicate := droplevels(replicate)]
+                    }
+                } else {
+                    if (!is(tmp, "GRanges"))
+                        stop("malformed HiCDOCDataSet")
+                    tmp <- tmp[tmp$replicate %in% replicateNames]
+                    if(dropLevels){
+                        tmp$replicate <- droplevels(tmp$replicate)
+                    }
                 }
                 slot(object, slotName)  <- tmp
-                
             }
         }
         return(object)

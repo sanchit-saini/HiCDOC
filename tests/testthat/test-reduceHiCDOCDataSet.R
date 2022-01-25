@@ -4,9 +4,9 @@ data("exampleHiCDOCDataSetProcessed")
 test_chromosome_levels <- function(object, expectedLevels){
     expect_identical(levels(object@distances$chromosome), expectedLevels)
     expect_identical(levels(object@selfInteractionRatios$chromosome), expectedLevels)
-    expect_identical(levels(object@compartments$chromosome), expectedLevels)
-    expect_identical(levels(object@concordances$chromosome), expectedLevels)
-    expect_identical(levels(object@differences$chromosome), expectedLevels)
+    expect_identical(seqlevels(object@compartments), expectedLevels)
+    expect_identical(seqlevels(object@concordances), expectedLevels)
+    expect_identical(seqlevels(object@differences), expectedLevels)
     expect_identical(levels(object@centroids$chromosome), expectedLevels)
 }
 
@@ -73,7 +73,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
     # Interactions
     expect_equal(dim(SummarizedExperiment::assay(objectRed)), c(7021, 7))
     expect_equal(round(sum(SummarizedExperiment::assay(objectRed), na.rm=TRUE),2), 
-                 35081.79)
+                 35101.49)
     
     # Objects produced by detectCompartments
     test_chromosome_levels(objectRed, "X")
@@ -101,7 +101,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
     # Interactions
     expect_equal(dim(SummarizedExperiment::assay(objectRed)), c(7021, 7))
     expect_equal(round(sum(SummarizedExperiment::assay(objectRed), na.rm=TRUE),2), 
-                 35081.79)
+                 35101.49)
     
     # Objects prduced by detectCompartments
     test_chromosome_levels(objectRed, c("X", "Y", "Z"))
