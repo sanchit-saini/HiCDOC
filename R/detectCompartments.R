@@ -583,7 +583,7 @@
     differences <- copy(comparisons)
     differences[compartment.1 == compartment.2 ,H0_value := difference]
     data.table::setorder(differences, condition.1, condition.2)
-    quantiles <- data.table::split(differences, list(differences$condition.1, differences$condition.2))
+    quantiles <- split(differences, by=c("condition.1", "condition.2"))
     quantiles <- lapply(quantiles, function(x) x[difference > 0])
     quantiles <- lapply(quantiles, function(x) 
         if(nrow(x)>0) { return(stats::ecdf(x$H0_value)(x$difference))} else return(NULL))
@@ -595,7 +595,7 @@
     differences[, pvalue := 1 - quantile]
     differences[pvalue<0, pvalue := 0]
     differences[pvalue>1, pvalue := 1]
-    pvalAdjust <- data.table::split(differences, list(differences$condition.1, differences$condition.2))
+    pvalAdjust <- split(differences, by=c("condition.1", "condition.2"))
     pvalAdjust <- lapply(pvalAdjust, function(x) if(nrow(x) > 0) return(stats::p.adjust(x$pvalue, method = "BH")) else return(NULL))
     pvalAdjust <- do.call("c", pvalAdjust)
     differences[, pvalue.adjusted := pvalAdjust]
