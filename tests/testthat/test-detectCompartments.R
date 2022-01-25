@@ -11,18 +11,18 @@ test_that("detectCompartments behaves as expected", {
     # Create new objects in correct format
     expect_is(object@distances, "data.table")
     expect_is(object@selfInteractionRatios, "data.table")
-    expect_is(object@compartments, "data.table")
-    expect_is(object@concordances, "data.table")
-    expect_is(object@differences, "data.table")
+    expect_is(object@compartments, "GRanges")
+    expect_is(object@concordances, "GRanges")
+    expect_is(object@differences, "GRanges")
     expect_is(object@centroids, "data.table")
 
     # Differences
-    expect_equal(nrow(object@differences), 1)
+    expect_equal(length(object@differences), 1)
     expect_equal(
-        nrow(object@differences[pvalue.adjusted <= 0.05]),
+        length(object@differences[object@differences$pvalue.adjusted <= 0.05]),
         0
     )
-    expect_is(object@differences$chromosome, "factor")
+    expect_is(object@differences@seqnames, "Rle")
     expect_is(object@differences$condition.1, "factor")
     expect_is(object@differences$condition.2, "factor")
 
@@ -43,26 +43,26 @@ test_that("detectCompartments behaves as expected", {
     expect_is(object@centroids$centroid, "list")
 
     # Compartments
-    expect_equal(nrow(object@compartments), 440)
+    expect_equal(length(object@compartments), 440)
     expect_equal(
-        nrow(object@compartments[compartment == "B"]),
+        length(object@compartments[object@compartments$compartment == "B"]),
         271
     )
-    expect_is(object@compartments$chromosome, "factor")
+    expect_is(object@compartments@seqnames, "Rle")
     expect_is(object@compartments$condition, "factor")
     expect_is(object@compartments$compartment, "factor")
     expect_is(object@compartments$index, "numeric")
 
     # Concordance
-    expect_is(object@concordances$chromosome, "factor")
+    expect_is(object@concordances@seqnames, "Rle")
     expect_is(object@concordances$index, "numeric")
     expect_is(object@concordances$condition, "factor")
     expect_is(object@concordances$replicate, "factor")
     expect_is(object@concordances$compartment, "factor")
     expect_is(object@concordances$concordance, "numeric")
-    expect_equal(nrow(object@concordances), 880)
+    expect_equal(length(object@concordances), 880)
     expect_equal(
-      nrow(object@concordances[compartment == "A"]),
+      length(object@concordances[object@concordances$compartment == "A"]),
       337
     )
     expect_equal(
@@ -96,8 +96,8 @@ test_that("detectCompartments behaves as expected", {
 })
 
 test_that("detectCompartments behaves as expected in parallel", {
-    skip_on_cran("skip parallel tests")
-    skip_on_bioc("skip parallel tests")
+    skip_on_cran()
+    skip_on_bioc()
   # Parallel settings according to OS
   if(.Platform$OS.type == "windows"){
     multiParam <- BiocParallel::SnowParam(workers = 2)
@@ -115,13 +115,13 @@ test_that("detectCompartments behaves as expected in parallel", {
   # Create new objects in correct format
   expect_is(object@distances, "data.table")
   expect_is(object@selfInteractionRatios, "data.table")
-  expect_is(object@compartments, "data.table")
-  expect_is(object@concordances, "data.table")
-  expect_is(object@differences, "data.table")
+  expect_is(object@compartments, "GRanges")
+  expect_is(object@concordances, "GRanges")
+  expect_is(object@differences, "GRanges")
   expect_is(object@centroids, "data.table")
 
   # Differences
-  expect_is(object@differences$chromosome, "factor")
+  expect_is(object@differences@seqnames, "Rle")
   expect_is(object@differences$condition.1, "factor")
   expect_is(object@differences$condition.2, "factor")
 
@@ -132,13 +132,13 @@ test_that("detectCompartments behaves as expected in parallel", {
   expect_is(object@centroids$centroid, "list")
 
   # Compartments
-  expect_is(object@compartments$chromosome, "factor")
+  expect_is(object@compartments@seqnames, "Rle")
   expect_is(object@compartments$condition, "factor")
   expect_is(object@compartments$compartment, "factor")
   expect_is(object@compartments$index, "numeric")
 
   # Concordance
-  expect_is(object@concordances$chromosome, "factor")
+  expect_is(object@concordances@seqnames, "Rle")
   expect_is(object@concordances$index, "numeric")
   expect_is(object@concordances$condition, "factor")
   expect_is(object@concordances$replicate, "factor")

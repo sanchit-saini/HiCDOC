@@ -391,11 +391,11 @@
         "index" = c(ids$first[!diagonal], ids$second[!diagonal]),
               offDiagonal)
     data.table::setnames(offDiagonal, c("index", cn))
-    offDiagonal <- offDiagonal[, lapply(.SD, 
-                                        stats::median, 
-                                        na.rm=TRUE), 
-                               by=index, 
-                               .SDcols=colnames(offDiagonal)[-1]] 
+    cn <- colnames(offDiagonal)[-1]
+    offDiagonal <- offDiagonal[, (cn) := lapply(.SD, as.numeric), .SDcols=cn] 
+    offDiagonal <- offDiagonal[, lapply(.SD, stats::median, na.rm=TRUE), 
+                                 by=index, 
+                                 .SDcols=cn] 
     offDiagonal <- data.table::melt.data.table(offDiagonal, 
                                                id.vars = "index", 
                                                value.name = "median")
