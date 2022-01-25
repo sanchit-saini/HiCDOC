@@ -10,7 +10,7 @@ test_that("HiCDOCDataSetFromTabular produce correct format", {
     expect_identical(
         slotNames(object),
         c("input", "parameters", "chromosomes", 
-          "totalBins", "weakBins", "validConditions", "validReplicates",
+          "totalBins", "weakBins", "validAssay",
           "compartments", "concordances", "differences", "comparisons", 
           "distances", "centroids", "selfInteractionRatios", "interactions", 
           "colData", "assays", "NAMES", "elementMetadata", "metadata"
@@ -19,6 +19,7 @@ test_that("HiCDOCDataSetFromTabular produce correct format", {
     # Class of slots
     expect_is(object@input, "character")
     expect_is(object@weakBins, "list")
+    expect_is(object@validAssay, "list")
     expect_is(object@chromosomes, "character")
     expect_is(object@totalBins, "integer")
     expect_is(object@distances, "NULL")
