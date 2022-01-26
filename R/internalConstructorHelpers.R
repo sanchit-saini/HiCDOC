@@ -63,11 +63,22 @@ modeVector <- function(x) {
 #' @noRd
 .fillHiCDOCDataSet <- function(object) {
 
-    # Fill all other slots than interactionSet part
+    # Reduce the levels in interaction part
+    object <- InteractionSet::reduceRegions(object)
+    objectRegions <- InteractionSet::regions(object)
+    ChrNames <- unique(as.character(GenomeInfoDb::seqnames(objectRegions)))
+    ChrNames <- gtools::mixedsort(ChrNames)
+    GenomeInfoDb::seqlevels(InteractionSet::regions(object),
+                                pruning.mode = "coarse") <- ChrNames
     
+    # Add chromosome column for split purpose
+    Chr <- GenomeInfoDb::seqnames(InteractionSet::anchors(object, "first"))
+    Chr <- S4Vectors::Rle(factor(Chr, levels=ChrNames))
+    S4Vectors::mcols(object) <-  S4Vectors::DataFrame("Chr" = Chr)
+    
+    # Fill all other slots than interactionSet part
     # Chromosomes and their size (max bin)
-    object@chromosomes <- gtools::mixedsort(
-        GenomeInfoDb::seqlevels(object@interactions))
+    object@chromosomes <- ChrNames
     object@totalBins <- .determineChromosomeSizes(object)
     object@parameters <- defaultHiCDOCParameters
     

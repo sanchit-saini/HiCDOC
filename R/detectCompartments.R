@@ -201,10 +201,10 @@
     
     nbBins <- length(InteractionSet::regions(object))
     validAssay <- object@validAssay[[chromosomeName]]
+    if (length(validAssay) == 0) return(NULL)
     replicateNames <- object$replicate[validAssay]
     orderAssay <- validAssay[order(replicateNames)]
     
-    if (length(replicateNames) == 0) return(NULL)
     isetChromosome <- InteractionSet::InteractionSet(
         SummarizedExperiment::assay(object),
         InteractionSet::interactions(object)
