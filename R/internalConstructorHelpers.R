@@ -76,6 +76,11 @@ modeVector <- function(x) {
     Chr <- S4Vectors::Rle(factor(Chr, levels=ChrNames))
     S4Vectors::mcols(object) <-  S4Vectors::DataFrame("Chr" = Chr)
     
+    # Sorting interactions and assay
+    ids <- InteractionSet::anchors(object, id=TRUE)
+    neworder <- order(Chr, ids$first, ids$second) 
+    object <- object[neworder,]
+
     # Fill all other slots than interactionSet part
     # Chromosomes and their size (max bin)
     object@chromosomes <- ChrNames
