@@ -79,7 +79,7 @@
     tabular <- tabular[,1:3]
     data.table::setnames(tabular, "position 1", "bin.1")
     data.table::setnames(tabular, "position 2", "bin.2")
-    # data.table::setindex(tabular, chromosome, bin.1, bin.2)
+    data.table::set(tabular, chromosome, bin.1, bin.2)
     
     diag <- (tabular$bin.1 == tabular$bin.2)
     binSize <- modeVector(abs(tabular[!diag,]$bin.1 - 
@@ -92,7 +92,6 @@
                                    id.vars = "chromosome", 
                                    value.name = "indexC")
     allRegions[,variable := NULL]
-    # data.table::setindex(allRegions, chromosome, indexC)
     allRegions <- unique(allRegions)
     allRegions[,index := indexC - data.table::shift(indexC, fill = 0)]
     allRegions[index < 0 ,index := 1]
@@ -406,25 +405,6 @@
     iset <- iset[ intrachr(iset) ,]
     
     return(iset)
-    # interactions <- data.table::merge.data.table(interactions,
-    #                       bed[,.(chromosome.1 = chromosome, 
-    #                              startIndex = index, 
-    #                              position.1 = start)], 
-    #                       all.x=TRUE, 
-    #                       by = "startIndex")
-    # interactions <- data.table::merge.data.table(interactions,
-    #                       bed[,.(chromosome.2 = chromosome, 
-    #                              stopIndex = index, 
-    #                              position.2 = start)], 
-    #                       all.x=TRUE, 
-    #                       by = "stopIndex")
-    # interactions <- interactions[chromosome.1 == chromosome.2,
-    #                              .(chromosome = chromosome.1,
-    #                                position.1,
-    #                                position.2,
-    #                                interaction)]
-
-    # .setFromTabular(interactions, condition, replicate)
 }
 
 #' @description
