@@ -24,10 +24,10 @@ modeVector <- function(x) {
 #' @keywords internal
 #' @noRd
 .determineChromosomeSizes <- function(object) {
-    chromosomes <- GenomeInfoDb::seqnames(InteractionSet::regions(object))
-    totalBins <- S4Vectors::runLength(chromosomes)
-    names(totalBins) <- levels(chromosomes)
-    totalBins <- totalBins[gtools::mixedsort(levels(chromosomes))]
+    tabChromosomes <- data.table(InteractionSet::regions(object))
+    tabChromosomes[, .(binSize = max(index) - min(index) + 1), by=.(seqnames)]
+    totalBins <- tabChromosomes$binSize
+    names(totalBins) <- tabChromosomes$seqnames
     return(totalBins)
 }
 
