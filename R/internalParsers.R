@@ -79,7 +79,6 @@
     tabular <- tabular[,1:3]
     data.table::setnames(tabular, "position 1", "bin.1")
     data.table::setnames(tabular, "position 2", "bin.2")
-    data.table::set(tabular, chromosome, bin.1, bin.2)
     
     diag <- (tabular$bin.1 == tabular$bin.2)
     binSize <- modeVector(abs(tabular[!diag,]$bin.1 - 
@@ -93,11 +92,13 @@
                                    value.name = "indexC")
     allRegions[,variable := NULL]
     allRegions <- unique(allRegions)
-    allRegions[,index := indexC - data.table::shift(indexC, fill = 0)]
-    allRegions[index < 0 ,index := 1]
-    allRegions[, index := cumsum(index) + 1]
-    allRegions[, end := (indexC+1)*binSize -1]
-    allRegions[, start := (indexC)*binSize]
+    setorder(allRegions, chromosome, indexC)
+    
+    # Constructing unique index for all chromosomes, taking into account the difference in bins. 
+    allRegions[,index := indexC - data.table::shift(indexC, fill = 0), by=.(chromosome)]
+    allRegions[, index := cumsum(index)]
+    allRegions[, end := (indexC+1) * binSize -1]
+    allRegions[, start := (indexC) * binSize]
     data.table::setcolorder(allRegions, 
                             c("chromosome", "start", "end", "index", "indexC"))
     
@@ -119,10 +120,16 @@
     tabular[, bin.2 := NULL]
     
     allRegions[,indexC := NULL]
+    order1 <- match(tabular$startIndex, allRegions$index)
+    order2 <- match(tabular$stopIndex, allRegions$index)
+    allRegions <- GenomicRanges::GRanges(allRegions)
+    
     gi <- InteractionSet::GInteractions(
-        tabular$startIndex, tabular$stopIndex, 
-        GenomicRanges::GRanges(allRegions), mode="strict")
-
+        allRegions[order1],
+        allRegions[order2],
+        regions = allRegions,
+        mode="strict")
+    
     iset <- InteractionSet::InteractionSet(
         assays = assays,
         interactions = gi)
@@ -174,7 +181,8 @@
             header = TRUE,
             # comment.char = "#",
             check.names = FALSE,
-            data.table = TRUE
+            data.table = TRUE,
+            stringsAsFactors = FALSE
         ) 
 
     iset   <- .setFromTabular(interactions)
