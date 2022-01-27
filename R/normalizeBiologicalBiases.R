@@ -197,12 +197,9 @@ normalizeBiologicalBiases <- function(object, parallel = FALSE) {
         object, 
         SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
     
-    normAssay <- lapply(objectChromosomes,
-                        FUN = .normalizeBiologicalBiasesOfChromosome) 
-    
-    # normAssay <- .internalLapply(parallel,
-    #                             objectChromosomes,
-    #                             FUN = .normalizeBiologicalBiasesOfChromosome) 
+    normAssay <- .internalLapply(parallel,
+                                objectChromosomes,
+                                FUN = .normalizeBiologicalBiasesOfChromosome)
     normAssay <- do.call("rbind", normAssay)
 
     SummarizedExperiment::assay(object) <- normAssay
