@@ -4,7 +4,7 @@
 \alias{normalizeBiologicalBiases}
 \title{Normalize biological biases.}
 \usage{
-normalizeBiologicalBiases(object)
+normalizeBiologicalBiases(object, parallel = FALSE)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}

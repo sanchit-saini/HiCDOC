@@ -4,7 +4,7 @@
 \alias{plotDistanceEffect}
 \title{Plot the distance effect.}
 \usage{
-plotDistanceEffect(object)
+plotDistanceEffect(object, chromosome = NULL)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
