@@ -24,8 +24,12 @@ modeVector <- function(x) {
 #' @keywords internal
 #' @noRd
 .determineChromosomeSizes <- function(object) {
-    tabChromosomes <- data.table(InteractionSet::regions(object))
-    tabChromosomes[, .(binSize = max(index) - min(index) + 1), by=.(seqnames)]
+    tabChromosomes <- as.data.table(InteractionSet::regions(object))
+    tabChromosomes[,minIndex := min(index), by=.(seqnames)]
+    # minStart to correct chromosomes not starting at the 0 position
+    tabChromosomes[index == minIndex, minStart := round(start/width), by=.(seqnames)]
+    # Comuting chromosome entire size
+    tabChromosomes <- tabChromosomes[, .(binSize = max(index) - min(index) + 1 + max(minStart, na.rm=T)), by=.(seqnames)]
     totalBins <- tabChromosomes$binSize
     names(totalBins) <- tabChromosomes$seqnames
     return(totalBins)
