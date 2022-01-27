@@ -21,7 +21,7 @@ test_that("HiCDOCDataSetFromTabular produce correct format", {
     expect_is(object@weakBins, "list")
     expect_is(object@validAssay, "list")
     expect_is(object@chromosomes, "character")
-    expect_is(object@totalBins, "integer")
+    expect_is(object@totalBins, "numeric")
     expect_is(object@distances, "NULL")
     expect_is(object@selfInteractionRatios, "NULL")
     expect_is(object@compartments, "NULL")
@@ -58,7 +58,7 @@ test_that("HiCDOCDalinkToMatrixtaSetFromTabular produce correct values", {
     # chromosomes
     expect_identical(object@chromosomes, "18")
     # bins
-    expect_identical(object@totalBins, c("18" = 20L))
+    expect_equal(object@totalBins, c("18" = 20))
     # Parameters
     expect_identical(object@parameters, defaultHiCDOCParameters)
     # Positions
