@@ -243,7 +243,6 @@
     # bins[, end := NULL]bins
     setorder(bins, chromosome, start, end)
     bins[, index := seq_len(nrow(bins))]
-    allRegions <- GenomicRanges::GRanges(bins)
     
     interactions <-
         data.table::data.table(
@@ -251,16 +250,20 @@
             id2 = rhdf5::h5read(file = path, name = uri("pixels/bin2_id")),
             interaction = rhdf5::h5read(file = path, name = uri("pixels/count"))
         )
-    interactions[, id1:=as.integer(id1)]
-    interactions[, id2:=as.integer(id2)]
+    interactions[, id1:=as.integer(id1) + 1]
+    interactions[, id2:=as.integer(id2) + 1]
     interactions[, interaction:=as.numeric(interaction)]
     
+    order1 <- match(interactions$id1, bins$index)
+    order2 <- match(interactions$id2, bins$index)
+    allRegions <- GenomicRanges::GRanges(bins)
+    
     # GInteractions part
-    gi <- InteractionSet::GInteractions(interactions$id1 + 1, 
-                                        interactions$id2 + 1, 
-                                        allRegions)
-    # swap the anchors -> only upper matrix
-    gi <- InteractionSet::swapAnchors(gi, mode="order")
+    gi <- InteractionSet::GInteractions(
+        allRegions[order1],
+        allRegions[order2],
+        regions = allRegions,
+        mode="strict")
     
     iset <- InteractionSet::InteractionSet(
         assays = as.matrix(interactions$interaction, ncol=1), 
@@ -406,14 +409,16 @@
     
     minIndex <- min(bed[,index])
     setorder(bed, chromosome, start, end)
+    
+    order1 <- match(interactions$startIndex, bed$index)
+    order2 <- match(interactions$stopIndex, bed$index)
     allRegions <- GenomicRanges::GRanges(bed)
     
-    # GInteractions part
-    gi <- InteractionSet::GInteractions(interactions$startIndex - minIndex + 1, 
-                        interactions$stopIndex - minIndex + 1, 
-                        allRegions)
-    # swap the anchors -> only upper matrix
-    gi <- InteractionSet::swapAnchors(gi, mode="order")
+    gi <- InteractionSet::GInteractions(
+        allRegions[order1],
+        allRegions[order2],
+        regions = allRegions,
+        mode="strict")
     
     iset <- InteractionSet::InteractionSet(
         assays = as.matrix(interactions$interaction, ncol=1), 
@@ -449,7 +454,8 @@
     bedPaths    <- lapply(object@input, `[[`, 2)
 
     isetHic <-
-        pbapply::pbmapply(
+        # pbapply::pbmapply(
+        mapply(
             .parseOneHiCPro,
             matrixPaths,
             bedPaths,
