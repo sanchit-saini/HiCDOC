@@ -363,14 +363,14 @@
 .computeSelfInteractionRatios <- function(
     object
 ) {
-    ids <- InteractionSet::anchorIds(object)
+    ids <- InteractionSet::anchors(object, id=FALSE)
     diagonal <- (ids$first == ids$second)
     cn <- paste(object$condition, object$replicate)
     
     # Values on diagonal
     onDiagonal <- data.table(
-        "chromosome" = tmp[diagonal,]$seqnames1,
-        "index" = ids$first[diagonal],
+        "chromosome" = as.character(GenomeInfoDb::seqnames(ids$first)[diagonal]),
+        "index" = ids$first$index[diagonal],
         SummarizedExperiment::assay(object)[diagonal,])
     data.table::setnames(onDiagonal, c("chromosome", "index", cn))
     onDiagonal <- data.table::melt.data.table(onDiagonal, 
@@ -383,7 +383,8 @@
         SummarizedExperiment::assay(object)[!diagonal,]
     ) 
     offDiagonal <- data.table::data.table(
-        "index" = c(ids$first[!diagonal], ids$second[!diagonal]),
+        "index" = c(ids$first$index[!diagonal], 
+                    ids$second$index[!diagonal]),
         offDiagonal)
     data.table::setnames(offDiagonal, c("index", cn))
     cn <- colnames(offDiagonal)[-1]
