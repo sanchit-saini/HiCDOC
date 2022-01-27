@@ -454,8 +454,7 @@
     bedPaths    <- lapply(object@input, `[[`, 2)
 
     isetHic <-
-        # pbapply::pbmapply(
-        mapply(
+        pbapply::pbmapply(
             .parseOneHiCPro,
             matrixPaths,
             bedPaths,

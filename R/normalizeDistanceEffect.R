@@ -162,10 +162,9 @@ normalizeDistanceEffect <- function(object,
         object, 
         SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
     
-    normAssay <- .internalApply(parallel,
+    normAssay <- .internalLapply(parallel,
                                 objectChromosomes,
-                                FUN = .normalizeDistanceEffectOfChromosome,
-                                type="lapply")
+                                FUN = .normalizeDistanceEffectOfChromosome)
     
     normAssay <- do.call("rbind", normAssay)
     SummarizedExperiment::assay(object) <- normAssay

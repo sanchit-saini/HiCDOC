@@ -324,12 +324,10 @@
         }, condByChromosomes$chr, 
            condByChromosomes$cond)
     
-    result <- .internalApply(
+    result <- .internalLapply(
         parallel,
         reducedObjects,
-        .clusterizeChromosomeCondition,
-        type="lapply"
-        )
+        .clusterizeChromosomeCondition)
     
     compartments <- lapply(result, function(x) x[["compartments"]])
     concordances <- lapply(result, function(x) x[["concordances"]])
@@ -365,11 +363,8 @@
 .computeSelfInteractionRatios <- function(
     object
 ) {
-    # TODO : j'ai essayé d'utiliser anchorIds() mais ça ne me renvoie pas les
-    # bonnes valeurs d'index.
-    tmp <- as.data.frame(InteractionSet::interactions(object))
-    ids <- list("first" = tmp$index1, "second" = tmp$index2)
-    diagonal <- ids$first == ids$second
+    ids <- InteractionSet::anchorIds(object)
+    diagonal <- (ids$first == ids$second)
     cn <- paste(object$condition, object$replicate)
     
     # Values on diagonal
@@ -389,7 +384,7 @@
     ) 
     offDiagonal <- data.table::data.table(
         "index" = c(ids$first[!diagonal], ids$second[!diagonal]),
-              offDiagonal)
+        offDiagonal)
     data.table::setnames(offDiagonal, c("index", cn))
     cn <- colnames(offDiagonal)[-1]
     offDiagonal <- offDiagonal[, (cn) := lapply(.SD, as.numeric), .SDcols=cn] 

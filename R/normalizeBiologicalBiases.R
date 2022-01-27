@@ -108,9 +108,9 @@
 #' @keywords internal
 #' @noRd
 .normalizeBiologicalBiasesOfChromosome <- function(object) {
-   chromosomeName <- as.character(SummarizedExperiment::mcols(object)$Chr[1])
-   print(chromosomeName)
-   message("Chromosome ", chromosomeName, ": normalizing biological biases.")
+    
+    chromosomeName <- as.character(SummarizedExperiment::mcols(object)$Chr[1])
+    message("Chromosome ", chromosomeName, ": normalizing biological biases.")
     if (object@totalBins[[chromosomeName]] <= 0) return(NULL)
     currentOrder <- InteractionSet::anchorIds(object)
     currentAssay <- SummarizedExperiment::assay(object)
