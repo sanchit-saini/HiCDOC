@@ -20,22 +20,29 @@
     reducedObject,
     threshold
 ) {
-    regions <- InteractionSet::regions(reducedObject)
-    regions <- regions[regions@seqnames == chromosomeName,]
-    minBin <- min(regions$index)
-    maxBin <- max(regions$index)
     validColumns <- reducedObject@validAssay[[chromosomeName]]
     
     interactions <- as.data.table(InteractionSet::interactions(reducedObject))
     interactions <- interactions[,.(index1, index2)]
+    
+    # All known bins
+    minBin <- min(interactions$index1, interactions$index2)
+    maxBin <- max(interactions$index1, interactions$index2)
+    allBins <- seq(minBin, maxBin)
+    
+    # Reducing the values of diagonal by 0.5 factor -> only upper matrix.
+    diagonal <- (interactions$index1 == interactions$index2)
+    matAssay <- SummarizedExperiment::assay(reducedObject)[,validColumns]
+    matAssay <- matAssay * (1-0.5*(diagonal))
+    
     interactions <- base::cbind(interactions, 
-                          SummarizedExperiment::assay(reducedObject)[,validColumns])
-    interactions <- data.table::melt.data.table(interactions, id.vars=c("index1", "index2"))
-    interactions[, diagonal := 1-0.5*(index1 == index2)]
+                                matAssay)
+    interactions <- data.table::melt.data.table(interactions, 
+                                                id.vars=c("index1", "index2"), 
+                                                na.rm=T)
     
     totalBins <- reducedObject@totalBins[chromosomeName]
-    allBins <- seq(minBin, maxBin)
-    removedBins <-
+    removedBins <- 
         allBins[
             !(allBins %in% unique(c(interactions$index1, interactions$index1)))
         ]
@@ -44,13 +51,15 @@
     totalRemovedBins <- 0
     
     # Recursive removal of bins - deleting a bin can create a new weak bin.
-    while (totalNewWeakBins > 0 && totalRemovedBins <= totalBins) {
-        sum1 <- interactions[, .(sum1 = sum(value*diagonal, na.rm = TRUE)), 
+    while (totalNewWeakBins > 0 && totalRemovedBins <= length(allBins)) {
+        sum1 <- interactions[, .(sum1 = sum(value, na.rm = TRUE)), 
                              by=.(index = index1, variable)]
-        sum2 <- interactions[, .(sum2 = sum(value*diagonal, na.rm = TRUE)), 
+        sum2 <- interactions[, .(sum2 = sum(value, na.rm = TRUE)), 
                              by=.(index = index2, variable)]
         sum12 <- data.table::merge.data.table(sum1, sum2, by=c("index", "variable"),
                                               all = TRUE)
+        sum12[is.na(sum1), sum1 := 0]
+        sum12[is.na(sum2), sum2 := 0]
         sum12[, mean := (sum1 + sum2) / totalBins]
         weakBins <- unique(sum12[mean < threshold, index])
         
