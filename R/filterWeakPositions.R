@@ -39,7 +39,8 @@
                                 matAssay)
     interactions <- data.table::melt.data.table(interactions, 
                                                 id.vars=c("index1", "index2"), 
-                                                na.rm=T)
+                                                na.rm=F)
+    interactions[is.na(value),value := 0]
     
     totalBins <- reducedObject@totalBins[chromosomeName]
     removedBins <- 
@@ -182,6 +183,5 @@ filterWeakPositions <- function(object, threshold = NULL) {
     if (length(toRemove) == sum(toRemove)) {
         warning("No data left!", call. = FALSE)
     }
-
     return(object)
 }

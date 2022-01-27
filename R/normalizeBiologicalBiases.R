@@ -108,8 +108,9 @@
 #' @keywords internal
 #' @noRd
 .normalizeBiologicalBiasesOfChromosome <- function(object) {
-    chromosomeName <- as.character(SummarizedExperiment::mcols(object)$Chr[1])
-    message("Chromosome ", chromosomeName, ": normalizing biological biases.")
+   chromosomeName <- as.character(SummarizedExperiment::mcols(object)$Chr[1])
+   print(chromosomeName)
+   message("Chromosome ", chromosomeName, ": normalizing biological biases.")
     if (object@totalBins[[chromosomeName]] <= 0) return(NULL)
     currentOrder <- InteractionSet::anchorIds(object)
     currentAssay <- SummarizedExperiment::assay(object)
@@ -196,10 +197,12 @@ normalizeBiologicalBiases <- function(object, parallel = FALSE) {
         object, 
         SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
     
-    normAssay <- .internalApply(parallel,
-                                objectChromosomes,
-                                FUN = .normalizeBiologicalBiasesOfChromosome,
-                                type="lapply") 
+    normAssay <- lapply(objectChromosomes,
+                        FUN = .normalizeBiologicalBiasesOfChromosome) 
+    
+    # normAssay <- .internalLapply(parallel,
+    #                             objectChromosomes,
+    #                             FUN = .normalizeBiologicalBiasesOfChromosome) 
     normAssay <- do.call("rbind", normAssay)
 
     SummarizedExperiment::assay(object) <- normAssay
