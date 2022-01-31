@@ -7,7 +7,7 @@
 #' @importFrom GenomicRanges start end distance GRanges match union
 #' @importFrom Rcpp evalCpp sourceCpp
 #' @importFrom stats loess loess.control ecdf predict median update optimize prcomp p.adjust
-#' @importFrom S4Vectors DataFrame mcols split runLength Rle
+#' @importFrom S4Vectors DataFrame mcols split runLength Rle %in%
 #' @importFrom SummarizedExperiment assay colData
 #' @importFrom gtools mixedsort
 #' @importFrom pbapply pbmapply

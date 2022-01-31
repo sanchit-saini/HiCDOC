@@ -7,7 +7,7 @@
 #' HiCDOCDataSet-methods
 #'
 #' @aliases
-#' chromosomes positions conditions replicates binSize interactions
+#' chromosomes positions conditions replicates interactions
 #' compartments concordances differences show
 #'
 #' @description
@@ -15,11 +15,10 @@
 #' @examples
 #' data(exampleHiCDOCDataSet)
 #' chromosomes(exampleHiCDOCDataSet)
-#' conditions(exampleHiCDOCDataSet)
-#' binSize(exampleHiCDOCDataSet)
+#' conditions(exampleHiCDOCDataSet)=
 #' @return
 #' A character vector (for \code{chromosomes}, \code{conditions},
-#' \code{replicates}), an integer(for \code{binSize}), a tibble
+#' \code{replicates}), a tibble
 #' (for \code{interactions} and \code{positions}), or a GRanges object
 #' (for \code{compartments}, \code{concordances}, \code{differences}).
 NULL

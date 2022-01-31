@@ -190,7 +190,6 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         "  chromosomes(object)\n",
         "  conditions(object)\n",
         "  replicates(object)\n",
-        "  binSize(object)\n",
         "  compartments(object)\n",
         "  differences(object)\n",
         "  concordances(object)\n",

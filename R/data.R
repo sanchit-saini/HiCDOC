@@ -19,10 +19,13 @@
 
 
 #' @title
-#' Example HiCDOCDataSet, filtered and normalized.
+#' Example HiCDOCDataSet, filtered, normalized and with compartements detected.
 #'
 #' @description
 #' A S4 HiCDOCDataSet object with 3 chromosomes, 3 conditions and 3 replicates.
+#' Can be retrieved by running :
+#' \code{set.seed(123); 
+#' exampleHiCDOCDataSetProcessed <- HiCDOC(exampleHiCDOCDataSet)}
 #'
 #' @format
 #' S4 HiCDOCDataSet object with the following characteristics:
