@@ -13,6 +13,8 @@
 #'   \item{binSize}{A resolution of 137 bases}
 #' }
 #'
+#' @usage data(exampleHiCDOCDataSet)
+#' 
 #' @return
 #' A \code{\link{HiCDOCDataSet}}.
 "exampleHiCDOCDataSet"
@@ -35,7 +37,9 @@
 #'   \item{replicates}{3 replicates: R1, R2, R3}
 #'   \item{binSize}{A resolution of 137 bases}
 #' }
-#'
+#' 
+#' @usage data(exampleHiCDOCDataSetProcessed)
+#' 
 #' @return
 #' A \code{\link{HiCDOCDataSet}}, already filtered and normalized.
 "exampleHiCDOCDataSetProcessed"

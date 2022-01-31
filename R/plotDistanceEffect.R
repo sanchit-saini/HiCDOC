@@ -6,6 +6,9 @@
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosome
+#' Name (character) or index of the chromosome, if the plot should be 
+#' restricted to only one chromosome. Default to NULL.
 #'
 #' @return
 #' A \code{ggplot}.

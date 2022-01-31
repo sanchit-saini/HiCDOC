@@ -136,6 +136,8 @@
 #' on proportion of interactions. Defaults to
 #' \code{object$loessSampleSize} which is originally set to
 #' \code{defaultHiCDOCParameters$loessSampleSize} = 20000.
+#' @param parallel
+#' Should the normalization be run in parallel mode ? Default to FALSE.
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}} with normalized interactions.
