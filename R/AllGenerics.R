@@ -7,15 +7,15 @@
 #' HiCDOCDataSet-methods
 #'
 #' @aliases
-#' chromosomes positions conditions replicates interactions
-#' compartments concordances differences show
+#' chromosomes conditions replicates compartments concordances 
+#' differences show
 #'
 #' @description
 #' Retrieve information and results from a \code{\link{HiCDOCDataSet}}.
 #' @examples
 #' data(exampleHiCDOCDataSet)
 #' chromosomes(exampleHiCDOCDataSet)
-#' conditions(exampleHiCDOCDataSet)=
+#' conditions(exampleHiCDOCDataSet)
 #' @return
 #' A character vector (for \code{chromosomes}, \code{conditions},
 #' \code{replicates}), a tibble

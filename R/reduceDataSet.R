@@ -25,7 +25,7 @@
         object@validAssay <- object@validAssay[chromosomeIds]
         
         toKeep <-
-            as.character(S4Vectors::mcols(object)$Chr) %in% chromosomeNames
+            S4Vectors::`%in%`(S4Vectors::mcols(object)$Chr, chromosomeNames)
         object <- object[toKeep, ]
         
         if (dropLevels) {

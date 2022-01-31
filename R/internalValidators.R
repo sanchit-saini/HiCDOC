@@ -204,14 +204,6 @@
             )
         }
 
-        if ("positions" %in% missingSlots) {
-            stop(
-                "Positions are unknown.\n",
-                "This 'HiCDOCDataSet' wasn't built properly.",
-                call. = FALSE
-            )
-        }
-
         if ("validAssay" %in% missingSlots) {
             stop(
                 "Cannot process potentially sparse replicates.\n",
