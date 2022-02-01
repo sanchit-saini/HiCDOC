@@ -25,11 +25,15 @@ modeVector <- function(x) {
 #' @noRd
 .determineChromosomeSizes <- function(object) {
     tabChromosomes <- as.data.table(InteractionSet::regions(object))
-    tabChromosomes[,minIndex := min(index), by=.(seqnames)]
+    tabChromosomes[, minIndex := min(index), by = .(seqnames)]
     # minStart to correct chromosomes not starting at the 0 position
-    tabChromosomes[index == minIndex, minStart := round(start/width), by=.(seqnames)]
+    tabChromosomes[index == minIndex, minStart := round(start / width), by =
+                       .(seqnames)]
     # Comuting chromosome entire size
-    tabChromosomes <- tabChromosomes[, .(binSize = max(index) - min(index) + 1 + max(minStart, na.rm=T)), by=.(seqnames)]
+    tabChromosomes <-
+        tabChromosomes[, .(binSize = max(index) - min(index) + 1 + max(minStart, na.rm =
+                                                                           TRUE)),
+                       by = .(seqnames)]
     totalBins <- tabChromosomes$binSize
     names(totalBins) <- tabChromosomes$seqnames
     return(totalBins)
@@ -47,10 +51,12 @@ modeVector <- function(x) {
 #' @keywords internal
 #' @noRd
 .determineValids <- function(object) {
-    valids <- S4Vectors::split(SummarizedExperiment::assay(object), 
-                               S4Vectors::mcols(object)$Chr, drop=FALSE)
-    valids <- lapply(valids, colSums, na.rm=TRUE)
-    valids <- lapply(valids, function(x) which(x>0 & !is.na(x)))
+    valids <- S4Vectors::split(SummarizedExperiment::assay(object),
+                               S4Vectors::mcols(object)$Chr,
+                               drop = FALSE)
+    valids <- lapply(valids, colSums, na.rm = TRUE)
+    valids <- lapply(valids, function(x)
+        which(x > 0 & !is.na(x)))
     return(valids)
 }
 #' @description
@@ -66,25 +72,26 @@ modeVector <- function(x) {
 #' @keywords internal
 #' @noRd
 .fillHiCDOCDataSet <- function(object) {
-
     # Reduce the levels in interaction part
     object <- InteractionSet::reduceRegions(object)
     objectRegions <- InteractionSet::regions(object)
-    ChrNames <- unique(as.character(GenomeInfoDb::seqnames(objectRegions)))
+    ChrNames <-
+        unique(as.character(GenomeInfoDb::seqnames(objectRegions)))
     ChrNames <- gtools::mixedsort(ChrNames)
     GenomeInfoDb::seqlevels(InteractionSet::regions(object),
-                                pruning.mode = "coarse") <- ChrNames
+                            pruning.mode = "coarse") <- ChrNames
     
     # Add chromosome column for split purpose
-    Chr <- GenomeInfoDb::seqnames(InteractionSet::anchors(object, "first"))
-    Chr <- S4Vectors::Rle(factor(Chr, levels=ChrNames))
+    Chr <-
+        GenomeInfoDb::seqnames(InteractionSet::anchors(object, "first"))
+    Chr <- S4Vectors::Rle(factor(Chr, levels = ChrNames))
     S4Vectors::mcols(object) <-  S4Vectors::DataFrame("Chr" = Chr)
     
     # Sorting interactions and assay
-    ids <- InteractionSet::anchors(object, id=TRUE)
-    neworder <- order(Chr, ids$first, ids$second) 
-    object <- object[neworder,]
-
+    ids <- InteractionSet::anchors(object, id = TRUE)
+    neworder <- order(Chr, ids$first, ids$second)
+    object <- object[neworder, ]
+    
     # Fill all other slots than interactionSet part
     # Chromosomes and their size (max bin)
     object@chromosomes <- ChrNames
@@ -94,11 +101,11 @@ modeVector <- function(x) {
     # Valid conditions and replicats by chromosome (==not empty)
     # maybe do a function for valid conditions and replicats ?
     valids <- .determineValids(object)
-    object@validAssay <-valids
-
+    object@validAssay <- valids
+    
     # Weakbins
     object@weakBins <- vector("list", length(object@chromosomes))
     names(object@weakBins) <- object@chromosomes
-
+    
     return(object)
 }

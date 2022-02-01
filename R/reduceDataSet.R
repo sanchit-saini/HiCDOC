@@ -56,14 +56,14 @@
                 } else {
                     if (!is(tmp, "GRanges"))
                         stop("malformed HiCDOCDataSet")
-                    if(dropLevels){
+                    if (dropLevels) {
                         GenomeInfoDb::seqlevels(tmp,
                                                 pruning.mode = "coarse") <-
                             object@chromosomes
                     } else {
                         tmp <- tmp[S4Vectors::`%in%`(tmp@seqnames, chromosomeNames)]
                     }
-                   
+                    
                 }
                 slot(object, slotName)  <- tmp
                 
@@ -113,7 +113,7 @@
                     if (!is(tmp, "GRanges"))
                         stop("malformed HiCDOCDataSet")
                     tmp <- tmp[tmp$condition %in% conditionNames]
-                    if(dropLevels){
+                    if (dropLevels) {
                         tmp$condition <- droplevels(tmp$condition)
                     }
                 }
@@ -163,7 +163,7 @@
                     if (!is(tmp, "GRanges"))
                         stop("malformed HiCDOCDataSet")
                     tmp <- tmp[tmp$replicate %in% replicateNames]
-                    if(dropLevels){
+                    if (dropLevels) {
                         tmp$replicate <- droplevels(tmp$replicate)
                     }
                 }

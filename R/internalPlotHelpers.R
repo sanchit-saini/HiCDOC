@@ -29,9 +29,12 @@
     }
     if (is.null(xlim)) {
         regions <- InteractionSet::regions(object)
-        regions <- regions[GenomeInfoDb::seqnames(regions) == chromosomeName]
-        xlim <- c(min(GenomicRanges::start(regions), na.rm = TRUE), 
-                  max(GenomicRanges::start(regions), na.rm = TRUE))
+        regions <-
+            regions[GenomeInfoDb::seqnames(regions) == chromosomeName]
+        xlim <- c(
+            min(GenomicRanges::start(regions), na.rm = TRUE),
+            max(GenomicRanges::start(regions), na.rm = TRUE)
+        )
     }
     return(xlim)
 }
@@ -48,14 +51,15 @@
 #' @keywords internal
 #' @noRd
 .extractLegends <- function(grob) {
-    matches <- grepl("guide-box", .subset2(grob$layout, "name"), fixed = FALSE)
+    matches <-
+        grepl("guide-box", .subset2(grob$layout, "name"), fixed = FALSE)
     grob$layout <- grob$layout[matches, , drop = FALSE]
     grob$grobs <- grob$grobs[matches]
     return(grob)
 }
 
 
-#' @description 
+#' @description
 #' Complete the levels of replicates to get balanced condition x replicate
 #' @param replicates
 #' Vector of replicates for one conditino

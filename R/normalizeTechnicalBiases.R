@@ -57,9 +57,12 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     
     hic_table <- as.data.table(InteractionSet::interactions(object))
     hic_table <-
-        hic_table[, .(chr = as.numeric(as.factor(as.character(seqnames1))),
+        hic_table[, .(chr = seqnames1,
                       region1 = start1,
                       region2 = start2)]
+    if (!is.factor(hic_table$chr))
+        hic_table[, chr := as.factor(chr)]
+    hic_table[, chr := as.numeric(chr)]
     
     currentAssay <- SummarizedExperiment::assay(object)
     currentAssay[is.na(currentAssay)] <- 0
@@ -67,8 +70,9 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     refOrder <- paste(object$condition, object$replicate)
     currentAssay <- currentAssay[, order(refOrder)]
     
-    table_list <- lapply(seq_len(ncol(currentAssay)), 
-                         function(x) cbind(hic_table, currentAssay[,x]))
+    table_list <- lapply(seq_len(ncol(currentAssay)),
+                         function(x)
+                             cbind(hic_table, currentAssay[, x]))
     
     experiment <-
         multiHiCcompare::make_hicexp(
@@ -93,7 +97,7 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     
     currentAssay <- as.matrix(hic_table[, 5:ncol(hic_table)])
     # Reordering columns in original order
-    currentAssay <- currentAssay[,match(refOrder, sort(refOrder))]
+    currentAssay <- currentAssay[, match(refOrder, sort(refOrder))]
     colnames(currentAssay) <- NULL
     currentAssay[currentAssay == 0] <- NA
     SummarizedExperiment::assay(object) <- currentAssay

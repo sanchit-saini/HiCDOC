@@ -28,22 +28,22 @@
 #' plotConcordances(exampleHiCDOCDataSetProcessed, chromosome = 1)
 #'
 #' @export
-plotConcordances <- function(
-    object,
-    chromosome,
-    xlim = NULL,
-    threshold = 0.05,
-    points = FALSE
-) {
-
+plotConcordances <- function(object,
+                             chromosome,
+                             xlim = NULL,
+                             threshold = 0.05,
+                             points = FALSE) {
     .validateSlots(object, slots = c("concordances", "differences"))
-    chromosomeName <- .validateNames(object, chromosome, "chromosomes")
+    chromosomeName <-
+        .validateNames(object, chromosome, "chromosomes")
     xlim <- .validateXlim(xlim, object, chromosomeName)
     
-    concordances <- object@concordances[GenomeInfoDb::seqnames(object@concordances) == chromosomeName]
+    concordances <-
+        object@concordances[GenomeInfoDb::seqnames(object@concordances) == chromosomeName]
     concordances <- data.table::as.data.table(concordances)
     concordances[, condition := paste0("Concordances\n", condition)]
-    concordances <- concordances[start >= xlim[1] & start <= xlim[2]]
+    concordances <-
+        concordances[start >= xlim[1] & start <= xlim[2]]
     binSize <- modeVector(concordances$width)
     
     if (nrow(concordances) == 0) {
@@ -52,32 +52,34 @@ plotConcordances <- function(
     }
     
     # Significant differences
-    differences <- object@differences[GenomeInfoDb::seqnames(object@differences) == chromosomeName]
+    differences <-
+        object@differences[GenomeInfoDb::seqnames(object@differences) == chromosomeName]
     differences <- as.data.table(differences)
     differences <- differences[pvalue.adjusted <= threshold]
     differences <- differences[start >= xlim[1] & start <= xlim[2]]
-    differences <- data.table::melt(differences,
-                                    id.vars= c("seqnames", "start", "end"),
-                                    measure.vars = c("condition.1", "condition.2"),
-                                    value.name = "condition")
-    differences[,condition := paste0("Concordances\n", condition)]
-
+    differences <- data.table::melt(
+        differences,
+        id.vars = c("seqnames", "start", "end"),
+        measure.vars = c("condition.1", "condition.2"),
+        value.name = "condition"
+    )
+    differences[, condition := paste0("Concordances\n", condition)]
+    
     
     caption <- "The grey areas are significant changes"
-    if (nrow(differences) == 0) caption <- "No change is significant"
-    caption <- paste0(
-        caption,
-        " (adjusted p-value <= ",
-        round(100 * threshold, 2),
-        "%)"
-    )
+    if (nrow(differences) == 0)
+        caption <- "No change is significant"
+    caption <- paste0(caption,
+                      " (adjusted p-value <= ",
+                      round(100 * threshold, 2),
+                      "%)")
     
     ylim <-
         c(
             min(concordances$concordance, na.rm = TRUE),
             max(concordances$concordance, na.rm = TRUE)
         )
-
+    
     plot <- ggplot()
     if (nrow(differences) > 0) {
         plot <-
@@ -96,30 +98,32 @@ plotConcordances <- function(
     }
     plot <-
         plot +
-        geom_line(
-            data = concordances,
-            aes(x = start + 0.5 * binSize, y = concordance, color = replicate)
-        )
+        geom_line(data = concordances,
+                  aes(
+                      x = start + 0.5 * binSize,
+                      y = concordance,
+                      color = replicate
+                  ))
     if (points) {
         plot <-
             plot +
-            geom_point(
-                data = concordances,
-                aes(
-                    x = start + 0.5 * binSize,
-                    y = concordance,
-                    color = replicate
-                )
-            )
+            geom_point(data = concordances,
+                       aes(
+                           x = start + 0.5 * binSize,
+                           y = concordance,
+                           color = replicate
+                       ))
     }
     plot <-
         plot +
         labs(caption = caption) +
-        xlab("position") + 
+        xlab("position") +
         xlim(xlim[1], xlim[2] + binSize) +
         ylim(ylim) +
         geom_hline(yintercept = 0.0, size = 0.1) +
-        facet_grid(rows = vars(condition), margins = FALSE, switch = "y") +
+        facet_grid(rows = vars(condition),
+                   margins = FALSE,
+                   switch = "y") +
         theme_minimal() +
         theme(
             axis.title.y = element_blank(),

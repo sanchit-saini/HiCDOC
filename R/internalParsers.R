@@ -56,7 +56,7 @@
     setorder(tabular, chromosome, `position 1`, `position 2`)
     # Assays part, fill with NA
     assays <- as.matrix(tabular[,4:ncol(tabular), drop=FALSE])
-
+    
     if (! is.null(conditions)) {
         if ((length(conditions) != ncol(assays)) | (length(replicates) != ncol(assays))) {
             stop(
@@ -76,14 +76,14 @@
     assays[assays == 0] <- NA
     
     # GInteraction part
-    tabular <- tabular[,1:3]
+    tabular <- tabular[,seq_len(3)]
     data.table::setnames(tabular, "position 1", "bin.1")
     data.table::setnames(tabular, "position 2", "bin.2")
     
     diag <- (tabular$bin.1 == tabular$bin.2)
     binSize <- modeVector(abs(tabular[!diag,]$bin.1 - 
                                       tabular[!diag,]$bin.2))
-
+    
     tabular[,bin.1 := bin.1/binSize]
     tabular[,bin.2 := bin.2/binSize]
     
@@ -184,7 +184,7 @@
             data.table = TRUE,
             stringsAsFactors = FALSE
         ) 
-
+    
     iset   <- .setFromTabular(interactions)
     object <- new("HiCDOCDataSet", iset, input = input)
     
@@ -304,7 +304,7 @@
             path      = object@input,
             binSize   = binSize,
             condition = conditions,
-	    replicate = replicates
+        replicate = replicates
         )
     
     mergedIsetCool <- Reduce(f = .mergeInteractionSet, x = isetCool)
@@ -362,11 +362,11 @@
             path      = object@input,
             binSize   = binSize,
             condition = conditions,
-	        replicate = replicates
+            replicate = replicates
         )
     
     mergedIsetHic <- Reduce(f = .mergeInteractionSet, x = isetHic)
-
+    
     new("HiCDOCDataSet", 
         mergedIsetHic, 
         input = object@input)

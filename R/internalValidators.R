@@ -10,28 +10,32 @@
 #' @keywords internal
 #' @noRd
 .validateParameters <- function(parameters) {
-
     defaultParameterNames <- names(defaultHiCDOCParameters)
     inputParameterNames <- names(parameters)
-
+    
     numericParameters <-
-        vapply(
-            parameters,
-            function(parameter) {
-                is.numeric(parameter) && length(parameter) == 1
-            },
-            FUN.VALUE = TRUE
-        )
-
+        vapply(parameters,
+               function(parameter) {
+                   is.numeric(parameter) && length(parameter) == 1
+               },
+               FUN.VALUE = TRUE)
+    
     if (!all(numericParameters)) {
         notNumericParameters <- inputParameterNames[!numericParameters]
         warning(
             "Non-numeric parameter",
-            if (length(notNumericParameters) != 1) "s were" else "was",
+            if (length(notNumericParameters) != 1)
+                "s were"
+            else
+                "was",
             " replaced with ",
-            if (length(notNumericParameters) != 1) "their" else "its",
+            if (length(notNumericParameters) != 1)
+                "their"
+            else
+                "its",
             " default",
-            if (length(notNumericParameters) != 1) "s",
+            if (length(notNumericParameters) != 1)
+                "s",
             ":\n",
             paste0(
                 notNumericParameters,
@@ -47,32 +51,42 @@
         parameters[notNumericParameters] <-
             defaultHiCDOCParameters[notNumericParameters]
     }
-
+    
     known <- inputParameterNames %in% defaultParameterNames
-
+    
     if (!all(known)) {
         unknownParameterNames <- inputParameterNames[!known]
         warning(
             "Unknown parameter",
-            if (length(unknownParameterNames) != 1) "s were" else "was",
+            if (length(unknownParameterNames) != 1)
+                "s were"
+            else
+                "was",
             " removed:\n",
             paste(unknownParameterNames, collapse = "\n"),
             call. = FALSE
         )
         parameters[unknownParameterNames] <- NULL
     }
-
+    
     present <- defaultParameterNames %in% inputParameterNames
-
+    
     if (!all(present)) {
         missingParameterNames <- defaultParameterNames[!present]
         warning(
             "Missing parameter",
-            if (length(missingParameterNames) != 1) "s were" else "was",
+            if (length(missingParameterNames) != 1)
+                "s were"
+            else
+                "was",
             " replaced with ",
-            if (length(missingParameterNames) != 1) "their" else "its",
+            if (length(missingParameterNames) != 1)
+                "their"
+            else
+                "its",
             " default",
-            if (length(missingParameterNames) != 1) "s",
+            if (length(missingParameterNames) != 1)
+                "s",
             ":\n",
             paste0(
                 missingParameterNames,
@@ -85,7 +99,7 @@
         parameters[missingParameterNames] <-
             defaultHiCDOCParameters[missingParameterNames]
     }
-
+    
     return(parameters)
 }
 
@@ -108,30 +122,35 @@
 #'
 #' @keywords internal
 #' @noRd
-.validateNames <- function(object, names, category = "chromosomes") {
-
-    validNames <- switch(category,
-                         "chromosomes" = unique(object@chromosomes),
-                         "replicates" = unique(object$replicate),
-                         "conditions" = unique(object$condition))
-    
-    if (all(names %in% validNames)) return(names)
-
-    if (is.numeric(names) && all(names %in% seq_len(length(validNames)))) {
-        return(validNames[names])
+.validateNames <-
+    function(object, names, category = "chromosomes") {
+        validNames <- switch(
+            category,
+            "chromosomes" = unique(object@chromosomes),
+            "replicates" = unique(object$replicate),
+            "conditions" = unique(object$condition)
+        )
+        
+        if (all(names %in% validNames))
+            return(names)
+        
+        if (is.numeric(names) &&
+            all(names %in% seq_len(length(validNames)))) {
+            return(validNames[names])
+        }
+        
+        unknown <- names[which(!(names %in% validNames))]
+        
+        stop(
+            "Unknown ",
+            substr(category, 1, nchar(category) - 1),
+            if (length(unknown) != 1)
+                "s",
+            ": ",
+            paste(unknown, collapse = ", "),
+            call. = FALSE
+        )
     }
-
-    unknown <- names[which(!(names %in% validNames))]
-
-    stop(
-        "Unknown ",
-        substr(category, 1, nchar(category) - 1),
-        if (length(unknown) != 1) "s",
-        ": ",
-        paste(unknown, collapse = ", "),
-        call. = FALSE
-    )
-}
 
 #' @description
 #' Checks that the provided object is a \code{\link{HiCDOCDataSet}}, and that
@@ -150,44 +169,30 @@
 #' @keywords internal
 #' @noRd
 .validateSlots <- function(object, slots = NULL) {
-
     if (!is(object, "HiCDOCDataSet")) {
-        stop(
-            "The provided object is not a 'HiCDOCDataSet'.",
-            call. = FALSE
-        )
+        stop("The provided object is not a 'HiCDOCDataSet'.",
+             call. = FALSE)
     }
-
-    if (
-        "interactions" %in% slots && (
-            !.hasSlot(object, "interactions") ||
-            is.null(slot(object, "interactions")) ||
-            nrow(object) == 0
-        )
-    ) {
-        stop(
-            "No interactions found in the 'HiCDOCDataSet'.",
-            call. = FALSE
-        )
+    
+    if ("interactions" %in% slots && (!.hasSlot(object, "interactions") ||
+                                      is.null(slot(object, "interactions")) ||
+                                      nrow(object) == 0)) {
+        stop("No interactions found in the 'HiCDOCDataSet'.",
+             call. = FALSE)
     }
-
+    
     if (!is.null(slots)) {
-
         allSlots <- slotNames("HiCDOCDataSet")
-
+        
         presentSlots <-
-            allSlots[
-                vapply(
-                    allSlots,
-                    function(x) {
-                        .hasSlot(object, x) && !is.null(slot(object, x))
-                    },
-                    FUN.VALUE = TRUE
-                )
-            ]
-
+            allSlots[vapply(allSlots,
+                            function(x) {
+                                .hasSlot(object, x) && !is.null(slot(object, x))
+                            },
+                            FUN.VALUE = TRUE)]
+        
         missingSlots <- slots[!(slots %in% presentSlots)]
-
+        
         if ("binSize" %in% missingSlots) {
             stop(
                 "Resolution is unknown.\n",
@@ -195,7 +200,7 @@
                 call. = FALSE
             )
         }
-
+        
         if ("totalBins" %in% missingSlots) {
             stop(
                 "Chromosome lengths are unknown.\n",
@@ -203,7 +208,7 @@
                 call. = FALSE
             )
         }
-
+        
         if ("validAssay" %in% missingSlots) {
             stop(
                 "Cannot process potentially sparse replicates.\n",
@@ -211,7 +216,7 @@
                 call. = FALSE
             )
         }
-
+        
         if ("weakBins" %in% missingSlots) {
             stop(
                 "Cannot process potentially weak positions.\n",
@@ -219,7 +224,7 @@
                 call. = FALSE
             )
         }
-
+        
         compartmentSlots <- c(
             "compartments",
             "concordances",
@@ -228,7 +233,7 @@
             "centroids",
             "selfInteractionRatios"
         )
-
+        
         if (any(compartmentSlots %in% missingSlots)) {
             stop(
                 "No compartments found.\n",
@@ -236,13 +241,11 @@
                 call. = FALSE
             )
         }
-
+        
         if (length(missingSlots) > 0) {
-            stop(
-                "Missing slots: ",
-                paste(missingSlots, collapse = ", "),
-                call. = FALSE
-            )
+            stop("Missing slots: ",
+                 paste(missingSlots, collapse = ", "),
+                 call. = FALSE)
         }
     }
 }

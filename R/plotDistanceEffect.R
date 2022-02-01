@@ -7,7 +7,7 @@
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
 #' @param chromosome
-#' Name (character) or index of the chromosome, if the plot should be 
+#' Name (character) or index of the chromosome, if the plot should be
 #' restricted to only one chromosome. Default to NULL.
 #'
 #' @return
@@ -20,34 +20,36 @@
 #' @export
 plotDistanceEffect <- function(object, chromosome = NULL) {
     .validateSlots(object, slots = c("interactions"))
-    if(!is.null(chromosome)) {
-        if(length(chromosome) > 1){
-            warning(paste("`chromosome` should be of length 1, taking the",
-                          "first one"))
+    if (!is.null(chromosome)) {
+        if (length(chromosome) > 1) {
+            warning("`chromosome` should be of length 1, ",
+                    "taking the first one")
             chromosome < chromosome[1]
         }
-        chromosomeName <- .validateNames(object, chromosome, "chromosomes")
-        rowsId <- as.logical(S4Vectors::mcols(object)$Chr == chromosomeName)
+        chromosomeName <-
+            .validateNames(object, chromosome, "chromosomes")
+        rowsId <-
+            as.logical(S4Vectors::mcols(object)$Chr == chromosomeName)
         addTitle <- paste(", chromosome", chromosomeName)
     } else {
         rowsId <- rep(TRUE, length(object))
         addTitle <- ""
     }
     
-    distances <- InteractionSet::pairdist(object, type="mid")[rowsId]
-    matAssay <- SummarizedExperiment::assay(object)[rowsId,]
-    dfDistance <- data.table::data.table("distance" = rep(distances, ncol(matAssay)),
-                             "interaction" = as.vector(matAssay))
+    distances <-
+        InteractionSet::pairdist(object, type = "mid")[rowsId]
+    matAssay <- SummarizedExperiment::assay(object)[rowsId, ]
+    dfDistance <-
+        data.table::data.table("distance" = rep(distances, ncol(matAssay)),
+                               "interaction" = as.vector(matAssay))
     dfDistance <- dfDistance[!is.na(interaction)]
     
     plot <-
         ggplot(dfDistance, aes(x = distance, y = interaction)) +
         geom_bin2d() +
-        scale_fill_gradient(
-            low = "white",
-            high = "blue",
-            trans = "log2"
-        ) +
+        scale_fill_gradient(low = "white",
+                            high = "blue",
+                            trans = "log2") +
         geom_point(col = "transparent") + # necessary for geom_smooth
         geom_smooth(col = "red") +
         labs(title = paste0("Distance effect", addTitle))

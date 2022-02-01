@@ -12,68 +12,68 @@
 #' @keywords internal
 #' @noRd
 .normalizeDistanceEffectOfChromosome <- function(object) {
-    chromosomeName <- as.character(SummarizedExperiment::mcols(object)$Chr[1])
-    message("Chromosome ", chromosomeName, ": normalizing distance effect.")
+    chromosomeName <-
+        as.character(SummarizedExperiment::mcols(object)$Chr[1])
+    message("Chromosome ",
+            chromosomeName,
+            ": normalizing distance effect.")
     
     currentAssay <- SummarizedExperiment::assay(object)
     
     # Reordering columns in alphabetic order (useful for tests)
     validAssay <- object@validAssay[[chromosomeName]]
     refOrder <- paste(object$condition, object$replicate)
-    values <- currentAssay[, validAssay, drop=FALSE]
-    values <- values[,order(refOrder[validAssay]), drop=FALSE]
+    values <- currentAssay[, validAssay, drop = FALSE]
+    values <- values[, order(refOrder[validAssay]), drop = FALSE]
     
-    distances <- InteractionSet::pairdist(object, type="mid")
+    distances <- InteractionSet::pairdist(object, type = "mid")
     
-    chromosomeValues <- 
+    chromosomeValues <-
         data.table("distance" = rep(distances, length(validAssay)),
                    "value" = as.vector(values))
-    chromosomeValues <- chromosomeValues[!is.na(value),]
+    chromosomeValues <- chromosomeValues[!is.na(value), ]
     # TODO : apreès refactoring, supprimer cette ligne - ça ne sert juste à retrouver des résultats identiques avant le sampling
     setorder(chromosomeValues, distance, value)
     
     idSample <- sample(seq_len(nrow(chromosomeValues)),
-                   size = min(
-                       object@parameters$loessSampleSize,
-                       nrow(chromosomeValues)
-                   ))
+                       size = min(
+                           object@parameters$loessSampleSize,
+                           nrow(chromosomeValues)
+                       ))
     sample <- chromosomeValues[idSample]
     setorder(sample, distance)
-
+    
     if (nrow(sample) == 0) {
         message("Chromosome ", chromosomeName, " is empty.")
         return(NULL)
     }
-
-    optimizeSpan <- function(
-        model,
-        criterion = c("aicc", "gcv"),
-        spans = c(0.01, 0.9)
-    ) {
+    
+    optimizeSpan <- function(model,
+                             criterion = c("aicc", "gcv"),
+                             spans = c(0.01, 0.9)) {
         criterion <- match.arg(criterion)
-        result <- stats::optimize(
-            function(span) {
-                model <- stats::update(model, span = span)
-                span <- model$pars$span
-                trace <- model$trace.hat
-                sigma2 <- sum(model$residuals^2) / (model$n - 1)
-                if (criterion == "aicc") {
-                    quality <-
-                        log(sigma2) + 1 + 2 * (2 * (trace + 1)) /
-                        (model$n - trace - 2)
-                } else if (criterion == "gcv") {
-                    quality <- model$n * sigma2 / (model$n - trace)^2
-                }
-                return(quality)
-            },
-            spans
-        )
+        result <- stats::optimize(function(span) {
+            model <- stats::update(model, span = span)
+            span <- model$pars$span
+            trace <- model$trace.hat
+            sigma2 <- sum(model$residuals ^ 2) / (model$n - 1)
+            if (criterion == "aicc") {
+                quality <-
+                    log(sigma2) + 1 + 2 * (2 * (trace + 1)) /
+                    (model$n - trace - 2)
+            } else if (criterion == "gcv") {
+                quality <- model$n * sigma2 / (model$n - trace) ^ 2
+            }
+            return(quality)
+        },
+        spans)
         return(result$minimum)
     }
-
+    
     traceMethod <- "approximate"
-    if (object@parameters$loessSampleSize <= 1000) traceMethod <- "exact"
-
+    if (object@parameters$loessSampleSize <= 1000)
+        traceMethod <- "exact"
+    
     loess <-
         stats::loess(
             value ~ distance,
@@ -81,7 +81,7 @@
             control = stats::loess.control(trace.hat = traceMethod)
         )
     span <- optimizeSpan(loess, criterion = "gcv")
-
+    
     loess <-
         stats::loess(
             value ~ distance,
@@ -89,33 +89,32 @@
             data = sample,
             control = stats::loess.control(trace.hat = traceMethod)
         )
-    sample[,loess := stats::predict(loess)]
-    sample[,loess := pmax(loess, 0)]
-    sample[,value := NULL]
+    sample[, loess := stats::predict(loess)]
+    sample[, loess := pmax(loess, 0)]
+    sample[, value := NULL]
     data.table::setnames(sample, "distance", "sampleDistance")
     sample <- unique(sample)
     
     uniqueDistances <- unique(sort(chromosomeValues$distance))
     sampleDistance <- unique(sort(sample$sampleDistance))
-    sampleDistance <- vapply(
-        uniqueDistances,
-        function(distance) {
-            sampleDistance[which.min(abs(distance - sampleDistance))]
-        },
-        FUN.VALUE = 0
-    )
+    sampleDistance <- vapply(uniqueDistances,
+                             function(distance) {
+                                 sampleDistance[which.min(abs(distance - sampleDistance))]
+                             },
+                             FUN.VALUE = 0)
     valueMap <- data.table("distance" = uniqueDistances,
                            "sampleDistance" = sampleDistance)
     valueMap <- data.table::merge.data.table(valueMap,
                                              sample,
-                                             by="sampleDistance")
+                                             by = "sampleDistance")
     
     loessDistances <- data.table::merge.data.table(
         data.table("distance" = distances),
-        valueMap, 
-        by="distance", 
-        sort=FALSE,
-        all.x=T)
+        valueMap,
+        by = "distance",
+        sort = FALSE,
+        all.x = TRUE
+    )
     currentAssay <- currentAssay / (loessDistances$loess + 0.00001)
     
     return(currentAssay)
@@ -153,20 +152,19 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @export
-normalizeDistanceEffect <- function(object, 
-                                    loessSampleSize = NULL, 
-                                    parallel=FALSE) {
+normalizeDistanceEffect <- function(object,
+                                    loessSampleSize = NULL,
+                                    parallel = FALSE) {
     if (!is.null(loessSampleSize)) {
         object@parameters$loessSampleSize <- loessSampleSize
     }
     object@parameters <- .validateParameters(object@parameters)
-    objectChromosomes <- S4Vectors::split(
-        object, 
-        SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
+    objectChromosomes <- S4Vectors::split(object,
+                                          SummarizedExperiment::mcols(object)$Chr, drop = FALSE)
     
     normAssay <- .internalLapply(parallel,
-                                objectChromosomes,
-                                FUN = .normalizeDistanceEffectOfChromosome)
+                                 objectChromosomes,
+                                 FUN = .normalizeDistanceEffectOfChromosome)
     
     normAssay <- do.call("rbind", normAssay)
     SummarizedExperiment::assay(object) <- normAssay

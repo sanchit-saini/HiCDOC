@@ -39,7 +39,7 @@
                                 matAssay)
     interactions <- data.table::melt.data.table(interactions, 
                                                 id.vars=c("index1", "index2"), 
-                                                na.rm=F)
+                                                na.rm=FALSE)
     interactions[is.na(value),value := 0]
     
     totalBins <- reducedObject@totalBins[chromosomeName]

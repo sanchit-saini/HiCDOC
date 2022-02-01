@@ -7,7 +7,7 @@
 #' HiCDOCDataSet-methods
 #'
 #' @aliases
-#' chromosomes conditions replicates compartments concordances 
+#' chromosomes conditions replicates compartments concordances
 #' differences show
 #'
 #' @description
@@ -55,7 +55,7 @@ setGeneric(
         standardGeneric("replicates")
     }
 )
-# 
+#
 # #### assay ####
 # #' Retrieves the assay matrix of interactions
 # #' @rdname HiCDOCDataSet-methods
@@ -63,7 +63,7 @@ setGeneric(
 # #' NULL
 # #' @export
 # assay <- function(object) SummarizedExperiment::assay(object@interactions)
-# 
+#
 # #### regions ####
 # #' Retrieves the regions of interactions
 # #' @rdname HiCDOCDataSet-methods
@@ -71,7 +71,7 @@ setGeneric(
 # #' NULL
 # #' @export
 # regions <- function(object) InteractionSet::regions(object@interactions)
-# 
+#
 # #### interactions ####
 # #' Retrieves a tibble of the interactions.
 # #' @rdname HiCDOCDataSet-methods

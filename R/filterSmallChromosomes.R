@@ -30,65 +30,66 @@
 #'
 #' @export
 filterSmallChromosomes <- function(object, threshold = NULL) {
-
-    .validateSlots(
-        object,
-        slots = c(
-            "chromosomes",
-            "totalBins",
-            "parameters"
-        )
-    )
-
+    .validateSlots(object,
+                   slots = c("chromosomes",
+                             "totalBins",
+                             "parameters"))
+    
     if (!is.null(threshold)) {
         object@parameters$smallChromosomeThreshold <- threshold
     }
     object@parameters <- .validateParameters(object@parameters)
     threshold <- object@parameters$smallChromosomeThreshold
-
-    message(
-        "Keeping chromosomes with at least ",
-        threshold,
-        " position",
-        if (threshold != 1) "s",
-        "."
-    )
-
+    
+    message("Keeping chromosomes with at least ",
+            threshold,
+            " position",
+            if (threshold != 1)
+                "s",
+            ".")
+    
     bigChromosomes <-
-        vapply(
-            object@totalBins,
-            function(totalBins) totalBins >= threshold,
-            FUN.VALUE = TRUE
-        )
+        vapply(object@totalBins,
+               function(totalBins)
+                   totalBins >= threshold,
+               FUN.VALUE = TRUE)
     bigChromosomeNames <- names(bigChromosomes)[bigChromosomes]
     bigChromosomeNames <- gtools::mixedsort(bigChromosomeNames)
     smallChromosomeNames <-
         object@chromosomes[!(object@chromosomes %in% bigChromosomeNames)]
     
     object <- reduceHiCDOCDataSet(object,
-                                  chromosomes = bigChromosomeNames, 
+                                  chromosomes = bigChromosomeNames,
                                   dropLevels = TRUE)
     
     message(
         "Kept ",
         length(bigChromosomeNames),
         " chromosome",
-        if (length(bigChromosomeNames) != 1) "s",
-        if (length(bigChromosomeNames) > 0) ": " else ".",
+        if (length(bigChromosomeNames) != 1)
+            "s",
+        if (length(bigChromosomeNames) > 0)
+            ": "
+        else
+            ".",
         paste(bigChromosomeNames, collapse = ", ")
     )
     message(
         "Removed ",
         length(smallChromosomeNames),
         " chromosome",
-        if (length(smallChromosomeNames) != 1) "s",
-        if (length(smallChromosomeNames) > 0) ": " else ".",
+        if (length(smallChromosomeNames) != 1)
+            "s",
+        if (length(smallChromosomeNames) > 0)
+            ": "
+        else
+            ".",
         paste(smallChromosomeNames, collapse = ", ")
     )
-
+    
     if (length(bigChromosomeNames) == 0) {
         warning("No data left!", call. = FALSE)
     }
-
+    
     return(object)
 }

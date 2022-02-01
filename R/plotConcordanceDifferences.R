@@ -20,19 +20,16 @@
 #'
 #' @export
 plotConcordanceDifferences <- function(object) {
-    .validateSlots(
-        object,
-        slots = c("comparisons")
-    )
-
-    differences <- object@comparisons[,changed := data.table::fifelse(compartment.1 == compartment.2,"FALSE", "TRUE")]
+    .validateSlots(object,
+                   slots = c("comparisons"))
+    
+    differences <-
+        object@comparisons[, changed := data.table::fifelse(compartment.1 == compartment.2, "FALSE", "TRUE")]
     
     plot <-
         ggplot(differences, aes(x = difference, fill = changed)) +
         geom_histogram() +
-        labs(
-            x = "Concordance",
-            title = "Distribution of concordance differences"
-        )
+        labs(x = "Concordance",
+             title = "Distribution of concordance differences")
     return(plot)
 }

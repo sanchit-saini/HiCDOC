@@ -16,19 +16,15 @@
 #'
 #' @keywords internal
 #' @noRd
-.filterSparseReplicatesOfChromosome <- function(
-    assay,
-    diagonal,
-    chromosomeName,
-    totalBins,
-    threshold,
-    validAssay,
-    conditions,
-    replicates
-) {
-
-    
-    filledAssay <- diagonal*(!is.na(assay) &  assay > 0)
+.filterSparseReplicatesOfChromosome <- function(assay,
+                                                diagonal,
+                                                chromosomeName,
+                                                totalBins,
+                                                threshold,
+                                                validAssay,
+                                                conditions,
+                                                replicates) {
+    filledAssay <- diagonal * (!is.na(assay) &  assay > 0)
     filledPct <- colSums(filledAssay) / (totalBins * totalBins)
     toRemove <- which(filledPct < threshold)
     toRemove <- toRemove[toRemove %in% validAssay]
@@ -45,12 +41,13 @@
                 " filled at ",
                 round(filledPct[toRemove], digits = 5) * 100,
                 "%.",
-                collapse = "\n", sep = ""
+                collapse = "\n",
+                sep = ""
             )
         )
     }
     
-    assay[,toRemove] <- NA
+    assay[, toRemove] <- NA
     return(assay)
 }
 
@@ -86,21 +83,16 @@
 #'
 #' @export
 filterSparseReplicates <- function(object, threshold = NULL) {
-
-    .validateSlots(
-        object,
-        slots = c(
-            "chromosomes",
-            "parameters"
-        )
-    )
-
+    .validateSlots(object,
+                   slots = c("chromosomes",
+                             "parameters"))
+    
     if (!is.null(threshold)) {
         object@parameters$sparseReplicateThreshold <- threshold
     }
     object@parameters <- .validateParameters(object@parameters)
     threshold <- object@parameters$sparseReplicateThreshold
-
+    
     message(
         "Keeping replicates filled with at least ",
         threshold * 100,
@@ -109,59 +101,62 @@ filterSparseReplicates <- function(object, threshold = NULL) {
     
     diagonal <- InteractionSet::anchors(object)
     diagonal <- diagonal$first == diagonal$second
-    diagonal <- 2 - 1*diagonal
-    diagonals <- S4Vectors::split(diagonal, 
-                       SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
+    diagonal <- 2 - 1 * diagonal
+    diagonals <- S4Vectors::split(diagonal,
+                                  SummarizedExperiment::mcols(object)$Chr, drop = FALSE)
     assayChromosomes <- S4Vectors::split(
-        SummarizedExperiment::assay(object), 
-        SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
+        SummarizedExperiment::assay(object),
+        SummarizedExperiment::mcols(object)$Chr,
+        drop = FALSE
+    )
     
     resultAssay <-
-        pbapply::pbmapply(function(a, d, c, t, v)
-            .filterSparseReplicatesOfChromosome(a, d, c, t, threshold, v, 
-                                                object$condition, 
-                                                object$replicate),
+        pbapply::pbmapply(
+            function(a, d, c, t, v)
+                .filterSparseReplicatesOfChromosome(a, d, c, t, threshold, v,
+                                                    object$condition,
+                                                    object$replicate),
             assayChromosomes,
             diagonals,
             object@chromosomes,
             object@totalBins,
             object@validAssay,
-            SIMPLIFY=FALSE
+            SIMPLIFY = FALSE
         )
     
-    resultAssay <- do.call("rbind",resultAssay)
-    if(nrow(resultAssay)!=nrow(object)){
+    resultAssay <- do.call("rbind", resultAssay)
+    if (nrow(resultAssay) != nrow(object)) {
         stop("Something went wrong")
     }
     
     SummarizedExperiment::assay(object)  <- resultAssay
     newValidAssay <- .determineValids(object)
     badChromosomes <-
-        vapply(
-            newValidAssay,
-            function(x) length(x) == 0,
-            FUN.VALUE = TRUE
-        )
+        vapply(newValidAssay,
+               function(x)
+                   length(x) == 0,
+               FUN.VALUE = TRUE)
     newValidAssay[badChromosomes] <- list(NULL)
-    deleted <- length(unlist(object@validAssay)) - length(unlist(newValidAssay))
+    deleted <-
+        length(unlist(object@validAssay)) - length(unlist(newValidAssay))
     object@validAssay <- newValidAssay
     
-    rowsTosuppress <- (rowSums(SummarizedExperiment::assay(object), na.rm=TRUE) == 0)
-    if(sum(rowsTosuppress)>0){
-        object <- object[!rowsTosuppress,]
+    rowsTosuppress <-
+        (rowSums(SummarizedExperiment::assay(object), na.rm = TRUE) == 0)
+    if (sum(rowsTosuppress) > 0) {
+        object <- object[!rowsTosuppress, ]
         object <- InteractionSet::reduceRegions(object)
     }
-    message(
-        "Removed ",
-        deleted,
-        " replicate",
-        if (deleted != 1) "s",
-        " in total."
-    )
+    message("Removed ",
+            deleted,
+            " replicate",
+            if (deleted != 1)
+                "s",
+            " in total.")
     
     if (nrow(object) == 0) {
         warning("No data left!", call. = FALSE)
     }
-
+    
     return(object)
 }
