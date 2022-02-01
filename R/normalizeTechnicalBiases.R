@@ -8,7 +8,7 @@
 #'
 #' @details
 #' \subsection{Parallel processing}{
-#' If \code{parallel=TRUE}, the function
+#' If \code{parallel = TRUE}, the function
 #' \code{\link[multiHiCcompare]{cyclic_loess}}
 #' is launched in parallel mode, using \code{\link[BiocParallel]{bplapply}}
 #' function. Before to call the function in parallel you should specify
@@ -57,12 +57,12 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     
     hic_table <- as.data.table(InteractionSet::interactions(object))
     hic_table <-
-        hic_table[, .(chr = seqnames1,
+        hic_table[, .(chromosome = seqnames1,
                       region1 = start1,
                       region2 = start2)]
-    if (!is.factor(hic_table$chr))
-        hic_table[, chr := as.factor(chr)]
-    hic_table[, chr := as.numeric(chr)]
+    if (!is.factor(hic_table$chromosome))
+        hic_table[, chromosome := as.factor(chromosome)]
+    hic_table[, chromosome := as.numeric(chromosome)]
     
     currentAssay <- SummarizedExperiment::assay(object)
     currentAssay[is.na(currentAssay)] <- 0
@@ -89,8 +89,8 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     normalized <- multiHiCcompare::hic_table(normalized)
     
     # Re-sorting the rows in the same order as original
-    data.table::setindexv(normalized, c("chr", "region1", "region2"))
-    data.table::setindexv(hic_table, c("chr", "region1", "region2"))
+    data.table::setindexv(normalized, c("chromosome", "region1", "region2"))
+    data.table::setindexv(hic_table, c("chromosome", "region1", "region2"))
     hic_table <- data.table::merge.data.table(hic_table,
                                               normalized,
                                               sort = FALSE)

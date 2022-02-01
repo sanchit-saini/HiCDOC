@@ -8,6 +8,9 @@ plotDistanceEffect(object, chromosome = NULL)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
+
+\item{chromosome}{Name (character) or index of the chromosome, if the plot should be
+restricted to only one chromosome. Default to NULL.}
 }
 \value{
 A \code{ggplot}.

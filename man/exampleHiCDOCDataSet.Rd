@@ -14,12 +14,16 @@ S4 HiCDOCDataSet object with the following characteristics:
 }
 }
 \usage{
-exampleHiCDOCDataSet
+data(exampleHiCDOCDataSet)
 }
 \value{
 A \code{\link{HiCDOCDataSet}}.
 }
 \description{
 A S4 HiCDOCDataSet object with 4 chromosomes, 3 conditions and 3 replicates.
+}
+\examples{
+data(exampleHiCDOCDataSet)
+exampleHiCDOCDataSet
 }
 \keyword{datasets}

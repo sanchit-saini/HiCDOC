@@ -4,11 +4,8 @@
 \name{HiCDOCDataSet-methods}
 \alias{HiCDOCDataSet-methods}
 \alias{chromosomes}
-\alias{positions}
 \alias{conditions}
 \alias{replicates}
-\alias{binSize}
-\alias{interactions}
 \alias{compartments}
 \alias{concordances}
 \alias{differences}
@@ -43,7 +40,7 @@ are filtered to show the ones with an adjusted p-value <= \code{threshold}.}
 }
 \value{
 A character vector (for \code{chromosomes}, \code{conditions},
-\code{replicates}), an integer(for \code{binSize}), a tibble
+\code{replicates}), a tibble
 (for \code{interactions} and \code{positions}), or a GRanges object
 (for \code{compartments}, \code{concordances}, \code{differences}).
 }
@@ -74,5 +71,4 @@ compartment) of every position in every replicate.
 data(exampleHiCDOCDataSet)
 chromosomes(exampleHiCDOCDataSet)
 conditions(exampleHiCDOCDataSet)
-binSize(exampleHiCDOCDataSet)
 }

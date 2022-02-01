@@ -319,7 +319,7 @@
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
 #' @param parallel
-#' Whether or not to parallelize the processing. Defaults to TRUE.
+#' Whether or not to parallelize the processing. Defaults to FALSE.
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}} with compartments, concordances, distances
@@ -327,7 +327,7 @@
 #'
 #' @keywords internal
 #' @noRd
-.clusterize <- function(object, parallel = TRUE) {
+.clusterize <- function(object, parallel = FALSE) {
     condByChromosomes <-
         lapply(
             object@chromosomes,
@@ -448,7 +448,7 @@
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
 #' @param parallel
-#' Whether or not to parallelize the processing. Defaults to TRUE.
+#' Whether or not to parallelize the processing. Defaults to FALSE.
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}}, with selfInteractionRatios, and with A and B
@@ -457,7 +457,7 @@
 #'
 #' @keywords internal
 #' @noRd
-.predictCompartmentsAB <- function(object, parallel = TRUE) {
+.predictCompartmentsAB <- function(object, parallel = FALSE) {
     ratios <- .computeSelfInteractionRatios(object)
     object@selfInteractionRatios <- ratios
     

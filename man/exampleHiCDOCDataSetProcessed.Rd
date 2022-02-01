@@ -3,7 +3,7 @@
 \docType{data}
 \name{exampleHiCDOCDataSetProcessed}
 \alias{exampleHiCDOCDataSetProcessed}
-\title{Example HiCDOCDataSet, filtered and normalized.}
+\title{Example HiCDOCDataSet, filtered, normalized and with compartements detected.}
 \format{
 S4 HiCDOCDataSet object with the following characteristics:
 \describe{
@@ -14,12 +14,19 @@ S4 HiCDOCDataSet object with the following characteristics:
 }
 }
 \usage{
-exampleHiCDOCDataSetProcessed
+data(exampleHiCDOCDataSetProcessed)
 }
 \value{
 A \code{\link{HiCDOCDataSet}}, already filtered and normalized.
 }
 \description{
 A S4 HiCDOCDataSet object with 3 chromosomes, 3 conditions and 3 replicates.
+Can be retrieved by running :
+\code{set.seed(123);
+exampleHiCDOCDataSetProcessed <- HiCDOC(exampleHiCDOCDataSet)}
+}
+\examples{
+data(exampleHiCDOCDataSetProcessed)
+exampleHiCDOCDataSetProcessed
 }
 \keyword{datasets}

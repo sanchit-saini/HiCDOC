@@ -555,7 +555,7 @@ HiCDOC <- function(object, parallel = FALSE) {
     object <- filterSparseReplicates(object)
     object <- filterWeakPositions(object)
     object <- normalizeTechnicalBiases(object, parallel = parallel)
-    object <- normalizeBiologicalBiases(object)
+    object <- normalizeBiologicalBiases(object, parallel = parallel)
     object <- normalizeDistanceEffect(object)
     object <- detectCompartments(object, parallel = parallel)
     return(invisible(object))
