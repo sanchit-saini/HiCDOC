@@ -404,9 +404,9 @@
         matAssay[diagonal, ])
     
     data.table::setnames(onDiagonal, c("chromosome", "index", cn))
-    # onDiagonal <- data.table::melt.data.table(onDiagonal,
-    #                                           id.vars = c("chromosome", "index"))
-    # onDiagonal <- onDiagonal[!is.na(value)]
+    onDiagonal <- data.table::melt.data.table(onDiagonal,
+                                              id.vars = c("chromosome", "index"))
+    onDiagonal <- onDiagonal[!is.na(value)]
     
     # Compute median by bin, out of diagonal
     offDiagonal <- rbind(matAssay[!diagonal, ],
