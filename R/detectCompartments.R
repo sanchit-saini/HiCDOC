@@ -392,27 +392,28 @@
 .computeSelfInteractionRatios <- function(object) {
     ids <- InteractionSet::anchors(object, id = FALSE)
     diagonal <- (ids$first == ids$second)
+    ids <- lapply(ids, as.data.table)
     cn <- paste(object$condition, object$replicate)
     
+    matAssay <- SummarizedExperiment::assay(object)
+    colnames(matAssay) <- cn
+    
     # Values on diagonal
-    onDiagonal <- data.table(
-        "chromosome" = GenomeInfoDb::seqnames(ids$first)[diagonal],
-        "index" = ids$first$index[diagonal],
-        SummarizedExperiment::assay(object)[diagonal, ]
-    )
+    onDiagonal <- data.table::data.table(
+        ids$first[diagonal,.(seqnames, index)],
+        matAssay[diagonal, ])
+    
     data.table::setnames(onDiagonal, c("chromosome", "index", cn))
-    onDiagonal <- data.table::melt.data.table(onDiagonal,
-                                              id.vars = c("chromosome", "index"))
-    onDiagonal <- onDiagonal[!is.na(value)]
+    # onDiagonal <- data.table::melt.data.table(onDiagonal,
+    #                                           id.vars = c("chromosome", "index"))
+    # onDiagonal <- onDiagonal[!is.na(value)]
     
     # Compute median by bin, out of diagonal
-    offDiagonal <- rbind(SummarizedExperiment::assay(object)[!diagonal, ],
-                         SummarizedExperiment::assay(object)[!diagonal, ])
-    offDiagonal <- data.table::data.table("index" = c(ids$first$index[!diagonal],
-                                                      ids$second$index[!diagonal]),
-                                          offDiagonal)
-    data.table::setnames(offDiagonal, c("index", cn))
-    cn <- colnames(offDiagonal)[-1]
+    offDiagonal <- rbind(matAssay[!diagonal, ],
+                         matAssay[!diagonal, ])
+    offDiagonal <- data.table::data.table(
+        "index" = c(ids$first$index[!diagonal], ids$second$index[!diagonal]),
+        offDiagonal)
     offDiagonal <-
         offDiagonal[, (cn) := lapply(.SD, as.numeric), .SDcols = cn]
     offDiagonal <-
@@ -424,6 +425,7 @@
                                                value.name = "median")
     offDiagonal <- offDiagonal[!is.na(median)]
     
+    # Ratio is value on diagonal - median (off diagonal), by bin
     onDiagonal <- data.table::merge.data.table(
         onDiagonal,
         offDiagonal,
@@ -461,7 +463,6 @@
     ratios <- .computeSelfInteractionRatios(object)
     object@selfInteractionRatios <- ratios
     
-    # TODO : est-ce utile de garder le slot selfInteractionRatios ?
     compartments <- data.table::merge.data.table(
         object@compartments,
         object@selfInteractionRatios,
@@ -469,8 +470,7 @@
         all.x = TRUE,
         sort = FALSE
     )
-    # TODO !! A vérifier ici, les valeurs ne sont pas bonnes !!!
-    # La sortie de selfInteractionRatios est bonne
+    
     compartments <-
         compartments[, .(ratio = stats::median(ratio, na.rm = TRUE)),
                      by = .(chromosome, compartment)]
@@ -508,16 +508,18 @@
                                                      compartments,
                                                      by = "chromosome",
                                                      all.x = TRUE)
-    object@distances[, compartment := factor(data.table::fifelse(compartment == A, "A", "B"),
-                                             levels = c("A", "B"))]
+    object@distances[, compartment := factor(
+        data.table::fifelse(compartment == A, "A", "B"),
+        levels = c("A", "B"))]
     object@distances[, A := NULL]
     
     object@centroids <- data.table::merge.data.table(object@centroids,
                                                      compartments,
                                                      by = "chromosome",
                                                      all.x = TRUE)
-    object@centroids[, compartment := factor(data.table::fifelse(compartment == A, "A", "B"),
-                                             levels = c("A", "B"))]
+    object@centroids[, compartment := factor(
+        data.table::fifelse(compartment == A, "A", "B"),
+        levels = c("A", "B"))]
     object@centroids[, A := NULL]
     
     return(object)
@@ -564,8 +566,9 @@
     diffConcordance <-
         diffConcordance[as.numeric(condition.1) < as.numeric(condition.2)]
     diffConcordance <-
-        diffConcordance[, .(difference = stats::median(abs(concordance.1 - concordance.2))),
-                        by = .(chromosome, index, condition.1, condition.2)]
+        diffConcordance[, 
+            .(difference = stats::median(abs(concordance.1 - concordance.2))),
+            by = .(chromosome, index, condition.1, condition.2)]
     
     # Format compartments per pair of conditions
     # Join medians of differences and pairs of conditions
@@ -645,7 +648,8 @@
     differences[, pvalue.adjusted := pvalAdjust]
     
     # Changes
-    differences[, direction := data.table::fifelse(compartment.1 == "A", "A->B", "B->A")]
+    differences[, direction := data.table::fifelse(
+        compartment.1 == "A", "A->B", "B->A")]
     differences[, direction := factor(direction, levels = c("A->B", "B->A"))]
     differences <- differences[, .(chromosome,
                                    index,

@@ -87,6 +87,7 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     normalized <-
         multiHiCcompare::cyclic_loess(experiment, parallel = parallel)
     normalized <- multiHiCcompare::hic_table(normalized)
+    data.table::setnames(normalized, "chr", "chromosome")
     
     # Re-sorting the rows in the same order as original
     data.table::setindexv(normalized, c("chromosome", "region1", "region2"))
