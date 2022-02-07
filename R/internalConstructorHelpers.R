@@ -7,6 +7,7 @@
 #'
 #' @examples
 #' modeVector(c(1, 2, 2, 2, 4))
+#' @noRd
 modeVector <- function(x) {
     ux <- unique(x)
     ux[which.max(tabulate(match(x, ux)))]
