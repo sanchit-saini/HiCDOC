@@ -30,7 +30,8 @@ plotCompartments <- function(
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
     xlim <- .validateXlim(xlim, object, chromosomeName)
     
-    compartments <- object@compartments[ GenomeInfoDb::seqnames(object@compartments) == chromosomeName]
+    compartments <- object@compartments[
+        GenomeInfoDb::seqnames(object@compartments) == chromosomeName]
 
     if (length(compartments) == 0) {
         message("No compartments for chromosome ", chromosomeName, ".")

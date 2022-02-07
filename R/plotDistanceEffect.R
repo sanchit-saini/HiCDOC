@@ -3,6 +3,10 @@
 #'
 #' @description
 #' Plots the distance effect on proportion of interactions.
+#' Each point is a cell in the interaction matrix, such that
+#' the x-axis is the distance with respect to the diagonal,
+#' the y-axis is number of counts.
+#' Dots are binned.
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.

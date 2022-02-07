@@ -1,7 +1,7 @@
 #' Interactions plot using facet_grid
 #'
 #' @param interactions
-#' a tibble
+#' a data.table
 #' @param xylim
 #' a length 2 vector : limits of the matrix
 #' @param transform
@@ -51,7 +51,7 @@
 #' Interactions plot using facet_wrap
 #'
 #' @param interactions
-#' a tibble
+#' a data.table
 #' @param xylim
 #' a length 2 vector : limits of the matrix
 #' @param transform
@@ -152,7 +152,8 @@ plotInteractions <- function(object,
         InteractionSet::interactions(object[rowsChromosome,])
     interactionsChromosome <- as.data.table(interactionsChromosome)
     dataplot <-
-        base::cbind(interactionsChromosome[, .(seqnames = seqnames1, start1, start2)],
+        base::cbind(interactionsChromosome[,
+		    .(seqnames = seqnames1, start1, start2)],
                     assayChromosome)
     dataplot <- data.table::melt.data.table(
         dataplot,
@@ -163,8 +164,10 @@ plotInteractions <- function(object,
     dataplot <- dataplot[!is.na(interaction)]
     dataplot[, c("condition", "replicate") :=
                  data.table::tstrsplit(variable, "_", fixed = TRUE)]
-    dataplot[, condition := factor(condition, levels = sort(unique(object$condition)))]
-    dataplot[, replicate := factor(replicate, levels = sort(unique(object$replicate)))]
+    dataplot[, condition := factor(condition,
+				   levels = sort(unique(object$condition)))]
+    dataplot[, replicate := factor(replicate,
+				   levels = sort(unique(object$replicate)))]
     
     if (nrow(dataplot) == 0) {
         message("No interactions for chromosome ", chromosomeName, ".")

@@ -28,8 +28,6 @@
 #' @slot parameters
 #' A list of parameters used for filtering, normalization, and prediction of
 #' compartments.
-#' @slot interactions
-#' An InteractionSet object of interactions.
 #' @slot chromosomes
 #' A vector of names of chromosomes.
 #' @slot totalBins
@@ -40,20 +38,20 @@
 #' A list of non-sparse valid conditions and replicates, corresponding to the
 #' valid columns of the assay matrix, for each chromosome
 #' @slot compartments
-#' A tibble of the A or B compartment of each bin in each condition.
+#' A data.table of the A or B compartment of each bin in each condition.
 #' @slot concordances
-#' A tibble of the concordance of each bin in each replicate.
+#' A data.table of the concordance of each bin in each replicate.
 #' @slot differences
-#' A tibble of detected compartment differences between conditions.
+#' A data.table of detected compartment differences between conditions.
 #' @slot comparisons
-#' A tibble of comparisons ??? TODO
+#' A data.table of comparisons
 #' @slot distances
-#' A tibble of the distances to centroids of each bin in each replicate.
+#' A data.table of the distances to centroids of each bin in each replicate.
 #' @slot centroids
-#' A tibble of centroids in each chromosome and condition.
+#' A data.table of centroids in each chromosome and condition.
 #' @slot selfInteractionRatios
-#' A tibble of differences between self interaction and other interactions for
-#' each bin in each replicate.
+#' A data.table of differences between self interaction and other interactions
+#' for each bin in each replicate.
 #'
 #' @seealso
 #' \code{\link{HiCDOC}}
@@ -71,7 +69,6 @@ setClass(
     slots = c(
         input = "ANY",
         parameters = "ANY",
-        # interactions = "ANY",
         chromosomes = "ANY",
         totalBins = "ANY",
         weakBins = "ANY",
@@ -142,8 +139,6 @@ HiCDOCDataSetFromTabular <- function(path = NULL, sep = "\t") {
         stop("'", path, "' does not exist.", call. = FALSE)
     }
     
-    # object <- new("HiCDOCDataSet")
-    # object@input <- path
     object <- .parseTabular(path, sep = sep)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))

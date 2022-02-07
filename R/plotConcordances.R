@@ -39,7 +39,8 @@ plotConcordances <- function(object,
     xlim <- .validateXlim(xlim, object, chromosomeName)
     
     concordances <-
-        object@concordances[GenomeInfoDb::seqnames(object@concordances) == chromosomeName]
+        object@concordances[GenomeInfoDb::seqnames(object@concordances) ==
+			    chromosomeName]
     concordances <- data.table::as.data.table(concordances)
     concordances[, condition := paste0("Concordances\n", condition)]
     concordances <-
@@ -53,7 +54,8 @@ plotConcordances <- function(object,
     
     # Significant differences
     differences <-
-        object@differences[GenomeInfoDb::seqnames(object@differences) == chromosomeName]
+        object@differences[GenomeInfoDb::seqnames(object@differences) ==
+			   chromosomeName]
     differences <- as.data.table(differences)
     differences <- differences[pvalue.adjusted <= threshold]
     differences <- differences[start >= xlim[1] & start <= xlim[2]]

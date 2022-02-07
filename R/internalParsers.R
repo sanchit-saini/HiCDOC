@@ -58,9 +58,11 @@
     assays <- as.matrix(tabular[,4:ncol(tabular), drop=FALSE])
     
     if (! is.null(conditions)) {
-        if ((length(conditions) != ncol(assays)) | (length(replicates) != ncol(assays))) {
+        if ((length(conditions) != ncol(assays)) |
+	    (length(replicates) != ncol(assays))) {
             stop(
-                "Number of conditions and replicates should match the number of counts in the matrix.",
+                "Number of conditions and replicates should match the number",
+	        "of counts in the matrix.",
                 call. = FALSE
             )
         }
@@ -94,8 +96,10 @@
     allRegions <- unique(allRegions)
     setorder(allRegions, chromosome, indexC)
     
-    # Constructing unique index for all chromosomes, taking into account the difference in bins. 
-    allRegions[,index := indexC - data.table::shift(indexC, fill = 0), by=.(chromosome)]
+    # Constructing unique index for all chromosomes,
+    # taking into account the difference in bins. 
+    allRegions[,index := indexC - data.table::shift(indexC, fill = 0),
+	       by=.(chromosome)]
     allRegions[, index := cumsum(index)]
     allRegions[, end := (indexC+1) * binSize -1]
     allRegions[, start := (indexC) * binSize]
@@ -202,7 +206,7 @@
 #' Defaults to NULL.
 #'
 #' @return
-#' A tibble of interactions.
+#' A data.table of interactions.
 #'
 #' @keywords internal
 #' @noRd
@@ -240,7 +244,6 @@
     bins[,start := as.integer(start)]
     bins[,end := as.integer(end)]
     
-    # bins[, end := NULL]bins
     setorder(bins, chromosome, start, end)
     bins[, index := seq_len(nrow(bins))]
     
@@ -381,7 +384,7 @@
 #' The path to the bed file.
 #'
 #' @return
-#' A tibble of interactions.
+#' A data.table of interactions.
 #'
 #' @keywords internal
 #' @noRd

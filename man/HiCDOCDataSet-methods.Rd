@@ -40,7 +40,7 @@ are filtered to show the ones with an adjusted p-value <= \code{threshold}.}
 }
 \value{
 A character vector (for \code{chromosomes}, \code{conditions},
-\code{replicates}), a tibble
+\code{replicates}), a data.table
 (for \code{interactions} and \code{positions}), or a GRanges object
 (for \code{compartments}, \code{concordances}, \code{differences}).
 }
@@ -68,7 +68,11 @@ compartment) of every position in every replicate.
 }}
 
 \examples{
-data(exampleHiCDOCDataSet)
-chromosomes(exampleHiCDOCDataSet)
-conditions(exampleHiCDOCDataSet)
+data(exampleHiCDOCDataSetProcessed)
+chromosomes(exampleHiCDOCDataSetProcessed)
+conditions(exampleHiCDOCDataSetProcessed)
+replicates(exampleHiCDOCDataSetProcessed)
+compartments(exampleHiCDOCDataSetProcessed)
+differences(exampleHiCDOCDataSetProcessed)
+concordances(exampleHiCDOCDataSetProcessed)
 }

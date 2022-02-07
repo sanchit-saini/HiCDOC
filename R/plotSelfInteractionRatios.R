@@ -27,11 +27,12 @@ plotSelfInteractionRatios <- function(object, chromosome) {
         .validateNames(object, chromosome, "chromosomes")
     
     compartements <-
-        as.data.table(object@compartments[GenomeInfoDb::seqnames(object@compartments) ==
-                                              chromosomeName])
+        as.data.table(object@compartments[
+            GenomeInfoDb::seqnames(object@compartments) == chromosomeName])
     dataplot <- data.table::merge.data.table(
         object@selfInteractionRatios[chromosome == chromosomeName],
-        compartements[, .(chromosome = seqnames, condition, index, compartment)],
+        compartements[,
+		      .(chromosome = seqnames, condition, index, compartment)],
         by = c("chromosome", "condition", "index"),
         all.x = TRUE
     )

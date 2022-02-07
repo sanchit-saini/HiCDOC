@@ -14,7 +14,7 @@ on proportion of interactions. Defaults to
 \code{object$loessSampleSize} which is originally set to
 \code{defaultHiCDOCParameters$loessSampleSize} = 20000.}
 
-\item{parallel}{Should the normalization be run in parallel mode ? Default to FALSE.}
+\item{parallel}{Should the normalization be run in parallel mode? Default to FALSE.}
 }
 \value{
 A \code{\link{HiCDOCDataSet}} with normalized interactions.

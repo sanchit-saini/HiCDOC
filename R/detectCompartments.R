@@ -63,19 +63,20 @@
             FUN.VALUE = ""
         )
     
-    refCentroids <- data.table::merge.data.table(object@centroids[compartment == 1 &
-                                                                      condition == referenceConditionNames[chromosome],
-                                                                  .(chromosome, ref.1 = centroid)],
-                                                 object@centroids[compartment == 2 &
-                                                                      condition == referenceConditionNames[chromosome],
-                                                                  .(chromosome, ref.2 = centroid)],
-                                                 all = TRUE)
-    
+    refCentroids <- data.table::merge.data.table(
+        object@centroids[compartment == 1 &
+            condition == referenceConditionNames[chromosome],
+            .(chromosome, ref.1 = centroid)],
+        object@centroids[compartment == 2 &
+            condition == referenceConditionNames[chromosome],
+            .(chromosome, ref.2 = centroid)],
+        all = TRUE)
+
     clusters <- data.table::merge.data.table(object@centroids[compartment == 1,
-                                                              .(chromosome, condition, centroid.1 = centroid)],
-                                             object@centroids[compartment == 2,
-                                                              .(chromosome, condition, centroid.2 = centroid)],
-                                             all = TRUE)
+            .(chromosome, condition, centroid.1 = centroid)],
+            object@centroids[compartment == 2,
+        .(chromosome, condition, centroid.2 = centroid)],
+        all = TRUE)
     clusters <- data.table::merge.data.table(clusters,
                                              refCentroids,
                                              all = TRUE)
@@ -120,7 +121,8 @@
         all.x = TRUE,
         sort = FALSE
     )
-    object@compartments[, compartment := ifelse(compartment == 1, cluster.1, cluster.2)]
+    object@compartments[, compartment := ifelse(compartment == 1,
+						cluster.1, cluster.2)]
     object@compartments[, `:=`(cluster.1 = NULL, cluster.2 = NULL)]
     
     object@concordances <- data.table::merge.data.table(
@@ -137,7 +139,9 @@
     object@concordances[compartment == 2 &
                             compartment == cluster.2, change := 1]
     object@concordances[, concordance := change * concordance]
-    object@concordances[, compartment := data.table::fifelse(compartment == 1, cluster.1, cluster.2)]
+    object@concordances[, compartment :=
+			data.table::fifelse(compartment == 1,
+					    cluster.1, cluster.2)]
     object@concordances[, `:=`(cluster.1 = NULL,
                                cluster.2 = NULL,
                                change = NULL)]
@@ -150,7 +154,8 @@
         sort = FALSE
     )
     object@distances[, compartment :=
-                         data.table::fifelse(compartment == 1, cluster.1, cluster.2)]
+                         data.table::fifelse(compartment == 1,
+					     cluster.1, cluster.2)]
     object@distances[, `:=`(cluster.1 = NULL, cluster.2 = NULL)]
     
     object@centroids <- data.table::merge.data.table(
@@ -161,7 +166,8 @@
         sort = FALSE
     )
     object@centroids[, compartment :=
-                         data.table::fifelse(compartment == 1, cluster.1, cluster.2)]
+                         data.table::fifelse(compartment == 1,
+					     cluster.1, cluster.2)]
     object@centroids[, `:=`(cluster.1 = NULL, cluster.2 = NULL)]
     
     return(object)
@@ -385,7 +391,7 @@
 #' The name of a replicate.
 #'
 #' @return
-#' A tibble.
+#' A data.table
 #'
 #' @keywords internal
 #' @noRd
@@ -489,7 +495,8 @@
     
     object@compartments[, compartment :=
                             data.table::fifelse(compartment == A, "A", "B")]
-    object@compartments[, compartment := factor(compartment, levels = c("A", "B"))]
+    object@compartments[, compartment :=
+			factor(compartment, levels = c("A", "B"))]
     object@compartments[, A := NULL]
     
     object@concordances <- data.table::merge.data.table(object@concordances,
@@ -499,7 +506,8 @@
     object@concordances[, change :=
                             data.table::fifelse(A == 1, 1,-1)]
     object@concordances[, concordance :=  change * concordance]
-    object@concordances[, compartment := factor(data.table::fifelse(compartment == A, "A", "B"),
+    object@concordances[, compartment :=
+			factor(data.table::fifelse(compartment == A, "A", "B"),
                                                 levels = c("A", "B"))]
     object@concordances[, change := NULL]
     object@concordances[, A := NULL]

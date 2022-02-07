@@ -21,7 +21,8 @@
     return(
         InteractionSet::InteractionSet(newassays,
                                        isetUnion,
-                                       colData = SummarizedExperiment::colData(iset))
+                                       colData =
+					  SummarizedExperiment::colData(iset))
     )
 }
 
@@ -76,9 +77,10 @@
     )]
     concordances <- object@concordances
     object@concordances <- all.regions[match(concordances$index,
-                                             S4Vectors::mcols(all.regions)$index)]
+        S4Vectors::mcols(all.regions)$index)]
     S4Vectors::mcols(object@concordances) <-
-        S4Vectors::DataFrame(concordances[, .(index, condition, replicate, compartment, concordance)])
+        S4Vectors::DataFrame(concordances[,
+            .(index, condition, replicate, compartment, concordance)])
     
     # Centroids
     object@centroids[, `:=`(
@@ -96,7 +98,7 @@
     
     differences <- object@differences
     object@differences <- all.regions[match(differences$index,
-                                            S4Vectors::mcols(all.regions)$index)]
+        S4Vectors::mcols(all.regions)$index)]
     S4Vectors::mcols(object@differences) <-
         S4Vectors::DataFrame(differences[, .(
             index,
@@ -112,7 +114,7 @@
     object@compartments[, chromosome := factor(chromosome, levels =  chr)]
     compartments <- object@compartments
     object@compartments <- all.regions[match(compartments$index,
-                                             S4Vectors::mcols(all.regions)$index)]
+        S4Vectors::mcols(all.regions)$index)]
     S4Vectors::mcols(object@compartments) <-
         S4Vectors::DataFrame(compartments[, .(index, condition, compartment)])
     

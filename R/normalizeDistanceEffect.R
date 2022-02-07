@@ -7,7 +7,7 @@
 #' The name of a chromosome to normalize.
 #'
 #' @return
-#' A tibble of normalized interactions.
+#' A data.table of normalized interactions.
 #'
 #' @keywords internal
 #' @noRd
@@ -136,7 +136,7 @@
 #' \code{object$loessSampleSize} which is originally set to
 #' \code{defaultHiCDOCParameters$loessSampleSize} = 20000.
 #' @param parallel
-#' Should the normalization be run in parallel mode ? Default to FALSE.
+#' Should the normalization be run in parallel mode? Default to FALSE.
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}} with normalized interactions.
@@ -160,7 +160,7 @@ normalizeDistanceEffect <- function(object,
     }
     object@parameters <- .validateParameters(object@parameters)
     objectChromosomes <- S4Vectors::split(object,
-                                          SummarizedExperiment::mcols(object)$Chr, drop = FALSE)
+        SummarizedExperiment::mcols(object)$Chr, drop = FALSE)
     
     normAssay <- .internalLapply(parallel,
                                  objectChromosomes,

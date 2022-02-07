@@ -103,7 +103,7 @@
 #' The name of a chromosome to normalize.
 #'
 #' @return
-#' A tibble of normalized interactions.
+#' A data.table of normalized interactions.
 #'
 #' @keywords internal
 #' @noRd
@@ -166,7 +166,7 @@
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
 #' @param parallel
-#' Should the normalization be run in parallel mode ? Default to FALSE.
+#' Should the normalization be run in parallel mode? Default to FALSE.
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}} with normalized interactions.

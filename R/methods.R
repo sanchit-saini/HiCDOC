@@ -52,7 +52,7 @@ setMethod("replicates", "HiCDOCDataSet",
 #           function(object) InteractionSet::regions(object@interactions))
 #
 # #### interactions ####
-# #' Retrieves a tibble of the interactions.
+# #' Retrieves a data.table of the interactions.
 # #' @rdname HiCDOCDataSet-methods
 # #' @usage
 # #' NULL

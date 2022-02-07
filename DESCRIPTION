@@ -40,7 +40,7 @@ Imports:
     multiHiCcompare,
     GenomeInfoDb
 LinkingTo: Rcpp
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 biocViews:
     HiC, DNA3DStructure, Normalization, Sequencing, Software, Clustering
 Suggests:

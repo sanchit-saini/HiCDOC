@@ -30,8 +30,6 @@ An example \code{HiCDOCDataSet} is also available, see
 \item{\code{parameters}}{A list of parameters used for filtering, normalization, and prediction of
 compartments.}
 
-\item{\code{interactions}}{An InteractionSet object of interactions.}
-
 \item{\code{chromosomes}}{A vector of names of chromosomes.}
 
 \item{\code{totalBins}}{A list of the number of bins in each chromosome.}
@@ -41,20 +39,20 @@ compartments.}
 \item{\code{validAssay}}{A list of non-sparse valid conditions and replicates, corresponding to the
 valid columns of the assay matrix, for each chromosome}
 
-\item{\code{compartments}}{A tibble of the A or B compartment of each bin in each condition.}
+\item{\code{compartments}}{A data.table of the A or B compartment of each bin in each condition.}
 
-\item{\code{concordances}}{A tibble of the concordance of each bin in each replicate.}
+\item{\code{concordances}}{A data.table of the concordance of each bin in each replicate.}
 
-\item{\code{differences}}{A tibble of detected compartment differences between conditions.}
+\item{\code{differences}}{A data.table of detected compartment differences between conditions.}
 
-\item{\code{comparisons}}{A tibble of comparisons ??? TODO}
+\item{\code{comparisons}}{A data.table of comparisons}
 
-\item{\code{distances}}{A tibble of the distances to centroids of each bin in each replicate.}
+\item{\code{distances}}{A data.table of the distances to centroids of each bin in each replicate.}
 
-\item{\code{centroids}}{A tibble of centroids in each chromosome and condition.}
+\item{\code{centroids}}{A data.table of centroids in each chromosome and condition.}
 
-\item{\code{selfInteractionRatios}}{A tibble of differences between self interaction and other interactions for
-each bin in each replicate.}
+\item{\code{selfInteractionRatios}}{A data.table of differences between self interaction and other interactions
+for each bin in each replicate.}
 }}
 
 \seealso{

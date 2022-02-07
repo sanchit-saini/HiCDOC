@@ -13,12 +13,16 @@
 #' @description
 #' Retrieve information and results from a \code{\link{HiCDOCDataSet}}.
 #' @examples
-#' data(exampleHiCDOCDataSet)
-#' chromosomes(exampleHiCDOCDataSet)
-#' conditions(exampleHiCDOCDataSet)
+#' data(exampleHiCDOCDataSetProcessed)
+#' chromosomes(exampleHiCDOCDataSetProcessed)
+#' conditions(exampleHiCDOCDataSetProcessed)
+#' replicates(exampleHiCDOCDataSetProcessed)
+#' compartments(exampleHiCDOCDataSetProcessed)
+#' differences(exampleHiCDOCDataSetProcessed)
+#' concordances(exampleHiCDOCDataSetProcessed)
 #' @return
 #' A character vector (for \code{chromosomes}, \code{conditions},
-#' \code{replicates}), a tibble
+#' \code{replicates}), a data.table
 #' (for \code{interactions} and \code{positions}), or a GRanges object
 #' (for \code{compartments}, \code{concordances}, \code{differences}).
 NULL
@@ -55,34 +59,6 @@ setGeneric(
         standardGeneric("replicates")
     }
 )
-#
-# #### assay ####
-# #' Retrieves the assay matrix of interactions
-# #' @rdname HiCDOCDataSet-methods
-# #' @usage
-# #' NULL
-# #' @export
-# assay <- function(object) SummarizedExperiment::assay(object@interactions)
-#
-# #### regions ####
-# #' Retrieves the regions of interactions
-# #' @rdname HiCDOCDataSet-methods
-# #' @usage
-# #' NULL
-# #' @export
-# regions <- function(object) InteractionSet::regions(object@interactions)
-#
-# #### interactions ####
-# #' Retrieves a tibble of the interactions.
-# #' @rdname HiCDOCDataSet-methods
-# #' @usage
-# #' NULL
-# #' @export
-# interactions <- function(object) {
-#     if (is.null(object@interactions)) return(NULL)
-#     interactions <- InteractionSet::interactions(object@interactions)
-#     return(interactions)
-# }
 
 #### compartments ####
 #' @describeIn HiCDOCDataSet-methods
@@ -179,7 +155,7 @@ setGeneric(
 #'         \item{\code{loessSampleSize}}{
 #'             The number of positions used as a sample to estimate the effect
 #'             of distance on proportion of interactions when normalizing with
-#'             \code{\link{normalizeDistanceEffect}} Defaults to
+#'             \code{\link{normalizeDistanceEffect}}. Defaults to
 #'             \code{defaultHiCDOCParameters$loessSampleSize} = 20000.
 #'         }
 #'         \item{\code{kMeansDelta}}{
