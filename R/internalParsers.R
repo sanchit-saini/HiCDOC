@@ -78,7 +78,7 @@
     assays[assays == 0] <- NA
     
     # GInteraction part
-    tabular <- tabular[,seq_len(3)]
+    tabular <- tabular[,.(chromosome, `position 1`, `position 2`)]
     data.table::setnames(tabular, "position 1", "bin.1")
     data.table::setnames(tabular, "position 2", "bin.2")
     
