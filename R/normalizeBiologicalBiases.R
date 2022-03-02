@@ -108,49 +108,62 @@
 #' @keywords internal
 #' @noRd
 .normalizeBiologicalBiasesOfChromosome <- function(object) {
-    
-    chromosomeName <- as.character(SummarizedExperiment::mcols(object)$Chr[1])
+
+    chromosomeName <- as.character(
+      SummarizedExperiment::mcols(object)$chromosome[1]
+    )
     message("Chromosome ", chromosomeName, ": normalizing biological biases.")
-    if (object@totalBins[[chromosomeName]] <= 0) return(NULL)
+    if (object@totalBins[[chromosomeName]] <= 0) {
+        return(NULL)
+    }
     currentOrder <- InteractionSet::anchorIds(object)
     currentAssay <- SummarizedExperiment::assay(object)
-    
+
     # Pass by InteractionSet so we can use inflate/deflate
-    isetChromosome <- InteractionSet::InteractionSet(
+    chromosomeInteractionSet <- InteractionSet::InteractionSet(
         currentAssay,
         InteractionSet::interactions(object)
     )
     validAssay <- object@validAssay[[chromosomeName]]
-    
-    matrices <- 
-        lapply(validAssay,
-               FUN = function(x) {
-                   InteractionSet::inflate(isetChromosome, 
-                                           rows = chromosomeName,
-                                           columns = chromosomeName,
-                                           sample = x,
-                                           sparse = FALSE)
-                   })
-    matrices <- lapply(matrices, function(m) {
-        m@matrix[is.na(m@matrix)] <- 0
-        return(m)
-        })
-    
+
+    matrices <- lapply(
+        validAssay,
+        FUN = function(x) {
+            InteractionSet::inflate(
+                chromosomeInteractionSet,
+                rows = chromosomeName,
+                columns = chromosomeName,
+                sample = x,
+                sparse = FALSE
+            )
+        }
+    )
+    matrices <- lapply(
+        matrices,
+        function(m) {
+            m@matrix[is.na(m@matrix)] <- 0
+            return(m)
+        }
+    )
+
     matrices <- lapply(matrices, .normalizeKnightRuiz)
-    matrices <- lapply(matrices, function(m) {
-        m@matrix[m@matrix == 0] <- NA
-        return(m)
-    })
-    matrices <- lapply(matrices, InteractionSet::deflate, use.na=TRUE)
+    matrices <- lapply(
+        matrices,
+        function(m) {
+            m@matrix[m@matrix == 0] <- NA
+            return(m)
+        }
+    )
+    matrices <- lapply(matrices, InteractionSet::deflate, use.na = TRUE)
 
     ids <- InteractionSet::anchorIds(matrices[[1]])
     ids <- paste(ids$first, ids$second)
     correctIds <- paste(currentOrder$first, currentOrder$second)
     orderids <- match(correctIds, ids)
     matrices <- lapply(matrices, function(x) SummarizedExperiment::assay(x))
-    matrices <- lapply(matrices, function(x) x[orderids,])
+    matrices <- lapply(matrices, function(x) x[orderids, ])
     matrices <- do.call(base::"cbind", matrices)
-    currentAssay[,validAssay] <- matrices
+    currentAssay[, validAssay] <- matrices
     return(currentAssay)
 }
 
@@ -196,12 +209,16 @@ normalizeBiologicalBiases <- function(object, parallel = FALSE) {
         )
     )
     objectChromosomes <- S4Vectors::split(
-        object, 
-        SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
-    
-    normAssay <- .internalLapply(parallel,
-                                objectChromosomes,
-                                FUN = .normalizeBiologicalBiasesOfChromosome)
+        object,
+        SummarizedExperiment::mcols(object)$chromosome,
+        drop = FALSE
+    )
+
+    normAssay <- .internalLapply(
+        parallel,
+        objectChromosomes,
+        FUN = .normalizeBiologicalBiasesOfChromosome
+    )
     normAssay <- do.call("rbind", normAssay)
 
     SummarizedExperiment::assay(object) <- normAssay

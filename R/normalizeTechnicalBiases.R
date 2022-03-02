@@ -54,48 +54,51 @@
 #' @export
 normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     message("Normalizing technical biases.")
-    
+
     hic_table <- as.data.table(InteractionSet::interactions(object))
-    hic_table <-
-        hic_table[, .(chromosome = seqnames1,
-                      region1 = start1,
-                      region2 = start2)]
-    if (!is.factor(hic_table$chromosome))
+    hic_table <- hic_table[, .(
+        chromosome = seqnames1,
+        region1 = start1,
+        region2 = start2
+    )]
+    if (!is.factor(hic_table$chromosome)) {
         hic_table[, chromosome := as.factor(chromosome)]
+    }
     hic_table[, chromosome := as.numeric(chromosome)]
-    
+
     currentAssay <- SummarizedExperiment::assay(object)
     currentAssay[is.na(currentAssay)] <- 0
     # Reordering columns in condition order
     refOrder <- paste(object$condition, object$replicate)
     currentAssay <- currentAssay[, order(refOrder)]
-    
-    table_list <- lapply(seq_len(ncol(currentAssay)),
-                         function(x)
-                             cbind(hic_table, currentAssay[, x]))
-    
-    experiment <-
-        multiHiCcompare::make_hicexp(
-            data_list = table_list,
-            groups = sort(object$condition),
-            remove_zeros = FALSE,
-            filter = TRUE,
-            zero.p = 1,
-            A.min = 0,
-            remove.regions = NULL
-        )
-    normalized <-
-        multiHiCcompare::cyclic_loess(experiment, parallel = parallel)
+
+    table_list <- lapply(
+        seq_len(ncol(currentAssay)),
+        function(x) cbind(hic_table, currentAssay[, x])
+    )
+
+    experiment <- multiHiCcompare::make_hicexp(
+        data_list = table_list,
+        groups = sort(object$condition),
+        remove_zeros = FALSE,
+        filter = TRUE,
+        zero.p = 1,
+        A.min = 0,
+        remove.regions = NULL
+    )
+    normalized <- multiHiCcompare::cyclic_loess(experiment, parallel = parallel)
     normalized <- multiHiCcompare::hic_table(normalized)
     data.table::setnames(normalized, "chr", "chromosome")
-    
+
     # Re-sorting the rows in the same order as original
     data.table::setindexv(normalized, c("chromosome", "region1", "region2"))
     data.table::setindexv(hic_table, c("chromosome", "region1", "region2"))
-    hic_table <- data.table::merge.data.table(hic_table,
-                                              normalized,
-                                              sort = FALSE)
-    
+    hic_table <- data.table::merge.data.table(
+        hic_table,
+        normalized,
+        sort = FALSE
+    )
+
     currentAssay <- as.matrix(hic_table[, 5:ncol(hic_table)])
     # Reordering columns in original order
     currentAssay <- currentAssay[, match(refOrder, sort(refOrder))]

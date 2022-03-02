@@ -29,8 +29,7 @@
     }
     if (is.null(xlim)) {
         regions <- InteractionSet::regions(object)
-        regions <-
-            regions[GenomeInfoDb::seqnames(regions) == chromosomeName]
+        regions <- regions[GenomeInfoDb::seqnames(regions) == chromosomeName]
         xlim <- c(
             min(GenomicRanges::start(regions), na.rm = TRUE),
             max(GenomicRanges::start(regions), na.rm = TRUE)
@@ -51,8 +50,7 @@
 #' @keywords internal
 #' @noRd
 .extractLegends <- function(grob) {
-    matches <-
-        grepl("guide-box", .subset2(grob$layout, "name"), fixed = FALSE)
+    matches <- grepl("guide-box", .subset2(grob$layout, "name"), fixed = FALSE)
     grob$layout <- grob$layout[matches, , drop = FALSE]
     grob$grobs <- grob$grobs[matches]
     return(grob)

@@ -20,57 +20,72 @@
     reducedObject,
     threshold
 ) {
+
     validColumns <- reducedObject@validAssay[[chromosomeName]]
-    
+
     interactions <- as.data.table(InteractionSet::interactions(reducedObject))
-    interactions <- interactions[,.(index1, index2)]
-    
+    interactions <- interactions[, .(index1, index2)]
+
     # All known bins
     minBin <- min(interactions$index1, interactions$index2)
     maxBin <- max(interactions$index1, interactions$index2)
     allBins <- seq(minBin, maxBin)
-    
+
     # Reducing the values of diagonal by 0.5 factor -> only upper matrix.
     diagonal <- (interactions$index1 == interactions$index2)
-    matAssay <- SummarizedExperiment::assay(reducedObject)[,validColumns]
-    matAssay <- matAssay * (1-0.5*(diagonal))
-    
-    interactions <- base::cbind(interactions, 
-                                matAssay)
-    interactions <- data.table::melt.data.table(interactions, 
-                                                id.vars=c("index1", "index2"), 
-                                                na.rm=FALSE)
+    matrixAssay <- SummarizedExperiment::assay(reducedObject)[,validColumns]
+    matrixAssay <- matrixAssay * (1-0.5*(diagonal))
+
+    interactions <- base::cbind(
+        interactions,
+        matrixAssay
+    )
+    interactions <- data.table::melt.data.table(
+        interactions,
+        id.vars = c("index1", "index2"),
+        na.rm = FALSE
+    )
     interactions[is.na(value),value := 0]
-    
+
     totalBins <- reducedObject@totalBins[chromosomeName]
-    removedBins <- 
-        allBins[
-            !(allBins %in% unique(c(interactions$index1, interactions$index1)))
-        ]
-    
+    removedBins <- allBins[
+        !(allBins %in% unique(c(interactions$index1, interactions$index1)))
+    ]
+
     totalNewWeakBins <- 1
     totalRemovedBins <- 0
-    
+
     # Recursive removal of bins - deleting a bin can create a new weak bin.
     while (totalNewWeakBins > 0 && totalRemovedBins <= length(allBins)) {
-        sum1 <- interactions[, .(sum1 = sum(value, na.rm = TRUE)), 
-                             by=.(index = index1, variable)]
-        sum2 <- interactions[, .(sum2 = sum(value, na.rm = TRUE)), 
-                             by=.(index = index2, variable)]
-        sum12 <- data.table::merge.data.table(sum1, sum2, by=c("index", "variable"),
-                                              all = TRUE)
+        sum1 <- interactions[
+            ,
+            .(sum1 = sum(value, na.rm = TRUE)),
+            by = .(index = index1, variable)
+        ]
+        sum2 <- interactions[
+            ,
+            .(sum2 = sum(value, na.rm = TRUE)),
+            by = .(index = index2, variable)
+        ]
+        sum12 <- data.table::merge.data.table(
+            sum1,
+            sum2,
+            by = c("index", "variable"),
+            all = TRUE
+        )
         sum12[is.na(sum1), sum1 := 0]
         sum12[is.na(sum2), sum2 := 0]
         sum12[, mean := (sum1 + sum2) / totalBins]
         weakBins <- unique(sum12[mean < threshold, index])
-        
+
         totalNewWeakBins <- length(weakBins) - totalRemovedBins
         removedBins <- c(removedBins, weakBins)
 
         # Remove interactions of weak bins
         if (totalNewWeakBins > 0) {
             interactions <- interactions[
-                !(index1 %in% weakBins | index2 %in% weakBins)]
+                !(index1 %in% weakBins | index2 %in% weakBins)
+            ]
             totalRemovedBins <- totalRemovedBins + totalNewWeakBins
         }
     }
@@ -150,26 +165,31 @@ filterWeakPositions <- function(object, threshold = NULL) {
     )
 
     objectChromosomes <- S4Vectors::split(
-        object, 
-        SummarizedExperiment::mcols(object)$Chr, drop=FALSE)
-    
-    weakBins <- pbapply::pbmapply(function(c, m, t){
-        .filterWeakPositionsOfChromosome(c, m, t)}, 
+        object,
+        SummarizedExperiment::mcols(object)$chromosome,
+        drop = FALSE
+    )
+
+    weakBins <- pbapply::pbmapply(
+        function(c, m, t) .filterWeakPositionsOfChromosome(c, m, t),
         object@chromosomes,
         objectChromosomes,
-        threshold)
+        threshold
+    )
 
     object@weakBins <- weakBins
-    
-    indexes <- as.data.table(InteractionSet::interactions(object))
-    toRemove <- (indexes$index1 %in% unlist(weakBins) |
-                     indexes$index2 %in% unlist(weakBins))
-    if(sum(toRemove)>0){
+
+    indices <- as.data.table(InteractionSet::interactions(object))
+    toRemove <- (
+        indices$index1 %in% unlist(weakBins) |
+        indices$index2 %in% unlist(weakBins)
+    )
+    if (sum(toRemove)>0) {
         object <- object[!toRemove,]
         object <- reduceRegions(object)
         object@validAssay <- .determineValids(object)
     }
-    
+
     totalWeakBins <- sum(vapply(weakBins, length, FUN.VALUE = 0))
 
     message(

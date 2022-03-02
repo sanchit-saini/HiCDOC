@@ -1,9 +1,9 @@
 #' @description
 #' Fill \code{\link{InteractionSet}} with possibly missing values
 #'
-#' @param iset
+#' @param interactionSet
 #' An \code{\link{InteractionSet}}.
-#' @param isetUnion
+#' @param interactionSetUnion
 #' The full \code{\link{InteractionSet}}.
 #' @param fill
 #' Fill missing values with this.
@@ -13,25 +13,33 @@
 #'
 #' @keywords internal
 #' @noRd
-.fillInteractionSet <- function(iset, isetUnion, fill = NA) {
-    over <- GenomicRanges::match(iset, isetUnion)
-    nc <- ncol(iset)
-    newassays <- matrix(rep(fill, length(isetUnion) * nc), ncol = nc)
-    newassays[over, ] <- SummarizedExperiment::assay(iset)
+.fillInteractionSet <- function(
+    interactionSet,
+    interactionSetUnion,
+    fill = NA
+) {
+    over <- GenomicRanges::match(interactionSet, interactionSetUnion)
+    totalColumns <- ncol(interactionSet)
+    newAssays <- matrix(
+        rep(fill, length(interactionSetUnion) * totalColumns),
+        ncol = totalColumns
+    )
+    newAssays[over, ] <- SummarizedExperiment::assay(interactionSet)
     return(
-        InteractionSet::InteractionSet(newassays,
-                                       isetUnion,
-                                       colData =
-					  SummarizedExperiment::colData(iset))
+        InteractionSet::InteractionSet(
+            newAssays,
+            interactionSetUnion,
+            colData = SummarizedExperiment::colData(interactionSet)
+        )
     )
 }
 
 #' @description
 #' Merge two different \code{\link{InteractionSet}}.
 #'
-#' @param iset1
+#' @param interactionSet1
 #' The first \code{\link{InteractionSet}}.
-#' @param iset2
+#' @param interactionSet2
 #' The second \code{\link{InteractionSet}}.
 #' @param fill
 #' Fill missing values with this.
@@ -41,16 +49,25 @@
 #'
 #' @keywords internal
 #' @noRd
-.mergeInteractionSet <- function(iset1, iset2, fill = NA) {
-    unionInteractions <-
-        GenomicRanges::union(InteractionSet::interactions(iset1),
-                             InteractionSet::interactions(iset2))
+.mergeInteractionSet <- function(interactionSet1, interactionSet2, fill = NA) {
+    unionInteractions <- GenomicRanges::union(
+        InteractionSet::interactions(interactionSet1),
+        InteractionSet::interactions(interactionSet2)
+    )
     # Complete InteractionSets
-    iset1 <- .fillInteractionSet(iset1, unionInteractions, fill)
-    iset2 <- .fillInteractionSet(iset2, unionInteractions, fill)
-    
+    interactionSet1 <- .fillInteractionSet(
+        interactionSet1,
+        unionInteractions,
+        fill
+    )
+    interactionSet2 <- .fillInteractionSet(
+        interactionSet2,
+        unionInteractions,
+        fill
+    )
+
     # Merge
-    newiset <- BiocGenerics::cbind(iset1, iset2)
+    newiset <- BiocGenerics::cbind(interactionSet1, interactionSet2)
     return(newiset)
 }
 
@@ -64,43 +81,54 @@
 #' @keywords internal
 #' @noRd
 .formatDetectCompartment <- function(object) {
-    chr <- object@chromosomes
-    cond <- sort(unique(object$condition))
-    rep <- sort(unique(object$replicate))
-    
+    chromosomeNames <- object@chromosomes
+    conditionNames <- sort(unique(object$condition))
+    replicateNames <- sort(unique(object$replicate))
+
     all.regions <- InteractionSet::regions(object)
-    
+
     # Concordances
     object@concordances[, `:=`(
-        chromosome = factor(chromosome, levels =  chr),
-        replicate = factor(replicate, levels = rep)
+        chromosome = factor(chromosome, levels = chromosomeNames),
+        replicate = factor(replicate, levels = replicateNames)
     )]
     concordances <- object@concordances
-    object@concordances <- all.regions[match(concordances$index,
-        S4Vectors::mcols(all.regions)$index)]
-    S4Vectors::mcols(object@concordances) <-
-        S4Vectors::DataFrame(concordances[,
-            .(index, condition, replicate, compartment, concordance)])
-    
+    object@concordances <- all.regions[
+        match(concordances$index, S4Vectors::mcols(all.regions)$index)
+    ]
+    S4Vectors::mcols(object@concordances) <- S4Vectors::DataFrame(
+        concordances[, .(
+            index,
+            condition,
+            replicate,
+            compartment,
+            concordance
+        )]
+    )
+
     # Centroids
     object@centroids[, `:=`(
-        chromosome = factor(chromosome, levels =  chr),
-        condition = factor(condition, levels = cond)
+        chromosome = factor(chromosome, levels = chromosomeNames),
+        condition = factor(condition, levels = conditionNames)
     )]
-    
+
     # Differences
-    object@differences[, chromosome := factor(chromosome, levels =  chr)]
+    object@differences[, chromosome := factor(
+        chromosome,
+        levels = chromosomeNames
+    )]
     object@differences[, significance := ""]
     object@differences[pvalue.adjusted <= 0.05, significance := "*"]
     object@differences[pvalue.adjusted <= 0.01, significance := "**"]
     object@differences[pvalue.adjusted <= 0.001, significance := "***"]
     object@differences[pvalue.adjusted <= 0.0001, significance := "****"]
-    
+
     differences <- object@differences
-    object@differences <- all.regions[match(differences$index,
-        S4Vectors::mcols(all.regions)$index)]
-    S4Vectors::mcols(object@differences) <-
-        S4Vectors::DataFrame(differences[, .(
+    object@differences <- all.regions[
+        match(differences$index, S4Vectors::mcols(all.regions)$index)
+    ]
+    S4Vectors::mcols(object@differences) <- S4Vectors::DataFrame(
+        differences[, .(
             index,
             condition.1,
             condition.2,
@@ -108,32 +136,41 @@
             pvalue.adjusted,
             direction,
             significance
-        )])
-    
+        )]
+    )
+
     # Compartments
-    object@compartments[, chromosome := factor(chromosome, levels =  chr)]
+    object@compartments[, chromosome := factor(
+        chromosome,
+        levels = chromosomeNames
+    )]
     compartments <- object@compartments
-    object@compartments <- all.regions[match(compartments$index,
-        S4Vectors::mcols(all.regions)$index)]
-    S4Vectors::mcols(object@compartments) <-
-        S4Vectors::DataFrame(compartments[, .(index, condition, compartment)])
-    
+    object@compartments <- all.regions[
+        match(compartments$index, S4Vectors::mcols(all.regions)$index)
+    ]
+    S4Vectors::mcols(object@compartments) <- S4Vectors::DataFrame(
+        compartments[, .(index, condition, compartment)]
+    )
+
     # Distances
     object@distances[, `:=`(
-        chromosome = factor(chromosome, levels =  chr),
-        condition = factor(condition, levels = cond),
-        replicate = factor(replicate, levels = rep)
+        chromosome = factor(chromosome, levels = chromosomeNames),
+        condition = factor(condition, levels = conditionNames),
+        replicate = factor(replicate, levels = replicateNames)
     )]
-    
+
     # Comparisons
-    object@comparisons[, chromosome := factor(chromosome, levels =  chr)]
-    
+    object@comparisons[, chromosome := factor(
+        chromosome,
+        levels = chromosomeNames
+    )]
+
     # selfInteractionRatios
     object@selfInteractionRatios[, `:=`(
-        chromosome = factor(chromosome, levels =  chr),
-        condition = factor(condition, levels = cond),
-        replicate = factor(replicate, levels = rep)
+        chromosome = factor(chromosome, levels =  chromosomeNames),
+        condition = factor(condition, levels = conditionNames),
+        replicate = factor(replicate, levels = replicateNames)
     )]
-    
+
     return(object)
 }
