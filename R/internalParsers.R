@@ -111,6 +111,7 @@
         index := indexC - data.table::shift(indexC, fill = 0),
 	    by = .(chromosome)
     ]
+    allRegions[index==0, index:=1]
     allRegions[, index := cumsum(index)]
     allRegions[, end := (indexC+1) * binSize -1]
     allRegions[, start := (indexC) * binSize]
