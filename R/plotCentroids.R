@@ -34,7 +34,6 @@ plotCentroids <- function(object, chromosome, size = 2) {
         chromosome == chromosomeName,
         .(condition, compartment, centroid)
     ]
-    names <- paste(df$condition, df$compartment, sep = "_")
 
     if (nrow(df) == 0) {
         message("No centroids for chromosome ", chromosomeName, ".")
@@ -50,11 +49,8 @@ plotCentroids <- function(object, chromosome, size = 2) {
     propvar <- paste(round(100 * propvar, 2), "%")
 
     pca <- as.data.table(pca$x)
-    pca[, c("condition", "compartment") := data.table::tstrsplit(
-        names,
-        "_",
-        fixed = TRUE
-    )]
+    pca[, condition := df$condition]
+    pca[, compartment := df$compartment]
 
     plot <- ggplot(
         pca,
