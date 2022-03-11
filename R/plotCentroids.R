@@ -34,13 +34,13 @@ plotCentroids <- function(object, chromosome, size = 2) {
         chromosome == chromosomeName,
         .(condition, compartment, centroid)
     ]
-    conditions <- df$condition
-    compartments <- df$compartment
     
     if (nrow(df) == 0) {
         message("No centroids for chromosome ", chromosomeName, ".")
         return(NULL)
     }
+    conditions <- df$condition
+    compartments <- df$compartment
 
     df <- lapply(df$centroid, unlist)
     df <- do.call("rbind", df)
