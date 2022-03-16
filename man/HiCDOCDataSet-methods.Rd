@@ -4,21 +4,15 @@
 \name{HiCDOCDataSet-methods}
 \alias{HiCDOCDataSet-methods}
 \alias{chromosomes}
-\alias{positions}
 \alias{conditions}
 \alias{replicates}
-\alias{binSize}
-\alias{interactions}
 \alias{compartments}
 \alias{concordances}
 \alias{differences}
 \alias{show}
 \alias{chromosomes,HiCDOCDataSet-method}
-\alias{positions,HiCDOCDataSet-method}
 \alias{conditions,HiCDOCDataSet-method}
 \alias{replicates,HiCDOCDataSet-method}
-\alias{binSize,HiCDOCDataSet-method}
-\alias{interactions,HiCDOCDataSet-method}
 \alias{compartments,HiCDOCDataSet-method}
 \alias{differences,HiCDOCDataSet-method}
 \alias{concordances,HiCDOCDataSet-method}
@@ -27,15 +21,9 @@
 \usage{
 chromosomes(object)
 
-positions(object)
-
 conditions(object)
 
 replicates(object)
-
-interactions(object)
-
-binSize(object)
 
 compartments(object)
 
@@ -52,7 +40,7 @@ are filtered to show the ones with an adjusted p-value <= \code{threshold}.}
 }
 \value{
 A character vector (for \code{chromosomes}, \code{conditions},
-\code{replicates}), an integer(for \code{binSize}), a tibble
+\code{replicates}), a data.table
 (for \code{interactions} and \code{positions}), or a GRanges object
 (for \code{compartments}, \code{concordances}, \code{differences}).
 }
@@ -63,15 +51,9 @@ Retrieve information and results from a \code{\link{HiCDOCDataSet}}.
 \itemize{
 \item \code{chromosomes}: Retrieves the vector of chromosome names.
 
-\item \code{positions}: Retrieves the genomic positions corresponding to bins for each chromosome.
-
 \item \code{conditions}: Retrieves the vector of condition names.
 
 \item \code{replicates}: Retrieves the vector of replicate names.
-
-\item \code{interactions}: Retrieves a tibble of the interactions.
-
-\item \code{binSize}: Retrieves the resolution (span of each position in number of bases).
 
 \item \code{compartments}: Retrieves a \code{GenomicRange} of the compartment of every position
 in every condition.
@@ -86,8 +68,11 @@ compartment) of every position in every replicate.
 }}
 
 \examples{
-data(exampleHiCDOCDataSet)
-chromosomes(exampleHiCDOCDataSet)
-conditions(exampleHiCDOCDataSet)
-binSize(exampleHiCDOCDataSet)
+data(exampleHiCDOCDataSetProcessed)
+chromosomes(exampleHiCDOCDataSetProcessed)
+conditions(exampleHiCDOCDataSetProcessed)
+replicates(exampleHiCDOCDataSetProcessed)
+compartments(exampleHiCDOCDataSetProcessed)
+differences(exampleHiCDOCDataSetProcessed)
+concordances(exampleHiCDOCDataSetProcessed)
 }

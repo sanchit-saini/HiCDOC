@@ -17,112 +17,41 @@
 #' @keywords internal
 #' @noRd
 .filterSparseReplicatesOfChromosome <- function(
-    object,
+    assay,
+    diagonal,
     chromosomeName,
-    threshold
+    totalBins,
+    threshold,
+    validAssay,
+    conditions,
+    replicates
 ) {
 
-    chromosomeInteractions <-
-        object@interactions %>%
-        dplyr::filter(chromosome == chromosomeName)
+    filledAssay <- diagonal * (!is.na(assay) &  assay > 0)
+    filledPercentage <- colSums(filledAssay) / (totalBins * totalBins)
+    toRemove <- which(filledPercentage < threshold)
+    toRemove <- toRemove[toRemove %in% validAssay]
 
-    presentInteractions <-
-        chromosomeInteractions %>%
-        dplyr::filter(interaction > 0) %>%
-        dplyr::mutate(total.interactions = ifelse(bin.1 == bin.2, 1, 2)) %>%
-        dplyr::select(-interaction)
-
-    totalBins <- object@totalBins[chromosomeName]
-    totalCells <- totalBins^2
-
-    allInteractions <-
-        dplyr::tibble(
-            chromosome = factor(
-                chromosomeName,
-                levels = object@chromosomes
-            ),
-            condition = factor(
-                rep(object@conditions, each = totalCells),
-                levels = gtools::mixedsort(unique(object@conditions))
-            ),
-            replicate = factor(
-                rep(object@replicates, each = totalCells),
-                levels = gtools::mixedsort(unique(object@replicates))
-            ),
-            bin.1 = rep(
-                seq(totalBins),
-                each = totalBins,
-                times = length(object@conditions)
-            ),
-            bin.2 = rep(
-                seq(totalBins),
-                times = totalBins * length(object@conditions)
-            ),
-            total.interactions = 0
-        ) %>%
-        dplyr::filter(bin.2 >= bin.1) %>%
-        dplyr::left_join(
-            presentInteractions,
-            by = c("chromosome", "condition", "replicate", "bin.1", "bin.2")
-        ) %>%
-        dplyr::mutate(
-            total.interactions = dplyr::coalesce(
-                total.interactions.y,
-                total.interactions.x
-            )
-        ) %>%
-        dplyr::select(-total.interactions.y, -total.interactions.x)
-
-    fillPercentages <-
-        allInteractions %>%
-        dplyr::group_by(condition, replicate) %>%
-        dplyr::summarise(
-            fillPct = sum(total.interactions) / totalCells,
-            .groups = "keep"
-        ) %>%
-        dplyr::ungroup() %>%
-        dplyr::mutate(
-            chromosome = factor(chromosomeName, levels = object@chromosomes)
-        )
-
-    chromosomeInteractions %<>%
-        dplyr::left_join(
-            fillPercentages,
-            by = c("chromosome", "condition", "replicate")
-        ) %>%
-        dplyr::filter(fillPct >= threshold) %>%
-        dplyr::filter(interaction > 0) %>%
-        dplyr::select(-fillPct)
-
-    removed <- fillPercentages %>% dplyr::filter(fillPct < threshold)
-
-    if (nrow(removed) > 0) {
+    if (length(toRemove) > 0) {
         message(
             paste(
                 "Removed interactions matrix of chromosome ",
-                removed$chromosome,
+                chromosomeName,
                 ", condition ",
-                removed$condition,
+                conditions[toRemove],
                 ", replicate ",
-                removed$replicate,
+                replicates[toRemove],
                 " filled at ",
-                round(removed$fillPct, digits = 5) * 100,
+                round(filledPercentage[toRemove], digits = 5) * 100,
                 "%.",
-                collapse = "\n", sep = ""
+                collapse = "\n",
+                sep = ""
             )
         )
     }
 
-    valid <- fillPercentages %>% dplyr::filter(fillPct >= threshold)
-
-    validConditions <- valid %>% dplyr::pull(condition)
-    validReplicates <- valid %>% dplyr::pull(replicate)
-
-    return(list(
-        "validConditions" = validConditions,
-        "validReplicates" = validReplicates,
-        "interactions" = chromosomeInteractions
-    ))
+    assay[, toRemove] <- NA
+    return(assay)
 }
 
 #' @title
@@ -161,10 +90,7 @@ filterSparseReplicates <- function(object, threshold = NULL) {
     .validateSlots(
         object,
         slots = c(
-            "interactions",
             "chromosomes",
-            "conditions",
-            "replicates",
             "parameters"
         )
     )
@@ -181,64 +107,69 @@ filterSparseReplicates <- function(object, threshold = NULL) {
         "% non-zero interactions."
     )
 
-    results <-
-        lapply(
-            object@chromosomes,
-            function(chromosomeName) {
-                .filterSparseReplicatesOfChromosome(
-                    object,
-                    chromosomeName,
-                    threshold
-                )
-            }
-        )
+    diagonal <- InteractionSet::anchors(object)
+    diagonal <- diagonal$first == diagonal$second
+    diagonal <- 2 - 1 * diagonal
+    diagonals <- S4Vectors::split(
+        diagonal,
+        SummarizedExperiment::mcols(object)$chromosome,
+        drop = FALSE
+    )
 
-    names(results) <- object@chromosomes
+    chromosomeAssays <- S4Vectors::split(
+        SummarizedExperiment::assay(object),
+        SummarizedExperiment::mcols(object)$chromosome,
+        drop = FALSE
+    )
 
-    validConditions <- results %>% purrr::map("validConditions")
-    validReplicates <- results %>% purrr::map("validReplicates")
-    badChromosomes <-
-        vapply(
-            validReplicates,
-            function(x) length(x) == 0,
-            FUN.VALUE = TRUE
-        )
-    validConditions[badChromosomes] <- list(NULL)
-    validReplicates[badChromosomes] <- list(NULL)
-
-    interactions <-
-        results %>%
-        purrr::map_dfr("interactions") %>%
-        .sortInteractions(
-            object@chromosomes,
-            object@conditions,
-            object@replicates
-        )
-
-    object@validConditions <- validConditions
-    object@validReplicates <- validReplicates
-    object@interactions <- interactions
-
-    totalSparseReplicates <-
-        sum(
-            vapply(
-                validReplicates,
-                function(replicates) {
-                    length(object@replicates) - length(replicates)
-                },
-                FUN.VALUE = 0
+    resultAssay <- pbapply::pbmapply(
+        function(a, d, c, t, v) {
+            .filterSparseReplicatesOfChromosome(
+                a, d, c, t, threshold, v, object$condition, object$replicate
             )
-        )
+        },
+        chromosomeAssays,
+        diagonals,
+        object@chromosomes,
+        object@totalBins,
+        object@validAssay,
+        SIMPLIFY = FALSE
+    )
 
+    resultAssay <- do.call("rbind", resultAssay)
+    if (nrow(resultAssay) != nrow(object)) {
+        stop("Something went wrong")
+    }
+
+    SummarizedExperiment::assay(object) <- resultAssay
+    newValidAssay <- .determineValids(object)
+    badChromosomes <- vapply(
+        newValidAssay,
+        function(x) length(x) == 0,
+        FUN.VALUE = TRUE
+    )
+    newValidAssay[badChromosomes] <- list(NULL)
+    totalRemovedReplicates <- (
+        length(unlist(object@validAssay)) - length(unlist(newValidAssay))
+    )
+    object@validAssay <- newValidAssay
+
+    rowsToSuppress <- (
+        rowSums(SummarizedExperiment::assay(object), na.rm = TRUE) == 0
+    )
+    if (sum(rowsToSuppress) > 0) {
+        object <- object[!rowsToSuppress, ]
+        object <- InteractionSet::reduceRegions(object)
+    }
     message(
         "Removed ",
-        totalSparseReplicates,
+        totalRemovedReplicates,
         " replicate",
-        if (totalSparseReplicates != 1) "s",
+        if (totalRemovedReplicates != 1) "s",
         " in total."
     )
 
-    if (nrow(object@interactions) == 0) {
+    if (nrow(object) == 0) {
         warning("No data left!", call. = FALSE)
     }
 

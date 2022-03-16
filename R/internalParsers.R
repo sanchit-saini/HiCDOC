@@ -1,6 +1,185 @@
 #' @description
 #' Parses interactions in tabular format and fills the conditions, replicates,
-#' and interactions slots of the provided \code{\link{HiCDOCDataSet}}.
+#' and interactions slots of the provided \code{\link{InteractionSet}}.
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param input
+#' The name of the input file
+#' @param conditions
+#' The names of the conditions
+#' (infered from the table if not specified).
+#' @param replicates
+#' The names of the replicates
+#' (infered from the table if not specified).
+#'
+#' @return
+#' An \code{\link{InteractionSet}}.
+#'
+#' @keywords internal
+#' @noRd
+.setFromTabular <- function(tabular, conditions = NULL, replicates = NULL) {
+
+    if (colnames(tabular)[1] != "chromosome") {
+        stop(
+            "First column of the input file must be named 'chromosome'.",
+            call. = FALSE
+        )
+    }
+    if (colnames(tabular)[2] == "position.1") {
+        data.table::setnames(tabular, "position.1", "position 1")
+    }
+    if (colnames(tabular)[2] != "position 1") {
+        stop(
+            "Second column of the input file must be named 'position 1'.",
+            call. = FALSE
+        )
+    }
+    if (colnames(tabular)[3] == "position.2") {
+        data.table::setnames(tabular, "position.2", "position 2")
+    }
+    if (colnames(tabular)[3] != "position 2") {
+        stop(
+            "Third column of the input file must be named 'position 2'.",
+            call. = FALSE
+        )
+    }
+    if (is.null(conditions) != is.null(replicates)) {
+        stop(
+            "Conditions and replicates should be both NULL, or none.",
+            call. = FALSE
+        )
+    }
+    tabular[, chromosome := as.character(chromosome)]
+    tabular[, chromosome := factor(
+        chromosome,
+        levels = gtools::mixedsort(unique(chromosome)))
+    ]
+    setorder(tabular, chromosome, `position 1`, `position 2`)
+    # Assays part, fill with NA
+    assays <- as.matrix(tabular[,4:ncol(tabular), drop = FALSE])
+
+    if (!is.null(conditions)) {
+        if (
+            (length(conditions) != ncol(assays)) |
+            (length(replicates) != ncol(assays))
+        ) {
+            stop(
+                "Number of conditions and replicates should match the number ",
+	            "of counts in the matrix.",
+                call. = FALSE
+            )
+        }
+    } else {
+        if (!all(grepl("^.+?\\..+$", colnames(assays)))) {
+            stop(
+                "Fourth to last column of the input file must be named 'C.R', ",
+                "with C the condition number/name and R the replicate ",
+                "number/name.",
+                call. = FALSE
+            )
+        }
+    }
+    assays[assays == 0] <- NA
+
+    # GInteraction part
+    tabular <- tabular[, .(chromosome, `position 1`, `position 2`)]
+    data.table::setnames(tabular, "position 1", "bin.1")
+    data.table::setnames(tabular, "position 2", "bin.2")
+
+    diagonal <- (tabular$bin.1 == tabular$bin.2)
+    binSize <- modeVector(abs(
+        tabular[!diagonal,]$bin.1 - tabular[!diagonal,]$bin.2
+    ))
+
+    tabular[, bin.1 := bin.1/binSize]
+    tabular[, bin.2 := bin.2/binSize]
+
+    allRegions <- data.table::melt(
+        tabular[, .(chromosome, bin.1, bin.2)],
+        id.vars = "chromosome",
+        value.name = "indexC"
+    )
+    allRegions[, variable := NULL]
+    allRegions <- unique(allRegions)
+    setorder(allRegions, chromosome, indexC)
+
+    # Constructing unique index for all chromosomes,
+    # taking into account the difference in bins.
+    allRegions[
+        ,
+        index := indexC - data.table::shift(indexC, fill = 0),
+	    by = .(chromosome)
+    ]
+    allRegions[index==0, index:=1]
+    allRegions[, index := cumsum(index)]
+    allRegions[, end := (indexC+1) * binSize -1]
+    allRegions[, start := (indexC) * binSize]
+    data.table::setcolorder(
+        allRegions,
+        c("chromosome", "start", "end", "index", "indexC")
+    )
+
+    tabular <- data.table::merge.data.table(
+        tabular,
+        allRegions[, .(chromosome, startIndex = index, bin.1 = indexC)],
+        all.x = TRUE,
+        sort = FALSE,
+        by = c("chromosome", "bin.1")
+    )
+    tabular <- data.table::merge.data.table(
+        tabular,
+        allRegions[, .(chromosome, stopIndex = index, bin.2 = indexC)],
+        all.x = TRUE,
+        sort = FALSE,
+        by = c("chromosome", "bin.2")
+    )
+    tabular[, bin.1 := NULL]
+    tabular[, bin.2 := NULL]
+
+    allRegions[, indexC := NULL]
+    order1 <- match(tabular$startIndex, allRegions$index)
+    order2 <- match(tabular$stopIndex, allRegions$index)
+    allRegions <- GenomicRanges::GRanges(allRegions)
+
+    gi <- InteractionSet::GInteractions(
+        allRegions[order1],
+        allRegions[order2],
+        regions = allRegions,
+        mode="strict"
+    )
+
+    interactionSet <- InteractionSet::InteractionSet(
+        assays = assays,
+        interactions = gi
+    )
+
+    if (is.null(conditions)) {
+        SummarizedExperiment::colData(interactionSet) <- S4Vectors::DataFrame(
+            "condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)),
+            "replicate" = gsub("^.+?\\.(.+)$", "\\1", colnames(assays))
+        )
+    } else {
+        SummarizedExperiment::colData(interactionSet) <- S4Vectors::DataFrame(
+            "condition" = conditions,
+            "replicate" = replicates
+        )
+    }
+
+    # Keep only intra-chromosomal interactions
+    interactionSet <- interactionSet[InteractionSet::intrachr(interactionSet),]
+
+    # Remove zero rows
+    zeros <- (
+        rowSums(SummarizedExperiment::assay(interactionSet), na.rm=TRUE) == 0
+    )
+    interactionSet <- interactionSet[!zeros, ]
+
+    return(interactionSet)
+}
+
+#' @description
+#' Read the file, and fills it using \code{\link{.setFromTabular}}.
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
@@ -12,67 +191,23 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseTabular <- function(object, sep = "\t") {
-    
-    message("Parsing '", object@input, "'.")
-    
-    interactions <-
-        data.table::fread(
-            file = object@input,
-            sep = sep,
-            header = TRUE,
-            # comment.char = "#",
-            check.names = FALSE,
-            data.table = FALSE
-        ) %>%
-        dplyr::as_tibble()
-    
-    if (colnames(interactions)[[1]] != "chromosome") {
-        stop(
-            "First column of the input file must be named 'chromosome'.",
-            call. = FALSE
-        )
-    }
-    if (colnames(interactions)[[2]] != "position 1") {
-        stop(
-            "Second column of the input file must be named 'position 1'.",
-            call. = FALSE
-        )
-    }
-    if (colnames(interactions)[[3]] != "position 2") {
-        stop(
-            "Third column of the input file must be named 'position 2'.",
-            call. = FALSE
-        )
-    }
-    
-    columns <- colnames(interactions)[4:ncol(interactions)]
-    
-    if (!all(grepl("^.+?\\..+$", columns))) {
-        stop(
-            "Fourth to last column of the input file must be named 'C.R', ",
-            "with C the condition number/name and R the replicate number/name.",
-            call. = FALSE
-        )
-    }
-    
-    object@conditions <- gsub("^(.+?)\\..+$", "\\1", columns)
-    object@replicates <- gsub("^.+?\\.(.+)$", "\\1", columns)
-    
-    object@interactions <-
-        tidyr::pivot_longer(
-            interactions,
-            dplyr::all_of(columns),
-            names_to = "condition.replicate",
-            values_to = "interaction"
-        ) %>%
-        dplyr::mutate(CR = strsplit(condition.replicate, ".", fixed = TRUE)) %>%
-        dplyr::mutate(condition = purrr::map_chr(CR, 1),
-                      replicate = purrr::map_chr(CR, 2)) %>%
-        dplyr::select(-CR) %>%
-        dplyr::rename(position.1 = `position 1`) %>%
-        dplyr::rename(position.2 = `position 2`)
-    
+.parseTabular <- function(input, sep = "\t") {
+
+    message("Parsing '", input, "'.")
+
+    interactions <- data.table::fread(
+        file = input,
+        sep = sep,
+        header = TRUE,
+        # comment.char = "#",
+        check.names = FALSE,
+        data.table = TRUE,
+        stringsAsFactors = FALSE
+    )
+
+    interactionSet <- .setFromTabular(interactions)
+    object <- new("HiCDOCDataSet", interactionSet, input = input)
+
     return(object)
 }
 
@@ -87,14 +222,14 @@
 #' Defaults to NULL.
 #'
 #' @return
-#' A tibble of interactions.
+#' A data.table of interactions.
 #'
 #' @keywords internal
 #' @noRd
-.parseOneCool <- function(path, binSize = NULL) {
-    
+.parseOneCool <- function(path, binSize = NA, replicate, condition) {
+
     message("\nParsing '", path, "'.")
-    
+
     uri <- function(path) {
         if (!is.numeric(binSize)) return(path)
         return(
@@ -106,48 +241,66 @@
             )
         )
     }
-    
-    bins <-
-        dplyr::tibble(
-            chromosome = factor(
-                rhdf5::h5read(file = path, name = uri("bins/chrom"))
-            ),
-            start = rhdf5::h5read(file = path, name = uri("bins/start")),
-            end = rhdf5::h5read(file = path, name = uri("bins/end"))
-        )
-    
+
+    bins <- data.table::data.table(
+        chromosome = factor(
+            rhdf5::h5read(file = path, name = uri("bins/chrom"))
+        ),
+        start = rhdf5::h5read(file = path, name = uri("bins/start")),
+        end = rhdf5::h5read(file = path, name = uri("bins/end"))
+    )
+
     step <- bins$end - bins$start
     if (length(step) < 0.9) {
         stop("Cannot parse '", path, "': fixed width only.", call. = FALSE)
     }
     step <- max(step)
-    
-    bins %<>%
-        dplyr::select(-end) %>%
-        dplyr::rename(position = start) %>%
-        dplyr::mutate(ide = seq_len(nrow(bins)) - 1) %>%
-        dplyr::select(ide, chromosome, position)
-    
-    rownames(bins) <- NULL
-    
-    interactions <-
-        dplyr::tibble(
-            id1 = rhdf5::h5read(file = path, name = uri("pixels/bin1_id")),
-            id2 = rhdf5::h5read(file = path, name = uri("pixels/bin2_id")),
-            interaction = rhdf5::h5read(file = path, name = uri("pixels/count"))
-        ) %>%
-        dplyr::left_join(bins, by = c("id1" = "ide")) %>%
-        dplyr::rename(chromosome.1 = chromosome, position.1 = position) %>%
-        dplyr::select(-id1) %>%
-        dplyr::left_join(bins, by = c("id2" = "ide")) %>%
-        dplyr::rename(chromosome.2 = chromosome, position.2 = position) %>%
-        dplyr::select(-id2) %>%
-        dplyr::filter(chromosome.1 == chromosome.2) %>%
-        dplyr::select(-chromosome.2) %>%
-        dplyr::rename(chromosome = chromosome.1) %>%
-        dplyr::select(chromosome, position.1, position.2, interaction)
-    
-    return(interactions)
+
+    bins[, start := as.integer(start)]
+    bins[, end := as.integer(end)]
+
+    setorder(bins, chromosome, start, end)
+    bins[, index := seq_len(nrow(bins))]
+
+    interactions <- data.table::data.table(
+        id1 = rhdf5::h5read(file = path, name = uri("pixels/bin1_id")),
+        id2 = rhdf5::h5read(file = path, name = uri("pixels/bin2_id")),
+        interaction = rhdf5::h5read(file = path, name = uri("pixels/count"))
+    )
+    interactions[, id1 := as.integer(id1) + 1]
+    interactions[, id2 := as.integer(id2) + 1]
+    interactions[, interaction := as.numeric(interaction)]
+
+    order1 <- match(interactions$id1, bins$index)
+    order2 <- match(interactions$id2, bins$index)
+    allRegions <- GenomicRanges::GRanges(bins)
+
+    # GInteractions part
+    gi <- InteractionSet::GInteractions(
+        allRegions[order1],
+        allRegions[order2],
+        regions = allRegions,
+        mode="strict"
+    )
+
+    interactionSet <- InteractionSet::InteractionSet(
+        assays = as.matrix(interactions$interaction, ncol = 1),
+        interactions = gi,
+        colData=S4Vectors::DataFrame(
+            "condition" = condition,
+            "replicate" = replicate
+        )
+    )
+
+    # Keep only intra-chromosomal interactions
+    interactionSet <- interactionSet[InteractionSet::intrachr(interactionSet), ]
+
+    # Remove zero rows
+    zeros <- (
+        rowSums(SummarizedExperiment::assay(interactionSet), na.rm=TRUE) == 0
+    )
+    interactionSet <- interactionSet[!zeros, ]
+    return(interactionSet)
 }
 
 #' @description
@@ -166,25 +319,26 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseCool <- function(object, binSize = NULL) {
-    
-    interactions <-
-        pbapply::pblapply(
-            object@input,
-            .parseOneCool,
-            binSize = binSize
-        )
-    
-    for (i in seq_along(interactions)) {
-        interactions[[i]]$replicate <- object@replicates[[i]]
-        interactions[[i]]$condition <- object@conditions[[i]]
-    }
-    
-    object@interactions <-
-        dplyr::bind_rows(interactions) %>%
-        dplyr::as_tibble()
-    
-    return(object)
+.parseCool <- function(object, binSize = NA, replicates, conditions) {
+
+    interactionSetCool <- pbapply::pbmapply(
+        .parseOneCool,
+        path = object@input,
+        binSize = binSize,
+        condition = conditions,
+        replicate = replicates
+    )
+
+    mergedinteractionSetCool <- Reduce(
+        f = .mergeInteractionSet,
+        x = interactionSetCool
+    )
+
+    new(
+        "HiCDOCDataSet",
+        mergedinteractionSetCool,
+        input = object@input
+    )
 }
 
 #' @description
@@ -198,13 +352,18 @@
 #' the \code{.hic} file.
 #'
 #' @return
-#' A dataframe of interactions.
+#' An \code{\link{InteractionSet}}.
 #'
 #' @keywords internal
 #' @noRd
-.parseOneHiC <- function(path, binSize) {
+.parseOneHiC <- function(path, binSize, condition, replicate) {
     message("\nParsing '", path, "'.")
-    return(parseHiCFile(path, binSize))
+    interactions <- parseHiCFile(path, binSize)
+    # Automagical stuff to transform Rcpp DataFrame to data.table
+    interactions <- data.table::setalloccol(interactions)
+    # Create InteractionSet object
+    interactions <- .setFromTabular(interactions, condition, replicate)
+    return(interactions)
 }
 
 #' @description
@@ -222,28 +381,26 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseHiC <- function(object, binSize) {
-    
-    interactions <-
-        pbapply::pblapply(
-            object@input,
-            .parseOneHiC,
-            binSize = binSize
-        ) %>%
-        purrr::map2(
-            object@replicates,
-            ~ dplyr::mutate(.x, replicate = .y)
-        ) %>%
-        purrr::map2(
-            object@conditions,
-            ~ dplyr::mutate(.x, condition = .y)
-        )
-    
-    object@interactions <-
-        dplyr::bind_rows(interactions) %>%
-        dplyr::as_tibble()
-    
-    return(object)
+.parseHiC <- function(object, binSize, replicates, conditions) {
+
+    interactionSet <- pbapply::pbmapply(
+        .parseOneHiC,
+        path      = object@input,
+        binSize   = binSize,
+        condition = conditions,
+        replicate = replicates
+    )
+
+    mergedinteractionSet <- Reduce(
+        f = .mergeInteractionSet,
+        x = interactionSet
+    )
+
+    new(
+        "HiCDOCDataSet",
+        mergedinteractionSet,
+        input = object@input
+    )
 }
 
 #' @description
@@ -255,51 +412,63 @@
 #' The path to the bed file.
 #'
 #' @return
-#' A tibble of interactions.
+#' A data.table of interactions.
 #'
 #' @keywords internal
 #' @noRd
-.parseOneHiCPro <- function(matrixPath, bedPath) {
-    
+.parseOneHiCPro <- function(matrixPath, bedPath, replicate, condition) {
+
     message("\nParsing '", matrixPath, "' and '", bedPath, "'.")
-    
-    interactions <-
-        data.table::fread(
-            matrixPath,
-            header = FALSE,
-            stringsAsFactors = FALSE,
-            col.names = c("startIndex", "stopIndex", "interaction"),
-            data.table = TRUE
+
+    interactions <- data.table::fread(
+        matrixPath,
+        header = FALSE,
+        stringsAsFactors = FALSE,
+        col.names = c("startIndex", "stopIndex", "interaction"),
+        data.table = TRUE
+    )
+
+    bed <- data.table::fread(
+        bedPath,
+        header = FALSE,
+        stringsAsFactors = FALSE,
+        col.names = c("chromosome", "start", "end", "index"),
+        data.table = TRUE
+    )
+
+    minIndex <- min(bed[,index])
+    setorder(bed, chromosome, start, end)
+
+    order1 <- match(interactions$startIndex, bed$index)
+    order2 <- match(interactions$stopIndex, bed$index)
+    allRegions <- GenomicRanges::GRanges(bed)
+
+    gi <- InteractionSet::GInteractions(
+        allRegions[order1],
+        allRegions[order2],
+        regions = allRegions,
+        mode="strict"
+    )
+
+    interactionSet <- InteractionSet::InteractionSet(
+        assays = as.matrix(interactions$interaction, ncol=1),
+        interactions = gi,
+        colData=S4Vectors::DataFrame(
+            "condition" = condition,
+            "replicate" = replicate
         )
-    
-    bed <-
-        data.table::fread(
-            bedPath,
-            header = FALSE,
-            stringsAsFactors = FALSE,
-            col.names = c("chromosome", "start", "end", "index"),
-            data.table = TRUE
-        )
-    
-    interactions <- merge(interactions,
-                          bed[,.(chromosome.1 = chromosome, 
-                                 startIndex = index, 
-                                 position.1 = start)], 
-                          all.x=TRUE, 
-                          by = "startIndex")
-    interactions <- merge(interactions,
-                          bed[,.(chromosome.2 = chromosome, 
-                                 stopIndex = index, 
-                                 position.2 = start)], 
-                          all.x=TRUE, 
-                          by = "stopIndex")
-    interactions <- interactions[chromosome.1 == chromosome.2,
-                                 .(chromosome = chromosome.1,
-                                   position.1,
-                                   position.2,
-                                   interaction)]
-    
-    return(interactions)
+    )
+
+    # Keep only intra-chromosomal interactions
+    interactionSet <- interactionSet[InteractionSet::intrachr(interactionSet), ]
+
+    # Remove zero rows
+    zeros <- (
+        rowSums(SummarizedExperiment::assay(interactionSet), na.rm=TRUE) == 0
+    )
+    interactionSet <- interactionSet[!zeros, ]
+
+    return(interactionSet)
 }
 
 #' @description
@@ -314,25 +483,26 @@
 #'
 #' @keywords internal
 #' @noRd
-.parseHiCPro <- function(object) {
-    
-    interactions <-
-        pbapply::pblapply(
-            object@input,
-            function(paths) .parseOneHiCPro(paths[1], paths[2])
-        ) %>%
-        purrr::map2(
-            object@replicates,
-            .f = function(x, y) x[, replicate:=y]
-        ) %>%
-        purrr::map2(
-            object@conditions,
-            .f = function(x, y) x[, condition:=y]
-        )
-    
-    object@interactions <-
-        data.table::rbindlist(interactions) %>%
-        dplyr::as_tibble()
-    
+.parseHiCPro <- function(object, replicates, conditions) {
+
+    matrixPaths <- lapply(object@input, `[[`, 1)
+    bedPaths <- lapply(object@input, `[[`, 2)
+
+    interactionSet <- pbapply::pbmapply(
+        .parseOneHiCPro,
+        matrixPaths,
+        bedPaths,
+        replicates,
+        conditions
+    )
+
+    mergedinteractionSet <- Reduce(f = .mergeInteractionSet, x = interactionSet)
+
+    object <- new(
+        "HiCDOCDataSet",
+        mergedinteractionSet,
+        input = object@input
+    )
+
     return(object)
 }

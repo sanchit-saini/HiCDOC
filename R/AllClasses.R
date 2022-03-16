@@ -28,44 +28,30 @@
 #' @slot parameters
 #' A list of parameters used for filtering, normalization, and prediction of
 #' compartments.
-#' @slot interactions
-#' A tibble of interactions.
 #' @slot chromosomes
 #' A vector of names of chromosomes.
-#' @slot conditions
-#' A vector of names of conditions, repeated along the replicates.
-#' @slot replicates
-#' A vector of names of replicates, repeated along the conditions.
-#' @slot positions
-#' A tibble of positions and their corresponding bin.
-#' @slot binSize
-#' The resolution: computed bin size (span of each bin in number of bases).
 #' @slot totalBins
 #' A list of the number of bins in each chromosome.
 #' @slot weakBins
 #' A list of weak bins that are filtered out in each chromosome.
-#' @slot validConditions
-#' A list of non-sparse valid conditions, repeated along the valid replicates
-#' in each chromosome.
-#' @slot validReplicates
-#' A list of non-sparse valid replicates, repeated along the valid conditions
-#' in each
-#' chromosome.
+#' @slot validAssay
+#' A list of non-sparse valid conditions and replicates, corresponding to the
+#' valid columns of the assay matrix, for each chromosome
 #' @slot compartments
-#' A tibble of the A or B compartment of each bin in each condition.
+#' A data.table of the A or B compartment of each bin in each condition.
 #' @slot concordances
-#' A tibble of the concordance of each bin in each replicate.
+#' A data.table of the concordance of each bin in each replicate.
 #' @slot differences
-#' A tibble of detected compartment differences between conditions.
+#' A data.table of detected compartment differences between conditions.
 #' @slot comparisons
-#' A tibble of comparisons ??? TODO
+#' A data.table of comparisons
 #' @slot distances
-#' A tibble of the distances to centroids of each bin in each replicate.
+#' A data.table of the distances to centroids of each bin in each replicate.
 #' @slot centroids
-#' A tibble of centroids in each chromosome and condition.
+#' A data.table of centroids in each chromosome and condition.
 #' @slot selfInteractionRatios
-#' A tibble of differences between self interaction and other interactions for
-#' each bin in each replicate.
+#' A data.table of differences between self interaction and other interactions
+#' for each bin in each replicate.
 #'
 #' @seealso
 #' \code{\link{HiCDOC}}
@@ -79,19 +65,14 @@
 #' @export
 setClass(
     "HiCDOCDataSet",
+    contains = "InteractionSet",
     slots = c(
         input = "ANY",
         parameters = "ANY",
-        interactions = "ANY",
         chromosomes = "ANY",
-        conditions = "ANY",
-        replicates = "ANY",
-        positions = "ANY",
-        binSize = "ANY",
         totalBins = "ANY",
         weakBins = "ANY",
-        validConditions = "ANY",
-        validReplicates = "ANY",
+        validAssay = "ANY",
         compartments = "ANY",
         concordances = "ANY",
         differences = "ANY",
@@ -150,7 +131,10 @@ defaultHiCDOCParameters <- list(
 #' HiCDOCDataSetFromTabular(path, sep = '\t')
 #'
 #' @export
-HiCDOCDataSetFromTabular <- function(path = NULL, sep="\t") {
+HiCDOCDataSetFromTabular <- function(
+    path = NULL,
+    sep = "\t"
+) {
 
     if (!is.character(path) || length(path) > 1) {
         stop("'paths' must be a string of characters.", call. = FALSE)
@@ -159,9 +143,7 @@ HiCDOCDataSetFromTabular <- function(path = NULL, sep="\t") {
         stop("'", path, "' does not exist.", call. = FALSE)
     }
 
-    object <- new("HiCDOCDataSet")
-    object@input <- path
-    object <- .parseTabular(object, sep = sep)
+    object <- .parseTabular(path, sep = sep)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
@@ -219,10 +201,12 @@ HiCDOCDataSetFromCool <- function(
     paths,
     replicates,
     conditions,
-    binSize = NULL
+    binSize = NA
 ) {
 
-    if (is.factor(paths)) paths <- as.vector(paths)
+    if (is.factor(paths)) {
+        paths <- as.vector(paths)
+    }
     if (!is.character(paths)) {
         stop("'paths' must be a vector of characters.", call. = FALSE)
     }
@@ -232,28 +216,27 @@ HiCDOCDataSetFromCool <- function(
         }
     }
 
-    if (is.factor(replicates)) conditions <- as.vector(replicates)
+    if (is.factor(replicates)) {
+        conditions <- as.vector(replicates)
+    }
     if (is.null(replicates)) {
         stop("'replicates' must be a vector of replicates.", call. = FALSE)
     }
 
-    if (is.factor(conditions)) conditions <- as.vector(conditions)
+    if (is.factor(conditions)) {
+        conditions <- as.vector(conditions)
+    }
     if (is.null(conditions)) {
         stop("'conditions' must be a vector of conditions.", call. = FALSE)
     }
 
-    if (
-        !is.null(binSize) &&
-        (!is.numeric(binSize) || length(binSize) != 1)
-    ) {
+    if (!is.na(binSize) && (!is.numeric(binSize) || length(binSize) != 1)) {
         stop("'binSize' must be an integer.", call. = FALSE)
     }
 
     object <- new("HiCDOCDataSet")
     object@input <- paths
-    object@replicates <- replicates
-    object@conditions <- conditions
-    object <- .parseCool(object, binSize)
+    object <- .parseCool(object, binSize, replicates, conditions)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
@@ -316,7 +299,9 @@ HiCDOCDataSetFromHiC <- function(
     binSize = NULL
 ) {
 
-    if (is.factor(paths)) paths <- as.vector(paths)
+    if (is.factor(paths)) {
+        paths <- as.vector(paths)
+    }
     if (!is.character(paths)) {
         stop("'paths' must be a vector of characters.", call. = FALSE)
     }
@@ -326,25 +311,34 @@ HiCDOCDataSetFromHiC <- function(
         }
     }
 
-    if (is.factor(replicates)) replicates <- as.vector(replicates)
+    if (is.factor(replicates)) {
+        replicates <- as.vector(replicates)
+    }
     if (is.null(replicates)) {
         stop("'replicates' must be a vector of replicates.", call. = FALSE)
     }
+    if (length(replicates) != length(paths)) {
+        stop("'replicates' should have the same length as 'paths'")
+    }
 
-    if (is.factor(conditions)) conditions <- as.vector(conditions)
+    if (is.factor(conditions)) {
+        conditions <- as.vector(conditions)
+    }
     if (is.null(conditions)) {
         stop("'conditions' must be a vector of conditions.", call. = FALSE)
+    }
+    if (length(conditions) != length(paths)) {
+        stop("'conditions' should have the same length as 'paths'")
     }
 
     if (!is.numeric(binSize) || length(binSize) != 1) {
         stop("'binSize' must be an integer.", call. = FALSE)
     }
+    binSize <- as.integer(binSize)
 
     object <- new("HiCDOCDataSet")
     object@input <- paths
-    object@replicates <- replicates
-    object@conditions <- conditions
-    object <- .parseHiC(object, binSize)
+    object <- .parseHiC(object, binSize, replicates, conditions)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
@@ -412,12 +406,16 @@ HiCDOCDataSetFromHiCPro <- function(
     conditions = NULL
 ) {
 
-    if (is.factor(matrixPaths)) matrixPaths <- as.vector(matrixPaths)
+    if (is.factor(matrixPaths)) {
+        matrixPaths <- as.vector(matrixPaths)
+    }
     if (!is.character(matrixPaths)) {
         stop("'matrixPaths' must be a vector of characters.", call. = FALSE)
     }
 
-    if (is.factor(bedPaths)) bedPaths <- as.vector(bedPaths)
+    if (is.factor(bedPaths)) {
+        bedPaths <- as.vector(bedPaths)
+    }
     if (!is.character(bedPaths)) {
         stop("'bedPaths' must be a vector of characters.", call. = FALSE)
     }
@@ -425,13 +423,13 @@ HiCDOCDataSetFromHiCPro <- function(
     if (length(matrixPaths) != length(bedPaths)) {
         stop(
             "'matrixPaths' and 'bedPaths' must have the same length.",
-            call. = FALSE
+             call. = FALSE
         )
     }
 
     paths <-
-        split(
-            cbind(matrixPaths, bedPaths),
+        base::split(
+            base::cbind(matrixPaths, bedPaths),
             seq(length(matrixPaths))
         )
 
@@ -441,25 +439,29 @@ HiCDOCDataSetFromHiCPro <- function(
         }
     }
 
-    if (is.factor(replicates)) replicates <- as.vector(replicates)
+    if (is.factor(replicates)) {
+        replicates <- as.vector(replicates)
+    }
     if (is.null(replicates)) {
         stop("'replicates' must be a vector of replicates.", call. = FALSE)
     }
 
-    if (is.factor(conditions)) conditions <- as.vector(conditions)
+    if (is.factor(conditions))
+        conditions <- as.vector(conditions)
     if (is.null(conditions)) {
         stop("'conditions' must be a vector of conditions.", call. = FALSE)
     }
 
     if (length(conditions) != length(replicates)) {
-        stop("'conditions' and 'replicates' must have the same length", call. = FALSE)
+        stop(
+            "'conditions' and 'replicates' must have the same length",
+             call. = FALSE
+        )
     }
-    
+
     object <- new("HiCDOCDataSet")
     object@input <- paths
-    object@replicates <- replicates
-    object@conditions <- conditions
-    object <- .parseHiCPro(object)
+    object <- .parseHiCPro(object, replicates, conditions)
     object <- .fillHiCDOCDataSet(object)
     return(invisible(object))
 }
@@ -570,12 +572,16 @@ HiCDOCDataSetFromHiCPro <- function(
 #' }
 #'
 #' @export
-HiCDOC <- function(object, parallel = FALSE) {
+HiCDOC <- function(
+    object,
+    parallel = FALSE
+) {
+
     object <- filterSmallChromosomes(object)
     object <- filterSparseReplicates(object)
     object <- filterWeakPositions(object)
     object <- normalizeTechnicalBiases(object, parallel = parallel)
-    object <- normalizeBiologicalBiases(object)
+    object <- normalizeBiologicalBiases(object, parallel = parallel)
     object <- normalizeDistanceEffect(object)
     object <- detectCompartments(object, parallel = parallel)
     return(invisible(object))

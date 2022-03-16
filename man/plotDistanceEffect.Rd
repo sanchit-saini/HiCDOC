@@ -4,16 +4,23 @@
 \alias{plotDistanceEffect}
 \title{Plot the distance effect.}
 \usage{
-plotDistanceEffect(object)
+plotDistanceEffect(object, chromosome = NULL)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
+
+\item{chromosome}{Name (character) or index of the chromosome, if the plot should be
+restricted to only one chromosome. Default to NULL.}
 }
 \value{
 A \code{ggplot}.
 }
 \description{
 Plots the distance effect on proportion of interactions.
+Each point is a cell in the interaction matrix, such that
+the x-axis is the distance with respect to the diagonal,
+the y-axis is number of counts.
+Dots are binned.
 }
 \examples{
 data(exampleHiCDOCDataSet)

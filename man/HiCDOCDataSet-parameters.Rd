@@ -65,7 +65,7 @@ custom parameters will be used.
         \item{\code{loessSampleSize}}{
             The number of positions used as a sample to estimate the effect
             of distance on proportion of interactions when normalizing with
-            \code{\link{normalizeDistanceEffect}} Defaults to
+            \code{\link{normalizeDistanceEffect}}. Defaults to
             \code{defaultHiCDOCParameters$loessSampleSize} = 20000.
         }
         \item{\code{kMeansDelta}}{

@@ -21,52 +21,51 @@
 #' @export
 plotCentroids <- function(object, chromosome, size = 2) {
     .validateSlots(object, slots = "centroids")
+    if (length(chromosome) > 1) {
+        warning(
+            "`chromosome` should be of length 1, ",
+            "taking the first one"
+        )
+        chromosome < chromosome[1]
+    }
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
 
-    df <-
-        object@centroids %>%
-        dplyr::filter(chromosome == chromosomeName) %>%
-        dplyr::select(-chromosome) %>%
-        tidyr::unite(name, c(condition, compartment))
-
+    df <- object@centroids[
+        chromosome == chromosomeName,
+        .(condition, compartment, centroid)
+    ]
+    
     if (nrow(df) == 0) {
         message("No centroids for chromosome ", chromosomeName, ".")
         return(NULL)
     }
+    conditions <- df$condition
+    compartments <- df$compartment
 
-    names <- df$name
-    df %<>%
-        tidyr::spread(name, centroid) %>%
-        tidyr::unnest(cols = dplyr::all_of(names)) %>%
-        t()
+    df <- lapply(df$centroid, unlist)
+    df <- do.call("rbind", df)
 
     pca <- stats::prcomp(df)
-    varpca <- pca$sdev^2
+    varpca <- pca$sdev ^ 2
     propvar <- varpca / sum(varpca)
     propvar <- paste(round(100 * propvar, 2), "%")
 
-    pca <- as.data.frame(pca$x)
-    pca$group <- row.names(df)
-    pca %<>%
-        dplyr::mutate(group = strsplit(group, "_", fixed = TRUE)) %>%
-        dplyr::mutate(condition = purrr::map_chr(group, 1),
-                      compartment = purrr::map_chr(group, 2))
+    pca <- as.data.table(pca$x)
+    pca[, condition := conditions]
+    pca[, compartment := compartments]
 
-    plot <-
-        ggplot(
-            pca,
-            aes(
-                x = PC1,
-                y = PC2,
-                color = compartment,
-                shape = condition
-            )
-        ) +
-        geom_point(size = size) +
-        labs(
-            title = paste0("PCA on centroids of chromosome ", chromosomeName),
-            x = paste("PC1 ", propvar[1]),
-            y = paste("PC2 ", propvar[2])
+    plot <- ggplot(
+        pca,
+        aes(
+            x = PC1,
+            y = PC2,
+            color = compartment,
+            shape = condition
         )
+    ) + geom_point(size = size) + labs(
+        title = paste0("PCA on centroids of chromosome ", chromosomeName),
+        x = paste("PC1 ", propvar[1]),
+        y = paste("PC2 ", propvar[2])
+    )
     return(plot)
 }

@@ -7,30 +7,47 @@
 #' The name of a chromosome to normalize.
 #'
 #' @return
-#' A tibble of normalized interactions.
+#' A data.table of normalized interactions.
 #'
 #' @keywords internal
 #' @noRd
-.normalizeDistanceEffectOfChromosome <- function(object, chromosomeName) {
+.normalizeDistanceEffectOfChromosome <- function(object) {
+    chromosomeName <- as.character(
+        SummarizedExperiment::mcols(object)$chromosome[1]
+    )
+    message(
+        "Chromosome ",
+        chromosomeName,
+        ": normalizing distance effect."
+    )
 
-    message("Chromosome ", chromosomeName, ": normalizing distance effect.")
+    currentAssay <- SummarizedExperiment::assay(object)
 
-    chromosomeInteractions <-
-        object@interactions %>%
-        dplyr::filter(chromosome == chromosomeName) %>%
-        dplyr::filter(interaction > 0) %>%
-        dplyr::mutate(distance = (bin.2 - bin.1) * object@binSize)
+    # Reordering columns in alphabetic order (useful for tests)
+    validAssay <- object@validAssay[[chromosomeName]]
+    refOrder <- paste(object$condition, object$replicate)
+    values <- currentAssay[, validAssay, drop = FALSE]
+    values <- values[, order(refOrder[validAssay]), drop = FALSE]
 
-    sample <-
-        chromosomeInteractions %>%
-        dplyr::sample_n(
-            size = min(
-                object@parameters$loessSampleSize,
-                nrow(chromosomeInteractions)
-            )
-        ) %>%
-        dplyr::select(distance, interaction) %>%
-        dplyr::arrange(distance)
+    distances <- InteractionSet::pairdist(object, type = "mid")
+
+    chromosomeValues <- data.table(
+        "distance" = rep(distances, length(validAssay)),
+        "value" = as.vector(values)
+    )
+    chromosomeValues <- chromosomeValues[!is.na(value), ]
+    # TODO : apreès refactoring, supprimer cette ligne - ça ne sert juste à retrouver des résultats identiques avant le sampling
+    setorder(chromosomeValues, distance, value)
+
+    idSample <- sample(
+        seq_len(nrow(chromosomeValues)),
+        size = min(
+            object@parameters$loessSampleSize,
+            nrow(chromosomeValues)
+        )
+    )
+    sample <- chromosomeValues[idSample]
+    setorder(sample, distance)
 
     if (nrow(sample) == 0) {
         message("Chromosome ", chromosomeName, " is empty.")
@@ -48,13 +65,14 @@
                 model <- stats::update(model, span = span)
                 span <- model$pars$span
                 trace <- model$trace.hat
-                sigma2 <- sum(model$residuals^2) / (model$n - 1)
+                sigma2 <- sum(model$residuals ^ 2) / (model$n - 1)
                 if (criterion == "aicc") {
-                    quality <-
+                    quality <- (
                         log(sigma2) + 1 + 2 * (2 * (trace + 1)) /
                         (model$n - trace - 2)
+                    )
                 } else if (criterion == "gcv") {
-                    quality <- model$n * sigma2 / (model$n - trace)^2
+                    quality <- model$n * sigma2 / (model$n - trace) ^ 2
                 }
                 return(quality)
             },
@@ -64,53 +82,58 @@
     }
 
     traceMethod <- "approximate"
-    if (object@parameters$loessSampleSize <= 1000) traceMethod <- "exact"
+    if (object@parameters$loessSampleSize <= 1000) {
+        traceMethod <- "exact"
+    }
 
-    loess <-
-        stats::loess(
-            interaction ~ distance,
-            data = sample,
-            control = stats::loess.control(trace.hat = traceMethod)
-        )
+    loess <- stats::loess(
+        value ~ distance,
+        data = sample,
+        control = stats::loess.control(trace.hat = traceMethod)
+    )
     span <- optimizeSpan(loess, criterion = "gcv")
 
-    loess <-
-        stats::loess(
-            interaction ~ distance,
-            span = span,
-            data = sample,
-            control = stats::loess.control(trace.hat = traceMethod)
-        )
+    loess <- stats::loess(
+        value ~ distance,
+        span = span,
+        data = sample,
+        control = stats::loess.control(trace.hat = traceMethod)
+    )
+    sample[, loess := stats::predict(loess)]
+    sample[, loess := pmax(loess, 0)]
+    sample[, value := NULL]
+    data.table::setnames(sample, "distance", "sampleDistance")
+    sample <- unique(sample)
 
-    sample %<>%
-        dplyr::mutate(loess = stats::predict(loess)) %>%
-        dplyr::mutate(loess = pmax(loess, 0)) %>%
-        dplyr::rename(sampleDistance = distance) %>%
-        dplyr::select(-interaction) %>%
-        unique()
+    uniqueDistances <- unique(sort(chromosomeValues$distance))
+    sampleDistance <- unique(sort(sample$sampleDistance))
+    sampleDistance <- vapply(
+        uniqueDistances,
+        function(distance) {
+            sampleDistance[which.min(abs(distance - sampleDistance))]
+        },
+        FUN.VALUE = 0
+    )
+    valueMap <- data.table(
+        "distance" = uniqueDistances,
+        "sampleDistance" = sampleDistance
+    )
+    valueMap <- data.table::merge.data.table(
+        valueMap,
+        sample,
+        by = "sampleDistance"
+    )
 
-    sampleDistances <- unique(sort(sample$sampleDistance))
-    uniqueDistances <- unique(sort(chromosomeInteractions$distance))
-    valueMap <-
-        dplyr::tibble(
-            distance = uniqueDistances,
-            sampleDistance = vapply(
-                uniqueDistances,
-                function(distance) {
-                    sampleDistances[which.min(abs(distance - sampleDistances))]
-                },
-                FUN.VALUE = 0
-            )
-        ) %>%
-        dplyr::left_join(sample, by = "sampleDistance") %>%
-        dplyr::select(-sampleDistance)
+    loessDistances <- data.table::merge.data.table(
+        data.table("distance" = distances),
+        valueMap,
+        by = "distance",
+        sort = FALSE,
+        all.x = TRUE
+    )
+    currentAssay <- currentAssay / (loessDistances$loess + 0.00001)
 
-    chromosomeInteractions %<>%
-        dplyr::left_join(valueMap, by = "distance") %>%
-        dplyr::mutate(interaction = interaction / (loess + 0.00001)) %>%
-        dplyr::select(-distance, -loess)
-
-    return(chromosomeInteractions)
+    return(currentAssay)
 }
 
 #' @title
@@ -128,6 +151,8 @@
 #' on proportion of interactions. Defaults to
 #' \code{object$loessSampleSize} which is originally set to
 #' \code{defaultHiCDOCParameters$loessSampleSize} = 20000.
+#' @param parallel
+#' Should the normalization be run in parallel mode? Default to FALSE.
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}} with normalized interactions.
@@ -143,37 +168,29 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @export
-normalizeDistanceEffect <- function(object, loessSampleSize = NULL) {
-
-    .validateSlots(
-        object,
-        slots = c(
-            "interactions",
-            "chromosomes",
-            "binSize",
-            "parameters"
-        )
-    )
-
+normalizeDistanceEffect <- function(
+    object,
+    loessSampleSize = NULL,
+    parallel = FALSE
+) {
     if (!is.null(loessSampleSize)) {
         object@parameters$loessSampleSize <- loessSampleSize
     }
     object@parameters <- .validateParameters(object@parameters)
+    objectChromosomes <- S4Vectors::split(
+        object,
+        SummarizedExperiment::mcols(object)$chromosome,
+        drop = FALSE
+    )
 
-    normalizedInteractions <-
-        purrr::map_dfr(
-            object@chromosomes,
-            function(chromosomeName) {
-                .normalizeDistanceEffectOfChromosome(object, chromosomeName)
-            }
-        ) %>%
-        .sortInteractions(
-            object@chromosomes,
-            object@conditions,
-            object@replicates
-        )
+    normAssay <- .internalLapply(
+        parallel,
+        objectChromosomes,
+        FUN = .normalizeDistanceEffectOfChromosome
+    )
 
-    object@interactions <- normalizedInteractions
+    normAssay <- do.call("rbind", normAssay)
+    SummarizedExperiment::assay(object) <- normAssay
 
     return(object)
 }

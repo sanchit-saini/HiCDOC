@@ -14,7 +14,9 @@
 #'
 #' @keywords internal
 #' @noRd
-.normalizeKnightRuiz <- function(m) {
+.normalizeKnightRuiz <- function(cm) {
+    m <- cm@matrix
+    m[is.na(m)] <- 0
     tol <- 1e-6
     minDelta <- 0.1
     maxDelta <- 3
@@ -87,7 +89,8 @@
         eta <- max(c(min(c(eta, etamax)), stop_tol / res_norm))
     }
     result <- t(t(x[, 1] * m) * x[, 1])
-    return(result)
+    cm@matrix <- result
+    return(cm)
 }
 
 #' @description
@@ -100,53 +103,68 @@
 #' The name of a chromosome to normalize.
 #'
 #' @return
-#' A tibble of normalized interactions.
+#' A data.table of normalized interactions.
 #'
 #' @keywords internal
 #' @noRd
-.normalizeBiologicalBiasesOfChromosome <- function(object, chromosomeName) {
+.normalizeBiologicalBiasesOfChromosome <- function(object) {
 
+    chromosomeName <- as.character(
+      SummarizedExperiment::mcols(object)$chromosome[1]
+    )
     message("Chromosome ", chromosomeName, ": normalizing biological biases.")
+    if (object@totalBins[[chromosomeName]] <= 0) {
+        return(NULL)
+    }
+    currentOrder <- InteractionSet::anchorIds(object)
+    currentAssay <- SummarizedExperiment::assay(object)
 
-    if (object@totalBins[[chromosomeName]] == -Inf) return(NULL)
+    # Pass by InteractionSet so we can use inflate/deflate
+    chromosomeInteractionSet <- InteractionSet::InteractionSet(
+        currentAssay,
+        InteractionSet::interactions(object)
+    )
+    validAssay <- object@validAssay[[chromosomeName]]
 
-    matrices <-
-        mapply(
-            function(conditionName, replicateName) {
-                .sparseInteractionsToMatrix(
-                    object,
-                    chromosomeName,
-                    conditionName,
-                    replicateName,
-                    filter = TRUE
-                )
-            },
-            object@validConditions[[chromosomeName]],
-            object@validReplicates[[chromosomeName]],
-            SIMPLIFY = FALSE
-        )
+    matrices <- lapply(
+        validAssay,
+        FUN = function(x) {
+            InteractionSet::inflate(
+                chromosomeInteractionSet,
+                rows = chromosomeName,
+                columns = chromosomeName,
+                sample = x,
+                sparse = FALSE
+            )
+        }
+    )
+    matrices <- lapply(
+        matrices,
+        function(m) {
+            m@matrix[is.na(m@matrix)] <- 0
+            return(m)
+        }
+    )
 
-    normalizedMatrices <- lapply(matrices, .normalizeKnightRuiz)
+    matrices <- lapply(matrices, .normalizeKnightRuiz)
+    matrices <- lapply(
+        matrices,
+        function(m) {
+            m@matrix[m@matrix == 0] <- NA
+            return(m)
+        }
+    )
+    matrices <- lapply(matrices, InteractionSet::deflate, use.na = TRUE)
 
-    interactions <-
-        purrr::pmap_dfr(
-            list(
-                normalizedMatrices,
-                object@validConditions[[chromosomeName]],
-                object@validReplicates[[chromosomeName]]
-            ),
-            .f = function(matrix, conditionName, replicateName) {
-                .matrixToSparseInteractions(
-                    matrix,
-                    object,
-                    chromosomeName,
-                    conditionName,
-                    replicateName
-                )
-            }
-        )
-
-    return(interactions)
+    ids <- InteractionSet::anchorIds(matrices[[1]])
+    ids <- paste(ids$first, ids$second)
+    correctIds <- paste(currentOrder$first, currentOrder$second)
+    orderids <- match(correctIds, ids)
+    matrices <- lapply(matrices, function(x) SummarizedExperiment::assay(x))
+    matrices <- lapply(matrices, function(x) x[orderids, ])
+    matrices <- do.call(base::"cbind", matrices)
+    currentAssay[, validAssay] <- matrices
+    return(currentAssay)
 }
 
 #' @title
@@ -160,6 +178,8 @@
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
+#' @param parallel
+#' Should the normalization be run in parallel mode? Default to FALSE.
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}} with normalized interactions.
@@ -179,34 +199,29 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @export
-normalizeBiologicalBiases <- function(object) {
+normalizeBiologicalBiases <- function(object, parallel = FALSE) {
 
     .validateSlots(
         object,
         slots = c(
-            "interactions",
-            "chromosomes",
             "totalBins",
-            "weakBins",
-            "validReplicates",
-            "validConditions"
+            "validAssay"
         )
     )
+    objectChromosomes <- S4Vectors::split(
+        object,
+        SummarizedExperiment::mcols(object)$chromosome,
+        drop = FALSE
+    )
 
-    normalizedInteractions <-
-        purrr::map_dfr(
-            object@chromosomes,
-            function(chromosomeName) {
-                .normalizeBiologicalBiasesOfChromosome(object, chromosomeName)
-            }
-        ) %>%
-        .sortInteractions(
-            object@chromosomes,
-            object@conditions,
-            object@replicates
-        )
+    normAssay <- .internalLapply(
+        parallel,
+        objectChromosomes,
+        FUN = .normalizeBiologicalBiasesOfChromosome
+    )
+    normAssay <- do.call("rbind", normAssay)
 
-    object@interactions <- normalizedInteractions
+    SummarizedExperiment::assay(object) <- normAssay
 
     return(object)
 }

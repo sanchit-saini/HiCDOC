@@ -21,9 +21,8 @@ test_that("HiCDOCDataSetFromPro works as expected", {
         ),
         "liver_18_10M_500000.matrix")
 
-    expect_equal(nrow(object@interactions), 210)
+    expect_equal(length(object), 210)
     expect_identical(object@chromosomes, "18")
-    expect_identical(object@conditions, 1)
-    expect_identical(object@replicates, 1)
-    expect_identical(object@binSize, 500000L)
+    expect_identical(object$condition, 1)
+    expect_identical(object$replicate, 1)
 })

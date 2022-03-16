@@ -30,15 +30,9 @@
 #'
 #' @export
 filterSmallChromosomes <- function(object, threshold = NULL) {
-
     .validateSlots(
-        object,
-        slots = c(
-            "interactions",
-            "chromosomes",
-            "totalBins",
-            "parameters"
-        )
+      object,
+      slots = c("chromosomes", "totalBins", "parameters")
     )
 
     if (!is.null(threshold)) {
@@ -51,22 +45,27 @@ filterSmallChromosomes <- function(object, threshold = NULL) {
         "Keeping chromosomes with at least ",
         threshold,
         " position",
-        if (threshold != 1) "s",
+        if (threshold != 1)
+            "s",
         "."
     )
 
-    bigChromosomes <-
-        vapply(
-            object@totalBins,
-            function(totalBins) totalBins >= threshold,
-            FUN.VALUE = TRUE
-        )
+    bigChromosomes <- vapply(
+        object@totalBins,
+        function(totalBins) totalBins >= threshold,
+        FUN.VALUE = TRUE
+    )
     bigChromosomeNames <- names(bigChromosomes)[bigChromosomes]
     bigChromosomeNames <- gtools::mixedsort(bigChromosomeNames)
-    smallChromosomeNames <-
-        object@chromosomes[!(object@chromosomes %in% bigChromosomeNames)]
+    smallChromosomeNames <- object@chromosomes[
+        !(object@chromosomes %in% bigChromosomeNames)
+    ]
 
-    object <- reduceHiCDOCDataSet(object, chromosomes = bigChromosomeNames)
+    object <- reduceHiCDOCDataSet(
+        object,
+        chromosomes = bigChromosomeNames,
+        dropLevels = TRUE
+    )
 
     message(
         "Kept ",

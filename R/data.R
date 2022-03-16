@@ -13,16 +13,25 @@
 #'   \item{binSize}{A resolution of 137 bases}
 #' }
 #'
+#' @usage data(exampleHiCDOCDataSet)
+#'
 #' @return
 #' A \code{\link{HiCDOCDataSet}}.
+#'
+#' @examples
+#' data(exampleHiCDOCDataSet)
+#' exampleHiCDOCDataSet
 "exampleHiCDOCDataSet"
 
 
 #' @title
-#' Example HiCDOCDataSet, filtered and normalized.
+#' Example HiCDOCDataSet, filtered, normalized and with compartements detected.
 #'
 #' @description
 #' A S4 HiCDOCDataSet object with 3 chromosomes, 3 conditions and 3 replicates.
+#' Can be retrieved by running :
+#' \code{set.seed(123);
+#' exampleHiCDOCDataSetProcessed <- HiCDOC(exampleHiCDOCDataSet)}
 #'
 #' @format
 #' S4 HiCDOCDataSet object with the following characteristics:
@@ -33,6 +42,12 @@
 #'   \item{binSize}{A resolution of 137 bases}
 #' }
 #'
+#' @usage data(exampleHiCDOCDataSetProcessed)
+#'
 #' @return
 #' A \code{\link{HiCDOCDataSet}}, already filtered and normalized.
+#'
+#' @examples
+#' data(exampleHiCDOCDataSetProcessed)
+#' exampleHiCDOCDataSetProcessed
 "exampleHiCDOCDataSetProcessed"

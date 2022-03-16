@@ -62,45 +62,42 @@ plotCompartmentChanges <- function(
     }
 
     # Horizontal alignment of the sub-graphs (change width of the plots)
-    plotsGrobs <-
-        lapply(
-            list(
-                compartmentsPlot + theme(legend.position = "none"),
-                concordancesPlot + theme(legend.position = "none")
-            ),
-            ggplot2::ggplotGrob
-        )
+    plotsGrobs <- lapply(
+        list(
+            compartmentsPlot + theme(legend.position = "none"),
+            concordancesPlot + theme(legend.position = "none")
+        ),
+        ggplot2::ggplotGrob
+    )
 
     commonWidths <- plotsGrobs[[length(plotsGrobs)]]$widths
-    plotsGrobs <-
-        lapply(
-            plotsGrobs,
-            function(x) {
-                x$widths <- commonWidths
-                return(x)
-            }
-        )
+    plotsGrobs <- lapply(
+        plotsGrobs,
+        function(x) {
+            x$widths <- commonWidths
+            return(x)
+        }
+    )
 
-    plot <-
-        ggpubr::as_ggplot(
+    plot <- ggpubr::as_ggplot(
+        gridExtra::arrangeGrob(
             gridExtra::arrangeGrob(
-                gridExtra::arrangeGrob(
-                    plotsGrobs[[1]],
-                    plotsGrobs[[2]],
-                    heights = c(1, 5),
-                    padding = unit(0, "cm")
-                ),
-                gridExtra::arrangeGrob(
-                    .extractLegends(ggplotGrob(compartmentsPlot)),
-                    .extractLegends(ggplotGrob(concordancesPlot)),
-                    ncol = 2
-                ),
-                heights = c(10, 1),
-                top = paste0(
-                    "Compartments and concordances of chromosome ",
-                    chromosomeName
-                )
+                plotsGrobs[[1]],
+                plotsGrobs[[2]],
+                heights = c(1, 5),
+                padding = unit(0, "cm")
+            ),
+            gridExtra::arrangeGrob(
+                .extractLegends(ggplotGrob(compartmentsPlot)),
+                .extractLegends(ggplotGrob(concordancesPlot)),
+                ncol = 2
+            ),
+            heights = c(10, 1),
+            top = paste0(
+                "Compartments and concordances of chromosome ",
+                chromosomeName
             )
         )
+    )
     return(plot)
 }

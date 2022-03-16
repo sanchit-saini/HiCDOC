@@ -4,7 +4,7 @@
 \alias{normalizeDistanceEffect}
 \title{Normalize distance effect.}
 \usage{
-normalizeDistanceEffect(object, loessSampleSize = NULL)
+normalizeDistanceEffect(object, loessSampleSize = NULL, parallel = FALSE)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
@@ -13,6 +13,8 @@ normalizeDistanceEffect(object, loessSampleSize = NULL)
 on proportion of interactions. Defaults to
 \code{object$loessSampleSize} which is originally set to
 \code{defaultHiCDOCParameters$loessSampleSize} = 20000.}
+
+\item{parallel}{Should the normalization be run in parallel mode? Default to FALSE.}
 }
 \value{
 A \code{\link{HiCDOCDataSet}} with normalized interactions.

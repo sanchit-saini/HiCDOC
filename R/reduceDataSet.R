@@ -15,41 +15,65 @@
 #'
 #' @keywords internal
 #' @noRd
-.reduceHiCDOCChromosomes <-
-    function(object, chromosomeNames, dropLevels) {
-        chromosomeIds <- which(object@chromosomes %in% chromosomeNames)
-        object@chromosomes <- object@chromosomes[chromosomeIds]
-        if (dropLevels) {
-            object@chromosomes <-
-                gtools::mixedsort(unique(as.character(object@chromosomes)))
-        }
+.reduceHiCDOCChromosomes <- function(object, chromosomeNames, dropLevels) {
+    chromosomeIds <- which(object@chromosomes %in% chromosomeNames)
+    object@chromosomes <- object@chromosomes[chromosomeIds]
 
-        object@weakBins <- object@weakBins[chromosomeIds]
-        object@totalBins <- object@totalBins[chromosomeIds]
-        object@validReplicates <- object@validReplicates[chromosomeIds]
-        object@validConditions <- object@validConditions[chromosomeIds]
-        for (slotName in c(
-            "interactions",
-            "distances",
-            "selfInteractionRatios",
-            "compartments",
-            "concordances",
-            "differences",
-            "centroids",
-            "positions",
-            "comparisons"
-        )) {
-            if (!is.null(slot(object, slotName))) {
-                slot(object, slotName) %<>%
-                    dplyr::filter(chromosome %in% chromosomeNames)
+    object@weakBins <- object@weakBins[chromosomeIds]
+    object@totalBins <- object@totalBins[chromosomeIds]
+    object@validAssay <- object@validAssay[chromosomeIds]
+
+    toKeep <- S4Vectors::`%in%`(
+        S4Vectors::mcols(object)$chromosome,
+        chromosomeNames
+    )
+    object <- object[toKeep, ]
+
+    if (dropLevels) {
+        SummarizedExperiment::mcols(object)$chromosome <- droplevels(
+            SummarizedExperiment::mcols(object)$chromosome
+        )
+        object <- InteractionSet::reduceRegions(object)
+        GenomeInfoDb::seqlevels(
+            InteractionSet::regions(object),
+            pruning.mode = "coarse"
+        ) <- object@chromosomes
+
+    }
+    for (slotName in c(
+        "distances",
+        "selfInteractionRatios",
+        "compartments",
+        "concordances",
+        "differences",
+        "centroids",
+        "comparisons"
+    )) {
+        if (!is.null(slot(object, slotName))) {
+            tmp <- slot(object, slotName)
+            if (is(tmp, "data.table")) {
+                tmp <- tmp[chromosome %in% chromosomeNames]
                 if (dropLevels) {
-                    slot(object, slotName) %<>%
-                        dplyr::mutate(chromosome = droplevels(chromosome))
+                    tmp[, chromosome := droplevels(chromosome)]
+                }
+            } else {
+                if (!is(tmp, "GRanges")) {
+                    stop("malformed HiCDOCDataSet")
+                }
+                if (dropLevels) {
+                    GenomeInfoDb::seqlevels(
+                        tmp,
+                        pruning.mode = "coarse"
+                    ) <- object@chromosomes
+                } else {
+                    tmp <- tmp[S4Vectors::`%in%`(tmp@seqnames, chromosomeNames)]
                 }
             }
+            slot(object, slotName)  <- tmp
         }
-        return(object)
     }
+    return(object)
+}
 
 #' @description
 #' Reduces a \code{\link{HiCDOCDataSet}} by keeping only given conditions.
@@ -68,50 +92,39 @@
 #'
 #' @keywords internal
 #' @noRd
-.reduceHiCDOCConditions <-
-    function(object, conditionNames, dropLevels) {
-        conditionIds <- which(object@conditions %in% conditionNames)
-        object@conditions <- object@conditions[conditionIds]
-        object@replicates <- object@replicates[conditionIds]
+.reduceHiCDOCConditions <- function(object, conditionNames, dropLevels) {
+    conditionIds <- which(object$condition %in% conditionNames)
+    object <- object[, conditionIds]
 
-        selection <- lapply(
-            object@validConditions,
-            FUN = function(x)
-                which(x %in% conditionNames)
-        )
-        object@validConditions <- mapply(
-            FUN = function(x, y)
-                x[y],
-            object@validConditions,
-            selection,
-            SIMPLIFY = FALSE
-        )
-        object@validReplicates <- mapply(
-            FUN = function(x, y)
-                x[y],
-            object@validReplicates,
-            selection,
-            SIMPLIFY = FALSE
-        )
-        for (slotName in c(
-            "interactions",
-            "distances",
-            "selfInteractionRatios",
-            "compartments",
-            "concordances",
-            "centroids"
-        )) {
-            if (!is.null(slot(object, slotName))) {
-                slot(object, slotName) %<>%
-                    dplyr::filter(condition %in% conditionNames)
+    object@validAssay <- .determineValids(object)
+    for (slotName in c(
+        "distances",
+        "selfInteractionRatios",
+        "compartments",
+        "concordances",
+        "centroids"
+    )) {
+        if (!is.null(slot(object, slotName))) {
+            tmp <- slot(object, slotName)
+            if (is(tmp, "data.table")) {
+                tmp <- tmp[condition %in% conditionNames]
                 if (dropLevels) {
-                    slot(object, slotName) %<>%
-                        dplyr::mutate(condition = droplevels(condition))
+                    tmp[, condition := droplevels(condition)]
+                }
+            } else {
+                if (!is(tmp, "GRanges")) {
+                    stop("malformed HiCDOCDataSet")
+                }
+                tmp <- tmp[tmp$condition %in% conditionNames]
+                if (dropLevels) {
+                    tmp$condition <- droplevels(tmp$condition)
                 }
             }
+            slot(object, slotName)  <- tmp
         }
-        return(object)
     }
+    return(object)
+}
 
 #' @description
 #' Reduces a \code{\link{HiCDOCDataSet}} by keeping only given replicates.
@@ -130,46 +143,39 @@
 #'
 #' @keywords internal
 #' @noRd
-.reduceHiCDOCReplicates <-
-    function(object, replicateNames, dropLevels) {
-        replicateIds <- which(object@replicates %in% replicateNames)
-        object@conditions <- object@conditions[replicateIds]
-        object@replicates <- object@replicates[replicateIds]
+.reduceHiCDOCReplicates <- function(object, replicateNames, dropLevels) {
+    replicateIds <- which(object$replicate %in% replicateNames)
+    object <- object[, replicateIds]
 
-        selection <- lapply(
-            object@validReplicates,
-            FUN = function(x)
-                which(x %in% replicateNames)
-        )
-        object@validConditions <- mapply(
-            FUN = function(x, y)
-                x[y],
-            object@validConditions,
-            selection,
-            SIMPLIFY = FALSE
-        )
-        object@validReplicates <- mapply(
-            FUN = function(x, y)
-                x[y],
-            object@validReplicates,
-            selection,
-            SIMPLIFY = FALSE
-        )
-        for (slotName in c("interactions",
-                           "distances",
-                           "selfInteractionRatios",
-                           "concordances")) {
-            if (!is.null(slot(object, slotName))) {
-                slot(object, slotName) %<>%
-                    dplyr::filter(replicate %in% replicateNames)
+    object@validAssay <- .determineValids(object)
+
+
+    for (slotName in c(
+        "distances",
+        "selfInteractionRatios",
+        "concordances"
+    )) {
+        if (!is.null(slot(object, slotName))) {
+            tmp <- slot(object, slotName)
+            if (is(tmp, "data.table")) {
+                tmp <- tmp[replicate %in% replicateNames]
                 if (dropLevels) {
-                    slot(object, slotName) %<>%
-                        dplyr::mutate(replicate = droplevels(replicate))
+                    tmp[, replicate := droplevels(replicate)]
+                }
+            } else {
+                if (!is(tmp, "GRanges")) {
+                    stop("malformed HiCDOCDataSet")
+                }
+                tmp <- tmp[tmp$replicate %in% replicateNames]
+                if (dropLevels) {
+                    tmp$replicate <- droplevels(tmp$replicate)
                 }
             }
+            slot(object, slotName)  <- tmp
         }
-        return(object)
     }
+    return(object)
+}
 
 #' @title
 #' Reduce a \code{\link{HiCDOCDataSet}}.
@@ -200,11 +206,13 @@
 #' reduced <- reduceHiCDOCDataSet(exampleHiCDOCDataSet, chromosomes = c(1, 2))
 #'
 #' @export
-reduceHiCDOCDataSet <- function(object,
-                                chromosomes = NULL,
-                                conditions = NULL,
-                                replicates = NULL,
-                                dropLevels = TRUE) {
+reduceHiCDOCDataSet <- function(
+    object,
+    chromosomes = NULL,
+    conditions = NULL,
+    replicates = NULL,
+    dropLevels = TRUE
+) {
     if (!is.null(object@differences)) {
         warning(
             "You should not reduce a HiCDOCDataSet after calling ",
@@ -213,26 +221,20 @@ reduceHiCDOCDataSet <- function(object,
             call. = FALSE
         )
     }
-    chromosomeNames <-
-        .validateNames(object, chromosomes, "chromosomes")
-    conditionNames <-
-        .validateNames(object, conditions, "conditions")
-    replicateNames <-
-        .validateNames(object, replicates, "replicates")
 
-    if (!is.null(chromosomeNames)) {
-        object <-
-            .reduceHiCDOCChromosomes(object, chromosomeNames, dropLevels)
+    if (!is.null(chromosomes)) {
+        chromosomeNames <- .validateNames(object, chromosomes, "chromosomes")
+        object <- .reduceHiCDOCChromosomes(object, chromosomeNames, dropLevels)
     }
 
-    if (!is.null(conditionNames)) {
-        object <-
-            .reduceHiCDOCConditions(object, conditionNames, dropLevels)
+    if (!is.null(conditions)) {
+        conditionNames <- .validateNames(object, conditions, "conditions")
+        object <- .reduceHiCDOCConditions(object, conditions, dropLevels)
     }
 
-    if (!is.null(replicateNames)) {
-        object <-
-            .reduceHiCDOCReplicates(object, replicateNames, dropLevels)
+    if (!is.null(replicates)) {
+        replicateNames <- .validateNames(object, replicates, "replicates")
+        object <- .reduceHiCDOCReplicates(object, replicates, dropLevels)
     }
 
     return(object)

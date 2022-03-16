@@ -7,19 +7,22 @@
 #' HiCDOCDataSet-methods
 #'
 #' @aliases
-#' chromosomes positions conditions replicates binSize interactions
-#' compartments concordances differences show
+#' chromosomes conditions replicates compartments concordances
+#' differences show
 #'
 #' @description
 #' Retrieve information and results from a \code{\link{HiCDOCDataSet}}.
 #' @examples
-#' data(exampleHiCDOCDataSet)
-#' chromosomes(exampleHiCDOCDataSet)
-#' conditions(exampleHiCDOCDataSet)
-#' binSize(exampleHiCDOCDataSet)
+#' data(exampleHiCDOCDataSetProcessed)
+#' chromosomes(exampleHiCDOCDataSetProcessed)
+#' conditions(exampleHiCDOCDataSetProcessed)
+#' replicates(exampleHiCDOCDataSetProcessed)
+#' compartments(exampleHiCDOCDataSetProcessed)
+#' differences(exampleHiCDOCDataSetProcessed)
+#' concordances(exampleHiCDOCDataSetProcessed)
 #' @return
 #' A character vector (for \code{chromosomes}, \code{conditions},
-#' \code{replicates}), an integer(for \code{binSize}), a tibble
+#' \code{replicates}), a data.table
 #' (for \code{interactions} and \code{positions}), or a GRanges object
 #' (for \code{compartments}, \code{concordances}, \code{differences}).
 NULL
@@ -32,17 +35,6 @@ setGeneric(
     name = "chromosomes",
     def = function(object) {
         standardGeneric("chromosomes")
-    }
-)
-
-#### positions ####
-#' @describeIn HiCDOCDataSet-methods
-#' Retrieves the genomic positions corresponding to bins for each chromosome.
-#' @export
-setGeneric(
-    name = "positions",
-    def = function(object) {
-        standardGeneric("positions")
     }
 )
 
@@ -65,28 +57,6 @@ setGeneric(
     name = "replicates",
     def = function(object) {
         standardGeneric("replicates")
-    }
-)
-
-#### interactions ####
-#' @describeIn HiCDOCDataSet-methods
-#' Retrieves a tibble of the interactions.
-#' @export
-setGeneric(
-    name = "interactions",
-    def = function(object) {
-        standardGeneric("interactions")
-    }
-)
-
-#### binSize ####
-#' @describeIn HiCDOCDataSet-methods
-#' Retrieves the resolution (span of each position in number of bases).
-#' @export
-setGeneric(
-    name = "binSize",
-    def = function(object) {
-        standardGeneric("binSize")
     }
 )
 
@@ -185,7 +155,7 @@ setGeneric(
 #'         \item{\code{loessSampleSize}}{
 #'             The number of positions used as a sample to estimate the effect
 #'             of distance on proportion of interactions when normalizing with
-#'             \code{\link{normalizeDistanceEffect}} Defaults to
+#'             \code{\link{normalizeDistanceEffect}}. Defaults to
 #'             \code{defaultHiCDOCParameters$loessSampleSize} = 20000.
 #'         }
 #'         \item{\code{kMeansDelta}}{

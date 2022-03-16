@@ -4,10 +4,12 @@
 \alias{normalizeBiologicalBiases}
 \title{Normalize biological biases.}
 \usage{
-normalizeBiologicalBiases(object)
+normalizeBiologicalBiases(object, parallel = FALSE)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
+
+\item{parallel}{Should the normalization be run in parallel mode? Default to FALSE.}
 }
 \value{
 A \code{\link{HiCDOCDataSet}} with normalized interactions.

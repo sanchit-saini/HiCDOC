@@ -28,12 +28,12 @@
         }
     }
     if (is.null(xlim)) {
-        positions <-
-            object@positions %>%
-            dplyr::filter(chromosome == chromosomeName) %>%
-            dplyr::select(start) %>%
-            dplyr::pull()
-        xlim <- c(min(positions, na.rm = TRUE), max(positions, na.rm = TRUE))
+        regions <- InteractionSet::regions(object)
+        regions <- regions[GenomeInfoDb::seqnames(regions) == chromosomeName]
+        xlim <- c(
+            min(GenomicRanges::start(regions), na.rm = TRUE),
+            max(GenomicRanges::start(regions), na.rm = TRUE)
+        )
     }
     return(xlim)
 }
@@ -54,4 +54,29 @@
     grob$layout <- grob$layout[matches, , drop = FALSE]
     grob$grobs <- grob$grobs[matches]
     return(grob)
+}
+
+
+#' @description
+#' Complete the levels of replicates to get balanced condition x replicate
+#' @param replicates
+#' Vector of replicates for one conditino
+#' @param expectedLength
+#' Expected length of replicates levels
+#' @param condition
+#' Name of the condition
+#'
+#' @return
+#' A vector with fictif levels if some missing
+#'
+#' @keywords internal
+#' @noRd
+.completeLevels <- function(replicates, expectedLength, condition) {
+    if (length(replicates) < expectedLength) {
+        complete <- paste0("R.", seq(expectedLength))
+        complete[seq(length(replicates))] <- replicates
+    } else {
+        complete <- replicates
+    }
+    return(complete)
 }

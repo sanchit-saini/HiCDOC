@@ -19,28 +19,28 @@ License: LGPL (>= 3)
 Encoding: UTF-8
 SystemRequirements: C++11
 Imports:
-    stats,
-    utils,
     methods,
     zlibbioc,
-    rhdf5,
-    dplyr,
-    tidyr,
-    multiHiCcompare,
-    magrittr,
     ggplot2,
-    ggExtra,
-    gtools,
-    BiocParallel,
-    Rcpp (>= 0.12.8),
     GenomicRanges,
-    gridExtra,
-    purrr,
-    ggpubr,
+    Rcpp (>= 0.12.8),
+    stats,
+    S4Vectors,
+    SummarizedExperiment,
+    gtools,
     pbapply,
-    data.table
+    BiocParallel,
+    BiocGenerics,
+    rhdf5,
+    ggpubr,
+    gridExtra,
+    ggExtra,
+    data.table,
+    InteractionSet,
+    multiHiCcompare,
+    GenomeInfoDb
 LinkingTo: Rcpp
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 biocViews:
     HiC, DNA3DStructure, Normalization, Sequencing, Software, Clustering
 Suggests:

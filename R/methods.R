@@ -4,15 +4,9 @@
 #' @usage
 #' NULL
 #' @export
-setMethod("chromosomes", "HiCDOCDataSet", function(object) object@chromosomes)
-
-#### positions ####
-#' Retrieves the genomic positions corresponding to bins for each chromosome.
-#' @rdname HiCDOCDataSet-methods
-#' @usage
-#' NULL
-#' @export
-setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
+setMethod("chromosomes", "HiCDOCDataSet", function(object) {
+    object@chromosomes
+})
 
 #### conditions ####
 #' Retrieves the vector of condition names.
@@ -20,7 +14,9 @@ setMethod("positions", "HiCDOCDataSet", function(object) object@positions)
 #' @usage
 #' NULL
 #' @export
-setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
+setMethod("conditions", "HiCDOCDataSet", function(object) {
+    object$condition
+})
 
 #### replicates ####
 #' Retrieves the vector of replicate names.
@@ -28,54 +24,46 @@ setMethod("conditions", "HiCDOCDataSet", function(object) object@conditions)
 #' @usage
 #' NULL
 #' @export
-setMethod("replicates", "HiCDOCDataSet", function(object) object@replicates)
-
-#### binSize ####
-#' Retrieves the resolution (span of each position in number of bases).
-#' @rdname HiCDOCDataSet-methods
-#' @usage
-#' NULL
-#' @export
-setMethod("binSize", "HiCDOCDataSet", function(object) object@binSize)
-
-#### interactions ####
-#' Retrieves a tibble of the interactions.
-#' @rdname HiCDOCDataSet-methods
-#' @usage
-#' NULL
-#' @export
-setMethod("interactions", "HiCDOCDataSet", function(object) {
-    if (is.null(object@interactions)) return(NULL)
-
-    interactions <-
-        object@interactions %>%
-        dplyr::left_join(
-            object@positions %>% dplyr::select(
-                chromosome,
-                bin.1 = bin,
-                position.1 = start,
-            ),
-            by = c("chromosome", "bin.1")
-        ) %>%
-        dplyr::left_join(
-            object@positions %>% dplyr::select(
-                chromosome,
-                bin.2 = bin,
-                position.2 = start,
-            ),
-            by = c("chromosome", "bin.2")
-        ) %>%
-        dplyr::select(
-            chromosome,
-            position.1,
-            position.2,
-            condition,
-            replicate,
-            interaction
-        )
-
-    return(interactions)
+setMethod("replicates", "HiCDOCDataSet", function(object) {
+    object$replicate
 })
+
+# TODO : j'aimerai bien doubler les fonctions assay et regions.
+# #### assay ####
+# #' Retrieves the assay matrix of interactions
+# #' @rdname HiCDOCDataSet-methods
+# #' @usage
+# #' NULL
+# #' @export
+# setMethod("assay",
+#           signature(object="HiCDOCDataSet"),
+#           function(object) {
+#               SummarizedExperiment::assay(object@interactions)
+#           })
+#
+# #### regions ####
+# #' Retrieves the regions of interactions
+# #' @rdname HiCDOCDataSet-methods
+# #' @usage
+# #' NULL
+# #' @export
+# setMethod("regions",
+#           signature(object="HiCDOCDataSet"),
+#           function(object) InteractionSet::regions(object@interactions))
+#
+# #### interactions ####
+# #' Retrieves a data.table of the interactions.
+# #' @rdname HiCDOCDataSet-methods
+# #' @usage
+# #' NULL
+# #' @export
+# setMethod("interactions",
+#           signature(object="HiCDOCDataSet"),
+#           function(object) {
+#     if (is.null(object@interactions)) return(NULL)
+#     interactions <- InteractionSet::interactions(object@interactions)
+#     return(interactions)
+# })
 
 #### compartments ####
 #' Retrieves a \code{GenomicRange} of the compartment of every position
@@ -84,39 +72,7 @@ setMethod("interactions", "HiCDOCDataSet", function(object) {
 #' NULL
 #' @export
 setMethod("compartments", "HiCDOCDataSet", function(object) {
-
-    if (is.null(object@compartments)) return(NULL)
-
-    compartments <-
-        object@compartments %>%
-        dplyr::left_join(object@positions, by = c("chromosome", "bin")) %>%
-        dplyr::select(
-            chromosome,
-            start,
-            end,
-            condition,
-            compartment
-        ) %>%
-        dplyr::arrange(chromosome, condition, start, end) %>%
-        dplyr::mutate(
-            consecutive = (
-                start - dplyr::lag(end) == 1 &
-                dplyr::lag(chromosome) == chromosome &
-                dplyr::lag(condition) == condition &
-                dplyr::lag(compartment) == compartment
-            ),
-            consecutive = tidyr::replace_na(consecutive, TRUE),
-            switching = dplyr::if_else(consecutive, 0, 1),
-            group = cumsum(switching)
-        ) %>%
-        dplyr::group_by(group) %>%
-        dplyr::mutate(start = min(start), end = max(end)) %>%
-        dplyr::slice(1) %>%
-        dplyr::ungroup() %>%
-        dplyr::select(-consecutive, -switching, -group) %>%
-        GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE)
-
-    return(compartments)
+    object@compartments
 })
 
 #### differences ####
@@ -126,52 +82,25 @@ setMethod("compartments", "HiCDOCDataSet", function(object) {
 #' NULL
 #' @export
 setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
-
-    if (is.null(object@differences)) return(NULL)
+    if (is.null(object@differences)) {
+        return(NULL)
+    }
 
     if (
-        !is.null(threshold) &&
-        (!is.numeric(threshold) || length(threshold) > 1)
+        !is.null(threshold) && (
+            !is.numeric(threshold) ||
+            length(threshold) > 1
+        )
     ) {
-        stop(
-            "'threshold' must be a number.",
-            call. = FALSE
-        )
+        stop("'threshold' must be a number.", call. = FALSE)
     }
-
-    differences <-
-        object@differences %>%
-        dplyr::left_join(
-            object@positions,
-            by = c("chromosome", "bin")
-        ) %>%
-        dplyr::mutate(
-            significance = dplyr::case_when(
-                pvalue.adjusted <= 0.0001 ~ "****",
-                pvalue.adjusted <= 0.001 ~ "***",
-                pvalue.adjusted <= 0.01 ~ "**",
-                pvalue.adjusted <= 0.05 ~ "*",
-                TRUE ~ ""
-            )
-        ) %>%
-        dplyr::select(
-            chromosome,
-            start,
-            end,
-            condition.1,
-            condition.2,
-            pvalue,
-            pvalue.adjusted,
-            direction,
-            significance
-        )
-
+    differences <- object@differences
     if (!is.null(threshold)) {
-        differences %<>% dplyr::filter(pvalue.adjusted <= threshold)
+        differences <- differences[differences$pvalue.adjusted <= threshold]
     }
 
-    if (nrow(differences) == 0) {
-        if (is.null(threshold)){
+    if (length(differences) == 0) {
+        if (is.null(threshold)) {
             message("No differences found.")
         } else {
             message(
@@ -183,13 +112,7 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
         return(NULL)
     }
 
-    genomicRange <-
-        GenomicRanges::makeGRangesFromDataFrame(
-            differences,
-            keep.extra.columns = TRUE
-        )
-
-    return(genomicRange)
+    return(differences)
 })
 
 #### concordances ####
@@ -200,24 +123,7 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 #' NULL
 #' @export
 setMethod("concordances", "HiCDOCDataSet", function(object) {
-
-    if (is.null(object@concordances)) return(NULL)
-
-    concordances <-
-        object@concordances %>%
-        dplyr::left_join(object@positions, by = c("chromosome", "bin")) %>%
-        dplyr::select(
-            chromosome,
-            start,
-            end,
-            condition,
-            replicate,
-            compartment,
-            concordance
-        ) %>%
-        GenomicRanges::makeGRangesFromDataFrame(keep.extra.columns = TRUE)
-
-    return(concordances)
+    object@concordances
 })
 
 #### show ####
@@ -227,7 +133,6 @@ setMethod("concordances", "HiCDOCDataSet", function(object) {
 #' NULL
 #' @export
 setMethod("show", "HiCDOCDataSet", function(object) {
-
     cat(
         "Object of class 'HiCDOCDataSet'\n\n",
         "- Inputs:\n",
@@ -236,64 +141,62 @@ setMethod("show", "HiCDOCDataSet", function(object) {
             vapply(
                 object@input,
                 function(x) paste0(x),
-                character(
-                    ifelse(
-                        length(object@input) > 0,
-                        length(object@input[[1]]),
-                        1
-                    )
-                )
+                character(ifelse(
+                    length(object@input) > 0,
+                    length(object@input[[1]]),
+                    1
+                ))
             ),
             "\n"
         ),
         "\n",
         "- Chromosomes:\n  ",
-        if (is.null(object@chromosomes) || length(object@chromosomes) == 0)
-        "None"
-        else
-        paste(object@chromosomes, collapse = ", "),
+        if (
+            is.null(object@chromosomes) ||
+            length(object@chromosomes) == 0
+        ) {
+            "None"
+        } else {
+            paste(object@chromosomes, collapse = ", ")
+        },
         "\n\n",
         "- Replicates:\n",
-        if (is.null(object@replicates) || length(object@replicates) == 0)
-        "  None\n"
-        else
-        paste0(
-            "  condition ",
-            object@conditions,
-            ", replicate ",
-            object@replicates,
-            "\n"
-        ),
+        if (
+            is.null(replicates(object)) ||
+            length(replicates(object)) == 0
+        ) {
+            "  None\n"
+        } else {
+            paste0(
+                "  condition ",
+                conditions(object),
+                ", replicate ",
+                replicates(object),
+                "\n"
+            )
+        },
         "\n",
-        "- Resolution (bin size):\n  ",
-        if (is.null(object@binSize))
-        "None"
-        else
-        object@binSize,
-        "\n\n",
         "- Parameters:\n",
         paste0(
-          "  ",
-          vapply(
-            seq_along(parameters(object)),
-            function(x) {
-              paste(
-                names(parameters(object))[x],
-                '=',
-                parameters(object)[x]
-              )
-            },
-            character(1)
-          ),
-          "\n"
+            "  ",
+            vapply(
+                seq_along(parameters(object)),
+                function(x) {
+                    paste(
+                        names(parameters(object))[x],
+                        '=',
+                        parameters(object)[x]
+                    )
+                },
+                character(1)
+            ),
+            "\n"
         ),
         "\n",
         "- Methods:\n",
         "  chromosomes(object)\n",
         "  conditions(object)\n",
         "  replicates(object)\n",
-        "  binSize(object)\n",
-        "  interactions(object)\n",
         "  compartments(object)\n",
         "  differences(object)\n",
         "  concordances(object)\n",
@@ -309,7 +212,9 @@ setMethod("show", "HiCDOCDataSet", function(object) {
 #' @usage
 #' NULL
 #' @export
-setMethod("parameters", "HiCDOCDataSet", function(object) object@parameters)
+setMethod("parameters", "HiCDOCDataSet", function(object) {
+    object@parameters
+})
 
 #### parameters<- ####
 #' Change the parameters of a \code{\link{HiCDOCDataSet}}.
@@ -318,7 +223,6 @@ setMethod("parameters", "HiCDOCDataSet", function(object) object@parameters)
 #' NULL
 #' @export
 setReplaceMethod("parameters", "HiCDOCDataSet", function(object, value) {
-
     defaultParameterNames <- names(defaultHiCDOCParameters)
 
     if (!is(value, "list")) {
@@ -329,11 +233,11 @@ setReplaceMethod("parameters", "HiCDOCDataSet", function(object, value) {
             call. = FALSE
         )
     }
-
     parameterNames <- names(value)
 
-    duplicatedParameterNames <-
-        unique(parameterNames[duplicated(parameterNames)])
+    duplicatedParameterNames <- unique(
+        parameterNames[duplicated(parameterNames)]
+    )
 
     if (length(duplicatedParameterNames) > 0) {
         stop(
@@ -347,8 +251,9 @@ setReplaceMethod("parameters", "HiCDOCDataSet", function(object, value) {
         )
     }
 
-    invalidParameterNames <-
-        parameterNames[!(parameterNames %in% defaultParameterNames)]
+    invalidParameterNames <- parameterNames[
+        !(parameterNames %in% defaultParameterNames)
+    ]
 
     if (length(invalidParameterNames) > 0) {
         stop(

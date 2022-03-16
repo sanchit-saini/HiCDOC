@@ -21,7 +21,7 @@ to recursively normalize each pair of interaction matrices. Depends on
 }
 \details{
 \subsection{Parallel processing}{
-If \code{parallel=TRUE}, the function
+If \code{parallel = TRUE}, the function
 \code{\link[multiHiCcompare]{cyclic_loess}}
 is launched in parallel mode, using \code{\link[BiocParallel]{bplapply}}
 function. Before to call the function in parallel you should specify

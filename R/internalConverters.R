@@ -1,130 +1,176 @@
 #' @description
-#' Builds the full interaction matrix of a given chromosome, condition, and
-#' replicate.
+#' Fill \code{\link{InteractionSet}} with possibly missing values
 #'
-#' @param object
-#' A \code{\link{HiCDOCDataSet}}.
-#' @param chromosomeName
-#' The name of a chromosome.
-#' @param conditionName
-#' The name of a condition.
-#' @param replicateName
-#' The name of a replicate.
-#' @param filter
-#' Whether or not to shrink the matrix by removing weak rows/columns. Defaults
-#' to FALSE.
+#' @param interactionSet
+#' An \code{\link{InteractionSet}}.
+#' @param interactionSetUnion
+#' The full \code{\link{InteractionSet}}.
+#' @param fill
+#' Fill missing values with this.
 #'
 #' @return
-#' A matrix.
+#' The full \code{\link{InteractionSet}}.
 #'
 #' @keywords internal
 #' @noRd
-.sparseInteractionsToMatrix <- function(
-    object,
-    chromosomeName,
-    conditionName,
-    replicateName,
-    filter = FALSE
+.fillInteractionSet <- function(
+    interactionSet,
+    interactionSetUnion,
+    fill = NA
 ) {
-    totalBins <- object@totalBins[[chromosomeName]]
-
-    interactions <-
-        object@interactions %>%
-        dplyr::filter(chromosome == chromosomeName) %>%
-        dplyr::filter(condition == conditionName) %>%
-        dplyr::filter(replicate == replicateName) %>%
-        dplyr::select(bin.1, bin.2, interaction) %>%
-        dplyr::filter(interaction > 0) %>%
-        as.matrix()
-
-    if (nrow(interactions) == 0) return(matrix(0, nrow = 0, ncol = 0))
-    if (!is.numeric(interactions)) {
-        stop("Non-numeric matrix of interactions.", call. = FALSE)
-    }
-    result <- matrix(0, nrow = totalBins, ncol = totalBins)
-    result[interactions[, c(1, 2)]] <- interactions[, 3]
-    if (!identical(dim(result), c(1L, 1L))) {
-        result <- result + t(result) - diag(diag(result))
-    }
-    if (!isSymmetric(result)) {
-        stop("Matrix is not symmetric.", call. = FALSE)
-    }
-
-    if (filter && length(object@weakBins[[chromosomeName]]) > 0) {
-        result <- result[
-            -object@weakBins[[chromosomeName]],
-            -object@weakBins[[chromosomeName]]
-        ]
-    }
-
-    if (nrow(result) == 0) {
-        message(
-            "No interactions for chromosome ",
-            chromosomeName,
-            ", condition ",
-            conditionName,
-            ", replicate ",
-            replicateName,
-            "."
+    over <- GenomicRanges::match(interactionSet, interactionSetUnion)
+    totalColumns <- ncol(interactionSet)
+    newAssays <- matrix(
+        rep(fill, length(interactionSetUnion) * totalColumns),
+        ncol = totalColumns
+    )
+    newAssays[over, ] <- SummarizedExperiment::assay(interactionSet)
+    return(
+        InteractionSet::InteractionSet(
+            newAssays,
+            interactionSetUnion,
+            colData = SummarizedExperiment::colData(interactionSet)
         )
-    }
-
-    return(result)
+    )
 }
 
 #' @description
-#' Builds the sparse interactions tibble from a matrix for a given chromosome,
-#' condition, and replicate.
+#' Merge two different \code{\link{InteractionSet}}.
 #'
-#' @param m
-#' A matrix.
-#' @param object
-#' A \code{\link{HiCDOCDataSet}}.
-#' @param chromosomeName
-#' The name of a chromosome.
-#' @param conditionName
-#' The name of a condition.
-#' @param replicateName
-#' The name of a replicate.
+#' @param interactionSet1
+#' The first \code{\link{InteractionSet}}.
+#' @param interactionSet2
+#' The second \code{\link{InteractionSet}}.
+#' @param fill
+#' Fill missing values with this.
 #'
 #' @return
-#' A tibble of interactions.
+#' The merged \code{\link{InteractionSet}}.
 #'
 #' @keywords internal
 #' @noRd
-.matrixToSparseInteractions <- function(
-    m,
-    object,
-    chromosomeName,
-    conditionName,
-    replicateName
-) {
-    totalBins <- object@totalBins[[chromosomeName]]
-    if (nrow(m) < totalBins) {
-        refilled <- matrix(0, nrow = totalBins, ncol = totalBins)
-        refilled[
-            -object@weakBins[[chromosomeName]],
-            -object@weakBins[[chromosomeName]]
-        ] <- m
-        m <- refilled
-    }
+.mergeInteractionSet <- function(interactionSet1, interactionSet2, fill = NA) {
+    unionInteractions <- GenomicRanges::union(
+        InteractionSet::interactions(interactionSet1),
+        InteractionSet::interactions(interactionSet2)
+    )
+    # Complete InteractionSets
+    interactionSet1 <- .fillInteractionSet(
+        interactionSet1,
+        unionInteractions,
+        fill
+    )
+    interactionSet2 <- .fillInteractionSet(
+        interactionSet2,
+        unionInteractions,
+        fill
+    )
 
-    interactions <-
-        dplyr::tibble(
-            chromosome = chromosomeName,
-            condition = conditionName,
-            replicate = replicateName,
-            bin.1 = rep(seq(totalBins), each = totalBins),
-            bin.2 = rep(seq(totalBins), times = totalBins),
-            interaction = as.vector(t(m))
-        ) %>%
-        dplyr::filter(bin.1 <= bin.2) %>%
-        dplyr::filter(interaction > 0) %>%
-        .sortInteractions(
-            object@chromosomes,
-            object@conditions,
-            object@replicates
-        )
+    # Merge
+    newiset <- BiocGenerics::cbind(interactionSet1, interactionSet2)
+    return(newiset)
+}
 
-    return(interactions)
+#' @description
+#' Format the outputs produced by \code{detectCompartements}.
+#' @param object
+#' a HiCDOCDataSet object
+#' @return
+#' a HiCDOCDataSet object
+#'
+#' @keywords internal
+#' @noRd
+.formatDetectCompartment <- function(object) {
+    chromosomeNames <- object@chromosomes
+    conditionNames <- sort(unique(object$condition))
+    replicateNames <- sort(unique(object$replicate))
+
+    all.regions <- InteractionSet::regions(object)
+
+    # Concordances
+    object@concordances[, `:=`(
+        chromosome = factor(chromosome, levels = chromosomeNames),
+        replicate = factor(replicate, levels = replicateNames)
+    )]
+    concordances <- object@concordances
+    object@concordances <- all.regions[
+        match(concordances$index, S4Vectors::mcols(all.regions)$index)
+    ]
+    S4Vectors::mcols(object@concordances) <- S4Vectors::DataFrame(
+        concordances[, .(
+            index,
+            condition,
+            replicate,
+            compartment,
+            concordance
+        )]
+    )
+
+    # Centroids
+    object@centroids[, `:=`(
+        chromosome = factor(chromosome, levels = chromosomeNames),
+        condition = factor(condition, levels = conditionNames)
+    )]
+
+    # Differences
+    object@differences[, chromosome := factor(
+        chromosome,
+        levels = chromosomeNames
+    )]
+    object@differences[, significance := ""]
+    object@differences[pvalue.adjusted <= 0.05, significance := "*"]
+    object@differences[pvalue.adjusted <= 0.01, significance := "**"]
+    object@differences[pvalue.adjusted <= 0.001, significance := "***"]
+    object@differences[pvalue.adjusted <= 0.0001, significance := "****"]
+
+    differences <- object@differences
+    object@differences <- all.regions[
+        match(differences$index, S4Vectors::mcols(all.regions)$index)
+    ]
+    S4Vectors::mcols(object@differences) <- S4Vectors::DataFrame(
+        differences[, .(
+            index,
+            condition.1,
+            condition.2,
+            pvalue,
+            pvalue.adjusted,
+            direction,
+            significance
+        )]
+    )
+
+    # Compartments
+    object@compartments[, chromosome := factor(
+        chromosome,
+        levels = chromosomeNames
+    )]
+    compartments <- object@compartments
+    object@compartments <- all.regions[
+        match(compartments$index, S4Vectors::mcols(all.regions)$index)
+    ]
+    S4Vectors::mcols(object@compartments) <- S4Vectors::DataFrame(
+        compartments[, .(index, condition, compartment)]
+    )
+
+    # Distances
+    object@distances[, `:=`(
+        chromosome = factor(chromosome, levels = chromosomeNames),
+        condition = factor(condition, levels = conditionNames),
+        replicate = factor(replicate, levels = replicateNames)
+    )]
+
+    # Comparisons
+    object@comparisons[, chromosome := factor(
+        chromosome,
+        levels = chromosomeNames
+    )]
+
+    # selfInteractionRatios
+    object@selfInteractionRatios[, `:=`(
+        chromosome = factor(chromosome, levels =  chromosomeNames),
+        condition = factor(condition, levels = conditionNames),
+        replicate = factor(replicate, levels = replicateNames)
+    )]
+
+    return(object)
 }
