@@ -64,7 +64,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
     )
     # Chromosomes
     expect_identical(objectRed@chromosomes, "X")
-    expect_identical(objectRed@totalBins, c("X" = 120L))
+    expect_identical(objectRed@totalBins, c("X" = 120))
     expect_identical(objectRed@weakBins, list("X" = c(171, 200)))
     # Doesn't remove replicates & conditions
     expect_identical(objectRed$replicate,
@@ -92,7 +92,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
     )
     # Chromosomes
     expect_identical(objectRed@chromosomes, "X")
-    expect_identical(objectRed@totalBins, c("X" = 120L))
+    expect_identical(objectRed@totalBins, c("X" = 120))
     expect_identical(objectRed@weakBins, list("X" = c(171, 200)))
     # Doesn't remove replicates & conditions
     expect_identical(objectRed$replicate, exampleHiCDOCDataSetProcessed$replicate)
@@ -176,7 +176,7 @@ test_that("reduceHiCDOCDataSet works if select chr, cond & rep, keep levels", {
     )
     # Chromosomes
     expect_identical(objectRed@chromosomes, "X")
-    expect_identical(objectRed@totalBins, c("X" = 120L))
+    expect_identical(objectRed@totalBins, c("X" = 120))
     expect_identical(objectRed@weakBins,  list("X" = c(171, 200)))
     expect_identical(objectRed$replicate, "R1")
     expect_identical(objectRed$condition, "1")
