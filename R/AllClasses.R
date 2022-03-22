@@ -52,6 +52,8 @@
 #' @slot selfInteractionRatios
 #' A data.table of differences between self interaction and other interactions
 #' for each bin in each replicate.
+#' @slot checks
+#' A data.table of several checks performed on each chromosome
 #'
 #' @seealso
 #' \code{\link{HiCDOC}}
@@ -79,7 +81,8 @@ setClass(
         comparisons = "ANY",
         distances = "ANY",
         centroids = "ANY",
-        selfInteractionRatios = "ANY"
+        selfInteractionRatios = "ANY",
+        checks = "ANY"
     )
 )
 

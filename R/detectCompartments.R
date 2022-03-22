@@ -1005,6 +1005,7 @@ detectCompartments <- function(
 
     message("Predicting A/B compartments.")
     object <- .predictCompartmentsAB(object, parallel)
+    object <- .checkResults(object)
     message("Detecting significant differences.")
     object <- .computePValues(object)
 
