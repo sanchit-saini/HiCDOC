@@ -29,11 +29,7 @@
     f <- function (c) {
         return(length(unique(sign(pca[compartment == c, ]$PC1))) == 1)
     }
-    if (length(unique(conditions(object))) == 2) {
-        centroid <- all(vapply(compartments, f, FUN.VALUE = TRUE))
-    } else {
-        centroid <- TRUE
-    }
+    centroid <- all(vapply(compartments, f, FUN.VALUE = TRUE))
     pc1 <- (propvar[[1]] >= 0.75)
     return(data.table(chromosome     = chromosomeName,
                       centroid.check = centroid,
