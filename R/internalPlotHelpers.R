@@ -80,3 +80,46 @@
     }
     return(complete)
 }
+
+#' @title
+#' Compute PCA
+#'
+#' @description
+#' Helper function that computes Principal Components of centroids.
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosomeName
+#' A chromosome name or index in \code{chromosomes(object)}.
+#'
+#' @return
+#' A list, with a \code{data.table}, which contains the PCA,
+#' and the variability explained by the 2 first axes.
+#'
+#' @keywords internal
+#' @noRd
+.computePca <- function(object, chromosomeName) {
+    df <- object@centroids[
+        chromosome == chromosomeName,
+        .(condition, compartment, centroid)
+    ]
+    if (nrow(df) == 0) {
+        message("No centroids for chromosome ", chromosomeName, ".")
+        return(NULL)
+    }
+    conditions <- df$condition
+    compartments <- df$compartment
+    
+    df <- lapply(df$centroid, unlist)
+    df <- do.call("rbind", df)
+    
+    pca <- stats::prcomp(df)
+    varpca <- pca$sdev ^ 2
+    propvar <- varpca / sum(varpca)
+    
+    pca <- as.data.table(pca$x)
+    pca[, condition := conditions]
+    pca[, compartment := compartments]
+    
+    return(list(PCA = pca, propvar = propvar))
+}
