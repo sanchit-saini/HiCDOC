@@ -31,8 +31,7 @@
     }
     if (length(unique(conditions(object))) == 2) {
         centroid <- all(vapply(compartments, f, FUN.VALUE = TRUE))
-    }
-    else {
+    } else {
         centroid <- TRUE
     }
     pc1 <- (propvar[[1]] >= 0.75)
@@ -68,7 +67,6 @@
     compartments <- data.table::merge.data.table(compartments,
                                                  selfInteractionRatios,
                                                  by = c("index", "condition"))
-    compartments <- compartments[, .(compartment, ratio)]
     t            <- wilcox.test(ratio ~ compartment, data = compartments)
     return(data.table(chromosome       = chromosomeName,
                       assignment.check = (t$p.value <= 0.05)))
