@@ -88,22 +88,25 @@ plotCompartmentChanges <- function(
             plotsGrobs[[1]],
             plotsGrobs[[2]],
             gridExtra::arrangeGrob(
-                ggpubr::get_legend(compartmentsPlot),
-                ggpubr::get_legend(concordancesPlot),
+                rbind(
+                    ggpubr::get_legend(compartmentsPlot),
+                    ggpubr::get_legend(concordancesPlot)),
+                grid::rectGrob(),
                 ncol = 2,
                 nrow = 1,
-                padding = unit(0, "cm")
+                padding = unit(1, "cm")
             ),
-            heights = c(2, 10, 1),
+            heights = c(2, 10, 2),
             nrow=3, 
             ncol=1,
             padding = unit(1, "lines"),
             top = paste0(
                 "Compartments and concordances of chromosome ",
                 chromosomeName
-            ),
-            bottom = captionConcordances
+            )
         )
     )
+    
+    plot$labels <- list("caption" = captionConcordances)
     return(plot)
 }
