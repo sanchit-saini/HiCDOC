@@ -57,6 +57,8 @@ plotCompartmentChanges <- function(
         xlim
     )
 
+    captionConcordances <- concordancesPlot$labels$caption
+    concordancesPlot$labels$caption <- NULL
     if (is.null(compartmentsPlot) || is.null(concordancesPlot)) {
         return(NULL)
     }
@@ -64,8 +66,10 @@ plotCompartmentChanges <- function(
     # Horizontal alignment of the sub-graphs (change width of the plots)
     plotsGrobs <- lapply(
         list(
-            compartmentsPlot + theme(legend.position = "none"),
-            concordancesPlot + theme(legend.position = "none")
+            compartmentsPlot + theme(legend.position = "none",
+                                     plot.margin = unit(c(1,0,0,0), "lines")),
+            concordancesPlot + theme(legend.position = "none",
+                                     plot.margin = unit(c(0,0,0,0), "lines"))
         ),
         ggplot2::ggplotGrob
     )
@@ -81,22 +85,24 @@ plotCompartmentChanges <- function(
 
     plot <- ggpubr::as_ggplot(
         gridExtra::arrangeGrob(
+            plotsGrobs[[1]],
+            plotsGrobs[[2]],
             gridExtra::arrangeGrob(
-                plotsGrobs[[1]],
-                plotsGrobs[[2]],
-                heights = c(1, 5),
+                ggpubr::get_legend(compartmentsPlot),
+                ggpubr::get_legend(concordancesPlot),
+                ncol = 2,
+                nrow = 1,
                 padding = unit(0, "cm")
             ),
-            gridExtra::arrangeGrob(
-                .extractLegends(ggplotGrob(compartmentsPlot)),
-                .extractLegends(ggplotGrob(concordancesPlot)),
-                ncol = 2
-            ),
-            heights = c(10, 1),
+            heights = c(2, 10, 1),
+            nrow=3, 
+            ncol=1,
+            padding = unit(1, "lines"),
             top = paste0(
                 "Compartments and concordances of chromosome ",
                 chromosomeName
-            )
+            ),
+            bottom = captionConcordances
         )
     )
     return(plot)

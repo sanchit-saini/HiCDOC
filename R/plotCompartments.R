@@ -62,6 +62,7 @@ plotCompartments <- function(
         axis.line = element_blank(),
         axis.ticks = element_blank(),
         panel.grid = element_blank(),
+        panel.spacing = unit(2, "pt"),
         legend.position = "bottom",
         strip.placement = "outside"
     )
