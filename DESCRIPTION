@@ -32,6 +32,7 @@ Imports:
     BiocParallel,
     BiocGenerics,
     rhdf5,
+    grids,
     ggpubr,
     gridExtra,
     ggExtra,

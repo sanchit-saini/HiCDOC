@@ -76,7 +76,7 @@ plotCompartmentChanges <- function(
                                labs(title=NULL),
             concordancesPlot + theme(legend.position = "none",
                                      plot.margin = unit(c(0,0,0,0), "lines")) +
-                labs(title=NULL)
+                               labs(title=NULL)
         ),
         ggplot2::ggplotGrob
     )
