@@ -180,6 +180,12 @@ setGeneric(
 #'             inner-cluster variance is selected. Defaults to
 #'             \code{defaultHiCDOCParameters$kMeansRestarts} = 20.
 #'         }
+#'         \item{\code{PC1CheckThreshold}}{
+#'             The minimum percentage of variance that should be explained by
+#'             the first principal component of centroids to pass sanity check.
+#'             Defaults to 
+#'             \code{defaultHiCDOCParameters$PC1CheckThreshold} = 0.75
+#'         }
 #'     }
 #' }
 #'

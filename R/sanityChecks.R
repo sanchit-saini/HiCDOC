@@ -30,7 +30,7 @@
         return(length(unique(sign(pca[compartment == c, ]$PC1))) == 1)
     }
     centroid <- all(vapply(compartments, f, FUN.VALUE = TRUE))
-    pc1 <- (propvar[[1]] >= 0.75)
+    pc1 <- (propvar[[1]] >= object@parameters$PC1CheckThreshold)
     return(data.table(chromosome     = chromosomeName,
                       centroid.check = centroid,
                       PC1.check      = pc1))

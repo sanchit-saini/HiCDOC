@@ -943,6 +943,12 @@
 #' Defaults to \code{object$kMeansRestarts} which is originally set to
 #' \code{defaultHiCDOCParameters$kMeansRestarts} = 20.
 #'
+#' @param PC1CheckThreshold
+#' The minimum percentage of variance that should be explained by
+#' the first principal component of centroids to pass sanity check.
+#' Defaults to \code{object$kMeansRestarts} which is originally set to
+#' \code{defaultHiCDOCParameters$PC1CheckThreshold} = 0.75
+#'
 #' @return
 #' A \code{\link{HiCDOCDataSet}}, with compartments, concordances, distances,
 #' centroids, and differences.
@@ -967,7 +973,8 @@
 #'     parallel = FALSE,
 #'     kMeansDelta = NULL,
 #'     kMeansIterations = NULL,
-#'     kMeansRestarts = NULL
+#'     kMeansRestarts = NULL,
+#'     PC1CheckThreshold = NULL
 #' )
 #'
 #' @export
@@ -976,7 +983,8 @@ detectCompartments <- function(
     parallel = FALSE,
     kMeansDelta = NULL,
     kMeansIterations = NULL,
-    kMeansRestarts = NULL
+    kMeansRestarts = NULL,
+    PC1CheckThreshold = NULL
 ) {
 
     .validateSlots(
@@ -996,6 +1004,9 @@ detectCompartments <- function(
     }
     if (!is.null(kMeansRestarts)) {
         object@parameters$kMeansRestarts <- kMeansRestarts
+    }
+    if (!is.null(PC1CheckThreshold)) {
+        object@parameters$PC1CheckThreshold <- PC1CheckThreshold
     }
     object@parameters <- .validateParameters(object@parameters)
 

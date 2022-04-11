@@ -101,7 +101,8 @@ defaultHiCDOCParameters <- list(
     loessSampleSize = 20000,
     kMeansDelta = 0.0001,
     kMeansIterations = 50,
-    kMeansRestarts = 20
+    kMeansRestarts = 20,
+    PC1CheckThreshold = 0.75
 )
 
 #' @title
