@@ -64,10 +64,12 @@ setGeneric(
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a \code{GenomicRange} of the compartment of every position
 #' in every condition.
+#' @param passChecks logical. Display only the concordances/compartments for 
+#' the chromosomes passing sanity checks.
 #' @export
 setGeneric(
     name = "compartments",
-    def = function(object) {
+    def = function(object, passChecks = TRUE) {
         standardGeneric("compartments")
     }
 )
@@ -99,7 +101,7 @@ setGeneric(
 #' @export
 setGeneric(
     name = "concordances",
-    def = function(object) {
+    def = function(object, passChecks = TRUE) {
         standardGeneric("concordances")
     }
 )
