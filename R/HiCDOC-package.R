@@ -15,6 +15,7 @@
 #' @importFrom BiocGenerics cbind width
 #' @importFrom rhdf5 h5read
 #' @importFrom ggpubr as_ggplot get_legend
+#' @importFrom grid textGrob gpar
 #' @importFrom gridExtra arrangeGrob
 #' @importFrom ggExtra ggMarginal
 #' @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
