@@ -21,10 +21,10 @@
 #' plotSelfInteractionRatios(exampleHiCDOCDataSetProcessed, chromosome = 1)
 #'
 #' @export
-plotSelfInteractionRatios <- function(object, chromosome) {
+plotSelfInteractionRatios <- function(object, chromosome, checks=TRUE) {
     .validateSlots(object, slots = c("selfInteractionRatios", "compartments"))
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
-
+    
     compartements <- as.data.table(
         object@compartments[
             GenomeInfoDb::seqnames(object@compartments) == chromosomeName
@@ -62,5 +62,10 @@ plotSelfInteractionRatios <- function(object, chromosome) {
         ),
         subtitle = paste0("Chromosome ", chromosomeName)
     )
+    
+    if(checks){
+        messages <- .messageCheck(object, chromosomeName)
+        plot <- plot + labs(caption=messages$assignment)
+    }
     return(plot)
 }

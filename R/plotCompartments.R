@@ -56,7 +56,9 @@ plotCompartments <- function(
         rows = vars(condition),
         margins = FALSE,
         switch = "y"
-    ) + theme_minimal() + theme(
+    ) + labs(title = paste0("Compartments of chromosome ", 
+                            chromosomeName, " by condition")) +
+        theme_minimal() + theme(
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.line = element_blank(),
@@ -64,6 +66,8 @@ plotCompartments <- function(
         panel.grid = element_blank(),
         panel.spacing = unit(2, "pt"),
         legend.position = "bottom",
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 8),
         strip.placement = "outside"
     )
 

@@ -124,12 +124,17 @@ plotConcordances <- function(
         ylim(ylim) +
         geom_hline(yintercept = 0.0, size = 0.1) +
         facet_grid(rows = vars(condition), margins = FALSE, switch = "y") +
+        labs(title = paste0("Concordances of chromosome ",
+                            chromosomeName, " by condition")) +
         theme_minimal() +
+        theme(axis.title.x = element_text(size = 10)) +
         theme(
             axis.title.y = element_blank(),
             axis.line.y = element_blank(),
             axis.ticks = element_blank(),
-            legend.position = "bottom",
+            legend.position = "bottom",  
+            legend.title = element_text(size = 8),
+            legend.text = element_text(size = 8),
             strip.placement = "outside"
         )
     )

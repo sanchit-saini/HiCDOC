@@ -39,21 +39,34 @@
 }
 
 #' @description
-#' Extracts legends from ggplot2 objects. Based on \code{gtable::gtable_filter}.
+#' Extract messages for the user after sanity checks
 #'
-#' @param grob
-#' A grid graphical object.
+#' @param object
+#' A HiCDOCDataSet object.
+#' @param chromosome
+#' A chromosome name or index in chromosomes(object).
 #'
 #' @return
-#' The legend as a grob.
+#' A character vector.
 #'
 #' @keywords internal
 #' @noRd
-.extractLegends <- function(grob) {
-    matches <- grepl("guide-box", .subset2(grob$layout, "name"), fixed = FALSE)
-    grob$layout <- grob$layout[matches, , drop = FALSE]
-    grob$grobs <- grob$grobs[matches]
-    return(grob)
+.messageCheck <- function(object, chomosomeName) {
+    checks <- object@checks[chromosome == chomosomeName]
+    messagesChecks <- list(
+        "centroids" = NULL,
+        "PC1" = NULL,
+        "assignment" = NULL)
+    # if(!checks$centroid.check){
+        messagesChecks$centroids <- "Compartments do not cluster together."
+    # }
+    # if(!checks$PC1.check){
+        messagesChecks$PC1 <- "Intertia on PC1 do not reech the 75% threshold criterium."
+    # }
+    # if(!checks$assignment.check){
+        messagesChecks$assignment <- "The distribution of compartments seems too close to each other."
+    # }
+    return(messagesChecks)
 }
 
 
