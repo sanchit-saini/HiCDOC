@@ -64,10 +64,12 @@ setGeneric(
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a \code{GenomicRange} of the compartment of every position
 #' in every condition.
+#' @param passChecks logical. Display only the concordances/compartments for 
+#' the chromosomes passing sanity checks.
 #' @export
 setGeneric(
     name = "compartments",
-    def = function(object) {
+    def = function(object, passChecks = TRUE) {
         standardGeneric("compartments")
     }
 )
@@ -99,7 +101,7 @@ setGeneric(
 #' @export
 setGeneric(
     name = "concordances",
-    def = function(object) {
+    def = function(object, passChecks = TRUE) {
         standardGeneric("concordances")
     }
 )
@@ -177,6 +179,12 @@ setGeneric(
 #'             the maximum number of iterations. The clustering that minimizes
 #'             inner-cluster variance is selected. Defaults to
 #'             \code{defaultHiCDOCParameters$kMeansRestarts} = 20.
+#'         }
+#'         \item{\code{PC1CheckThreshold}}{
+#'             The minimum percentage of variance that should be explained by
+#'             the first principal component of centroids to pass sanity check.
+#'             Defaults to 
+#'             \code{defaultHiCDOCParameters$PC1CheckThreshold} = 0.75
 #'         }
 #'     }
 #' }

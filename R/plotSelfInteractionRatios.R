@@ -12,6 +12,9 @@
 #' A \code{\link{HiCDOCDataSet}}.
 #' @param chromosome
 #' A chromosome name or index in \code{chromosomes(object)}.
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param checks
+#' Logical. Should sanity checks messages be printed on plot ? Default to TRUE. 
 #'
 #' @return
 #' A \code{ggplot}.
@@ -21,10 +24,10 @@
 #' plotSelfInteractionRatios(exampleHiCDOCDataSetProcessed, chromosome = 1)
 #'
 #' @export
-plotSelfInteractionRatios <- function(object, chromosome) {
+plotSelfInteractionRatios <- function(object, chromosome, checks=TRUE) {
     .validateSlots(object, slots = c("selfInteractionRatios", "compartments"))
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
-
+    
     compartements <- as.data.table(
         object@compartments[
             GenomeInfoDb::seqnames(object@compartments) == chromosomeName
@@ -62,5 +65,10 @@ plotSelfInteractionRatios <- function(object, chromosome) {
         ),
         subtitle = paste0("Chromosome ", chromosomeName)
     )
+    
+    if(checks){
+        messages <- .messageCheck(object, chromosomeName)
+        plot <- plot + labs(caption=messages$assignment)
+    }
     return(plot)
 }

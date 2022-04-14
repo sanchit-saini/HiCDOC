@@ -39,21 +39,34 @@
 }
 
 #' @description
-#' Extracts legends from ggplot2 objects. Based on \code{gtable::gtable_filter}.
+#' Extract messages for the user after sanity checks
 #'
-#' @param grob
-#' A grid graphical object.
+#' @param object
+#' A HiCDOCDataSet object.
+#' @param chromosome
+#' A chromosome name or index in chromosomes(object).
 #'
 #' @return
-#' The legend as a grob.
+#' A character vector.
 #'
 #' @keywords internal
 #' @noRd
-.extractLegends <- function(grob) {
-    matches <- grepl("guide-box", .subset2(grob$layout, "name"), fixed = FALSE)
-    grob$layout <- grob$layout[matches, , drop = FALSE]
-    grob$grobs <- grob$grobs[matches]
-    return(grob)
+.messageCheck <- function(object, chomosomeName) {
+    checks <- object@checks[chromosome == chomosomeName]
+    messagesChecks <- list(
+        "centroids" = "Compartments cluster together.",
+        "PC1" = "Intertia on PC1 reaches the 75% threshold criterium.",
+        "assignment" = "There is a significant difference between compartment interactions.")
+    if(!checks$centroid.check){
+        messagesChecks$centroids <- "Compartments do not cluster together."
+    }
+    if(!checks$PC1.check){
+        messagesChecks$PC1 <- "Intertia on PC1 does not reach the 75% threshold criterium."
+    }
+    if(!checks$assignment.check){
+        messagesChecks$assignment <- "No significant difference between compartment interactions."
+    }
+    return(messagesChecks)
 }
 
 
@@ -79,4 +92,47 @@
         complete <- replicates
     }
     return(complete)
+}
+
+#' @title
+#' Compute PCA
+#'
+#' @description
+#' Helper function that computes Principal Components of centroids.
+#'
+#' @param object
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param chromosomeName
+#' A chromosome name or index in \code{chromosomes(object)}.
+#'
+#' @return
+#' A list, with a \code{data.table}, which contains the PCA,
+#' and the variability explained by the 2 first axes.
+#'
+#' @keywords internal
+#' @noRd
+.computePca <- function(object, chromosomeName) {
+    df <- object@centroids[
+        chromosome == chromosomeName,
+        .(condition, compartment, centroid)
+    ]
+    if (nrow(df) == 0) {
+        message("No centroids for chromosome ", chromosomeName, ".")
+        return(NULL)
+    }
+    conditions <- df$condition
+    compartments <- df$compartment
+    
+    df <- lapply(df$centroid, unlist)
+    df <- do.call("rbind", df)
+    
+    pca <- stats::prcomp(df)
+    varpca <- pca$sdev ^ 2
+    propvar <- varpca / sum(varpca)
+    
+    pca <- as.data.table(pca$x)
+    pca[, condition := conditions]
+    pca[, compartment := compartments]
+    
+    return(list(PCA = pca, propvar = propvar))
 }

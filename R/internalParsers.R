@@ -88,7 +88,7 @@
     data.table::setnames(tabular, "position 2", "bin.2")
 
     diagonal <- (tabular$bin.1 == tabular$bin.2)
-    binSize <- modeVector(abs(
+    binSize <- .modeVector(abs(
         tabular[!diagonal,]$bin.1 - tabular[!diagonal,]$bin.2
     ))
 

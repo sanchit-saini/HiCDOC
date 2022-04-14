@@ -16,7 +16,7 @@ test_that("plotCompartments behaves as expected", {
     expect_is(pp, "ggplot")
     expect_identical(
         unlist(pp$labels),
-        c(
+        c("title" = "Compartments of chromosome X by condition",
           "x" = "position",
           "fill" = "compartment",
           "y" = "count",

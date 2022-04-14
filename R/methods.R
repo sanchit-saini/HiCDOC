@@ -28,51 +28,21 @@ setMethod("replicates", "HiCDOCDataSet", function(object) {
     object$replicate
 })
 
-# TODO : j'aimerai bien doubler les fonctions assay et regions.
-# #### assay ####
-# #' Retrieves the assay matrix of interactions
-# #' @rdname HiCDOCDataSet-methods
-# #' @usage
-# #' NULL
-# #' @export
-# setMethod("assay",
-#           signature(object="HiCDOCDataSet"),
-#           function(object) {
-#               SummarizedExperiment::assay(object@interactions)
-#           })
-#
-# #### regions ####
-# #' Retrieves the regions of interactions
-# #' @rdname HiCDOCDataSet-methods
-# #' @usage
-# #' NULL
-# #' @export
-# setMethod("regions",
-#           signature(object="HiCDOCDataSet"),
-#           function(object) InteractionSet::regions(object@interactions))
-#
-# #### interactions ####
-# #' Retrieves a data.table of the interactions.
-# #' @rdname HiCDOCDataSet-methods
-# #' @usage
-# #' NULL
-# #' @export
-# setMethod("interactions",
-#           signature(object="HiCDOCDataSet"),
-#           function(object) {
-#     if (is.null(object@interactions)) return(NULL)
-#     interactions <- InteractionSet::interactions(object@interactions)
-#     return(interactions)
-# })
-
 #### compartments ####
 #' Retrieves a \code{GenomicRange} of the compartment of every position
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
 #' @export
-setMethod("compartments", "HiCDOCDataSet", function(object) {
-    object@compartments
+setMethod("compartments", "HiCDOCDataSet", function(object, passChecks = TRUE) {
+    if(passChecks == TRUE){
+        compartments <- object@compartments
+        compartments[compartments$assignment.check == TRUE & 
+                         compartments$centroid.check == TRUE &
+                         compartments$assignment.check == TRUE]
+    } else {
+        object@compartments
+    }
 })
 
 #### differences ####
@@ -122,8 +92,16 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 #' @usage
 #' NULL
 #' @export
-setMethod("concordances", "HiCDOCDataSet", function(object) {
-    object@concordances
+setMethod("concordances", "HiCDOCDataSet", function(object, passChecks = TRUE) {
+    if(passChecks == TRUE){
+        concordances <- object@concordances
+        passingChecks <- object@checks[centroid.check == TRUE &
+                                           PC1.check == TRUE &
+                                           assignment.check == TRUE, chromosome]
+        concordances[concordances@seqnames %in% passingChecks]
+    } else {
+        object@concordances
+    }
 })
 
 #### show ####

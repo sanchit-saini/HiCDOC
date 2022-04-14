@@ -20,6 +20,7 @@ test_that("plotSelfInteractionRatios behaves as expected", {
     expect_identical(
         pp$labels,
         list(
+            "caption" = NULL,
             "colour" = "Compartment",
             "x" = "Compartment",
             "y" = "Interaction difference",

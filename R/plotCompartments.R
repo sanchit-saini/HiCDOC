@@ -41,7 +41,7 @@ plotCompartments <- function(
     compartments <- as.data.table(compartments)
     compartments[, position := start + 0.5 * width]
 
-    binSize <- modeVector(compartments$width)
+    binSize <- .modeVector(compartments$width)
 
     plot <- ggplot(
         data = compartments,
@@ -56,13 +56,18 @@ plotCompartments <- function(
         rows = vars(condition),
         margins = FALSE,
         switch = "y"
-    ) + theme_minimal() + theme(
+    ) + labs(title = paste0("Compartments of chromosome ", 
+                            chromosomeName, " by condition")) +
+        theme_minimal() + theme(
         axis.title = element_blank(),
         axis.text = element_blank(),
         axis.line = element_blank(),
         axis.ticks = element_blank(),
         panel.grid = element_blank(),
+        panel.spacing = unit(2, "pt"),
         legend.position = "bottom",
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 8),
         strip.placement = "outside"
     )
 

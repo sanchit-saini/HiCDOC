@@ -12,7 +12,7 @@ test_that("HiCDOCDataSetFromTabular produce correct format", {
         c("input", "parameters", "chromosomes", 
           "totalBins", "weakBins", "validAssay",
           "compartments", "concordances", "differences", "comparisons", 
-          "distances", "centroids", "selfInteractionRatios", "interactions", 
+          "distances", "centroids", "selfInteractionRatios", "checks", "interactions", 
           "colData", "assays", "NAMES", "elementMetadata", "metadata"
         )
     )
@@ -29,6 +29,7 @@ test_that("HiCDOCDataSetFromTabular produce correct format", {
     expect_is(object@differences, "NULL")
     expect_is(object@centroids, "NULL")
     expect_is(object@parameters, "list")
+    expect_is(object@checks, "NULL")
     expect_is(object, "InteractionSet")
     
     # Interactions

@@ -4,7 +4,7 @@
 \alias{plotCentroids}
 \title{Plot centroids.}
 \usage{
-plotCentroids(object, chromosome, size = 2)
+plotCentroids(object, chromosome, size = 2, checks = TRUE)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
@@ -12,6 +12,8 @@ plotCentroids(object, chromosome, size = 2)
 \item{chromosome}{A chromosome name or index in \code{chromosomes(object)}.}
 
 \item{size}{Size of each point. Defaults to 2.}
+
+\item{checks}{Whether or not to add sanity checks messages on centroids. Default to TRUE.}
 }
 \value{
 A \code{ggplot}.

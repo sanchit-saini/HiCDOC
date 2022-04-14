@@ -53,6 +53,8 @@ valid columns of the assay matrix, for each chromosome}
 
 \item{\code{selfInteractionRatios}}{A data.table of differences between self interaction and other interactions
 for each bin in each replicate.}
+
+\item{\code{checks}}{A data.table of several checks performed on each chromosome}
 }}
 
 \seealso{

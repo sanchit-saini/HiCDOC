@@ -1,14 +1,13 @@
-#' modeVector Extract the mode of vector.
+#' .modeVector Extract the mode of vector.
 #'
 #' @param x A vector
 #'
 #' @return The mode of a vector
-#' @export
 #'
 #' @examples
-#' modeVector(c(1, 2, 2, 2, 4))
+#' .modeVector(c(1, 2, 2, 2, 4))
 #' @noRd
-modeVector <- function(x) {
+.modeVector <- function(x) {
     ux <- unique(x)
     ux[which.max(tabulate(match(x, ux)))]
 }

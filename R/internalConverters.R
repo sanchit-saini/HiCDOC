@@ -113,6 +113,8 @@
     )]
 
     # Differences
+    object@differences <- data.table::merge.data.table(object@differences,
+        object@checks, by = "chromosome")
     object@differences[, chromosome := factor(
         chromosome,
         levels = chromosomeNames
@@ -135,7 +137,10 @@
             pvalue,
             pvalue.adjusted,
             direction,
-            significance
+            significance,
+            centroid.check,
+            PC1.check,
+            assignment.check
         )]
     )
 
@@ -144,12 +149,21 @@
         chromosome,
         levels = chromosomeNames
     )]
+    object@compartments <- data.table::merge.data.table(object@compartments,
+        object@checks, by = "chromosome")
     compartments <- object@compartments
     object@compartments <- all.regions[
         match(compartments$index, S4Vectors::mcols(all.regions)$index)
     ]
     S4Vectors::mcols(object@compartments) <- S4Vectors::DataFrame(
-        compartments[, .(index, condition, compartment)]
+        compartments[, .(
+            index,
+            condition,
+            compartment,
+            centroid.check,
+            PC1.check,
+            assignment.check
+        )]
     )
 
     # Distances

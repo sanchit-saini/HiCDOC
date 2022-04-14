@@ -10,6 +10,8 @@
 #' A chromosome name or index in \code{chromosomes(object)}.
 #' @param size
 #' Size of each point. Defaults to 2.
+#' @param checks
+#' Whether or not to add sanity checks messages on centroids. Default to TRUE.
 #'
 #' @return
 #' A \code{ggplot}.
@@ -19,7 +21,7 @@
 #' plotCentroids(exampleHiCDOCDataSetProcessed, chromosome = 1)
 #'
 #' @export
-plotCentroids <- function(object, chromosome, size = 2) {
+plotCentroids <- function(object, chromosome, size = 2, checks=TRUE) {
     .validateSlots(object, slots = "centroids")
     if (length(chromosome) > 1) {
         warning(
@@ -29,30 +31,11 @@ plotCentroids <- function(object, chromosome, size = 2) {
         chromosome < chromosome[1]
     }
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
-
-    df <- object@centroids[
-        chromosome == chromosomeName,
-        .(condition, compartment, centroid)
-    ]
     
-    if (nrow(df) == 0) {
-        message("No centroids for chromosome ", chromosomeName, ".")
-        return(NULL)
-    }
-    conditions <- df$condition
-    compartments <- df$compartment
-
-    df <- lapply(df$centroid, unlist)
-    df <- do.call("rbind", df)
-
-    pca <- stats::prcomp(df)
-    varpca <- pca$sdev ^ 2
-    propvar <- varpca / sum(varpca)
+    pcaData <- .computePca(object, chromosomeName)
+    pca     <- pcaData$PCA
+    propvar <- pcaData$propvar
     propvar <- paste(round(100 * propvar, 2), "%")
-
-    pca <- as.data.table(pca$x)
-    pca[, condition := conditions]
-    pca[, compartment := compartments]
 
     plot <- ggplot(
         pca,
@@ -67,5 +50,10 @@ plotCentroids <- function(object, chromosome, size = 2) {
         x = paste("PC1 ", propvar[1]),
         y = paste("PC2 ", propvar[2])
     )
+    if(checks){
+        messages <- .messageCheck(object, chromosomeName)
+        plot <- plot + 
+            labs(caption = paste(messages$centroids, messages$PC1, sep="\n"))
+    }
     return(plot)
 }
