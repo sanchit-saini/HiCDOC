@@ -66,7 +66,7 @@
         ) {
             stop(
                 "Number of conditions and replicates should match the number ",
-	            "of counts in the matrix.",
+                "of counts in the matrix.",
                 call. = FALSE
             )
         }
@@ -109,7 +109,7 @@
     allRegions[
         ,
         index := indexC - data.table::shift(indexC, fill = 0),
-	    by = .(chromosome)
+        by = .(chromosome)
     ]
     allRegions[index==0, index:=1]
     allRegions[, index := cumsum(index)]

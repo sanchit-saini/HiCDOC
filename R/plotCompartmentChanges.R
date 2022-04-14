@@ -92,9 +92,6 @@ plotCompartmentChanges <- function(
     
     if(checks){
         messages <- .messageCheck(object, chromosomeName)
-        if(all(sapply(messages, is.null))){
-            messages <- "Chromosome is passing all checks"
-        }
         messages <- paste(messages, collapse = "\n")
         legendsGrob <- gridExtra::arrangeGrob(
             gridExtra::arrangeGrob(

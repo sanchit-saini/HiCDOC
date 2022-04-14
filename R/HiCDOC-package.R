@@ -6,7 +6,7 @@
 #' @import ggplot2
 #' @importFrom GenomicRanges start end distance GRanges match union
 #' @importFrom Rcpp evalCpp sourceCpp
-#' @importFrom stats loess loess.control ecdf predict median update optimize prcomp p.adjust quantile
+#' @importFrom stats loess loess.control ecdf predict median update optimize prcomp p.adjust quantile wilcox.test
 #' @importFrom S4Vectors DataFrame mcols split runLength Rle %in%
 #' @importFrom SummarizedExperiment assay colData
 #' @importFrom gtools mixedsort

@@ -186,7 +186,7 @@
     )
     object@distances[, compartment := data.table::fifelse(
         compartment == 1,
-		cluster.1,
+        cluster.1,
         cluster.2
     )]
     object@distances[, `:=`(cluster.1 = NULL, cluster.2 = NULL)]

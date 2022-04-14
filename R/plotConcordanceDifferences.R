@@ -24,7 +24,7 @@ plotConcordanceDifferences <- function(object) {
 
     differences <- object@comparisons[, changed := data.table::fifelse(
         compartment.1 == compartment.2,
-		"FALSE",
+        "FALSE",
         "TRUE"
     )]
 
