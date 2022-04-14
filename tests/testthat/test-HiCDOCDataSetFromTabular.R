@@ -37,7 +37,8 @@ test_that("HiCDOCDataSetFromTabular produce correct format", {
     expect_is(InteractionSet::regions(object), "GRanges")
     expect_is(InteractionSet::interactions(object), "StrictGInteractions")
     expect_is(S4Vectors::mcols(object), "DataFrame")
-    expect_true(is.numeric(SummarizedExperiment::assay(object)))
+    expect_is(SummarizedExperiment::assay(object), "matrix")
+    expect_equal(is.numeric(SummarizedExperiment::assay(object)), TRUE)
 })
 
 test_that("HiCDOCDalinkToMatrixtaSetFromTabular produce correct values", {
