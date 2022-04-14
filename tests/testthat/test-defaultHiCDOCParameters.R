@@ -9,7 +9,8 @@ test_that("defaultHiCDOCParameters has the expected format", {
             "loessSampleSize",
             "kMeansDelta",
             "kMeansIterations",
-            "kMeansRestarts"
+            "kMeansRestarts",
+            "PC1CheckThreshold"
         )
     )
 })
@@ -22,4 +23,5 @@ test_that("defaultHiCDOCParameters has the expected values", {
     expect_equal(defaultHiCDOCParameters$kMeansDelta, 1e-04)
     expect_equal(defaultHiCDOCParameters$kMeansIterations, 50)
     expect_equal(defaultHiCDOCParameters$kMeansRestarts, 20)
+    expect_equal(defaultHiCDOCParameters$PC1CheckThreshold, 0.75)
 })

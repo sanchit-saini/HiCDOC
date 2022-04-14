@@ -12,6 +12,9 @@
 #' A \code{\link{HiCDOCDataSet}}.
 #' @param chromosome
 #' A chromosome name or index in \code{chromosomes(object)}.
+#' A \code{\link{HiCDOCDataSet}}.
+#' @param checks
+#' Logical. Should sanity checks messages be printed on plot ? Default to TRUE. 
 #'
 #' @return
 #' A \code{ggplot}.

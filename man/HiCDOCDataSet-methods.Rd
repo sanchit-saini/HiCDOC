@@ -25,14 +25,17 @@ conditions(object)
 
 replicates(object)
 
-compartments(object)
+compartments(object, passChecks = TRUE)
 
 differences(object, threshold = 0.05)
 
-concordances(object)
+concordances(object, passChecks = TRUE)
 }
 \arguments{
 \item{object}{a HiCDOCDataSet object}
+
+\item{passChecks}{logical. Display only the concordances/compartments for 
+the chromosomes passing sanity checks.}
 
 \item{threshold}{a numeric value between 0 and 1. If no threshold, all the differences will
 be printed even the non significant ones. Otherwise the differences printed

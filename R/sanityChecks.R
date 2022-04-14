@@ -20,7 +20,7 @@
 #' data(exampleHiCDOCDataSetProcessed)
 #' .checkPca("X", exampleHiCDOCDataSetProcessed)
 #'
-#' @export
+#' @noRd
 .checkPca <- function(chromosomeName, object) {
     compartments <- as.character(unique(object@centroids$compartment))
     pcaData <- .computePca(object, chromosomeName)
@@ -52,11 +52,7 @@
 #' A \code{data.table}, with 2 elements: the name of the chromosome,
 #' whether the check passed (a Wilcoxon test, with p-value less than 5%).
 #'
-#' @examples
-#' data(exampleHiCDOCDataSetProcessed)
-#' .checkCompartmentAssignment("X", exampleHiCDOCDataSetProcessed)
-#'
-#' @export
+#' @noRd
 .checkCompartmentAssignment <- function(chromosomeName, object) {
     compartments <- object@compartments[chromosome == chromosomeName, ]
     selfInteractionRatios <- object@selfInteractionRatios[chromosome == chromosomeName, ]
@@ -86,11 +82,7 @@
 #' (here, 75%), and whether the check passed (a Wilcoxon test, with p-value
 #' less than 5%).
 #'
-#' @examples
-#' data(exampleHiCDOCDataSetProcessed)
-#' .checkResults(exampleHiCDOCDataSetProcessed)
-#'
-#' @export
+#' @noRd
 .checkResults <- function(object) {
     pcaChecks         <- lapply(chromosomes(object), .checkPca, object)
     pcaChecks         <- data.table::rbindlist(pcaChecks)

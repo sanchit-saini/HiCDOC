@@ -9,7 +9,8 @@ detectCompartments(
     parallel = FALSE,
     kMeansDelta = NULL,
     kMeansIterations = NULL,
-    kMeansRestarts = NULL
+    kMeansRestarts = NULL,
+    PC1CheckThreshold = NULL
 )
 }
 \arguments{
@@ -32,6 +33,11 @@ clustering iterates until convergence or reaching the maximum number of
 iterations. The clustering that minimizes inner-cluster variance is selected.
 Defaults to \code{object$kMeansRestarts} which is originally set to
 \code{defaultHiCDOCParameters$kMeansRestarts} = 20.}
+
+\item{PC1CheckThreshold}{The minimum percentage of variance that should be explained by
+the first principal component of centroids to pass sanity check.
+Defaults to \code{object$kMeansRestarts} which is originally set to
+\code{defaultHiCDOCParameters$PC1CheckThreshold} = 0.75}
 }
 \value{
 A \code{\link{HiCDOCDataSet}}, with compartments, concordances, distances,

@@ -10,7 +10,7 @@
 \alias{parameters<-,HiCDOCDataSet-method}
 \title{Access the parameters of a \code{\link{HiCDOCDataSet}}.}
 \format{
-An object of class \code{list} of length 7.
+An object of class \code{list} of length 8.
 }
 \usage{
 defaultHiCDOCParameters
@@ -87,6 +87,12 @@ custom parameters will be used.
             the maximum number of iterations. The clustering that minimizes
             inner-cluster variance is selected. Defaults to
             \code{defaultHiCDOCParameters$kMeansRestarts} = 20.
+        }
+        \item{\code{PC1CheckThreshold}}{
+            The minimum percentage of variance that should be explained by
+            the first principal component of centroids to pass sanity check.
+            Defaults to 
+            \code{defaultHiCDOCParameters$PC1CheckThreshold} = 0.75
         }
     }
 }

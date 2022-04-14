@@ -16,7 +16,7 @@ test_that("plotCentroids behaves as expected", {
     expect_is(pp, "ggplot")
     expect_identical(
         unlist(pp$labels),
-        c(
+        c("caption" = vector("character"),
           "x" = "PC1  91.28 %",
           "y" = "PC2  6.77 %",
           "title" = "PCA on centroids of chromosome X",

@@ -45,7 +45,7 @@ plotConcordances <- function(
     concordances <- data.table::as.data.table(concordances)
     concordances[, condition := paste0("Concordances\n", condition)]
     concordances <- concordances[start >= xlim[1] & start <= xlim[2]]
-    binSize <- modeVector(concordances$width)
+    binSize <- .modeVector(concordances$width)
 
     if (nrow(concordances) == 0) {
         message("No concordances for chromosome ", chromosomeName, ".")

@@ -29,6 +29,7 @@ test_that("HiCDOCDataSetFromTabular produce correct format", {
     expect_is(object@differences, "NULL")
     expect_is(object@centroids, "NULL")
     expect_is(object@parameters, "list")
+    expect_is(object@checks, "NULL")
     expect_is(object, "InteractionSet")
     
     # Interactions

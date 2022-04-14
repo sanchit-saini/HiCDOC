@@ -9,7 +9,8 @@ plotCompartmentChanges(
   chromosome,
   threshold = 0.05,
   xlim = NULL,
-  points = FALSE
+  points = FALSE,
+  checks = TRUE
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ plotCompartmentChanges(
 all positions. Defaults to NULL.}
 
 \item{points}{Whether or not to add points to the concordances. Defaults to FALSE.}
+
+\item{checks}{Whether or not to add sanity checks messages. Default to TRUE.}
 }
 \value{
 A \code{ggplot}.

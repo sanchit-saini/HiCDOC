@@ -4,12 +4,15 @@
 \alias{plotSelfInteractionRatios}
 \title{Plot boxplots of self interaction ratios.}
 \usage{
-plotSelfInteractionRatios(object, chromosome)
+plotSelfInteractionRatios(object, chromosome, checks = TRUE)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{chromosome}{A chromosome name or index in \code{chromosomes(object)}.}
+\item{chromosome}{A chromosome name or index in \code{chromosomes(object)}.
+A \code{\link{HiCDOCDataSet}}.}
+
+\item{checks}{Logical. Should sanity checks messages be printed on plot ? Default to TRUE.}
 }
 \value{
 A \code{ggplot}.
