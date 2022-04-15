@@ -1,6 +1,6 @@
 Package: HiCDOC
 Title: A/B compartment detection and differential analysis
-Version: 0.99.11
+Version: 0.99.12
 Date: 2022-04-15
 Authors@R: c(
     person("Kurylo", "Cyril", email = "cyril.kurylo@inrae.fr", role = c("aut")),
