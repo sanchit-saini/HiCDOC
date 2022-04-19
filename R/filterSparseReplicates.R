@@ -35,7 +35,7 @@
     if (length(toRemove) > 0) {
         message(
             paste(
-                "Removed interactions matrix of chromosome ",
+                "\nRemoved interactions matrix of chromosome ",
                 chromosomeName,
                 ", condition ",
                 conditions[toRemove],
@@ -160,6 +160,12 @@ filterSparseReplicates <- function(object, threshold = NULL) {
     if (sum(rowsToSuppress) > 0) {
         object <- object[!rowsToSuppress, ]
         object <- InteractionSet::reduceRegions(object)
+        # Remove empty chromosomes
+        if(sum(badChromosomes)>0){
+            leftChromosomes <- object@chromosomes[!badChromosomes]
+            print(leftChromosomes)
+            object <- reduceHiCDOCDataSet(object, chromosomes = leftChromosomes)
+        }
     }
     message(
         "Removed ",

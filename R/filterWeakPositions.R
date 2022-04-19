@@ -186,8 +186,16 @@ filterWeakPositions <- function(object, threshold = NULL) {
     )
     if (sum(toRemove)>0) {
         object <- object[!toRemove,]
-        object <- reduceRegions(object)
+        object <- InteractionSet::reduceRegions(object)
         object@validAssay <- .determineValids(object)
+        # Remove empty chromosomes
+        leftChromosomes <- 
+            names(object@validAssay[vapply(object@validAssay, 
+                                           function(x) length(x)>0, 
+                                           FUN.VALUE = TRUE)])
+        if(!identical(leftChromosomes,object@chromosomes)){
+            object <- reduceHiCDOCDataSet(object, chromosomes = leftChromosomes)
+        }
     }
 
     totalWeakBins <- sum(vapply(weakBins, length, FUN.VALUE = 0))
