@@ -176,6 +176,10 @@ plotInteractions <- function(
         variable.factor = FALSE
     )
     dataplot <- dataplot[!is.na(interaction)]
+    if (nrow(dataplot) == 0) {
+        message("No interactions for chromosome ", chromosomeName, ".")
+        return(NULL)
+    }
     dataplot[, c("condition", "replicate") := data.table::tstrsplit(
         variable,
         "_",
@@ -189,12 +193,7 @@ plotInteractions <- function(
         replicate,
         levels = sort(unique(object$replicate))
     )]
-
-    if (nrow(dataplot) == 0) {
-        message("No interactions for chromosome ", chromosomeName, ".")
-        return(NULL)
-    }
-
+    
     regionsChromosome <- as.data.table(InteractionSet::regions(object))
     regionsChromosome <- regionsChromosome[seqnames == chromosomeName]
     xylim <- c(min(regionsChromosome$start), max(regionsChromosome$start))
