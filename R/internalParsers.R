@@ -436,9 +436,21 @@
         data.table = TRUE
     )
 
-    minIndex <- min(bed[,index])
     setorder(bed, chromosome, start, end)
-
+    
+    # Keeping only intra-chromosomal interactions
+    if(min(bed$index) == 0){
+        allChromosomes <- vector("character", length = max(bed$index) + 1)
+        allChromosomes[bed[,index]+1] <- bed[,chromosome]
+        interactions <- interactions[
+            allChromosomes[startIndex + 1] == allChromosomes[stopIndex + 1]]
+    } else {
+        allChromosomes <- vector("character", length = max(bed$index))
+        allChromosomes[bed[,index]] <- bed[,chromosome]
+        interactions <- interactions[
+            allChromosomes[startIndex] == allChromosomes[stopIndex]]
+    }
+    
     order1 <- match(interactions$startIndex, bed$index)
     order2 <- match(interactions$stopIndex, bed$index)
     allRegions <- GenomicRanges::GRanges(bed)
@@ -458,16 +470,12 @@
             "replicate" = replicate
         )
     )
-
-    # Keep only intra-chromosomal interactions
-    interactionSet <- interactionSet[InteractionSet::intrachr(interactionSet), ]
-
+    
     # Remove zero rows
     zeros <- (
         rowSums(SummarizedExperiment::assay(interactionSet), na.rm=TRUE) == 0
     )
     interactionSet <- interactionSet[!zeros, ]
-
     return(interactionSet)
 }
 
