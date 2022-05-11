@@ -26,7 +26,7 @@ test_that("filterWeakPositions behaves as expected, custom param", {
     )
     expect_equal(nrow(object), 35743)
     expect_identical(sapply(object@weakBins, length),
-                     c("W" = 0L, "X" = 120L, "Y" = 3L, "Z" = 0L))
+                     c("W" = 0L, "Y" = 3L, "Z" = 0L))
     expect_identical(object@parameters$weakPositionThreshold, 50)
     assay <- SummarizedExperiment::assay(object)
     expect_equal(sum(!is.na(assay)), 146461)
