@@ -53,7 +53,8 @@ plotCentroids <- function(object, chromosome, size = 2, checks=TRUE) {
     if(checks){
         messages <- .messageCheck(object, chromosomeName)
         plot <- plot + 
-            labs(caption = paste(messages$centroids, messages$PC1, sep="\n"))
+            labs(caption = paste("Quality controls:",
+                                 messages$PC1, messages$centroids, sep="\n"))
     }
     return(plot)
 }

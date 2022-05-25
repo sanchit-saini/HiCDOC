@@ -68,7 +68,8 @@ plotSelfInteractionRatios <- function(object, chromosome, checks=TRUE) {
     
     if(checks){
         messages <- .messageCheck(object, chromosomeName)
-        plot <- plot + labs(caption=messages$assignment)
+        plot <- plot + labs(caption=paste0("Quality control:\n",
+                                           messages$assignment))
     }
     return(plot)
 }

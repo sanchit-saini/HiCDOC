@@ -33,7 +33,8 @@ plotConcordanceDifferences <- function(object) {
         aes(x = difference, fill = changed)
     ) + geom_histogram() + labs(
         x = "Concordance",
-        title = "Distribution of concordance differences"
+        title = "Distribution of concordance differences",
+        fill = "Change\nof\ncompartment"
     )
     return(plot)
 }

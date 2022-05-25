@@ -54,17 +54,17 @@
 .messageCheck <- function(object, chomosomeName) {
     checks <- object@checks[chromosome == chomosomeName]
     messagesChecks <- list(
-        "centroids" = "Compartments cluster together.",
-        "PC1" = "Intertia on PC1 reaches the 75% threshold criterium.",
-        "assignment" = "There is a significant difference between compartment interactions.")
+        "PC1" = "Centroid PC1 inertia: OK",
+        "centroids" = "A/B clustering consistency: OK",
+        "assignment" = "A/B assignment reliability: OK")
     if(!checks$centroid.check){
-        messagesChecks$centroids <- "Compartments do not cluster together."
+        messagesChecks$centroids <- "A/B clustering consistency: WARNING"
     }
     if(!checks$PC1.check){
-        messagesChecks$PC1 <- "Intertia on PC1 does not reach the 75% threshold criterium."
+        messagesChecks$PC1 <- "Centroid PC1 inertia: WARNING"
     }
     if(!checks$assignment.check){
-        messagesChecks$assignment <- "No significant difference between compartment interactions."
+        messagesChecks$assignment <- "A/B assignment reliability: FAIL"
     }
     return(messagesChecks)
 }
