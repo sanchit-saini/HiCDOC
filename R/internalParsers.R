@@ -439,17 +439,11 @@
     setorder(bed, chromosome, start, end)
     
     # Keeping only intra-chromosomal interactions
-    if(min(bed$index) == 0){
-        allChromosomes <- vector("character", length = max(bed$index) + 1)
-        allChromosomes[bed[,index]+1] <- bed[,chromosome]
-        interactions <- interactions[
-            allChromosomes[startIndex + 1] == allChromosomes[stopIndex + 1]]
-    } else {
-        allChromosomes <- vector("character", length = max(bed$index))
-        allChromosomes[bed[,index]] <- bed[,chromosome]
-        interactions <- interactions[
-            allChromosomes[startIndex] == allChromosomes[stopIndex]]
-    }
+    # Add 1 if BED index start with 0
+    allChromosomes <- vector("character", length = max(bed$index) + 1)
+    allChromosomes[bed[,index]+1] <- bed[,chromosome]
+    interactions <- interactions[
+        allChromosomes[startIndex + 1] == allChromosomes[stopIndex + 1]]
     
     order1 <- match(interactions$startIndex, bed$index)
     order2 <- match(interactions$stopIndex, bed$index)
