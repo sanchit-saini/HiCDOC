@@ -8,23 +8,23 @@ setMethod("chromosomes", "HiCDOCDataSet", function(object) {
     object@chromosomes
 })
 
-#### conditions ####
-#' Retrieves the vector of condition names.
+#### sampleConditions ####
+#' Retrieves the vector of condition names, one for each sample.
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
 #' @export
-setMethod("conditions", "HiCDOCDataSet", function(object) {
+setMethod("sampleConditions", "HiCDOCDataSet", function(object) {
     object$condition
 })
 
-#### replicates ####
-#' Retrieves the vector of replicate names.
+#### sampleReplicates ####
+#' Retrieves the vector of replicate names, one for each sample.
 #' @rdname HiCDOCDataSet-methods
 #' @usage
 #' NULL
 #' @export
-setMethod("replicates", "HiCDOCDataSet", function(object) {
+setMethod("sampleReplicates", "HiCDOCDataSet", function(object) {
     object$replicate
 })
 
@@ -140,16 +140,16 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         "\n\n",
         "- Replicates:\n",
         if (
-            is.null(replicates(object)) ||
-            length(replicates(object)) == 0
+            is.null(sampleReplicates(object)) ||
+            length(sampleReplicates(object)) == 0
         ) {
             "  None\n"
         } else {
             paste0(
                 "  condition ",
-                conditions(object),
+                sampleconditions(object),
                 ", replicate ",
-                replicates(object),
+                sampleReplicates(object),
                 "\n"
             )
         },
@@ -173,8 +173,8 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         "\n",
         "- Methods:\n",
         "  chromosomes(object)\n",
-        "  conditions(object)\n",
-        "  replicates(object)\n",
+        "  sampleconditions(object)\n",
+        "  sampleReplicates(object)\n",
         "  compartments(object)\n",
         "  differences(object)\n",
         "  concordances(object)\n",
