@@ -15,8 +15,8 @@
 #' @examples
 #' data(exampleHiCDOCDataSetProcessed)
 #' chromosomes(exampleHiCDOCDataSetProcessed)
-#' conditions(exampleHiCDOCDataSetProcessed)
-#' replicates(exampleHiCDOCDataSetProcessed)
+#' sampleConditions(exampleHiCDOCDataSetProcessed)
+#' sampleReplicates(exampleHiCDOCDataSetProcessed)
 #' compartments(exampleHiCDOCDataSetProcessed)
 #' differences(exampleHiCDOCDataSetProcessed)
 #' concordances(exampleHiCDOCDataSetProcessed)
@@ -36,22 +36,22 @@ setGeneric(
     def = function(object) standardGeneric("chromosomes")
 )
 
-#### conditions ####
+#### sampleConditions ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the vector of condition names.
 #' @export
 setGeneric(
-    name = "conditions",
-    def = function(object) standardGeneric("conditions")
+    name = "sampleConditions",
+    def = function(object) standardGeneric("sampleConditions")
 )
 
-#### replicates ####
+#### sampleReplicates ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the vector of replicate names.
 #' @export
 setGeneric(
-    name = "replicates",
-    def = function(object) standardGeneric("replicates")
+    name = "sampleReplicates",
+    def = function(object) standardGeneric("sampleReplicates")
 )
 
 #### compartments ####

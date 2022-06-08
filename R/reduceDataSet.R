@@ -190,9 +190,11 @@
 #' The chromosome names or indices in \code{chromosomes(object)} to keep.
 #' Defaults to NULL.
 #' @param conditions
-#' The condition names in \code{conditions(object)} to keep. Defaults to NULL.
+#' The condition names in \code{sampleConditions(object)} to keep. 
+#' Defaults to NULL.
 #' @param replicates
-#' The replicate names in \code{replicates(object)} to keep. Defaults to NULL.
+#' The replicate names in \code{sampleReplicates(object)} to keep. 
+#' Defaults to NULL.
 #' @param dropLevels
 #' Whether or not to also remove unused factor levels after filtering. Should
 #' be set to FALSE if the reduced objects are meant to be re-combined later.
