@@ -20,43 +20,10 @@ constructed from 4 different types of data:
 \item HiC-Pro matrices and bed files: see \code{\link{HiCDOCDataSetFromHiCPro}}
 An example \code{HiCDOCDataSet} is also available, see
 \code{\link{exampleHiCDOCDataSet}}.
+The \code{HiCDOCDataSet} object can be explored using the appropriate
+accessors.
 }
 }
-\section{Slots}{
-
-\describe{
-\item{\code{input}}{A vector of path(s) to input file(s).}
-
-\item{\code{parameters}}{A list of parameters used for filtering, normalization, and prediction of
-compartments.}
-
-\item{\code{chromosomes}}{A vector of names of chromosomes.}
-
-\item{\code{totalBins}}{A list of the number of bins in each chromosome.}
-
-\item{\code{weakBins}}{A list of weak bins that are filtered out in each chromosome.}
-
-\item{\code{validAssay}}{A list of non-sparse valid conditions and replicates, corresponding to the
-valid columns of the assay matrix, for each chromosome}
-
-\item{\code{compartments}}{A data.table of the A or B compartment of each bin in each condition.}
-
-\item{\code{concordances}}{A data.table of the concordance of each bin in each replicate.}
-
-\item{\code{differences}}{A data.table of detected compartment differences between conditions.}
-
-\item{\code{comparisons}}{A data.table of comparisons}
-
-\item{\code{distances}}{A data.table of the distances to centroids of each bin in each replicate.}
-
-\item{\code{centroids}}{A data.table of centroids in each chromosome and condition.}
-
-\item{\code{selfInteractionRatios}}{A data.table of differences between self interaction and other interactions
-for each bin in each replicate.}
-
-\item{\code{checks}}{A data.table of several checks performed on each chromosome}
-}}
-
 \seealso{
 \code{\link{HiCDOC}}
 \code{\link{exampleHiCDOCDataSet}},
@@ -64,4 +31,5 @@ for each bin in each replicate.}
 \code{\link{HiCDOCDataSetFromCool}},
 \code{\link{HiCDOCDataSetFromHiC}},
 \code{\link{HiCDOCDataSetFromHiCPro}}
+\code{\link{HiCDOCDataSet-methods}}
 }
