@@ -33,9 +33,7 @@ NULL
 #' @export
 setGeneric(
     name = "chromosomes",
-    def = function(object) {
-        standardGeneric("chromosomes")
-    }
+    def = function(object) standardGeneric("chromosomes")
 )
 
 #### conditions ####
@@ -44,9 +42,7 @@ setGeneric(
 #' @export
 setGeneric(
     name = "conditions",
-    def = function(object) {
-        standardGeneric("conditions")
-    }
+    def = function(object) standardGeneric("conditions")
 )
 
 #### replicates ####
@@ -55,9 +51,7 @@ setGeneric(
 #' @export
 setGeneric(
     name = "replicates",
-    def = function(object) {
-        standardGeneric("replicates")
-    }
+    def = function(object) standardGeneric("replicates")
 )
 
 #### compartments ####
@@ -69,9 +63,7 @@ setGeneric(
 #' @export
 setGeneric(
     name = "compartments",
-    def = function(object, passChecks = TRUE) {
-        standardGeneric("compartments")
-    }
+    def = function(object, passChecks = TRUE) standardGeneric("compartments")
 )
 
 #### differences ####
@@ -89,9 +81,7 @@ setGeneric(
 #' @export
 setGeneric(
     name = "differences",
-    def = function(object, threshold = 0.05) {
-        standardGeneric("differences")
-    }
+    def = function(object, threshold = 0.05) standardGeneric("differences")
 )
 
 #### concordances ####
@@ -101,9 +91,7 @@ setGeneric(
 #' @export
 setGeneric(
     name = "concordances",
-    def = function(object, passChecks = TRUE) {
-        standardGeneric("concordances")
-    }
+    def = function(object, passChecks = TRUE) standardGeneric("concordances")
 )
 
 #' @title
@@ -219,9 +207,7 @@ NULL
 #' @export
 setGeneric(
     name = "parameters",
-    def = function(object) {
-        standardGeneric("parameters")
-    }
+    def = function(object) standardGeneric("parameters")
 )
 
 #### parameters <- ####
@@ -239,7 +225,5 @@ setGeneric(
 #' @export
 setGeneric(
     name = "parameters<-",
-    def = function(object, value) {
-        standardGeneric("parameters<-")
-    }
+    def = function(object, value) standardGeneric("parameters<-")
 )
