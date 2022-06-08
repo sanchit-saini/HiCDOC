@@ -21,7 +21,6 @@
 #' @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
 #' @importFrom GenomeInfoDb seqlevels seqnames
 #' @import data.table
-#' @import InteractionSet
 #' @useDynLib HiCDOC
 #' @aliases HiCDOC-package
 "_PACKAGE"

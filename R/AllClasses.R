@@ -23,38 +23,6 @@
 #' An example \code{HiCDOCDataSet} is also available, see
 #' \code{\link{exampleHiCDOCDataSet}}.
 #'
-#' @slot input
-#' A vector of path(s) to input file(s).
-#' @slot parameters
-#' A list of parameters used for filtering, normalization, and prediction of
-#' compartments.
-#' @slot chromosomes
-#' A vector of names of chromosomes.
-#' @slot totalBins
-#' A list of the number of bins in each chromosome.
-#' @slot weakBins
-#' A list of weak bins that are filtered out in each chromosome.
-#' @slot validAssay
-#' A list of non-sparse valid conditions and replicates, corresponding to the
-#' valid columns of the assay matrix, for each chromosome
-#' @slot compartments
-#' A data.table of the A or B compartment of each bin in each condition.
-#' @slot concordances
-#' A data.table of the concordance of each bin in each replicate.
-#' @slot differences
-#' A data.table of detected compartment differences between conditions.
-#' @slot comparisons
-#' A data.table of comparisons
-#' @slot distances
-#' A data.table of the distances to centroids of each bin in each replicate.
-#' @slot centroids
-#' A data.table of centroids in each chromosome and condition.
-#' @slot selfInteractionRatios
-#' A data.table of differences between self interaction and other interactions
-#' for each bin in each replicate.
-#' @slot checks
-#' A data.table of several checks performed on each chromosome
-#'
 #' @seealso
 #' \code{\link{HiCDOC}}
 #' \code{\link{exampleHiCDOCDataSet}},

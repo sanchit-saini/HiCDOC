@@ -10,9 +10,11 @@
 \alias{concordances}
 \alias{differences}
 \alias{show}
+\alias{sampleConditions}
+\alias{sampleReplicates}
 \alias{chromosomes,HiCDOCDataSet-method}
-\alias{conditions,HiCDOCDataSet-method}
-\alias{replicates,HiCDOCDataSet-method}
+\alias{sampleConditions,HiCDOCDataSet-method}
+\alias{sampleReplicates,HiCDOCDataSet-method}
 \alias{compartments,HiCDOCDataSet-method}
 \alias{differences,HiCDOCDataSet-method}
 \alias{concordances,HiCDOCDataSet-method}
@@ -21,9 +23,9 @@
 \usage{
 chromosomes(object)
 
-conditions(object)
+sampleConditions(object)
 
-replicates(object)
+sampleReplicates(object)
 
 compartments(object, passChecks = TRUE)
 
@@ -54,9 +56,9 @@ Retrieve information and results from a \code{\link{HiCDOCDataSet}}.
 \itemize{
 \item \code{chromosomes}: Retrieves the vector of chromosome names.
 
-\item \code{conditions}: Retrieves the vector of condition names.
+\item \code{sampleConditions}: Retrieves the vector of condition names.
 
-\item \code{replicates}: Retrieves the vector of replicate names.
+\item \code{sampleReplicates}: Retrieves the vector of replicate names.
 
 \item \code{compartments}: Retrieves a \code{GenomicRange} of the compartment of every position
 in every condition.
@@ -73,8 +75,8 @@ compartment) of every position in every replicate.
 \examples{
 data(exampleHiCDOCDataSetProcessed)
 chromosomes(exampleHiCDOCDataSetProcessed)
-conditions(exampleHiCDOCDataSetProcessed)
-replicates(exampleHiCDOCDataSetProcessed)
+sampleConditions(exampleHiCDOCDataSetProcessed)
+sampleReplicates(exampleHiCDOCDataSetProcessed)
 compartments(exampleHiCDOCDataSetProcessed)
 differences(exampleHiCDOCDataSetProcessed)
 concordances(exampleHiCDOCDataSetProcessed)
