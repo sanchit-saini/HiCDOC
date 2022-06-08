@@ -113,8 +113,8 @@
     ]
     allRegions[index==0, index:=1]
     allRegions[, index := cumsum(index)]
-    allRegions[, end := (indexC+1) * binSize -1]
-    allRegions[, start := (indexC) * binSize]
+    allRegions[, end := (indexC+1) * binSize]
+    allRegions[, start := (indexC) * binSize + 1]
     data.table::setcolorder(
         allRegions,
         c("chromosome", "start", "end", "index", "indexC")
