@@ -90,7 +90,8 @@
     ) <- chromosomeNames
 
     # Add chromosome column for split purpose
-    chromosomes <- GenomeInfoDb::seqnames(InteractionSet::anchors(object, "first"))
+    chromosomes <-
+        GenomeInfoDb::seqnames(InteractionSet::anchors(object, "first"))
     chromosomes <- S4Vectors::Rle(factor(chromosomes, levels = chromosomeNames))
     S4Vectors::mcols(object) <- S4Vectors::DataFrame("chromosome" = chromosomes)
 
