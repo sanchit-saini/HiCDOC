@@ -66,6 +66,6 @@ test_that("HiCDOCDalinkToMatrixtaSetFromTabular produce correct values", {
     # Positions
     regions <- data.frame(InteractionSet::regions(object))
     expect_equal(mean(regions$index), 10.5, tolerance = 1e-5)
-    expect_equal(mean(regions$start), 4750000)
-    expect_equal(mean(regions$end), 5249999)
+    expect_equal(mean(regions$start), 4750001)
+    expect_equal(mean(regions$end), 5250000)
 })
