@@ -147,7 +147,7 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         } else {
             paste0(
                 "  condition ",
-                sampleconditions(object),
+                sampleConditions(object),
                 ", replicate ",
                 sampleReplicates(object),
                 "\n"
@@ -173,7 +173,7 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         "\n",
         "- Methods:\n",
         "  chromosomes(object)\n",
-        "  sampleconditions(object)\n",
+        "  sampleConditions(object)\n",
         "  sampleReplicates(object)\n",
         "  compartments(object)\n",
         "  differences(object)\n",
