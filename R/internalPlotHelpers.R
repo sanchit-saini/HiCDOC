@@ -32,7 +32,7 @@
         regions <- regions[GenomeInfoDb::seqnames(regions) == chromosomeName]
         xlim <- c(
             min(GenomicRanges::start(regions), na.rm = TRUE),
-            max(GenomicRanges::start(regions), na.rm = TRUE)
+            max(GenomicRanges::end(regions), na.rm = TRUE)
         )
     }
     return(xlim)

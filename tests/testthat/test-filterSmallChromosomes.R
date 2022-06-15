@@ -30,3 +30,4 @@ test_that("filterSmallChromosomes behave as expected with custom filter", {
                  c(0, 0, 0, 22706459, 
                    0, 0, 7635309))
 })
+

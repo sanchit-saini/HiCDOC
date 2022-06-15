@@ -17,8 +17,8 @@ test_that("plotConcordanceDifferences behaves as expected", {
         unlist(pp$labels),
         c(
             "x" = "Concordance",
+            "fill" = "Change\nof\ncompartment",
             "title" = "Distribution of concordance differences",
-            "fill" = "changed",
             "y" = "count",
             "weight" = "weight"
         )

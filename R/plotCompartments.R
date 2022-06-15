@@ -50,8 +50,8 @@ plotCompartments <- function(
         binwidth = binSize,
         colour = "gray90",
         size = 0.05
-    ) + xlim(
-        xlim[1] - 0.5 * binSize, xlim[2] + 0.5 * binSize
+    ) + coord_cartesian(
+        xlim=c(xlim[1] - 0.5 * binSize, xlim[2] + 0.5 * binSize)
     ) + facet_grid(
         rows = vars(condition),
         margins = FALSE,

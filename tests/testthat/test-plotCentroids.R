@@ -16,9 +16,9 @@ test_that("plotCentroids behaves as expected", {
     expect_is(pp, "ggplot")
     expect_identical(
         unlist(pp$labels),
-        c("caption" = "Compartments cluster together.\nIntertia on PC1 reaches the 75% threshold criterium.",
-          "x" = "PC1  91.28 %",
-          "y" = "PC2  6.77 %",
+        c("caption" = "Quality controls:\nCentroid PC1 inertia: OK\nA/B clustering consistency: OK",
+          "x" = "PC1  91.37 %",
+          "y" = "PC2  6.69 %",
           "title" = "PCA on centroids of chromosome X",
           "colour" = "compartment",
           "shape" = "condition"
