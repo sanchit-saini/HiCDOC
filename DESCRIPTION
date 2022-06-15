@@ -18,15 +18,15 @@ Description:
 License: LGPL (>= 3)
 Encoding: UTF-8
 SystemRequirements: C++11
+Depends: 
+    InteractionSet, GenomicRanges, SummarizedExperiment, R (>= 4.1.0)
 Imports:
     methods,
     zlibbioc,
     ggplot2,
-    GenomicRanges,
     Rcpp (>= 0.12.8),
     stats,
     S4Vectors,
-    SummarizedExperiment,
     gtools,
     pbapply,
     BiocParallel,
@@ -40,17 +40,15 @@ Imports:
     multiHiCcompare,
     GenomeInfoDb
 LinkingTo: Rcpp
-RoxygenNote: 7.1.2
-biocViews:
-    HiC, DNA3DStructure, Normalization, Sequencing, Software, Clustering
 Suggests:
     knitr,
     rmarkdown,
     testthat,
     BiocStyle,
     BiocManager
+RoxygenNote: 7.1.2
+biocViews:
+    HiC, DNA3DStructure, Normalization, Sequencing, Software, Clustering
 VignetteBuilder: knitr
 URL: https://github.com/mzytnicki/HiCDOC
 BugReports: https://github.com/mzytnicki/HiCDOC/issues
-Depends: 
-    InteractionSet, R (>= 4.1.0)

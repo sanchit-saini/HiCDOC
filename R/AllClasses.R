@@ -4,10 +4,10 @@
 #'
 #' @name
 #' HiCDOCDataSet-class
-#'
+#' 
 #' @aliases
 #' HiCDOCDataSet
-#'
+#' 
 #' @description
 #' Data structure for a Hi-C experiment.
 #'
@@ -22,9 +22,31 @@
 #' - HiC-Pro matrices and bed files: see \code{\link{HiCDOCDataSetFromHiCPro}}
 #' An example \code{HiCDOCDataSet} is also available, see
 #' \code{\link{exampleHiCDOCDataSet}}.
+#' The \code{HiCDOCDataSet} object can be explored using the appropriate
+#' accessors.
+#' 
+#' @details # Accessors
+#' The accessors for a HiCDOCDataset object are the following:
+#' - \code{\link{chromosomes}} to retrieve the vector of chromosome names.
+#' - \code{\link{sampleConditions}} to  retrieve the vector of condition names, 
+#' one for each sample.
+#' - \code{\link{sampleReplicates}} to retrieve the vector of replicate names, 
+#' one for each sample.
+#' 
+#' After the detection of compartments you can use this accessors:
+#' - \code{\link{compartments}} returns a GenomicRange of the compartment 
+#' of every position in every condition.
+#' - \code{\link{concordances}} returns a GenomicRange of the significant 
+#' compartment differences between conditions, and their p-values.
+#' - \code{\link{differences}} returns a GenomicRange of the concordance 
+#' (confidence in assigned compartment) of every position in every replicate.
+#' 
+#' 
+#' See the \link{HiCDOCDataSet-methods} man page for more details on methods
+#' and accessors. 
 #'
 #' @seealso
-#' \code{\link{HiCDOC}}
+#' \code{\link{HiCDOC}},
 #' \code{\link{exampleHiCDOCDataSet}},
 #' \code{\link{HiCDOCDataSetFromTabular}},
 #' \code{\link{HiCDOCDataSetFromCool}},
@@ -54,13 +76,7 @@ setClass(
     )
 )
 
-#' @describeIn HiCDOCDataSet-parameters
-#' Provides default parameters, imported into a \code{HiCDOCDataSet} upon
-#' instantiation. The \code{HiCDOCDataSet} parameters are then used for the
-#' \code{\link{HiCDOC}} pipeline.
-#'
-#' @usage
-#' defaultHiCDOCParameters
+#' @rdname HiCDOCDataSet-parameters
 #' @export
 defaultHiCDOCParameters <- list(
     smallChromosomeThreshold = 100,

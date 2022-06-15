@@ -1,8 +1,35 @@
+#' @title
+#' Methods to access a \code{\link{HiCDOCDataSet}} components.
+#'
+#' @name
+#' HiCDOCDataSet-methods
+#'
+#' @description
+#' Retrieve information and results from a \code{\link{HiCDOCDataSet}}.
+#' 
+#' @examples
+#' # Load an example dataset already processed 
+#' # (i.e. after the detection of compartments)
+#' data(exampleHiCDOCDataSetProcessed)
+#' 
+#' exampleHiCDOCDataSetProcessed
+#' chromosomes(exampleHiCDOCDataSetProcessed)
+#' sampleConditions(exampleHiCDOCDataSetProcessed)
+#' sampleReplicates(exampleHiCDOCDataSetProcessed)
+#' compartments(exampleHiCDOCDataSetProcessed)
+#' differences(exampleHiCDOCDataSetProcessed)
+#' concordances(exampleHiCDOCDataSetProcessed)
+#' 
+#' @return
+#' A character vector (for \code{chromosomes}, \code{sampleConditions},
+#' \code{sampleReplicates}), 
+#' or a GRanges object
+#' (for \code{compartments}, \code{concordances}, \code{differences}).
+NULL
+
 #### chromosomes ####
 #' Retrieves the vector of chromosome names.
 #' @rdname HiCDOCDataSet-methods
-#' @usage
-#' NULL
 #' @export
 setMethod("chromosomes", "HiCDOCDataSet", function(object) {
     object@chromosomes
@@ -11,8 +38,6 @@ setMethod("chromosomes", "HiCDOCDataSet", function(object) {
 #### sampleConditions ####
 #' Retrieves the vector of condition names, one for each sample.
 #' @rdname HiCDOCDataSet-methods
-#' @usage
-#' NULL
 #' @export
 setMethod("sampleConditions", "HiCDOCDataSet", function(object) {
     object$condition
@@ -21,8 +46,6 @@ setMethod("sampleConditions", "HiCDOCDataSet", function(object) {
 #### sampleReplicates ####
 #' Retrieves the vector of replicate names, one for each sample.
 #' @rdname HiCDOCDataSet-methods
-#' @usage
-#' NULL
 #' @export
 setMethod("sampleReplicates", "HiCDOCDataSet", function(object) {
     object$replicate
@@ -31,8 +54,6 @@ setMethod("sampleReplicates", "HiCDOCDataSet", function(object) {
 #### compartments ####
 #' Retrieves a \code{GenomicRange} of the compartment of every position
 #' @rdname HiCDOCDataSet-methods
-#' @usage
-#' NULL
 #' @export
 setMethod("compartments", "HiCDOCDataSet", function(object, passChecks = TRUE) {
     if(passChecks == TRUE){
@@ -48,8 +69,6 @@ setMethod("compartments", "HiCDOCDataSet", function(object, passChecks = TRUE) {
 #### differences ####
 #' Retrieves a \code{GenomicRange} of the significant compartment differences
 #' @rdname HiCDOCDataSet-methods
-#' @usage
-#' NULL
 #' @export
 setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
     if (is.null(object@differences)) {
@@ -88,9 +107,7 @@ setMethod("differences", "HiCDOCDataSet", function(object, threshold = NULL) {
 #### concordances ####
 #' Retrieves a \code{GenomicRange} of the concordance (confidence in assigned
 #' compartment) of every position in every replicate.
-#' @rdname HiCDOCDataSet-methods
-#' @usage
-#' NULL
+#' @rdname HiCDOCDataSet-methods 
 #' @export
 setMethod("concordances", "HiCDOCDataSet", function(object, passChecks = TRUE) {
     if(passChecks == TRUE){
@@ -105,10 +122,7 @@ setMethod("concordances", "HiCDOCDataSet", function(object, passChecks = TRUE) {
 })
 
 #### show ####
-#' @describeIn HiCDOCDataSet-methods
-#' Describes the object and its methods.
-#' @usage
-#' NULL
+#' @rdname HiCDOCDataSet-methods
 #' @export
 setMethod("show", "HiCDOCDataSet", function(object) {
     cat(
@@ -147,7 +161,7 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         } else {
             paste0(
                 "  condition ",
-                sampleconditions(object),
+                sampleConditions(object),
                 ", replicate ",
                 sampleReplicates(object),
                 "\n"
@@ -173,7 +187,7 @@ setMethod("show", "HiCDOCDataSet", function(object) {
         "\n",
         "- Methods:\n",
         "  chromosomes(object)\n",
-        "  sampleconditions(object)\n",
+        "  sampleConditions(object)\n",
         "  sampleReplicates(object)\n",
         "  compartments(object)\n",
         "  differences(object)\n",
@@ -187,8 +201,6 @@ setMethod("show", "HiCDOCDataSet", function(object) {
 #### parameters ####
 #' Access the parameters of a \code{\link{HiCDOCDataSet}}.
 #' @rdname HiCDOCDataSet-parameters
-#' @usage
-#' NULL
 #' @export
 setMethod("parameters", "HiCDOCDataSet", function(object) {
     object@parameters
@@ -197,8 +209,6 @@ setMethod("parameters", "HiCDOCDataSet", function(object) {
 #### parameters<- ####
 #' Change the parameters of a \code{\link{HiCDOCDataSet}}.
 #' @rdname HiCDOCDataSet-parameters
-#' @usage
-#' NULL
 #' @export
 setReplaceMethod("parameters", "HiCDOCDataSet", function(object, value) {
     defaultParameterNames <- names(defaultHiCDOCParameters)

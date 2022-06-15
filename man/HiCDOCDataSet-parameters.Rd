@@ -15,9 +15,9 @@ An object of class \code{list} of length 8.
 \usage{
 defaultHiCDOCParameters
 
-parameters(object)
+\S4method{parameters}{HiCDOCDataSet}(object)
 
-parameters(object) <- value
+\S4method{parameters}{HiCDOCDataSet}(object) <- value
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
@@ -38,6 +38,13 @@ parameters are updated to record the actual parameters used. If the
 object's parameters are customized before calling the functions, the
 custom parameters will be used.
 
+See
+\code{\link{filterSmallChromosomes}},
+\code{\link{filterSparseReplicates}},
+\code{\link{filterWeakPositions}},
+\code{\link{normalizeDistanceEffect}}, and
+\code{\link{detectCompartments}},
+for details on how these parameters are used.
 \subsection{All parameters are listed here:}{
     \describe{
         \item{\code{smallChromosomeThreshold}}{
@@ -97,31 +104,6 @@ custom parameters will be used.
     }
 }
 }
-\section{Functions}{
-\itemize{
-\item \code{defaultHiCDOCParameters}: Provides default parameters, imported into a \code{HiCDOCDataSet} upon
-instantiation. The \code{HiCDOCDataSet} parameters are then used for the
-\code{\link{HiCDOC}} pipeline.
-
-\item \code{parameters}: Retrieves the parameters used for filtering, normalization, and prediction of
-compartments. See
-\code{\link{filterSmallChromosomes}},
-\code{\link{filterSparseReplicates}},
-\code{\link{filterWeakPositions}},
-\code{\link{normalizeDistanceEffect}}, and
-\code{\link{detectCompartments}},
-for details on how these parameters are used.
-
-\item \code{parameters<-}: Sets the parameters used for filtering, normalization, and prediciton of
-compartments. See
-\code{\link{filterSmallChromosomes}},
-\code{\link{filterSparseReplicates}},
-\code{\link{filterWeakPositions}},
-\code{\link{normalizeDistanceEffect}}, and
-\code{\link{detectCompartments}},
-for details on how these parameters are used.
-}}
-
 \examples{
 data(exampleHiCDOCDataSet)
 

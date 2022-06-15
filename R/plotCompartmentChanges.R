@@ -101,7 +101,8 @@ plotCompartmentChanges <- function(
                 ncol = 1,
                 nrow = 2
             ),
-            grid::textGrob(label=messages, x=0.9, y=0.1, just=c("right", "bottom"),
+            grid::textGrob(label=messages, x=0.9, y=0.1,
+                           just=c("right", "bottom"),
                            gp=grid::gpar(fontsize=8)),
             ncol = 2,
             nrow = 1,

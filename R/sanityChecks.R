@@ -55,7 +55,8 @@
 #' @noRd
 .checkCompartmentAssignment <- function(chromosomeName, object) {
     compartments <- object@compartments[chromosome == chromosomeName, ]
-    selfInteractionRatios <- object@selfInteractionRatios[chromosome == chromosomeName, ]
+    selfInteractionRatios <-
+        object@selfInteractionRatios[chromosome == chromosomeName, ]
     compartments <- data.table::merge.data.table(compartments,
                                                  selfInteractionRatios,
                                                  by = c("index", "condition"))

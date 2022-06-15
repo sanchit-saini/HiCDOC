@@ -20,10 +20,36 @@ constructed from 4 different types of data:
 \item HiC-Pro matrices and bed files: see \code{\link{HiCDOCDataSetFromHiCPro}}
 An example \code{HiCDOCDataSet} is also available, see
 \code{\link{exampleHiCDOCDataSet}}.
+The \code{HiCDOCDataSet} object can be explored using the appropriate
+accessors.
 }
 }
+\section{Accessors}{
+The accessors for a HiCDOCDataset object are the following:
+\itemize{
+\item \code{\link{chromosomes}} to retrieve the vector of chromosome names.
+\item \code{\link{sampleConditions}} to  retrieve the vector of condition names,
+one for each sample.
+\item \code{\link{sampleReplicates}} to retrieve the vector of replicate names,
+one for each sample.
+}
+
+After the detection of compartments you can use this accessors:
+\itemize{
+\item \code{\link{compartments}} returns a GenomicRange of the compartment
+of every position in every condition.
+\item \code{\link{concordances}} returns a GenomicRange of the significant
+compartment differences between conditions, and their p-values.
+\item \code{\link{differences}} returns a GenomicRange of the concordance
+(confidence in assigned compartment) of every position in every replicate.
+}
+
+See the \link{HiCDOCDataSet-methods} man page for more details on methods
+and accessors.
+}
+
 \seealso{
-\code{\link{HiCDOC}}
+\code{\link{HiCDOC}},
 \code{\link{exampleHiCDOCDataSet}},
 \code{\link{HiCDOCDataSetFromTabular}},
 \code{\link{HiCDOCDataSetFromCool}},

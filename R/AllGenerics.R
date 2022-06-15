@@ -1,35 +1,8 @@
-#' @title
-#' Methods to access a \code{\link{HiCDOCDataSet}} components.
-#'
-#' @docType methods
-#'
-#' @name
-#' HiCDOCDataSet-methods
-#'
-#' @aliases
-#' chromosomes conditions replicates compartments concordances
-#' differences show
-#'
-#' @description
-#' Retrieve information and results from a \code{\link{HiCDOCDataSet}}.
-#' @examples
-#' data(exampleHiCDOCDataSetProcessed)
-#' chromosomes(exampleHiCDOCDataSetProcessed)
-#' sampleConditions(exampleHiCDOCDataSetProcessed)
-#' sampleReplicates(exampleHiCDOCDataSetProcessed)
-#' compartments(exampleHiCDOCDataSetProcessed)
-#' differences(exampleHiCDOCDataSetProcessed)
-#' concordances(exampleHiCDOCDataSetProcessed)
-#' @return
-#' A character vector (for \code{chromosomes}, \code{conditions},
-#' \code{replicates}), a data.table
-#' (for \code{interactions} and \code{positions}), or a GRanges object
-#' (for \code{compartments}, \code{concordances}, \code{differences}).
-NULL
-
 #### chromosomes ####
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the vector of chromosome names.
+#' @usage
+#' NULL
 #' @export
 setGeneric(
     name = "chromosomes",
@@ -38,7 +11,9 @@ setGeneric(
 
 #### sampleConditions ####
 #' @describeIn HiCDOCDataSet-methods
-#' Retrieves the vector of condition names.
+#' Retrieves the vector of condition names, one for each sample.
+#' @usage
+#' NULL
 #' @export
 setGeneric(
     name = "sampleConditions",
@@ -47,7 +22,9 @@ setGeneric(
 
 #### sampleReplicates ####
 #' @describeIn HiCDOCDataSet-methods
-#' Retrieves the vector of replicate names.
+#' Retrieves the vector of replicate names, one for each sample.
+#' @usage
+#' NULL
 #' @export
 setGeneric(
     name = "sampleReplicates",
@@ -60,6 +37,8 @@ setGeneric(
 #' in every condition.
 #' @param passChecks logical. Display only the concordances/compartments for 
 #' the chromosomes passing sanity checks.
+#' @usage
+#' NULL
 #' @export
 setGeneric(
     name = "compartments",
@@ -71,7 +50,7 @@ setGeneric(
 #' Retrieves a \code{GenomicRange} of the significant compartment differences
 #' between conditions, and their p-values.
 #' @usage
-#' differences(object, threshold = 0.05)
+#' NULL
 #' @param object
 #' a HiCDOCDataSet object
 #' @param threshold
@@ -79,6 +58,8 @@ setGeneric(
 #' be printed even the non significant ones. Otherwise the differences printed
 #' are filtered to show the ones with an adjusted p-value <= \code{threshold}.
 #' @export
+#' @usage
+#' NULL
 setGeneric(
     name = "differences",
     def = function(object, threshold = 0.05) standardGeneric("differences")
@@ -88,6 +69,8 @@ setGeneric(
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves a \code{GenomicRange} of the concordance (confidence in assigned
 #' compartment) of every position in every replicate.
+#' @usage
+#' NULL
 #' @export
 setGeneric(
     name = "concordances",
@@ -96,15 +79,10 @@ setGeneric(
 
 #' @title
 #' Access the parameters of a \code{\link{HiCDOCDataSet}}.
-#'
-#' @docType methods
-#'
+#
 #' @name
 #' HiCDOCDataSet-parameters
-#'
-#' @aliases
-#' parameters parameters<- defaultHiCDOCParameters
-#'
+#' 
 #' @description
 #' Retrieves or sets parameters used for filtering, normalization, and
 #' prediciton of compartments.
@@ -118,6 +96,14 @@ setGeneric(
 #' object's parameters are customized before calling the functions, the
 #' custom parameters will be used.
 #'
+#' See
+#' \code{\link{filterSmallChromosomes}},
+#' \code{\link{filterSparseReplicates}},
+#' \code{\link{filterWeakPositions}},
+#' \code{\link{normalizeDistanceEffect}}, and
+#' \code{\link{detectCompartments}},
+#' for details on how these parameters are used.
+
 #' \subsection{All parameters are listed here:}{
 #'     \describe{
 #'         \item{\code{smallChromosomeThreshold}}{
@@ -195,15 +181,8 @@ setGeneric(
 NULL
 
 #### parameters ####
-#' @describeIn HiCDOCDataSet-parameters
-#' Retrieves the parameters used for filtering, normalization, and prediction of
-#' compartments. See
-#' \code{\link{filterSmallChromosomes}},
-#' \code{\link{filterSparseReplicates}},
-#' \code{\link{filterWeakPositions}},
-#' \code{\link{normalizeDistanceEffect}}, and
-#' \code{\link{detectCompartments}},
-#' for details on how these parameters are used.
+#' @rdname HiCDOCDataSet-parameters
+#' @usage NULL
 #' @export
 setGeneric(
     name = "parameters",
@@ -211,15 +190,8 @@ setGeneric(
 )
 
 #### parameters <- ####
-#' @describeIn HiCDOCDataSet-parameters
-#' Sets the parameters used for filtering, normalization, and prediciton of
-#' compartments. See
-#' \code{\link{filterSmallChromosomes}},
-#' \code{\link{filterSparseReplicates}},
-#' \code{\link{filterWeakPositions}},
-#' \code{\link{normalizeDistanceEffect}}, and
-#' \code{\link{detectCompartments}},
-#' for details on how these parameters are used.
+#' @rdname HiCDOCDataSet-parameters
+#' @usage NULL
 #' @param value a named list containing the names and valued of the
 #' parameters to change (see Details).
 #' @export

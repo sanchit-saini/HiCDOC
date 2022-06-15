@@ -36,7 +36,6 @@
         "value" = as.vector(values)
     )
     chromosomeValues <- chromosomeValues[!is.na(value), ]
-    # TODO : apreès refactoring, supprimer cette ligne - ça ne sert juste à retrouver des résultats identiques avant le sampling
     setorder(chromosomeValues, distance, value)
 
     idSample <- sample(

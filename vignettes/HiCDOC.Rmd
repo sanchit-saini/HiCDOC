@@ -342,6 +342,52 @@ p
 ```
 
 
+### Sanity checks
+
+Sometimes, basic assumptions on the data are not met.
+We try to detect inconsistencies, and warn the user.
+
+
+#### PCA checks
+
+We perform a principal component analysis on the centroids.
+Each centroid represent an ideal bin, located either on compartment A or B,
+in each sample, and each chromosome.
+Given a chromosome, if all the centroids of the A compartment do not have the
+same sign on the first principal component, we issue a warning for this
+chromosome.
+Likewise for the B compartment.
+
+We also check that the inertia on the first principal component is at least
+75%.
+
+These checks make sure that centroids of the same compartments do cluster
+together.
+If the conditions are too different from each other, they may cluster together.
+This case is detected by this check.
+
+
+#### Compartment assignemnt
+
+We use "self-interaction" in order to classify centroids to A and B
+compartments.
+The self-interaction of a bin is the ratio of the number of pairs that link this
+bin with other bins of the same compartment, divided by the number of pairs
+The self-interactions should be different from compartments A and B.
+We perform a Wilcoxon t-test.
+If it is not significant, then a warning is issued.
+
+
+#### Warnings
+
+If at least of the PCA checks fail, the warnings are printed on the PCA plot.
+If the compartment assignment check fail, the warning is printed on the
+corresponding plot.
+
+When accessing the compartments and the concordances, chromosomes which
+fail to pass the checks are removed (unless the appropriate parameter is set).
+
+
 # Session info
 
 ```{r sessionInfo}
