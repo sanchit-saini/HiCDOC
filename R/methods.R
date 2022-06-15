@@ -30,7 +30,7 @@ NULL
 #### chromosomes ####
 #' Retrieves the vector of chromosome names.
 #' @rdname HiCDOCDataSet-methods
-#' @export
+#' @export 
 setMethod("chromosomes", "HiCDOCDataSet", function(object) {
     object@chromosomes
 })

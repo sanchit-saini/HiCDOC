@@ -26,8 +26,7 @@ loess regression on the proportion of interactions for each distance.
 }
 \examples{
 data(exampleHiCDOCDataSet)
-object <- exampleHiCDOCDataSet
-object <- normalizeDistanceEffect(object)
+object <- normalizeDistanceEffect(exampleHiCDOCDataSet)
 
 }
 \seealso{

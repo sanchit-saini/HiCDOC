@@ -87,7 +87,11 @@ function in parallel you should specify the parallel parameters such as:
 \examples{
 data(exampleHiCDOCDataSet)
 # Default HiCDOC pipeline
+# Not printing loess warnings for example purpose. 
+# Results should be inspected if there is any.
+suppressWarnings(
 object <- HiCDOC(exampleHiCDOCDataSet)
+)
 
 # Equivalent to
 if(FALSE){
