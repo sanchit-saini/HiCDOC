@@ -546,8 +546,12 @@ HiCDOCDataSetFromHiCPro <- function(
 #' @examples
 #' data(exampleHiCDOCDataSet)
 #' # Default HiCDOC pipeline
+#' # Not printing loess warnings for example purpose. 
+#' # Results should be inspected if there is any.
+#' suppressWarnings(
 #' object <- HiCDOC(exampleHiCDOCDataSet)
-#'
+#' )
+#' 
 #' # Equivalent to
 #' if(FALSE){
 #'     object <- filterSmallChromosomes(exampleHiCDOCDataSet)

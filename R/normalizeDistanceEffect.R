@@ -158,8 +158,7 @@
 #'
 #' @examples
 #' data(exampleHiCDOCDataSet)
-#' object <- exampleHiCDOCDataSet
-#' object <- normalizeDistanceEffect(object)
+#' object <- normalizeDistanceEffect(exampleHiCDOCDataSet)
 #'
 #' @seealso
 #' \code{\link{normalizeTechnicalBiases}},

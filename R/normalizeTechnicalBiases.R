@@ -39,10 +39,15 @@
 #'
 #' @examples
 #' data(exampleHiCDOCDataSet)
-#' object <- exampleHiCDOCDataSet
+#' object <- filterSmallChromosomes(exampleHiCDOCDataSet)
 #' object <- filterSparseReplicates(object)
 #' object <- filterWeakPositions(object)
-#' object <- normalizeTechnicalBiases(object)
+#' # Not printing loess warnings for example purpose. 
+#' # Results should be inspected if there is any.
+#' suppressWarnings(
+#'     object <- normalizeTechnicalBiases(object)
+#' )
+#' 
 #'
 #' @seealso
 #' \code{\link{filterSparseReplicates}},
