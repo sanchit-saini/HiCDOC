@@ -1,4 +1,32 @@
-#### chromosomes ####
+#' @title
+#' Methods to access a \code{\link{HiCDOCDataSet}} components.
+#'
+#' @name
+#' HiCDOCDataSet-methods
+#'
+#' @description
+#' Retrieve information and results from a \code{\link{HiCDOCDataSet}}.
+#' 
+#' @examples
+#' # Load an example dataset already processed 
+#' # (i.e. after the detection of compartments)
+#' data(exampleHiCDOCDataSetProcessed)
+#' 
+#' exampleHiCDOCDataSetProcessed
+#' chromosomes(exampleHiCDOCDataSetProcessed)
+#' sampleConditions(exampleHiCDOCDataSetProcessed)
+#' sampleReplicates(exampleHiCDOCDataSetProcessed)
+#' compartments(exampleHiCDOCDataSetProcessed)
+#' differences(exampleHiCDOCDataSetProcessed)
+#' concordances(exampleHiCDOCDataSetProcessed)
+#' 
+#' @return
+#' A character vector (for \code{chromosomes}, \code{sampleConditions},
+#' \code{sampleReplicates}), 
+#' or a GRanges object
+#' (for \code{compartments}, \code{concordances}, \code{differences}).
+NULL
+
 #' @describeIn HiCDOCDataSet-methods
 #' Retrieves the vector of chromosome names.
 #' @usage
