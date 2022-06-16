@@ -8,6 +8,7 @@
 \alias{compartments}
 \alias{differences}
 \alias{concordances}
+\alias{chromosomes,HiCDOCDataSet-method}
 \alias{sampleConditions,HiCDOCDataSet-method}
 \alias{sampleReplicates,HiCDOCDataSet-method}
 \alias{compartments,HiCDOCDataSet-method}
