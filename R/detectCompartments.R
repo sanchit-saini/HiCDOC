@@ -30,13 +30,14 @@
 #'
 #' @keywords internal
 #' @noRd
-.distanceRatio <- function(x, centroids, eps = 1e-10) {
+.distanceRatio <- function(x, centroids) {
+    epsilon = .euclideanDistance(centroids[[1]], centroids[[2]]) * 1e-10
     return(
         log(
             (
-                .euclideanDistance(x, centroids[[1]]) + eps
+                .euclideanDistance(x, centroids[[1]]) + epsilon
             ) / (
-                .euclideanDistance(x, centroids[[2]]) + eps
+                .euclideanDistance(x, centroids[[2]]) + epsilon
             )
         )
     )
