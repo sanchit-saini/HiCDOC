@@ -39,10 +39,13 @@ plotCompartments <- function(
         return(NULL)
     }
     compartments <- as.data.table(compartments)
-    compartments[, position := start + 0.5 * width]
-
     binSize <- .modeVector(compartments$width)
-
+    compartments[, position := start + 0.5 * binSize]
+    # for the last bin if not of the same size
+    if(identical(xlim, c(min(compartments[,start]), max(compartments[,end])))){
+        xlim <- c(min(xlim[1], compartments[,position]),
+                  max(xlim[2], compartments[,start + binSize]))
+    }
     plot <- ggplot(
         data = compartments,
         aes(x = position, fill = compartment)
