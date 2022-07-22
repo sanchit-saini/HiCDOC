@@ -723,6 +723,23 @@
     comparisons <- comparisons[
         as.numeric(condition.1) < as.numeric(condition.2)
     ]
+    if(nrow(comparisons) == 0){
+        object@comparisons <- comparisons[,.(chromosome,
+                                             index, 
+                                             condition.1, 
+                                             condition.2,
+                                             compartment.1,
+                                             compartment.2,
+                                             difference = index)]
+        object@differences <- comparisons[,.(chromosome, 
+                                             index, 
+                                             condition.1,
+                                             condition.2,
+                                             pvalue = index,
+                                             pvalue.adjusted = index,
+                                             direction = compartment.1)]
+        return(object)
+    }
     comparisons <- data.table::merge.data.table(
         comparisons,
         concordanceDifferences,
