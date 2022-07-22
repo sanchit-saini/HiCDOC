@@ -249,14 +249,8 @@
         start = rhdf5::h5read(file = path, name = uri("bins/start")),
         end = rhdf5::h5read(file = path, name = uri("bins/end"))
     )
-
-    step <- bins$end - bins$start
-    if (length(step) < 0.9) {
-        stop("Cannot parse '", path, "': fixed width only.", call. = FALSE)
-    }
-    step <- max(step)
-
     bins[, start := as.integer(start)]
+    bins[, start := start+1]
     bins[, end := as.integer(end)]
 
     setorder(bins, chromosome, start, end)
@@ -437,7 +431,8 @@
     )
 
     setorder(bed, chromosome, start, end)
-    
+    # Adding 1 to follow Bioconductor GRanges recommended format
+    bed[,start := start+1]
     # Keeping only intra-chromosomal interactions
     # Add 1 if BED index start with 0
     allChromosomes <- vector("character", length = max(bed$index) + 1)
