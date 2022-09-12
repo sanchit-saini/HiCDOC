@@ -30,13 +30,14 @@
 #'
 #' @keywords internal
 #' @noRd
-.distanceRatio <- function(x, centroids, eps = 1e-10) {
+.distanceRatio <- function(x, centroids) {
+    epsilon = .euclideanDistance(centroids[[1]], centroids[[2]]) * 1e-10
     return(
         log(
             (
-                .euclideanDistance(x, centroids[[1]]) + eps
+                .euclideanDistance(x, centroids[[1]]) + epsilon
             ) / (
-                .euclideanDistance(x, centroids[[2]]) + eps
+                .euclideanDistance(x, centroids[[2]]) + epsilon
             )
         )
     )
@@ -963,7 +964,7 @@
 #' @param PC1CheckThreshold
 #' The minimum percentage of variance that should be explained by
 #' the first principal component of centroids to pass sanity check.
-#' Defaults to \code{object$kMeansRestarts} which is originally set to
+#' Defaults to \code{object$PC1CheckThreshold} which is originally set to
 #' \code{defaultHiCDOCParameters$PC1CheckThreshold} = 0.75
 #'
 #' @return
