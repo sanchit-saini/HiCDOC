@@ -84,23 +84,27 @@
     if (object@parameters$loessSampleSize <= 1000) {
         traceMethod <- "exact"
     }
-
+    sample[,logvalue := log(value + 1)]
+    sample[,logdistance := log(distance + 1)]
     loess <- stats::loess(
-        value ~ distance,
+        logvalue ~ logdistance,
         data = sample,
         control = stats::loess.control(trace.hat = traceMethod)
     )
     span <- optimizeSpan(loess, criterion = "gcv")
 
     loess <- stats::loess(
-        value ~ distance,
+        logvalue ~ logdistance,
         span = span,
         data = sample,
         control = stats::loess.control(trace.hat = traceMethod)
     )
-    sample[, loess := stats::predict(loess)]
-    sample[, loess := pmax(loess, 0)]
+    sample[, bias := stats::predict(loess)]
+    sample[, bias := exp(bias)-1]
+    sample[, bias := pmax(bias, 0)]
     sample[, value := NULL]
+    sample[, logvalue := NULL]
+    sample[, logdistance := NULL]
     data.table::setnames(sample, "distance", "sampleDistance")
     sample <- unique(sample)
 
@@ -130,7 +134,7 @@
         sort = FALSE,
         all.x = TRUE
     )
-    currentAssay <- currentAssay / (loessDistances$loess + 0.00001)
+    currentAssay <- currentAssay / loessDistances$bias
 
     return(currentAssay)
 }
