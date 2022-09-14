@@ -518,7 +518,7 @@
     )
     onDiagonal[is.na(value), value := 0]
     onDiagonal[is.na(median), median := 0]
-    onDiagonal[, ratio := value - median]
+    onDiagonal[, ratio := value]
     onDiagonal[, c("condition", "replicate") := data.table::tstrsplit(
         variable,
         " ",
@@ -575,7 +575,7 @@
         fill = 0
     )
 
-    compartments[, A := data.table::fifelse(`1` >= `2`, 2, 1)]
+    compartments[, A := data.table::fifelse(`1` >= `2`, 1, 2)]
     compartments <- compartments[, .(chromosome, A)]
 
     object@compartments <- data.table::merge.data.table(
