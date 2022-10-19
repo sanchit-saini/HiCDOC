@@ -84,8 +84,8 @@
     if (object@parameters$loessSampleSize <= 1000) {
         traceMethod <- "exact"
     }
-    sample[,logvalue := log(value + 1)]
-    sample[,logdistance := log(distance + 1)]
+    sample[,logvalue := log2(value + 1)]
+    sample[,logdistance := log2(distance + 1)]
     loess <- stats::loess(
         logvalue ~ logdistance,
         data = sample,
@@ -100,8 +100,6 @@
         control = stats::loess.control(trace.hat = traceMethod)
     )
     sample[, bias := stats::predict(loess)]
-    sample[, bias := exp(bias)-1]
-    sample[, bias := pmax(bias, 0)]
     sample[, value := NULL]
     sample[, logvalue := NULL]
     sample[, logdistance := NULL]
@@ -134,7 +132,7 @@
         sort = FALSE,
         all.x = TRUE
     )
-    currentAssay <- currentAssay / loessDistances$bias
+    currentAssay <- log2(currentAssay+1) - loessDistances$bias
 
     return(currentAssay)
 }
