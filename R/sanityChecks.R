@@ -26,11 +26,16 @@
     pcaData <- .computePca(object, chromosomeName)
     pca     <- pcaData$PCA
     propvar <- pcaData$propvar
-    f <- function (c) {
-        return(length(unique(sign(pca[compartment == c, ]$PC1))) == 1)
+    if(is.null(pca)){
+        pc1 <- FALSE
+        centroid <- FALSE
+    } else {
+        f <- function (c) {
+            return(length(unique(sign(pca[compartment == c, ]$PC1))) == 1)
+        }
+        centroid <- all(vapply(compartments, f, FUN.VALUE = TRUE))
+        pc1 <- (propvar[[1]] >= object@parameters$PC1CheckThreshold)
     }
-    centroid <- all(vapply(compartments, f, FUN.VALUE = TRUE))
-    pc1 <- (propvar[[1]] >= object@parameters$PC1CheckThreshold)
     return(data.table(chromosome     = chromosomeName,
                       centroid.check = centroid,
                       PC1.check      = pc1))
