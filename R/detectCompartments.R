@@ -483,8 +483,8 @@
 
     # Compute median by bin, out of diagonal
     offDiagonal <- rbind(
-        matrixAssay[!diagonal, ],
-        matrixAssay[!diagonal, ]
+        matrixAssay[!diagonal, , drop=FALSE],
+        matrixAssay[!diagonal, , drop=FALSE]
     )
     offDiagonal <- data.table::data.table(
         "index" = c(ids$first$index[!diagonal], ids$second$index[!diagonal]),
