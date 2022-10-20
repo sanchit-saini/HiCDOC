@@ -72,12 +72,12 @@
 
     referenceCentroids <- data.table::merge.data.table(
         object@centroids[
-            compartment == 1 &
+            cluster == 1 &
             condition == referenceConditionNames[chromosome],
             .(chromosome, reference.1 = centroid)
         ],
         object@centroids[
-            compartment == 2 &
+            cluster == 2 &
             condition == referenceConditionNames[chromosome],
             .(chromosome, reference.2 = centroid)
         ],
@@ -86,11 +86,11 @@
 
     clusters <- data.table::merge.data.table(
         object@centroids[
-            compartment == 1,
+            cluster == 1,
             .(chromosome, condition, centroid.1 = centroid)
         ],
         object@centroids[
-            compartment == 2,
+            cluster == 2,
             .(chromosome, condition, centroid.2 = centroid)
         ],
         all = TRUE
@@ -138,8 +138,8 @@
 
     object@compartments[
         ,
-        compartment := ifelse(
-            compartment == 1,
+        cluster := ifelse(
+            cluster == 1,
             cluster.1,
             cluster.2
         )
@@ -157,17 +157,17 @@
 
     object@concordances[, change := -1]
     object@concordances[
-        compartment == 1 & compartment == cluster.1,
+        cluster == 1 & cluster == cluster.1,
         change := 1
     ]
     object@concordances[
-        compartment == 2 & compartment == cluster.2,
+        cluster == 2 & cluster == cluster.2,
         change := 1
     ]
     object@concordances[, concordance := change * concordance]
 
     object@concordances[, compartment := data.table::fifelse(
-        compartment == 1,
+        cluster == 1,
         cluster.1,
         cluster.2
     )]
@@ -185,8 +185,8 @@
         all.x = TRUE,
         sort = FALSE
     )
-    object@distances[, compartment := data.table::fifelse(
-        compartment == 1,
+    object@distances[, cluster := data.table::fifelse(
+        cluster == 1,
         cluster.1,
         cluster.2
     )]
@@ -200,8 +200,8 @@
         sort = FALSE
     )
 
-    object@centroids[, compartment := data.table::fifelse(
-        compartment == 1,
+    object@centroids[, cluster := data.table::fifelse(
+        cluster == 1,
         cluster.1,
         cluster.2
     )]
@@ -331,7 +331,7 @@
         "chromosome" = chromosomeName,
         "index" = indices,
         "condition" = conditionName,
-        "compartment" = clusters
+        "cluster" = clusters
     )
 
     dfConcordances <- data.table::data.table(
@@ -339,7 +339,7 @@
         "index" = rep(indices, length(replicateNames)),
         "condition" = conditionName,
         "replicate" = rep(sort(replicateNames), each = totalBins),
-        "compartment" = rep(clusters, length(replicateNames)),
+        "cluster" = rep(clusters, length(replicateNames)),
         "concordance" = concordances
     )
 
@@ -348,14 +348,14 @@
         "index" = rep(indices, 2 * length(replicateNames)),
         "condition" = conditionName,
         "replicate" = rep(rep(sort(replicateNames), each = totalBins), 2),
-        "compartment" = rep(c(1, 2), each = length(replicateNames) * totalBins),
+        "cluster" = rep(c(1, 2), each = length(replicateNames) * totalBins),
         "distance" = c(t(distances))
     )
 
     dfCentroids <- data.table::data.table(
         "chromosome" = chromosomeName,
         "condition" = conditionName,
-        "compartment" = c(1, 2),
+        "cluster" = c(1, 2),
         "centroid" = centroids
     )
 
@@ -566,11 +566,11 @@
     compartments <- compartments[
         ,
         .(ratio = stats::median(ratio, na.rm = TRUE)),
-        by = .(chromosome, compartment)
+        by = .(chromosome, cluster)
     ]
     compartments <- data.table::dcast(
         compartments,
-        chromosome ~ compartment,
+        chromosome ~ cluster,
         value.var = "ratio",
         fill = 0
     )
@@ -585,15 +585,9 @@
         all.x = TRUE
     )
 
-    object@compartments[, compartment := data.table::fifelse(
-        compartment == A,
-        "A",
-        "B"
-    )]
     object@compartments[, compartment := factor(
-        compartment,
-        levels = c("A", "B")
-    )]
+        data.table::fifelse(cluster == A, "A", "B"), 
+        levels=c("A", "B"))]
     object@compartments[, A := NULL]
 
     object@concordances <- data.table::merge.data.table(
@@ -605,7 +599,7 @@
     object@concordances[, change := data.table::fifelse(A == 1, 1,-1)]
     object@concordances[, concordance :=  change * concordance]
     object@concordances[, compartment := factor(
-        data.table::fifelse(compartment == A, "A", "B"),
+        data.table::fifelse(cluster == A, "A", "B"),
         levels = c("A", "B")
     )]
     object@concordances[, change := NULL]
@@ -618,7 +612,7 @@
         all.x = TRUE
     )
     object@distances[, compartment := factor(
-        data.table::fifelse(compartment == A, "A", "B"),
+        data.table::fifelse(cluster == A, "A", "B"),
         levels = c("A", "B")
     )]
     object@distances[, A := NULL]
@@ -630,7 +624,7 @@
         all.x = TRUE
     )
     object@centroids[, compartment := factor(
-        data.table::fifelse(compartment == A, "A", "B"),
+        data.table::fifelse(cluster == A, "A", "B"),
         levels = c("A", "B")
     )]
     object@centroids[, A := NULL]
