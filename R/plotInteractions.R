@@ -5,9 +5,11 @@
 #' @param xylim
 #' a length 2 vector : limits of the matrix
 #' @param transform
-#' character : transformation to be passed to \code{scale_fill_gradientn}
+#' character : transformation to be passed to \code{scale_fill_gradient2}
 #' @param colours
-#' vector of colors to be passed to \code{scale_fill_gradientn}
+#' vector of colors of length 3 to be passed to \code{scale_fill_gradient2}
+#' @param midpoint
+#' midpoint value to be passed to \code{scale_fill_gradient2}
 #' @param chromosomeName
 #' Character, name of the chromosome
 #' @return
@@ -20,6 +22,7 @@
     xylim,
     transform,
     colours,
+    midpoint,
     chromosomeName
 ) {
     plot <- ggplot(
@@ -41,8 +44,11 @@
         title = paste0("Chromosome ", chromosomeName),
         x = "",
         y = ""
-    ) + scale_fill_gradientn(
-        colours = colours,
+    ) + scale_fill_gradient2(
+        low=colours[1],
+        low=colours[2],
+        low=colours[3],
+        midpoint = midpoint,
         trans = transform,
         name = "Intensity",
         na.value = "transparent"
@@ -58,9 +64,11 @@
 #' @param xylim
 #' a length 2 vector : limits of the matrix
 #' @param transform
-#' character : transformation to be passed to \code{scale_fill_gradientn}
+#' character : transformation to be passed to \code{scale_fill_gradient2}
 #' @param colours
-#' vector of colors to be passed to \code{scale_fill_gradientn}
+#' vector of colors of length 3 to be passed to \code{scale_fill_gradient2}
+#' @param midpoint
+#' midpoint value to be passed to \code{scale_fill_gradient2}
 #' @param chromosomeName
 #' Character, name of the chromosome
 #' @param totalRows
@@ -78,6 +86,7 @@
     xylim,
     transform,
     colours,
+    midpoint,
     chromosomeName,
     totalRows,
     totalCols
@@ -103,8 +112,11 @@
         title = paste("Chromosome ", chromosomeName),
         x = "",
         y = ""
-    ) + scale_fill_gradientn(
-        colours = colours,
+    ) + scale_fill_gradient2(
+        low=colours[1],
+        low=colours[2],
+        low=colours[3],
+        midpoint = midpoint,
         trans = transform,
         name = "Intensity",
         na.value = "transparent"
@@ -124,11 +136,13 @@
 #' A chromosome name or index in \code{chromosomes(object)}.
 #' @param transform
 #' Transformation of the color scale. Default to NULL (no transformation). See
-#' \code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.
+#' \code{\link[ggplot2]{scale_fill_gradient2}} for other accepted values.
 #' @param colours
-#' A character vector of colours to use for the gradient. See
-#' \code{\link[ggplot2]{scale_fill_gradientn}} for more info. Defaults to
-#' \code{c("#F6FFB8", "#FF00CC", "#310038")}.
+#' A character vector colours of length 3 to use for the gradient. See
+#' \code{\link[ggplot2]{scale_fill_gradient2}} for more info. Defaults to
+#' \code{c("low"=#F6FFB8", "mid"=#FF00CC", "high"="#310038")}.
+#' @param midpoint
+#' midpoint value to be passed to \code{scale_fill_gradient2}
 #'
 #' @return
 #' A \code{ggplot}.
@@ -142,7 +156,8 @@ plotInteractions <- function(
     object,
     chromosome,
     transform = NULL,
-    colours = c("#F6FFB8", "#FF00CC", "#310038")
+    colours = c("low" = "#2c7bb6", "mid" = "#ffffbf", "high" = "#d7191c"),
+    midpoint = 0
 ) {
     chromosomeName <- .validateNames(object, chromosome, "chromosomes")
     if (is.null(transform)) {
@@ -197,13 +212,23 @@ plotInteractions <- function(
     regionsChromosome <- as.data.table(InteractionSet::regions(object))
     regionsChromosome <- regionsChromosome[seqnames == chromosomeName]
     xylim <- c(min(regionsChromosome$start), max(regionsChromosome$start))
-
+    
+    if(length(colours) != 3){
+        stop("`colours` must be a vector of length 3.")
+    } else {
+        if(is.null(names(colours))) names(colours) <- c("low", "mid", "high")
+        if(!identical(sort(names(colours)), c("high", "low", "mid"))){
+            stop("`colours` are supposed to be named 'low', 'mid' and 'high")
+        }
+    }
+    
     if (length(unique(object$replicate)) <= max(table(object$condition))) {
         plot <- .plotInteractionsGrid(
             dataplot,
             xylim,
             transform,
             colours,
+            midpoint,
             chromosomeName
         )
     } else {
@@ -229,6 +254,7 @@ plotInteractions <- function(
             xylim,
             transform,
             colours,
+            midpoint,
             chromosomeName,
             totalRows,
             totalCols
