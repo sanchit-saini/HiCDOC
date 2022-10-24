@@ -67,7 +67,7 @@ test_that("detectCompartments behaves as expected", {
     )
     expect_equal(
       100 * mean(object@concordances$concordance),
-      -0.0218919,
+      -0.03121712,
       tolerance = 1e-05
     )
 
