@@ -73,7 +73,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
     # Interactions
     expect_equal(dim(SummarizedExperiment::assay(objectRed)), c(7021, 7))
     expect_equal(round(sum(SummarizedExperiment::assay(objectRed), na.rm=TRUE),2), 
-                 35080.62)
+                 35101.49)
     
     # Objects produced by detectCompartments
     test_chromosome_levels(objectRed, "X")
@@ -101,7 +101,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
     # Interactions
     expect_equal(dim(SummarizedExperiment::assay(objectRed)), c(7021, 7))
     expect_equal(round(sum(SummarizedExperiment::assay(objectRed), na.rm=TRUE),2), 
-                 35080.62)
+                 35101.49)
     
     # Objects prduced by detectCompartments
     test_chromosome_levels(objectRed, c("X", "Y", "Z"))
