@@ -17,8 +17,8 @@ test_that("plotCentroids behaves as expected", {
     expect_identical(
         unlist(pp$labels),
         c("caption" = "Quality controls:\nCentroid PC1 inertia: OK\nA/B clustering consistency: OK",
-          "x" = "PC1  91.28 %",
-          "y" = "PC2  6.77 %",
+          "x" = "PC1  91.19 %",
+          "y" = "PC2  6.82 %",
           "title" = "PCA on centroids of chromosome X",
           "colour" = "compartment",
           "shape" = "condition"

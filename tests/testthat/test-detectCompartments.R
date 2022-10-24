@@ -46,7 +46,7 @@ test_that("detectCompartments behaves as expected", {
     expect_equal(length(object@compartments), 440)
     expect_equal(
         length(object@compartments[object@compartments$compartment == "B"]),
-        169
+        271
     )
     expect_is(object@compartments@seqnames, "Rle")
     expect_is(object@compartments$condition, "factor")
@@ -63,11 +63,11 @@ test_that("detectCompartments behaves as expected", {
     expect_equal(length(object@concordances), 880)
     expect_equal(
       length(object@concordances[object@concordances$compartment == "A"]),
-      543
+      337
     )
     expect_equal(
       100 * mean(object@concordances$concordance),
-      0.03121712,
+      -0.03121712,
       tolerance = 1e-05
     )
 

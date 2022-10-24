@@ -577,7 +577,7 @@
         fill = 0
     )
 
-    compartments[, A := data.table::fifelse(`1` >= `2`, 1, 2)]
+    compartments[, A := data.table::fifelse(`1` >= `2`, 2, 1)]
     compartments <- compartments[, .(chromosome, A)]
 
     object@compartments <- data.table::merge.data.table(
