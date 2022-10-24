@@ -519,6 +519,8 @@
     onDiagonal[is.na(value), value := 0]
     onDiagonal[is.na(median), median := 0]
     onDiagonal[, ratio := value]
+    # When no value on the diagonal, putting median of others values
+    onDiagonal[is.na(ratio), ratio := median]
     onDiagonal[, c("condition", "replicate") := data.table::tstrsplit(
         variable,
         " ",
