@@ -13,5 +13,5 @@ test_that("normalizeDistanceEffect behaves as expected", {
     
     expect_equal(sum(!is.na(matAssay)), 35105)
     expect_equal(round(colSums(matAssay, na.rm=T),3), 
-                 c(4400.339, 5384.152, 0, 0, 7968.404, 8152.765, 9181.879))
+                 c(-3004.957, -1585.685, 0, 0, 1164.882, 1328.834, 2160.781))
 })

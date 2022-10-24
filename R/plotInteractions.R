@@ -46,8 +46,8 @@
         y = ""
     ) + scale_fill_gradient2(
         low=colours[1],
-        low=colours[2],
-        low=colours[3],
+        mid=colours[2],
+        high=colours[3],
         midpoint = midpoint,
         trans = transform,
         name = "Intensity",
@@ -114,8 +114,8 @@
         y = ""
     ) + scale_fill_gradient2(
         low=colours[1],
-        low=colours[2],
-        low=colours[3],
+        mid=colours[2],
+        high=colours[3],
         midpoint = midpoint,
         trans = transform,
         name = "Intensity",

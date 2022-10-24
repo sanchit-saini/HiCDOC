@@ -85,12 +85,12 @@ test_that("detectCompartments behaves as expected", {
     expect_equal(nrow(object@selfInteractionRatios), 879)
     expect_equal(
       mean(object@selfInteractionRatios$ratio),
-      350.6047,
+      1087.815,
       tolerance = 1e-04
     )
     expect_is(object@selfInteractionRatios$chromosome, "factor")
     expect_is(object@selfInteractionRatios$index, "numeric")
     expect_is(object@selfInteractionRatios$condition, "factor")
     expect_is(object@selfInteractionRatios$replicate, "factor")
-    expect_is(object@selfInteractionRatios$ratio, "numeric")
+    expect_true(is.numeric(object@selfInteractionRatios$ratio))
 })
