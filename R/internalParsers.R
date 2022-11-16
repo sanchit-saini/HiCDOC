@@ -169,12 +169,6 @@
     # Keep only intra-chromosomal interactions
     interactionSet <- interactionSet[InteractionSet::intrachr(interactionSet),]
 
-    # Remove zero rows
-    zeros <- (
-        rowSums(SummarizedExperiment::assay(interactionSet), na.rm=TRUE) == 0
-    )
-    interactionSet <- interactionSet[!zeros, ]
-
     return(interactionSet)
 }
 
@@ -289,11 +283,6 @@
     # Keep only intra-chromosomal interactions
     interactionSet <- interactionSet[InteractionSet::intrachr(interactionSet), ]
 
-    # Remove zero rows
-    zeros <- (
-        rowSums(SummarizedExperiment::assay(interactionSet), na.rm=TRUE) == 0
-    )
-    interactionSet <- interactionSet[!zeros, ]
     return(interactionSet)
 }
 
@@ -450,7 +439,8 @@
         regions = allRegions,
         mode="strict"
     )
-
+    
+    
     interactionSet <- InteractionSet::InteractionSet(
         assays = as.matrix(interactions$interaction, ncol=1),
         interactions = gi,
@@ -460,11 +450,6 @@
         )
     )
     
-    # Remove zero rows
-    zeros <- (
-        rowSums(SummarizedExperiment::assay(interactionSet), na.rm=TRUE) == 0
-    )
-    interactionSet <- interactionSet[!zeros, ]
     return(interactionSet)
 }
 
