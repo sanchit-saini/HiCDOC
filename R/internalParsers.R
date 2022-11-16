@@ -59,7 +59,7 @@
     # Assays part, fill with NA
     assays <- as.matrix(tabular[,4:ncol(tabular), drop = FALSE])
 
-    if (!is.null(conditions)) {
+    if (!is.null(conditions) | !is.null(replicates)) {
         if (
             (length(conditions) != ncol(assays)) |
             (length(replicates) != ncol(assays))
@@ -148,27 +148,15 @@
         regions = allRegions,
         mode="strict"
     )
-
-    interactionSet <- InteractionSet::InteractionSet(
-        assays = assays,
-        interactions = gi
-    )
-
+    
     if (is.null(conditions)) {
-        SummarizedExperiment::colData(interactionSet) <- S4Vectors::DataFrame(
-            "condition" = gsub("^(.+?)\\..+$", "\\1", colnames(assays)),
-            "replicate" = gsub("^.+?\\.(.+)$", "\\1", colnames(assays))
-        )
-    } else {
-        SummarizedExperiment::colData(interactionSet) <- S4Vectors::DataFrame(
-            "condition" = conditions,
-            "replicate" = replicates
-        )
+        conditions <- gsub("^(.+?)\\..+$", "\\1", colnames(assays))
+    } 
+    if(is.null(replicates)) {
+        replicates <- gsub("^.+?\\.(.+)$", "\\1", colnames(assays))
     }
-
-    # Keep only intra-chromosomal interactions
-    interactionSet <- interactionSet[InteractionSet::intrachr(interactionSet),]
-
+  
+    interactionSet <- .createInteractionSet(assays, gi, conditions, replicates)
     return(interactionSet)
 }
 
@@ -270,19 +258,9 @@
         regions = allRegions,
         mode="strict"
     )
-
-    interactionSet <- InteractionSet::InteractionSet(
-        assays = as.matrix(interactions$interaction, ncol = 1),
-        interactions = gi,
-        colData=S4Vectors::DataFrame(
-            "condition" = condition,
-            "replicate" = replicate
-        )
-    )
-
-    # Keep only intra-chromosomal interactions
-    interactionSet <- interactionSet[InteractionSet::intrachr(interactionSet), ]
-
+    assay <- as.matrix(interactions$interaction, ncol = 1)
+    
+    interactionSet <- .createInteractionSet(assay, gi, condition, replicate)
     return(interactionSet)
 }
 
@@ -439,16 +417,8 @@
         regions = allRegions,
         mode="strict"
     )
-    
-    
-    interactionSet <- InteractionSet::InteractionSet(
-        assays = as.matrix(interactions$interaction, ncol=1),
-        interactions = gi,
-        colData=S4Vectors::DataFrame(
-            "condition" = condition,
-            "replicate" = replicate
-        )
-    )
+    assay <- as.matrix(interactions$interaction, ncol=1)
+    interactionSet <- .createInteractionSet(assay, gi, condition, replicate)
     
     return(interactionSet)
 }
@@ -487,4 +457,49 @@
     )
 
     return(object)
+}
+
+
+#' Create the object interactionSet to use in HiCDOCDataSet
+#'
+#' @param assay matrix of assays
+#' @param gi GInteractions object
+#' @param condition condition (for colData), vector of length 1 or more
+#' @param replicate replicate (for colData), vector of length 1 or more
+#'
+#' @return an interactionSet object
+#' @keywords internal
+#' @noRd
+.createInteractionSet <- function(assay, gi, condition, replicate){
+    # Add 0 on the diagonal if there is only off diagonal interaction 
+    ids <- InteractionSet::anchors(gi, id = TRUE)
+    idsDiagonals <- ids$first[ids$first == ids$second]
+    notPresent <- setdiff(unique(c(ids$first, ids$second)), idsDiagonals)
+    nb <- length(notPresent)
+    if(nb>0){
+        notPresentRegions <- allRegions[match(notPresent, allRegions$index)]
+        gi <- c(gi,
+                InteractionSet::GInteractions(
+                    notPresentRegions,
+                    notPresentRegions,
+                    regions = allRegions,
+                    mode="strict"))
+        assay <- rbind(assay, as.matrix(rep(0, nb*ncol(assay)),
+                                        ncol=ncol(assay),
+                                        nrow=nb))
+    }
+    
+    interactionSet <- InteractionSet::InteractionSet(
+        assays = assay,
+        interactions = gi,
+        colData=S4Vectors::DataFrame(
+            "condition" = condition,
+            "replicate" = replicate
+        )
+        
+    )
+    
+    # Keep only intra-chromosomal interactions
+    interactionSet <- interactionSet[InteractionSet::intrachr(interactionSet),]
+    return(interactionSet)
 }
