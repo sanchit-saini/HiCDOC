@@ -260,7 +260,7 @@
     )
     assay <- as.matrix(interactions$interaction, ncol = 1)
     
-    interactionSet <- .createInteractionSet(assay, gi, condition, replicate)
+    interactionSet <- .createInteractionSet(assay, gi, allRegions, condition, replicate)
     return(interactionSet)
 }
 
@@ -418,7 +418,7 @@
         mode="strict"
     )
     assay <- as.matrix(interactions$interaction, ncol=1)
-    interactionSet <- .createInteractionSet(assay, gi, condition, replicate)
+    interactionSet <- .createInteractionSet(assay, gi, allRegions, condition, replicate)
     
     return(interactionSet)
 }
@@ -470,7 +470,7 @@
 #' @return an interactionSet object
 #' @keywords internal
 #' @noRd
-.createInteractionSet <- function(assay, gi, condition, replicate){
+.createInteractionSet <- function(assay, gi, allRegions, condition, replicate){
     # Add 0 on the diagonal if there is only off diagonal interaction 
     ids <- InteractionSet::anchors(gi, id = TRUE)
     idsDiagonals <- ids$first[ids$first == ids$second]
