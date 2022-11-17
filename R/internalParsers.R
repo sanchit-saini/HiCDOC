@@ -464,6 +464,7 @@
 #'
 #' @param assay matrix of assays
 #' @param gi GInteractions object
+#' @param allRegions regions object
 #' @param condition condition (for colData), vector of length 1 or more
 #' @param replicate replicate (for colData), vector of length 1 or more
 #'
