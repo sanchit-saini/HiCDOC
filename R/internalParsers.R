@@ -156,7 +156,7 @@
         replicates <- gsub("^.+?\\.(.+)$", "\\1", colnames(assays))
     }
   
-    interactionSet <- .createInteractionSet(assays, gi, conditions, replicates)
+    interactionSet <- .createInteractionSet(assays, gi, allRegions, conditions, replicates)
     return(interactionSet)
 }
 
