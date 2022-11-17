@@ -470,55 +470,47 @@
 
     # Values on diagonal
     onDiagonal <- data.table::data.table(
-        ids$first[diagonal,.(seqnames, index)],
-        matrixAssay[diagonal, ]
+        ids$first[diagonal,.(chromosome = seqnames, index)],
+        matrixAssay[diagonal, , drop=FALSE]
     )
-
-    data.table::setnames(onDiagonal, c("chromosome", "index", columnNames))
     onDiagonal <- data.table::melt.data.table(
         onDiagonal,
-        id.vars = c("chromosome", "index")
+        id.vars = c("chromosome", "index"),
+        value.name = "ratio",
+        na.rm = TRUE
     )
-    onDiagonal <- onDiagonal[!is.na(value)]
-
+    onDiagonal <- onDiagonal[!is.na(ratio)]
     # Compute median by bin, out of diagonal
-    offDiagonal <- rbind(
-        matrixAssay[!diagonal, , drop=FALSE],
+    offDiagonal <- data.table::data.table(
+        "chromosome" = c(ids$first$seqnames[!diagonal], 
+                         ids$second$seqnames[!diagonal]),
+        "index" = c(ids$first$index[!diagonal], 
+                    ids$second$index[!diagonal]),
         matrixAssay[!diagonal, , drop=FALSE]
     )
-    offDiagonal <- data.table::data.table(
-        "index" = c(ids$first$index[!diagonal], ids$second$index[!diagonal]),
-        offDiagonal
-    )
-    offDiagonal <- offDiagonal[
-        ,
-        (columnNames) := lapply(.SD, as.numeric),
-        .SDcols = columnNames
-    ]
-    offDiagonal <- offDiagonal[
-        ,
-        lapply(.SD, stats::median, na.rm = TRUE),
-        by = index,
-        .SDcols = columnNames
-    ]
     offDiagonal <- data.table::melt.data.table(
         offDiagonal,
-        id.vars = "index",
-        value.name = "median"
+        id.vars = c("chromosome", "index"),
+        value.name = "offDiagonal",
+        variable.name = "variable",
+        na.rm = TRUE
     )
-    offDiagonal <- offDiagonal[!is.na(median)]
-
+    offDiagonal <- offDiagonal[!is.na(offDiagonal)]
+    offDiagonal <- offDiagonal[
+        ,
+        .(offDiagonal = sum(offDiagonal, na.rm=TRUE)),
+        by = c("chromosome", "index", "variable")
+    ]
     # Ratio is value on diagonal - median (off diagonal), by bin
     onDiagonal <- data.table::merge.data.table(
         onDiagonal,
         offDiagonal,
         all = TRUE,
-        by = c("index", "variable"),
+        by = c("chromosome", "index", "variable"),
         sort = FALSE
     )
-    onDiagonal[is.na(value), value := 0]
-    onDiagonal[is.na(median), median := 0]
-    onDiagonal[, ratio := value]
+    
+    onDiagonal[is.na(ratio) & !is.na(offDiagonal),ratio := 0] #Shoudn't happen
     onDiagonal[, c("condition", "replicate") := data.table::tstrsplit(
         variable,
         " ",
@@ -529,7 +521,8 @@
         index,
         condition,
         replicate,
-        ratio
+        ratio,
+        offDiagonal
     )]
 
     return(onDiagonal)
@@ -562,7 +555,7 @@
         all.x = TRUE,
         sort = FALSE
     )
-
+    compartments[, offDiagonal := NULL]
     compartments <- compartments[
         ,
         .(ratio = stats::median(ratio, na.rm = TRUE)),
