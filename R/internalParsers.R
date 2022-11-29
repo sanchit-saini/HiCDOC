@@ -421,6 +421,9 @@
         col.names = c("startIndex", "stopIndex", "interaction"),
         data.table = TRUE
     )
+    if (nrow(interactions) == 0) {
+        stop(paste0("Error! HiC-Pro matrix file '", matrixPath, "' is empty."))
+    }
 
     bed <- data.table::fread(
         bedPath,
