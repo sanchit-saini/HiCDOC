@@ -300,7 +300,7 @@
     )
     # TODO : question : pourquoi on ne prend que les premiers ?
     # Quel est l'intérêt de retourner 2 fois ?
-    clusters <- clusteringOutput[["clusters"]][0:totalBins] + 1
+    clusters <- as.integer(clusteringOutput[["clusters"]][0:totalBins] + 1)
     centroids <- clusteringOutput[["centroids"]]
 
     min <- .distanceRatio(centroids[[1]], centroids)
@@ -479,7 +479,6 @@
         value.name = "ratio",
         na.rm = TRUE
     )
-    onDiagonal <- onDiagonal[!is.na(ratio)]
     # Compute median by bin, out of diagonal
     offDiagonal <- data.table::data.table(
         "chromosome" = c(ids$first$seqnames[!diagonal], 
@@ -509,8 +508,8 @@
         by = c("chromosome", "index", "variable"),
         sort = FALSE
     )
-    
-    onDiagonal[is.na(ratio) & !is.na(offDiagonal),ratio := 0] #Shoudn't happen
+    #Shoudn't happen after normalizations
+    onDiagonal[is.na(ratio) & !is.na(offDiagonal),ratio := 0] 
     onDiagonal[, c("condition", "replicate") := data.table::tstrsplit(
         variable,
         " ",
@@ -556,6 +555,7 @@
         sort = FALSE
     )
     compartments[, offDiagonal := NULL]
+    compartments[, ratio := as.numeric(ratio)]
     compartments <- compartments[
         ,
         .(ratio = stats::median(ratio, na.rm = TRUE)),

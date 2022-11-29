@@ -477,6 +477,7 @@
     idsDiagonals <- ids$first[ids$first == ids$second]
     notPresent <- setdiff(unique(c(ids$first, ids$second)), idsDiagonals)
     nb <- length(notPresent)
+    colnames(assay) <- NULL
     if(nb>0){
         notPresentRegions <- allRegions[match(notPresent, allRegions$index)]
         gi <- c(gi,

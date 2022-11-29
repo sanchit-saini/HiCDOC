@@ -74,7 +74,7 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     currentAssay <- SummarizedExperiment::assay(object)
     currentAssay[is.na(currentAssay)] <- 0
     # Reordering columns in condition order
-    refOrder <- paste(object$condition, object$replicate)
+    refOrder <- paste(object$condition, object$replicate, sep = ".")
     currentAssay <- currentAssay[, order(refOrder), drop=FALSE]
     
     table_list <- lapply(
@@ -110,6 +110,6 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     currentAssay <- currentAssay[, match(refOrder, sort(refOrder))]
     colnames(currentAssay) <- NULL
     currentAssay[currentAssay == 0] <- NA
-    SummarizedExperiment::assay(object) <- currentAssay
+    SummarizedExperiment::assay(object, withDimnames = FALSE) <- currentAssay
     return(object)
 }
