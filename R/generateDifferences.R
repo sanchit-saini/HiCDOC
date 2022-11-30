@@ -52,8 +52,6 @@
     regions <- regions[seqnames == ref, ]
     # BED format is 0-based for start, and 1-based for end
     regions[, start := start - 1]
-    # HiC-Pro IDs start with 0, R IDs start with 1
-    regions[, id := .I - 1]
     regions <- regions[, .(seqnames, start, end, id)]
     data.table::fwrite(regions, outputFileName, sep = "\t", col.names = FALSE)
 }
@@ -64,9 +62,6 @@
     cm <- cm[!is.na(x), ]
     # Make sure that the matrix is triangular
     cm <- cm[i >= j, ]
-    # HiC-Pro IDs start with 0, R IDs start with 1
-    cm[, i := i - 1]
-    cm[, j := j - 1]
     data.table::fwrite(cm, outputFileName, sep = "\t", col.names = FALSE)
 }
 
