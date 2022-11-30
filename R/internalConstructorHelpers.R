@@ -61,7 +61,7 @@
         drop = FALSE
     )
     valids <- lapply(valids, function(x) 
-        apply(x, 2, stats::var, na.rm=T))
+        apply(x, 2, stats::var, na.rm=TRUE))
     valids <- lapply(valids, function(x) which(x>0 & !is.na(x)))
     return(valids)
 }

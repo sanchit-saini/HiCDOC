@@ -4,13 +4,24 @@
 \alias{plotDistanceEffect}
 \title{Plot the distance effect.}
 \usage{
-plotDistanceEffect(object, chromosome = NULL)
+plotDistanceEffect(
+  object,
+  chromosome = NULL,
+  transformX = "identity",
+  transformY = "identity"
+)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
 
 \item{chromosome}{Name (character) or index of the chromosome, if the plot should be
 restricted to only one chromosome. Default to NULL.}
+
+\item{transformX}{Transformation of the X axis. Default to "identity". See
+\code{\link[ggplot2]{scale_x_continuous}} for other accepted values.}
+
+\item{transformY}{Transformation of the Y axis. Default to "identity". See
+\code{\link[ggplot2]{scale_y_continuous}} for other accepted values.}
 }
 \value{
 A \code{ggplot}.

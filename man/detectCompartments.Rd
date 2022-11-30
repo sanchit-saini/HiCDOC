@@ -36,7 +36,7 @@ Defaults to \code{object$kMeansRestarts} which is originally set to
 
 \item{PC1CheckThreshold}{The minimum percentage of variance that should be explained by
 the first principal component of centroids to pass sanity check.
-Defaults to \code{object$kMeansRestarts} which is originally set to
+Defaults to \code{object$PC1CheckThreshold} which is originally set to
 \code{defaultHiCDOCParameters$PC1CheckThreshold} = 0.75}
 }
 \value{

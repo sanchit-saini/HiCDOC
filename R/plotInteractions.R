@@ -140,9 +140,10 @@
 #' @param colours
 #' A character vector colours of length 3 to use for the gradient. See
 #' \code{\link[ggplot2]{scale_fill_gradient2}} for more info. Defaults to
-#' \code{c("low"=#F6FFB8", "mid"=#FF00CC", "high"="#310038")}.
+#' \code{c("low"=#2c7bb6", "mid"=#ffffbf", "high"="#d7191c")}.
 #' @param midpoint
-#' midpoint value to be passed to \code{scale_fill_gradient2}
+#' midpoint value to be passed to \code{scale_fill_gradient2}.
+#' Default to 0.
 #'
 #' @return
 #' A \code{ggplot}.
