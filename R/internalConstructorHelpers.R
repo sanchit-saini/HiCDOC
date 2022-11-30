@@ -60,8 +60,9 @@
         S4Vectors::mcols(object)$chromosome,
         drop = FALSE
     )
-    valids <- lapply(valids, colSums, na.rm = TRUE)
-    valids <- lapply(valids, function(x) which(x > 0 & !is.na(x)))
+    valids <- lapply(valids, function(x) 
+        apply(x, 2, stats::var, na.rm=TRUE))
+    valids <- lapply(valids, function(x) which(x>0 & !is.na(x)))
     return(valids)
 }
 #' @description

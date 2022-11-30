@@ -8,7 +8,8 @@ plotInteractions(
   object,
   chromosome,
   transform = NULL,
-  colours = c("#F6FFB8", "#FF00CC", "#310038")
+  colours = c(low = "#2c7bb6", mid = "#ffffbf", high = "#d7191c"),
+  midpoint = 0
 )
 }
 \arguments{
@@ -17,11 +18,14 @@ plotInteractions(
 \item{chromosome}{A chromosome name or index in \code{chromosomes(object)}.}
 
 \item{transform}{Transformation of the color scale. Default to NULL (no transformation). See
-\code{\link[ggplot2]{scale_fill_gradientn}} for other accepted values.}
+\code{\link[ggplot2]{scale_fill_gradient2}} for other accepted values.}
 
-\item{colours}{A character vector of colours to use for the gradient. See
-\code{\link[ggplot2]{scale_fill_gradientn}} for more info. Defaults to
-\code{c("#F6FFB8", "#FF00CC", "#310038")}.}
+\item{colours}{A character vector colours of length 3 to use for the gradient. See
+\code{\link[ggplot2]{scale_fill_gradient2}} for more info. Defaults to
+\code{c("low"=#2c7bb6", "mid"=#ffffbf", "high"="#d7191c")}.}
+
+\item{midpoint}{midpoint value to be passed to \code{scale_fill_gradient2}.
+Default to 0.}
 }
 \value{
 A \code{ggplot}.

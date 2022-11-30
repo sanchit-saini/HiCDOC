@@ -74,14 +74,14 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     currentAssay <- SummarizedExperiment::assay(object)
     currentAssay[is.na(currentAssay)] <- 0
     # Reordering columns in condition order
-    refOrder <- paste(object$condition, object$replicate)
-    currentAssay <- currentAssay[, order(refOrder)]
-
+    refOrder <- paste(object$condition, object$replicate, sep = ".")
+    currentAssay <- currentAssay[, order(refOrder), drop=FALSE]
+    
     table_list <- lapply(
         seq_len(ncol(currentAssay)),
         function(x) cbind(hic_table, currentAssay[, x])
     )
-
+    
     experiment <- multiHiCcompare::make_hicexp(
         data_list = table_list,
         groups = sort(object$condition),
@@ -91,6 +91,7 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
         A.min = 0,
         remove.regions = NULL
     )
+    
     normalized <- multiHiCcompare::cyclic_loess(experiment, parallel = parallel)
     normalized <- multiHiCcompare::hic_table(normalized)
     data.table::setnames(normalized, "chr", "chromosome")
@@ -109,6 +110,6 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     currentAssay <- currentAssay[, match(refOrder, sort(refOrder))]
     colnames(currentAssay) <- NULL
     currentAssay[currentAssay == 0] <- NA
-    SummarizedExperiment::assay(object) <- currentAssay
+    SummarizedExperiment::assay(object, withDimnames = FALSE) <- currentAssay
     return(object)
 }

@@ -72,12 +72,12 @@
 
     referenceCentroids <- data.table::merge.data.table(
         object@centroids[
-            compartment == 1 &
+            cluster == 1 &
             condition == referenceConditionNames[chromosome],
             .(chromosome, reference.1 = centroid)
         ],
         object@centroids[
-            compartment == 2 &
+            cluster == 2 &
             condition == referenceConditionNames[chromosome],
             .(chromosome, reference.2 = centroid)
         ],
@@ -86,11 +86,11 @@
 
     clusters <- data.table::merge.data.table(
         object@centroids[
-            compartment == 1,
+            cluster == 1,
             .(chromosome, condition, centroid.1 = centroid)
         ],
         object@centroids[
-            compartment == 2,
+            cluster == 2,
             .(chromosome, condition, centroid.2 = centroid)
         ],
         all = TRUE
@@ -138,8 +138,8 @@
 
     object@compartments[
         ,
-        compartment := ifelse(
-            compartment == 1,
+        cluster := ifelse(
+            cluster == 1,
             cluster.1,
             cluster.2
         )
@@ -157,17 +157,17 @@
 
     object@concordances[, change := -1]
     object@concordances[
-        compartment == 1 & compartment == cluster.1,
+        cluster == 1 & cluster == cluster.1,
         change := 1
     ]
     object@concordances[
-        compartment == 2 & compartment == cluster.2,
+        cluster == 2 & cluster == cluster.2,
         change := 1
     ]
     object@concordances[, concordance := change * concordance]
 
     object@concordances[, compartment := data.table::fifelse(
-        compartment == 1,
+        cluster == 1,
         cluster.1,
         cluster.2
     )]
@@ -185,8 +185,8 @@
         all.x = TRUE,
         sort = FALSE
     )
-    object@distances[, compartment := data.table::fifelse(
-        compartment == 1,
+    object@distances[, cluster := data.table::fifelse(
+        cluster == 1,
         cluster.1,
         cluster.2
     )]
@@ -200,8 +200,8 @@
         sort = FALSE
     )
 
-    object@centroids[, compartment := data.table::fifelse(
-        compartment == 1,
+    object@centroids[, cluster := data.table::fifelse(
+        cluster == 1,
         cluster.1,
         cluster.2
     )]
@@ -300,7 +300,7 @@
     )
     # TODO : question : pourquoi on ne prend que les premiers ?
     # Quel est l'intérêt de retourner 2 fois ?
-    clusters <- clusteringOutput[["clusters"]][0:totalBins] + 1
+    clusters <- as.integer(clusteringOutput[["clusters"]][0:totalBins] + 1)
     centroids <- clusteringOutput[["centroids"]]
 
     min <- .distanceRatio(centroids[[1]], centroids)
@@ -331,7 +331,7 @@
         "chromosome" = chromosomeName,
         "index" = indices,
         "condition" = conditionName,
-        "compartment" = clusters
+        "cluster" = clusters
     )
 
     dfConcordances <- data.table::data.table(
@@ -339,7 +339,7 @@
         "index" = rep(indices, length(replicateNames)),
         "condition" = conditionName,
         "replicate" = rep(sort(replicateNames), each = totalBins),
-        "compartment" = rep(clusters, length(replicateNames)),
+        "cluster" = rep(clusters, length(replicateNames)),
         "concordance" = concordances
     )
 
@@ -348,14 +348,14 @@
         "index" = rep(indices, 2 * length(replicateNames)),
         "condition" = conditionName,
         "replicate" = rep(rep(sort(replicateNames), each = totalBins), 2),
-        "compartment" = rep(c(1, 2), each = length(replicateNames) * totalBins),
+        "cluster" = rep(c(1, 2), each = length(replicateNames) * totalBins),
         "distance" = c(t(distances))
     )
 
     dfCentroids <- data.table::data.table(
         "chromosome" = chromosomeName,
         "condition" = conditionName,
-        "compartment" = c(1, 2),
+        "cluster" = c(1, 2),
         "centroid" = centroids
     )
 
@@ -470,55 +470,46 @@
 
     # Values on diagonal
     onDiagonal <- data.table::data.table(
-        ids$first[diagonal,.(seqnames, index)],
-        matrixAssay[diagonal, ]
+        ids$first[diagonal,.(chromosome = seqnames, index)],
+        matrixAssay[diagonal, , drop=FALSE]
     )
-
-    data.table::setnames(onDiagonal, c("chromosome", "index", columnNames))
     onDiagonal <- data.table::melt.data.table(
         onDiagonal,
-        id.vars = c("chromosome", "index")
+        id.vars = c("chromosome", "index"),
+        value.name = "ratio",
+        na.rm = TRUE
     )
-    onDiagonal <- onDiagonal[!is.na(value)]
-
     # Compute median by bin, out of diagonal
-    offDiagonal <- rbind(
-        matrixAssay[!diagonal, ],
-        matrixAssay[!diagonal, ]
-    )
     offDiagonal <- data.table::data.table(
-        "index" = c(ids$first$index[!diagonal], ids$second$index[!diagonal]),
-        offDiagonal
+        "chromosome" = c(ids$first$seqnames[!diagonal], 
+                         ids$second$seqnames[!diagonal]),
+        "index" = c(ids$first$index[!diagonal], 
+                    ids$second$index[!diagonal]),
+        matrixAssay[!diagonal, , drop=FALSE]
     )
-    offDiagonal <- offDiagonal[
-        ,
-        (columnNames) := lapply(.SD, as.numeric),
-        .SDcols = columnNames
-    ]
-    offDiagonal <- offDiagonal[
-        ,
-        lapply(.SD, stats::median, na.rm = TRUE),
-        by = index,
-        .SDcols = columnNames
-    ]
     offDiagonal <- data.table::melt.data.table(
         offDiagonal,
-        id.vars = "index",
-        value.name = "median"
+        id.vars = c("chromosome", "index"),
+        value.name = "offDiagonal",
+        variable.name = "variable",
+        na.rm = TRUE
     )
-    offDiagonal <- offDiagonal[!is.na(median)]
-
+    offDiagonal <- offDiagonal[!is.na(offDiagonal)]
+    offDiagonal <- offDiagonal[
+        ,
+        .(offDiagonal = sum(offDiagonal, na.rm=TRUE)),
+        by = c("chromosome", "index", "variable")
+    ]
     # Ratio is value on diagonal - median (off diagonal), by bin
     onDiagonal <- data.table::merge.data.table(
         onDiagonal,
         offDiagonal,
         all = TRUE,
-        by = c("index", "variable"),
+        by = c("chromosome", "index", "variable"),
         sort = FALSE
     )
-    onDiagonal[is.na(value), value := 0]
-    onDiagonal[is.na(median), median := 0]
-    onDiagonal[, ratio := value - median]
+    #Shoudn't happen after normalizations
+    onDiagonal[is.na(ratio) & !is.na(offDiagonal),ratio := 0] 
     onDiagonal[, c("condition", "replicate") := data.table::tstrsplit(
         variable,
         " ",
@@ -529,7 +520,8 @@
         index,
         condition,
         replicate,
-        ratio
+        ratio,
+        offDiagonal
     )]
 
     return(onDiagonal)
@@ -562,20 +554,21 @@
         all.x = TRUE,
         sort = FALSE
     )
-
+    compartments[, offDiagonal := NULL]
+    compartments[, ratio := as.numeric(ratio)]
     compartments <- compartments[
         ,
         .(ratio = stats::median(ratio, na.rm = TRUE)),
-        by = .(chromosome, compartment)
+        by = .(chromosome, cluster)
     ]
     compartments <- data.table::dcast(
         compartments,
-        chromosome ~ compartment,
+        chromosome ~ cluster,
         value.var = "ratio",
         fill = 0
     )
 
-    compartments[, A := data.table::fifelse(`1` >= `2`, 2, 1)]
+    compartments[, A := data.table::fifelse(`1` >= `2`, 1, 2)]
     compartments <- compartments[, .(chromosome, A)]
 
     object@compartments <- data.table::merge.data.table(
@@ -585,15 +578,9 @@
         all.x = TRUE
     )
 
-    object@compartments[, compartment := data.table::fifelse(
-        compartment == A,
-        "A",
-        "B"
-    )]
     object@compartments[, compartment := factor(
-        compartment,
-        levels = c("A", "B")
-    )]
+        data.table::fifelse(cluster == A, "A", "B"), 
+        levels=c("A", "B"))]
     object@compartments[, A := NULL]
 
     object@concordances <- data.table::merge.data.table(
@@ -605,7 +592,7 @@
     object@concordances[, change := data.table::fifelse(A == 1, 1,-1)]
     object@concordances[, concordance :=  change * concordance]
     object@concordances[, compartment := factor(
-        data.table::fifelse(compartment == A, "A", "B"),
+        data.table::fifelse(cluster == A, "A", "B"),
         levels = c("A", "B")
     )]
     object@concordances[, change := NULL]
@@ -618,7 +605,7 @@
         all.x = TRUE
     )
     object@distances[, compartment := factor(
-        data.table::fifelse(compartment == A, "A", "B"),
+        data.table::fifelse(cluster == A, "A", "B"),
         levels = c("A", "B")
     )]
     object@distances[, A := NULL]
@@ -630,7 +617,7 @@
         all.x = TRUE
     )
     object@centroids[, compartment := factor(
-        data.table::fifelse(compartment == A, "A", "B"),
+        data.table::fifelse(cluster == A, "A", "B"),
         levels = c("A", "B")
     )]
     object@centroids[, A := NULL]
