@@ -21,6 +21,7 @@
     colnames(comp)[4] <- "compartment"
     # Compare bin compartment with previous bin compartment
     comp <- comp[, prevComp := data.table::shift(compartment, 1), by = seqnames]
+    # Keep bins such that the compartment is different
     comp <- comp[compartment != prevComp, ]
     # Add the size of the refs
     comp <- data.table::merge.data.table(comp, size, by = "seqnames")
@@ -50,8 +51,9 @@
 .writeRegionsToFile <- function (regions, ref, outputFileName) {
     regions <- data.table::as.data.table(as(regions, "data.frame"))
     regions <- regions[seqnames == ref, ]
+    regions <- regions[, id := .I]
     # BED format is 0-based for start, and 1-based for end
-    regions[, start := start - 1]
+    regions[, start := as.integer(start - 1)]
     regions <- regions[, .(seqnames, start, end, id)]
     data.table::fwrite(regions, outputFileName, sep = "\t", col.names = FALSE)
 }
@@ -131,4 +133,5 @@ modifyCompartment <- function (object, distance, outputDirName) {
     cms[modifiedSampleIds] <- modifiedCMs
     # Write the results to files in HiC-Pro format
     .writeToFile(objectRaw, cms, ref, start, end, outputDirName)
+    return(list(ref = ref, start = start, end = end))
 }
