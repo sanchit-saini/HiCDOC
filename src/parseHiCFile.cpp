@@ -454,7 +454,7 @@ DataFrame parseHiCFile(std::string &fname, int resolution) {
   hicInfo info;
   outputStr output;
   std::ifstream fin;
-  fin.open(fname, std::fstream::in);
+  fin.open(fname, std::fstream::in | std::fstream::binary);
   if (!fin) {
     stop("File " + fname + " cannot be opened for reading.");
   }
