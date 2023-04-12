@@ -122,7 +122,7 @@ plotConcordances <- function(
         xlab("position") +
         xlim(xlim[1], xlim[2] + binSize) +
         ylim(ylim) +
-        geom_hline(yintercept = 0.0, size = 0.1) +
+            geom_hline(yintercept = 0.0, linewidth = 0.1) +
         facet_grid(rows = vars(condition), margins = FALSE, switch = "y") +
         labs(title = paste0("Concordances of chromosome ",
                             chromosomeName, " by condition")) +
