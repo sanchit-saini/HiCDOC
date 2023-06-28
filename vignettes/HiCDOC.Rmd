@@ -21,6 +21,8 @@ knitr::opts_chunk$set(
     comment = "#>"
 )
 options(warn=-1)
+library(patchwork)
+library(ggplot2)
 ```
 
 # Introduction
