@@ -4,14 +4,13 @@
 #' @description
 #' Normalizes technical biases such as sequencing depth by using a cyclic loess
 #' to recursively normalize each pair of interaction matrices. Depends on
-#' \code{multiHiCcompare}.
+#' \code{csaw}.
 #'
 #' @details
 #' \subsection{Parallel processing}{
-#' If \code{parallel = TRUE}, the function
-#' \code{\link[multiHiCcompare]{cyclic_loess}}
-#' is launched in parallel mode, using \code{\link[BiocParallel]{bplapply}}
-#' function. Before to call the function in parallel you should specify
+#' If \code{parallel = TRUE}, the normalization is launched in parallel mode
+#' by chromosome using \code{\link[BiocParallel]{bplapply}} function. 
+#' Before to call the function in parallel you should specify
 #' the parallel parameters such as:
 #'     \itemize{
 #'         \item{On Linux:
@@ -66,49 +65,37 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
         region1 = start1,
         region2 = start2
     )]
-    if (!is.factor(hic_table$chromosome)) {
-        hic_table[, chromosome := as.factor(chromosome)]
-    }
-    hic_table[, chromosome := as.numeric(chromosome)]
-
     currentAssay <- SummarizedExperiment::assay(object)
     currentAssay[is.na(currentAssay)] <- 0
-    # Reordering columns in condition order
-    refOrder <- paste(object$condition, object$replicate, sep = ".")
-    currentAssay <- currentAssay[, order(refOrder), drop=FALSE]
     
-    table_list <- lapply(
-        seq_len(ncol(currentAssay)),
-        function(x) cbind(hic_table, currentAssay[, x])
+    # Spliting by chromosome
+    listAssays <- S4Vectors::split(
+        SummarizedExperiment::assay(object),
+        SummarizedExperiment::mcols(object)$chromosome,
+        drop = FALSE
+    )
+    # Keeping only valid columns for each chromosome
+    for(c in object@chromosomes){
+        listAssays[[c]] <- listAssays[[c]][,object@validAssay[[c]]]
+    }
+    # For each chromosome, apply a normalisation inter-matrix with csaw
+    normedAssay <- .internalLapply(
+        parallel,
+        listAssays, 
+        function(x){
+            offsets <- csaw::normOffsets(x, se.out = FALSE, span=0.3, iterations=4L)
+            offsets <- offsets - mean(log(colSums(x)))
+            return(x / exp(offsets))
+        }
     )
     
-    experiment <- multiHiCcompare::make_hicexp(
-        data_list = table_list,
-        groups = sort(object$condition),
-        remove_zeros = FALSE,
-        filter = TRUE,
-        zero.p = 1,
-        A.min = 0,
-        remove.regions = NULL
-    )
-    
-    normalized <- multiHiCcompare::cyclic_loess(experiment, parallel = parallel)
-    normalized <- multiHiCcompare::hic_table(normalized)
-    data.table::setnames(normalized, "chr", "chromosome")
-
-    # Re-sorting the rows in the same order as original
-    data.table::setindexv(normalized, c("chromosome", "region1", "region2"))
-    data.table::setindexv(hic_table, c("chromosome", "region1", "region2"))
-    hic_table <- data.table::merge.data.table(
-        hic_table,
-        normalized,
-        sort = FALSE
-    )
-
-    currentAssay <- as.matrix(hic_table[, 5:ncol(hic_table)])
-    # Reordering columns in original order
-    currentAssay <- currentAssay[, match(refOrder, sort(refOrder))]
-    colnames(currentAssay) <- NULL
+    # Feeling only valid columns for each chromosome
+    for(c in object@chromosomes){
+        currentAssay[
+            as.logical(SummarizedExperiment::mcols(object)$chromosome == c),
+            object@validAssay[[c]]
+        ] <- normedAssay[[c]]
+    }
     currentAssay[currentAssay == 0] <- NA
     SummarizedExperiment::assay(object, withDimnames = FALSE) <- currentAssay
     return(object)

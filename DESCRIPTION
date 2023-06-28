@@ -37,7 +37,7 @@ Imports:
     gridExtra,
     ggExtra,
     data.table,
-    multiHiCcompare,
+    csaw,
     GenomeInfoDb
 LinkingTo: Rcpp
 Suggests:
@@ -46,7 +46,7 @@ Suggests:
     testthat,
     BiocStyle,
     BiocManager
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 biocViews:
     HiC, DNA3DStructure, Normalization, Sequencing, Software, Clustering
 VignetteBuilder: knitr

@@ -52,22 +52,22 @@ Retrieve information and results from a \code{\link{HiCDOCDataSet}}.
 }
 \section{Functions}{
 \itemize{
-\item \code{chromosomes}: Retrieves the vector of chromosome names.
+\item \code{chromosomes()}: Retrieves the vector of chromosome names.
 
-\item \code{sampleConditions}: Retrieves the vector of condition names, one for each sample.
+\item \code{sampleConditions()}: Retrieves the vector of condition names, one for each sample.
 
-\item \code{sampleReplicates}: Retrieves the vector of replicate names, one for each sample.
+\item \code{sampleReplicates()}: Retrieves the vector of replicate names, one for each sample.
 
-\item \code{compartments}: Retrieves a \code{GenomicRange} of the compartment of every position
+\item \code{compartments()}: Retrieves a \code{GenomicRange} of the compartment of every position
 in every condition.
 
-\item \code{differences}: Retrieves a \code{GenomicRange} of the significant compartment differences
+\item \code{differences()}: Retrieves a \code{GenomicRange} of the significant compartment differences
 between conditions, and their p-values.
 
-\item \code{concordances}: Retrieves a \code{GenomicRange} of the concordance (confidence in assigned
+\item \code{concordances()}: Retrieves a \code{GenomicRange} of the concordance (confidence in assigned
 compartment) of every position in every replicate.
-}}
 
+}}
 \examples{
 # Load an example dataset already processed 
 # (i.e. after the detection of compartments)

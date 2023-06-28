@@ -19,7 +19,7 @@
 #' @importFrom grid textGrob gpar
 #' @importFrom gridExtra arrangeGrob
 #' @importFrom ggExtra ggMarginal
-#' @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
+#' @importFrom csaw normOffsets
 #' @importFrom GenomeInfoDb seqlevels seqnames
 #' @import data.table
 #' @useDynLib HiCDOC

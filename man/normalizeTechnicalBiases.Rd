@@ -17,14 +17,13 @@ A \code{\link{HiCDOCDataSet}} with normalized interactions.
 \description{
 Normalizes technical biases such as sequencing depth by using a cyclic loess
 to recursively normalize each pair of interaction matrices. Depends on
-\code{multiHiCcompare}.
+\code{csaw}.
 }
 \details{
 \subsection{Parallel processing}{
-If \code{parallel = TRUE}, the function
-\code{\link[multiHiCcompare]{cyclic_loess}}
-is launched in parallel mode, using \code{\link[BiocParallel]{bplapply}}
-function. Before to call the function in parallel you should specify
+If \code{parallel = TRUE}, the normalization is launched in parallel mode
+by chromosome using \code{\link[BiocParallel]{bplapply}} function. 
+Before to call the function in parallel you should specify
 the parallel parameters such as:
     \itemize{
         \item{On Linux:
