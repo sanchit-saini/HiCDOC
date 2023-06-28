@@ -70,7 +70,7 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
     
     # Spliting by chromosome
     listAssays <- S4Vectors::split(
-        SummarizedExperiment::assay(object),
+        currentAssay,
         SummarizedExperiment::mcols(object)$chromosome,
         drop = FALSE
     )
