@@ -31,9 +31,8 @@ Imports:
     pbapply,
     BiocParallel,
     BiocGenerics,
-    rhdf5,
     grid,
-    ggpubr,
+    cowplot,
     gridExtra,
     data.table,
     csaw,
@@ -44,7 +43,8 @@ Suggests:
     rmarkdown,
     testthat,
     BiocStyle,
-    BiocManager
+    BiocManager,
+    rhdf5
 RoxygenNote: 7.2.3
 biocViews:
     HiC, DNA3DStructure, Normalization, Sequencing, Software, Clustering

@@ -81,15 +81,13 @@ plotDistanceEffect <- function(object, chromosome = NULL, transformX="identity",
                           c(2,2,2,2,2,2,2,3),
                           c(2,2,2,2,2,2,2,3))
     
-    plot <- ggpubr::as_ggplot(
-        gridExtra::arrangeGrob(
-            margPlot,
-            plot + theme(legend.position = "none"),
-            ggpubr::get_legend(plot),
-            layout_matrix = layoutMatrix,
-            padding = unit(0.2, "lines"),
-            top = paste0("Distance effect", addTitle)
-        )
-    )
-    return(plot)
+    plot <- gridExtra::arrangeGrob(
+                margPlot,
+                plot + theme(legend.position = "none"),
+                cowplot::get_legend(plot),
+                layout_matrix = layoutMatrix,
+                padding = unit(0.2, "lines"),
+                top = paste0("Distance effect", addTitle)
+            )
+    return(cowplot::ggdraw(plot))
 }

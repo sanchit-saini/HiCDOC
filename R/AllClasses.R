@@ -192,6 +192,7 @@ HiCDOCDataSetFromCool <- function(
     conditions,
     binSize = NA
 ) {
+    if(!requireNamespace('rhdf5')) stop("'rhdf5' package is required. Please install it and retry.")
     if (is.factor(paths)) {
         paths <- as.vector(paths)
     }
