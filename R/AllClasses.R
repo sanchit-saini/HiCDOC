@@ -192,7 +192,6 @@ HiCDOCDataSetFromCool <- function(
     conditions,
     binSize = NA
 ) {
-
     if (is.factor(paths)) {
         paths <- as.vector(paths)
     }

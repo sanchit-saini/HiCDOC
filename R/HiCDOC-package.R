@@ -18,7 +18,6 @@
 #' @importFrom ggpubr as_ggplot get_legend
 #' @importFrom grid textGrob gpar
 #' @importFrom gridExtra arrangeGrob
-#' @importFrom ggExtra ggMarginal
 #' @importFrom csaw normOffsets
 #' @importFrom GenomeInfoDb seqlevels seqnames
 #' @import data.table

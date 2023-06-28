@@ -62,16 +62,34 @@ plotDistanceEffect <- function(object, chromosome = NULL, transformX="identity",
         low = "white",
         high = "blue",
         trans = "log2"
-    ) + geom_point(col = "transparent") + geom_smooth(col = "red") + labs(
-        title = paste0("Distance effect", addTitle)
-    ) + scale_y_continuous(trans=transformY)  + 
-        scale_x_continuous(trans=transformX) 
-    plot <- ggExtra::ggMarginal(
-        plot,
-        margins = "x",
-        type = "histogram",
-        fill = "transparent",
-        lwd = 0.5
+    ) + geom_point(col = "transparent") + 
+        geom_smooth(col = "red") + 
+        scale_y_continuous(trans=transformY)  + 
+        scale_x_continuous(trans=transformX) + theme_bw() 
+    
+    margPlot <-  ggplot(dfDistance, aes(x = distance)) +
+        geom_histogram(fill="transparent", col="black") + 
+        theme_minimal() +
+        theme(panel.grid.major.x = element_blank(),
+              axis.title.x = element_blank(),
+              axis.text.x = element_blank(),
+              axis.ticks.x = element_blank()) 
+    
+    layoutMatrix <- rbind(c(1,1,1,1,1,1,1,3),
+                          c(2,2,2,2,2,2,2,3),
+                          c(2,2,2,2,2,2,2,3),
+                          c(2,2,2,2,2,2,2,3),
+                          c(2,2,2,2,2,2,2,3))
+    
+    plot <- ggpubr::as_ggplot(
+        gridExtra::arrangeGrob(
+            margPlot,
+            plot + theme(legend.position = "none"),
+            ggpubr::get_legend(plot),
+            layout_matrix = layoutMatrix,
+            padding = unit(0.2, "lines"),
+            top = paste0("Distance effect", addTitle)
+        )
     )
     return(plot)
 }

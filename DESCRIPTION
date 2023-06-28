@@ -35,7 +35,6 @@ Imports:
     grid,
     ggpubr,
     gridExtra,
-    ggExtra,
     data.table,
     csaw,
     GenomeInfoDb
