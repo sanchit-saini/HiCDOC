@@ -4,12 +4,18 @@
 \alias{normalizeTechnicalBiases}
 \title{Normalize technical biases.}
 \usage{
-normalizeTechnicalBiases(object, parallel = FALSE)
+normalizeTechnicalBiases(object, parallel = FALSE, cyclicLoessSpan = NA)
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
 
-\item{parallel}{Whether or not to parallelize the processing. Defaults to FALSE}
+\item{parallel}{Logical. Whether or not to parallelize the processing. Defaults to FALSE}
+
+\item{cyclicLoessSpan}{A numeric value in between 0 and 1. The span for cyclic loess normalization. 
+This value is passed to \code{multiHiCcompare::cyclic_loess}. 
+Defaults to NA indicating that span will be automatically calculated using 
+generalized cross validation. **For large dataset, it is highly recommended 
+to set this value to reduce computing time and necessary memory.**}
 }
 \value{
 A \code{\link{HiCDOCDataSet}} with normalized interactions.
