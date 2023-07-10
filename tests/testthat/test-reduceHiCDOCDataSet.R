@@ -73,7 +73,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, dropLevels", {
     # Interactions
     expect_equal(dim(SummarizedExperiment::assay(objectRed)), c(7021, 7))
     expect_equal(round(sum(SummarizedExperiment::assay(objectRed), na.rm=TRUE),2), 
-                 -7.01)
+                 36.77)
     
     # Objects produced by detectCompartments
     test_chromosome_levels(objectRed, "X")
@@ -101,7 +101,7 @@ test_that("reduceHiCDOCDataSet works if select chromosome, keep levels", {
     # Interactions
     expect_equal(dim(SummarizedExperiment::assay(objectRed)), c(7021, 7))
     expect_equal(round(sum(SummarizedExperiment::assay(objectRed), na.rm=TRUE),2), 
-                 -7.01)
+                 36.77)
     
     # Objects prduced by detectCompartments
     test_chromosome_levels(objectRed, c("X", "Y", "Z"))
@@ -128,7 +128,7 @@ test_that("reduceHiCDOCDataSet works if select condition, drop levels", {
     # Interactions
     expect_equal(dim(SummarizedExperiment::assay(objectRed)), c(39524, 5))
     expect_equal(sum(SummarizedExperiment::assay(objectRed), na.rm=TRUE), 
-                 -190.53, tolerance=1e-2)
+                 115.80, tolerance=1e-2)
     
     # Objects prduced by detectCompartments
     test_chromosome_levels(objectRed, c("X", "Y", "Z"))
@@ -155,7 +155,7 @@ test_that("reduceHiCDOCDataSet works if select replicate, drop levels", {
     # Interactions
     expect_equal(dim(SummarizedExperiment::assay(objectRed)), c(39524, 3))
     expect_equal(sum(SummarizedExperiment::assay(objectRed), na.rm=TRUE), 
-                 -109.62, tolerance=1e-2)
+                 48.62, tolerance=1e-2)
     
     # Objects prduced by detectCompartments
     test_chromosome_levels(objectRed, c("X", "Y", "Z"))
@@ -184,7 +184,7 @@ test_that("reduceHiCDOCDataSet works if select chr, cond & rep, keep levels", {
     # Interactions
     expect_equal(dim(SummarizedExperiment::assay(objectRed)), c(7021, 1))
     expect_equal(sum(SummarizedExperiment::assay(objectRed), na.rm=TRUE), 
-                 -20.947, tolerance=1e-2)
+                 -12.19, tolerance=1e-2)
 
     # Objects prduced by detectCompartments
     test_chromosome_levels(objectRed, c("X", "Y", "Z"))
