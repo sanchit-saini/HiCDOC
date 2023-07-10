@@ -83,7 +83,7 @@ defaultHiCDOCParameters <- list(
     smallChromosomeThreshold = 100,
     sparseReplicateThreshold = 0.3,
     weakPositionThreshold = 1,
-    cyclicLoessSpan = NA,
+    cyclicLoessSpan = NA_real_,
     loessSampleSize = 20000,
     kMeansDelta = 0.0001,
     kMeansIterations = 50,

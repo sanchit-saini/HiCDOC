@@ -35,7 +35,9 @@
 #' @param cyclicLoessSpan 
 #' A numeric value in between 0 and 1. The span for cyclic loess normalization. 
 #' This value is passed to \code{multiHiCcompare::cyclic_loess}. 
-#' Defaults to NA indicating that span will be automatically calculated using 
+#' Defaults to NULL, NULL indicates that the value of 
+#' parameters(object)$cyclicLoessSpan will be used. 
+#' If this value is NA, the span will be automatically calculated using 
 #' generalized cross validation. **For large dataset, it is highly recommended 
 #' to set this value to reduce computing time and necessary memory.**
 #'
@@ -63,7 +65,7 @@
 #'
 #' @export
 normalizeTechnicalBiases <- 
-    function(object, parallel = FALSE, cyclicLoessSpan = NA) {
+    function(object, parallel = FALSE, cyclicLoessSpan = NULL) {
     message("Normalizing technical biases.")
 
     if (!is.null(cyclicLoessSpan)) {

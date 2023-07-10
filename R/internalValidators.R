@@ -1,7 +1,7 @@
 #' @description
 #' Returns parameters, updated with their default values if invalid.
 #'
-#' @param parameters
+#' @param objectParameters
 #' A list of parameters.
 #'
 #' @return
@@ -9,13 +9,14 @@
 #'
 #' @keywords internal
 #' @noRd
-.validateParameters <- function(parameters) {
+.validateParameters <- function(objectParameters) {
     defaultParameterNames <- names(defaultHiCDOCParameters)
-    inputParameterNames <- names(parameters)
+    inputParameterNames <- names(objectParameters)
 
     numericParameters <- vapply(
-        parameters,
-        function(parameter) is.numeric(parameter) && length(parameter) == 1,
+        objectParameters,
+        function(parameter) 
+            is.numeric(parameter) && length(parameter) == 1,
         FUN.VALUE = TRUE
     )
 
@@ -33,14 +34,14 @@
                 notNumericParameters,
                 ":",
                 " ",
-                parameters[notNumericParameters],
+                objectParameters[notNumericParameters],
                 " -> ",
                 defaultHiCDOCParameters[notNumericParameters],
                 collapse = "\n"
             ),
             call. = FALSE
         )
-        parameters[notNumericParameters] <- defaultHiCDOCParameters[
+        objectParameters[notNumericParameters] <- defaultHiCDOCParameters[
             notNumericParameters
         ]
     }
@@ -56,7 +57,7 @@
             paste(unknownParameterNames, collapse = "\n"),
             call. = FALSE
         )
-        parameters[unknownParameterNames] <- NULL
+        objectParameters[unknownParameterNames] <- NULL
     }
 
     present <- defaultParameterNames %in% inputParameterNames
@@ -79,12 +80,12 @@
             ),
             call. = FALSE
         )
-        parameters[missingParameterNames] <- defaultHiCDOCParameters[
+        objectParameters[missingParameterNames] <- defaultHiCDOCParameters[
             missingParameterNames
         ]
     }
 
-    return(parameters)
+    return(objectParameters)
 }
 
 #' @description
