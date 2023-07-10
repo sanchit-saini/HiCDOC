@@ -30,9 +30,16 @@
 #'
 #' @param object
 #' A \code{\link{HiCDOCDataSet}}.
-#'
-#' @param parallel
-#' Whether or not to parallelize the processing. Defaults to FALSE
+#' @param parallel 
+#' Logical. Whether or not to parallelize the processing. Defaults to FALSE
+#' @param cyclicLoessSpan 
+#' A numeric value in between 0 and 1. The span for cyclic loess normalization. 
+#' This value is passed to \code{multiHiCcompare::cyclic_loess}. 
+#' Defaults to NULL, NULL indicates that the value of 
+#' parameters(object)$cyclicLoessSpan will be used. 
+#' If this value is NA, the span will be automatically calculated using 
+#' generalized cross validation. **For large dataset, it is highly recommended 
+#' to set this value to reduce computing time and necessary memory.**
 #'
 #' @return
 #' A \code{\link{HiCDOCDataSet}} with normalized interactions.
@@ -57,9 +64,14 @@
 #' \code{\link{HiCDOC}}
 #'
 #' @export
-normalizeTechnicalBiases <- function(object, parallel = FALSE) {
+normalizeTechnicalBiases <- 
+    function(object, parallel = FALSE, cyclicLoessSpan = NULL) {
     message("Normalizing technical biases.")
 
+    if (!is.null(cyclicLoessSpan)) {
+        object@parameters$cyclicLoessSpan <- cyclicLoessSpan
+    }
+        
     hic_table <- as.data.table(InteractionSet::interactions(object))
     hic_table <- hic_table[, .(
         chromosome = seqnames1,
@@ -92,7 +104,12 @@ normalizeTechnicalBiases <- function(object, parallel = FALSE) {
         remove.regions = NULL
     )
     
-    normalized <- multiHiCcompare::cyclic_loess(experiment, parallel = parallel)
+    normalized <- 
+        multiHiCcompare::cyclic_loess(
+            experiment, 
+            parallel = parallel,
+            span = object@parameters$cyclicLoessSpan
+        )
     normalized <- multiHiCcompare::hic_table(normalized)
     data.table::setnames(normalized, "chr", "chromosome")
 

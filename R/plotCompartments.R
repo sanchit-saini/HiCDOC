@@ -11,6 +11,8 @@
 #' @param xlim
 #' A vector of the minimum and maximum positions to display. If NULL, displays
 #' all positions. Defaults to NULL.
+#' @param colour
+#' Border color for the compartments. Default to `gray90`. `NA` means no border.
 #'
 #' @return
 #' A \code{ggplot}.
@@ -23,7 +25,8 @@
 plotCompartments <- function(
     object,
     chromosome,
-    xlim = NULL
+    xlim = NULL,
+    colour = "gray90"
 ) {
 
     .validateSlots(object, slots = c("compartments"))
@@ -51,8 +54,8 @@ plotCompartments <- function(
         aes(x = position, fill = compartment)
     ) + geom_histogram(
         binwidth = binSize,
-        colour = "gray90",
-        size = 0.05
+        colour = colour,
+        linewidth = 0.05
     ) + coord_cartesian(
         xlim=c(xlim[1] - 0.5 * binSize, xlim[2] + 0.5 * binSize)
     ) + facet_grid(

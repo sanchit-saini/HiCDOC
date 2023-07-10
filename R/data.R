@@ -30,7 +30,8 @@
 #' @description
 #' A S4 HiCDOCDataSet object with 3 chromosomes, 3 conditions and 3 replicates.
 #' Can be retrieved by running :
-#' \code{set.seed(123);
+#' \code{data(exampleHiCDOCDataSet); 
+#' set.seed(123); 
 #' exampleHiCDOCDataSetProcessed <- HiCDOC(exampleHiCDOCDataSet)}
 #'
 #' @format

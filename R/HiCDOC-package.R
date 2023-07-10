@@ -14,11 +14,9 @@
 #' @importFrom pbapply pbmapply
 #' @importFrom BiocParallel bpparam bpmapply bplapply
 #' @importFrom BiocGenerics cbind width
-#' @importFrom rhdf5 h5read
-#' @importFrom ggpubr as_ggplot get_legend
+#' @importFrom cowplot ggdraw get_legend
 #' @importFrom grid textGrob gpar
 #' @importFrom gridExtra arrangeGrob
-#' @importFrom ggExtra ggMarginal
 #' @importFrom multiHiCcompare make_hicexp cyclic_loess hic_table
 #' @importFrom GenomeInfoDb seqlevels seqnames
 #' @import data.table

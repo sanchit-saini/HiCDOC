@@ -10,7 +10,8 @@ plotCompartmentChanges(
   threshold = 0.05,
   xlim = NULL,
   points = FALSE,
-  checks = TRUE
+  checks = TRUE,
+  colour = "gray90"
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ all positions. Defaults to NULL.}
 \item{points}{Whether or not to add points to the concordances. Defaults to FALSE.}
 
 \item{checks}{Whether or not to add sanity checks messages. Default to TRUE.}
+
+\item{colour}{Border color for the compartments. Default to `gray90`. `NA` means no border.}
 }
 \value{
 A \code{ggplot}.

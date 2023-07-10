@@ -31,11 +31,9 @@ Imports:
     pbapply,
     BiocParallel,
     BiocGenerics,
-    rhdf5,
     grid,
-    ggpubr,
+    cowplot,
     gridExtra,
-    ggExtra,
     data.table,
     multiHiCcompare,
     GenomeInfoDb
@@ -45,8 +43,9 @@ Suggests:
     rmarkdown,
     testthat,
     BiocStyle,
-    BiocManager
-RoxygenNote: 7.1.2
+    BiocManager,
+    rhdf5
+RoxygenNote: 7.2.3
 biocViews:
     HiC, DNA3DStructure, Normalization, Sequencing, Software, Clustering
 VignetteBuilder: knitr

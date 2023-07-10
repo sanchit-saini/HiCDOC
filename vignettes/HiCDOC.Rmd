@@ -241,18 +241,30 @@ hic.experiment <- filterWeakPositions(hic.experiment, threshold = 1)
 
 ## Normalizing biases
 
-Normalize technical biases such as sequencing depth (inter-matrix normalization):
+### Technical biases
+
+Normalize technical biases such as sequencing depth (inter-matrix 
+normalization) so that  matrices are comparable :
 
 ```{r normalizeTechnicalBiases}
 suppressWarnings(hic.experiment <- normalizeTechnicalBiases(hic.experiment))
 ```
 
+This normalization uses uses cyclic loess normalization from [multiHiCcompare package] [@multihiccompare].
+**Note** : For large dataset, it is highly recommended to set a value for 
+`cycleLoessSpan` parameter to reduce computing time and necessary memory. See
+`?HiCDOC::normalizeTechnicalBiases`
+
+
+### Biological biases
 Normalize biological biases, such as GC content, number of restriction sites,
 etc. (intra-matrix normalization):
 
 ```{r normalizeBiologicalBiases}
 hic.experiment <- normalizeBiologicalBiases(hic.experiment)
 ```
+
+### Distance effect
 
 Normalize the linear distance effect resulting from more interactions between 
 closer genomic regions (20000 is the default value for `loessSampleSize`):
@@ -268,12 +280,7 @@ Predict A and B compartments and detect significant differences, here using
 the default values as parameters:
 
 ```{r detectCompartments}
-hic.experiment <- detectCompartments(
-    hic.experiment,
-    kMeansDelta = 0.0001,
-    kMeansIterations = 50,
-    kMeansRestarts = 20
-)
+hic.experiment <- detectCompartments(hic.experiment)
 ```
 
 

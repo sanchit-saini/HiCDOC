@@ -167,7 +167,7 @@ plotInteractions <- function(
 
     rowsChromosome <- (S4Vectors::mcols(object)$chromosome == chromosomeName)
     assayChromosome <- SummarizedExperiment::assay(object[rowsChromosome, ])
-    assayChromosome <- as.data.table(assayChromosome)
+    assayChromosome <- data.table::as.data.table(assayChromosome)
     data.table::setnames(
         assayChromosome,
         paste(object$condition, object$replicate, sep = "_")

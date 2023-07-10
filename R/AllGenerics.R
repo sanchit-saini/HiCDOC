@@ -156,6 +156,15 @@ setGeneric(
 #'             and conditions. Defaults to
 #'             \code{defaultHiCDOCParameters$smallChromosomeThreshold} = 1.
 #'         }
+#'         \item{\code{cyclicLoessSpan}}{
+#'             The span for cyclic loess normalization used in 
+#'             \code{\link{normalizeTechnicalBiases}}. This value is passed to 
+#'             \code{multiHiCcompare::cyclic_loess}. 
+#'             Defaults to NA indicating that span will be automatically 
+#'             calculated using generalized cross validation.
+#'             For large dataset, it is highly recommended to set this value
+#'             to reduce computing time and necessary memory.
+#'         }
 #'         \item{\code{loessSampleSize}}{
 #'             The number of positions used as a sample to estimate the effect
 #'             of distance on proportion of interactions when normalizing with
