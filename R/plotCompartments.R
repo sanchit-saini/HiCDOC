@@ -55,7 +55,7 @@ plotCompartments <- function(
     ) + geom_histogram(
         binwidth = binSize,
         colour = colour,
-        size = 0.05
+        linewidth = 0.05
     ) + coord_cartesian(
         xlim=c(xlim[1] - 0.5 * binSize, xlim[2] + 0.5 * binSize)
     ) + facet_grid(
