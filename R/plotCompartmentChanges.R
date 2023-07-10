@@ -18,6 +18,8 @@
 #' Whether or not to add points to the concordances. Defaults to FALSE.
 #' @param checks
 #' Whether or not to add sanity checks messages. Default to TRUE.
+#' @param colour
+#' Border color for the compartments. Default to `gray90`. `NA` means no border.
 #'
 #'
 #' @return
@@ -34,7 +36,9 @@ plotCompartmentChanges <- function(
     threshold = 0.05,
     xlim = NULL,
     points = FALSE,
-    checks = TRUE
+    checks = TRUE,
+    colour = "gray90"
+    
 ) {
 
     .validateSlots(
@@ -57,7 +61,8 @@ plotCompartmentChanges <- function(
     compartmentsPlot <- plotCompartments(
         object,
         chromosomeName,
-        xlim
+        xlim,
+        colour
     )
     
     if (is.null(compartmentsPlot) || is.null(concordancesPlot)) {
