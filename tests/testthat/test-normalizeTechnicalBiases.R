@@ -5,6 +5,7 @@ test_that("normalizeTechnicalBiases behaves as expected", {
     object <- filterWeakPositions(object)
     
     # Apply normalization
+    set.seed(123)
     expect_warning(norm <- normalizeTechnicalBiases(object, parallel = FALSE))
     # Keep object format
     expect_equal(nrow(norm), nrow(object))
@@ -21,7 +22,7 @@ test_that("normalizeTechnicalBiases behaves as expected", {
     # LAPACK: atlas/liblapack.so.3.10.
     expect_equal(any(sapply(list(
         c(751294.6, 1152226.8, 0, 0, 721966.6, 721539.2, 910899.8),
-        c(751294.6, 1152227.4, 0.0, 0.0, 721967.5, 721538.9, 910899.4)), 
-        function(x) identical(x, round(colSums(assay, na.rm=TRUE),1)))), TRUE)
-    
+        c(751294.6, 1152227.4, 0.0, 0.0, 721967.5, 721538.9, 910899.4)),
+        function(x) identical(x, round(colSums(assay, na.rm=TRUE),1)))), TRUE
+    )
 })

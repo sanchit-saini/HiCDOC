@@ -10,7 +10,7 @@
 \alias{parameters<-,HiCDOCDataSet-method}
 \title{Access the parameters of a \code{\link{HiCDOCDataSet}}.}
 \format{
-An object of class \code{list} of length 8.
+An object of class \code{list} of length 9.
 }
 \usage{
 defaultHiCDOCParameters
@@ -68,6 +68,15 @@ for details on how these parameters are used.
             value in any of the replicates, it is removed from all replicates
             and conditions. Defaults to
             \code{defaultHiCDOCParameters$smallChromosomeThreshold} = 1.
+        }
+        \item{\code{cyclicLoessSpan}}{
+            The span for cyclic loess normalization used in 
+            \code{\link{normalizeTechnicalBiases}}. This value is passed to 
+            \code{multiHiCcompare::cyclic_loess}. 
+            Defaults to NA indicating that span will be automatically 
+            calculated using generalized cross validation.
+            For large dataset, it is highly recommended to set this value
+            to reduce computing time and necessary memory.
         }
         \item{\code{loessSampleSize}}{
             The number of positions used as a sample to estimate the effect

@@ -18,6 +18,8 @@
 #' Whether or not to add points to the concordances. Defaults to FALSE.
 #' @param checks
 #' Whether or not to add sanity checks messages. Default to TRUE.
+#' @param colour
+#' Border color for the compartments. Default to `gray90`. `NA` means no border.
 #'
 #'
 #' @return
@@ -34,7 +36,9 @@ plotCompartmentChanges <- function(
     threshold = 0.05,
     xlim = NULL,
     points = FALSE,
-    checks = TRUE
+    checks = TRUE,
+    colour = "gray90"
+    
 ) {
 
     .validateSlots(
@@ -57,7 +61,8 @@ plotCompartmentChanges <- function(
     compartmentsPlot <- plotCompartments(
         object,
         chromosomeName,
-        xlim
+        xlim,
+        colour
     )
     
     if (is.null(compartmentsPlot) || is.null(concordancesPlot)) {
@@ -96,8 +101,8 @@ plotCompartmentChanges <- function(
         messages <- paste0("Quality controls:\n", messages)
         legendsGrob <- gridExtra::arrangeGrob(
             gridExtra::arrangeGrob(
-                ggpubr::get_legend(compartmentsPlot),
-                ggpubr::get_legend(concordancesPlot),
+                cowplot::get_legend(compartmentsPlot),
+                cowplot::get_legend(concordancesPlot),
                 ncol = 1,
                 nrow = 2
             ),
@@ -110,31 +115,29 @@ plotCompartmentChanges <- function(
         )
     } else {
         legendsGrob <- gridExtra::arrangeGrob(
-            ggpubr::get_legend(compartmentsPlot),
-            ggpubr::get_legend(concordancesPlot),
+            cowplot::get_legend(compartmentsPlot),
+            cowplot::get_legend(concordancesPlot),
             ncol = 2,
             nrow = 1,
             padding = unit(1, "cm")
         )
     }
-    plot <- ggpubr::as_ggplot(
-        gridExtra::arrangeGrob(
-            plotsGrobs[[1]],
-            plotsGrobs[[2]],
-            grid::textGrob(label=captionConcordances, x=0.1, y=1, 
-                           just=c("left", "top"),
-                           gp=grid::gpar(fontsize=8)),
-            legendsGrob,
-            heights = c(2, 10, 0.5, 2),
-            nrow=4, 
-            ncol=1,
-            padding = unit(1, "lines"),
-            top = paste0(
-                "Compartments and concordances of chromosome ",
-                chromosomeName, " by condition"
+    plot <- gridExtra::arrangeGrob(
+                plotsGrobs[[1]],
+                plotsGrobs[[2]],
+                grid::textGrob(label=captionConcordances, x=0.1, y=1, 
+                               just=c("left", "top"),
+                               gp=grid::gpar(fontsize=8)),
+                legendsGrob,
+                heights = c(2, 10, 0.5, 2),
+                nrow=4, 
+                ncol=1,
+                padding = unit(1, "lines"),
+                top = paste0(
+                    "Compartments and concordances of chromosome ",
+                    chromosomeName, " by condition"
             )
-        )
     )
     
-    return(plot)
+    return(cowplot::ggdraw(plot))
 }

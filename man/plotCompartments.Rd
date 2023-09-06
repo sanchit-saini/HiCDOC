@@ -4,7 +4,7 @@
 \alias{plotCompartments}
 \title{Plot A/B compartments.}
 \usage{
-plotCompartments(object, chromosome, xlim = NULL)
+plotCompartments(object, chromosome, xlim = NULL, colour = "gray90")
 }
 \arguments{
 \item{object}{A \code{\link{HiCDOCDataSet}}.}
@@ -13,6 +13,8 @@ plotCompartments(object, chromosome, xlim = NULL)
 
 \item{xlim}{A vector of the minimum and maximum positions to display. If NULL, displays
 all positions. Defaults to NULL.}
+
+\item{colour}{Border color for the compartments. Default to `gray90`. `NA` means no border.}
 }
 \value{
 A \code{ggplot}.

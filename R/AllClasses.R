@@ -83,6 +83,7 @@ defaultHiCDOCParameters <- list(
     smallChromosomeThreshold = 100,
     sparseReplicateThreshold = 0.3,
     weakPositionThreshold = 1,
+    cyclicLoessSpan = NA_real_,
     loessSampleSize = 20000,
     kMeansDelta = 0.0001,
     kMeansIterations = 50,
@@ -192,7 +193,7 @@ HiCDOCDataSetFromCool <- function(
     conditions,
     binSize = NA
 ) {
-
+    if(!requireNamespace('rhdf5')) stop("'rhdf5' package is required. Please install it and retry.")
     if (is.factor(paths)) {
         paths <- as.vector(paths)
     }
