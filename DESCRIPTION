@@ -15,7 +15,7 @@ Description:
     and normalize the data, predict the compartments and visualize the results. 
     It accepts several type of data: tabular `.tsv` files, Cooler `.cool` or 
     `.mcool` files, Juicer `.hic` files or HiC-Pro `.matrix` and `.bed` files.
-License: LGPL (>= 3)
+License: file LICENSE
 Encoding: UTF-8
 SystemRequirements: C++11
 Depends: 
